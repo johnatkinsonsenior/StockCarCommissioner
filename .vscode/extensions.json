@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "yzhang.markdown-all-in-one",
+    "eamodio.gitlens",
+    "tamasfe.even-better-toml"
+  ]
+}
