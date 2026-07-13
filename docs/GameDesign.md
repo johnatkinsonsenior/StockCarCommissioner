@@ -107,3 +107,37 @@ Low trust may eventually cause drivers to:
 Drivers may have established rivals. A commissioner ruling involving one driver may affect the rival's morale and trust.
 
 This creates situations where one decision affects multiple people throughout the league.
+
+## Season History and Awards
+
+At the end of each season, the game creates a permanent season record.
+
+### Season Awards
+
+- Series Champion
+- Most Race Wins
+- Most Popular Driver
+- Most Reliable Team
+- Commissioner Performance Grade
+
+### Commissioner Grade
+
+The commissioner receives an overall grade based on:
+
+- League Integrity: 45%
+- Fan Interest: 35%
+- Controversy Management: 20%
+
+### Historical Records
+
+Each season report includes:
+
+- Race results
+- Driver standings
+- Team finances
+- Disciplinary actions
+- Driver relationships
+- League health
+- Season award winners
+
+Future versions will use historical reports to create multi-season records, career statistics, hall-of-fame selections, and league evolution.

@@ -31,3 +31,9 @@
 | 29 | Driver Rivalry System  | Medium   | In Progress |
 | 30 | Personality-Based Reactions | High | Completed |
 | 31 | Driver Relationship Report | Medium | Completed   |
+| 32 | Race history tracking | Medium | Completed |
+| 33 | Season awards | Medium | Completed |
+| 34 | Driver popularity | Medium | In Progress |
+| 35 | Commissioner performance grade | High | Completed |
+| 36 | JSON season reports | High | Completed |
+| 37 | Historical season database | Medium | Not Started |

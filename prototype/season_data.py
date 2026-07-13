@@ -9,6 +9,7 @@ drivers = [
         "aggression": 62,
         "personality": "Professional",
         "rival": "Mason Reed",
+        "popularity": 72,
     },
     {
         "name": "Ryan Holt",
@@ -18,6 +19,7 @@ drivers = [
         "aggression": 55,
         "personality": "Veteran",
         "rival": "Derek Lane",
+        "popularity": 68,
     },
     {
         "name": "Mason Reed",
@@ -27,6 +29,7 @@ drivers = [
         "aggression": 81,
         "personality": "Temperamental",
         "rival": "Cole Baker",
+        "popularity": 84,
     },
     {
         "name": "Tyler Knox",
@@ -36,6 +39,7 @@ drivers = [
         "aggression": 70,
         "personality": "Rookie",
         "rival": "Austin Vale",
+        "popularity": 61,
     },
     {
         "name": "Derek Lane",
@@ -45,6 +49,7 @@ drivers = [
         "aggression": 77,
         "personality": "Aggressive",
         "rival": "Ryan Holt",
+        "popularity": 76,
     },
     {
         "name": "Austin Vale",
@@ -54,6 +59,7 @@ drivers = [
         "aggression": 60,
         "personality": "Popular",
         "rival": "Tyler Knox",
+        "popularity": 90,
     },
 ]
 
@@ -63,6 +69,7 @@ teams = [
         "car_rating": 82,
         "crew_rating": 78,
         "reliability": 84,
+        "starting_budget": 5_000_000,
         "budget": 5_000_000,
     },
     {
@@ -70,6 +77,7 @@ teams = [
         "car_rating": 86,
         "crew_rating": 74,
         "reliability": 76,
+        "starting_budget": 5_500_000,
         "budget": 5_500_000,
     },
     {
@@ -77,6 +85,7 @@ teams = [
         "car_rating": 79,
         "crew_rating": 84,
         "reliability": 88,
+        "starting_budget": 4_800_000,
         "budget": 4_800_000,
     },
 ]

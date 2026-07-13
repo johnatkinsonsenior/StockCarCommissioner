@@ -1,8 +1,7 @@
+import json
 import random
-import sys
+from datetime import datetime
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from season_data import drivers, teams, tracks
 
@@ -61,6 +60,8 @@ league = {
     "controversy": 20,
     "fines_collected": 0,
 }
+
+race_history = []
 
 
 def get_team(team_name):
@@ -203,6 +204,40 @@ def get_active_drivers():
     ]
 
 
+def serve_suspensions(suspended_drivers):
+    """Reduce remaining suspensions for drivers who sat out the race."""
+
+    for driver in suspended_drivers:
+        if driver["suspension_races"] > 0:
+            driver["suspension_races"] -= 1
+
+
+def record_race_history(track, race_number, results):
+    """Save a summary of one completed race."""
+
+    race_record = {
+        "race_number": race_number,
+        "track": track["name"],
+        "track_type": track["type"],
+        "results": [],
+    }
+
+    for position, result in enumerate(results, start=1):
+        driver = result["driver"]
+
+        race_record["results"].append(
+            {
+                "position": position,
+                "driver": driver["name"],
+                "team": driver["team"],
+                "status": result["status"],
+                "cause": result["cause"],
+            }
+        )
+
+    race_history.append(race_record)
+
+
 def run_race(track, race_number):
     """Run one race and update season statistics."""
 
@@ -255,10 +290,20 @@ def run_race(track, race_number):
 
             if position == 1:
                 driver["wins"] += 1
+                driver["popularity"] = clamp(driver["popularity"] + 4)
+            elif position <= 3:
+                driver["popularity"] = clamp(driver["popularity"] + 2)
 
             status_display = "Finished"
+
         else:
             driver["dnfs"] += 1
+
+            if status == "Crash":
+                driver["popularity"] = clamp(driver["popularity"] + 1)
+            else:
+                driver["popularity"] = clamp(driver["popularity"] - 1)
+
             status_display = f"DNF: {status}"
 
         print(
@@ -271,10 +316,8 @@ def run_race(track, race_number):
 
     display_incident_report(results)
     review_race_incidents(results)
-
-    for driver in suspended_drivers:
-        driver["suspension_races"] -= 1
-
+    record_race_history(track, race_number, results)
+    serve_suspensions(suspended_drivers)
     display_league_dashboard()
 
 
@@ -563,6 +606,79 @@ def display_team_finances():
         )
 
 
+def get_driver_champion():
+    """Return the driver with the most championship points."""
+
+    return max(
+        drivers,
+        key=lambda driver: (
+            driver["points"],
+            driver["wins"],
+        ),
+    )
+
+
+def get_most_wins_driver():
+    """Return the driver with the most race wins."""
+
+    return max(
+        drivers,
+        key=lambda driver: (
+            driver["wins"],
+            driver["points"],
+        ),
+    )
+
+
+def get_most_popular_driver():
+    """Return the driver with the highest popularity rating."""
+
+    return max(
+        drivers,
+        key=lambda driver: driver["popularity"],
+    )
+
+
+def get_most_reliable_team():
+    """Return the team with the highest reliability rating."""
+
+    return max(
+        teams,
+        key=lambda team: team["reliability"],
+    )
+
+
+def calculate_commissioner_grade():
+    """Calculate an overall commissioner performance grade."""
+
+    score = (
+        league["integrity"] * 0.45
+        + league["fan_interest"] * 0.35
+        + (100 - league["controversy"]) * 0.20
+    )
+
+    if score >= 90:
+        grade = "A+"
+    elif score >= 85:
+        grade = "A"
+    elif score >= 80:
+        grade = "A-"
+    elif score >= 75:
+        grade = "B+"
+    elif score >= 70:
+        grade = "B"
+    elif score >= 65:
+        grade = "B-"
+    elif score >= 60:
+        grade = "C"
+    elif score >= 50:
+        grade = "D"
+    else:
+        grade = "F"
+
+    return round(score, 1), grade
+
+
 def display_driver_relationship_report():
     """Display each driver's relationship with the commissioner."""
 
@@ -598,6 +714,68 @@ def display_driver_relationship_report():
         )
 
 
+def display_race_history():
+    """Display the winner and incidents from every race."""
+
+    print("\nSeason Race History")
+    print("-" * 90)
+
+    for race in race_history:
+        winner = race["results"][0]
+
+        incidents = [
+            result
+            for result in race["results"]
+            if result["status"] != "Running"
+        ]
+
+        print(
+            f"Race {race['race_number']}: {race['track']} "
+            f"- Winner: {winner['driver']} "
+            f"({winner['team']}) "
+            f"- Incidents: {len(incidents)}"
+        )
+
+
+def display_season_awards():
+    """Display championship and end-of-season awards."""
+
+    champion = get_driver_champion()
+    most_wins = get_most_wins_driver()
+    most_popular = get_most_popular_driver()
+    reliable_team = get_most_reliable_team()
+    commissioner_score, commissioner_grade = calculate_commissioner_grade()
+
+    print("\nSeason Awards")
+    print("-" * 90)
+
+    print(
+        f"Series Champion: {champion['name']} "
+        f"({champion['team']}) "
+        f"- {champion['points']} points"
+    )
+
+    print(
+        f"Most Race Wins: {most_wins['name']} "
+        f"- {most_wins['wins']} wins"
+    )
+
+    print(
+        f"Most Popular Driver: {most_popular['name']} "
+        f"- Popularity {most_popular['popularity']}/100"
+    )
+
+    print(
+        f"Reliability Award: {reliable_team['name']} "
+        f"- Reliability {reliable_team['reliability']}/100"
+    )
+
+    print(
+        f"Commissioner Grade: {commissioner_grade} "
+        f"({commissioner_score}/100)"
+    )
+
+
 def display_commissioner_report():
     """Display the commissioner's end-of-season performance."""
 
@@ -608,20 +786,108 @@ def display_commissioner_report():
     print(f"Controversy: {league['controversy']}/100")
     print(f"Fines collected: ${league['fines_collected']:,}")
 
-    if league["integrity"] >= 80:
-        rating = "Highly Respected Commissioner"
-    elif league["integrity"] >= 60:
-        rating = "Effective Commissioner"
-    elif league["integrity"] >= 40:
-        rating = "Controversial Commissioner"
-    else:
-        rating = "Commissioner Under Pressure"
 
-    print(f"Performance rating: {rating}")
+def save_season_report():
+    """Save the completed season to a JSON file."""
+
+    champion = get_driver_champion()
+    most_wins = get_most_wins_driver()
+    most_popular = get_most_popular_driver()
+    reliable_team = get_most_reliable_team()
+    commissioner_score, commissioner_grade = calculate_commissioner_grade()
+
+    report = {
+        "game": "Stock Car Commissioner",
+        "version": "0.0.1",
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+        "league": {
+            "integrity": league["integrity"],
+            "fan_interest": league["fan_interest"],
+            "controversy": league["controversy"],
+            "fines_collected": league["fines_collected"],
+        },
+        "commissioner": {
+            "score": commissioner_score,
+            "grade": commissioner_grade,
+        },
+        "awards": {
+            "champion": champion["name"],
+            "champion_team": champion["team"],
+            "champion_points": champion["points"],
+            "most_wins_driver": most_wins["name"],
+            "most_wins": most_wins["wins"],
+            "most_popular_driver": most_popular["name"],
+            "most_popular_rating": most_popular["popularity"],
+            "most_reliable_team": reliable_team["name"],
+            "most_reliable_team_rating": reliable_team["reliability"],
+        },
+        "driver_standings": [],
+        "team_finances": [],
+        "race_history": race_history,
+    }
+
+    standings = sorted(
+        drivers,
+        key=lambda driver: (
+            driver["points"],
+            driver["wins"],
+        ),
+        reverse=True,
+    )
+
+    for position, driver in enumerate(standings, start=1):
+        report["driver_standings"].append(
+            {
+                "position": position,
+                "name": driver["name"],
+                "team": driver["team"],
+                "points": driver["points"],
+                "wins": driver["wins"],
+                "dnfs": driver["dnfs"],
+                "earnings": driver["earnings"],
+                "morale": driver["morale"],
+                "popularity": driver["popularity"],
+                "commissioner_trust": driver["commissioner_trust"],
+                "warnings": driver["warnings"],
+                "fines": driver["fines"],
+                "points_penalties": driver["points_penalties"],
+                "suspensions": driver["suspensions"],
+            }
+        )
+
+    for team in teams:
+        report["team_finances"].append(
+            {
+                "name": team["name"],
+                "budget": team["budget"],
+                "starting_budget": team["starting_budget"],
+                "reliability": team["reliability"],
+                "car_rating": team["car_rating"],
+                "crew_rating": team["crew_rating"],
+            }
+        )
+
+    project_root = Path(__file__).resolve().parent.parent
+    report_folder = project_root / "season_reports"
+    report_folder.mkdir(exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    report_path = report_folder / f"season_report_{timestamp}.json"
+
+    with report_path.open("w", encoding="utf-8") as report_file:
+        json.dump(report, report_file, indent=4)
+
+    print("\nSeason report saved:")
+    print(report_path)
 
 
 def initialize_season():
     """Reset driver and league season statistics."""
+
+    race_history.clear()
+
+    for team in teams:
+        team["budget"] = team["starting_budget"]
 
     for driver in drivers:
         driver["points"] = 0
@@ -651,6 +917,9 @@ def run_season():
     display_team_finances()
     display_commissioner_report()
     display_driver_relationship_report()
+    display_race_history()
+    display_season_awards()
+    save_season_report()
 
 
 if __name__ == "__main__":
