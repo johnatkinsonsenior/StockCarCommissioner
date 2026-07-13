@@ -1,6 +1,6 @@
 | ID | Feature                | Priority | Status      |
 | -- | ---------------------- | -------- | ----------- |
-| 1  | Race Simulation        | High     | In Progress |
+| 1  | Race simulation        | High     | In Progress |
 | 2  | Driver Database        | High     | In Progress |
 | 3  | Team Database          | High     | In Progress |
 | 4  | Points Standings       | High     | In Progress |
@@ -12,3 +12,8 @@
 | 10 | Hall of Fame           | Low      | Not Started |
 | 11 | Prize Money System     | Medium   | In Progress |
 | 12 | Team Finances          | High     | In Progress |
+| 13 | Crash System           | High     | Completed   |
+| 14 | Mechanical Failures    | High     | Completed   |
+| 15 | Driver DNF Tracking    | High     | Completed   |
+| 16 | Team Reliability Rating | Medium  | Completed   |
+| 17 | Track Incident Risk    | Medium   | Completed   |

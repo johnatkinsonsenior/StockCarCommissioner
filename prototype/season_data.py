@@ -50,18 +50,21 @@ teams = [
         "name": "Liberty Racing",
         "car_rating": 82,
         "crew_rating": 78,
+        "reliability": 84,
         "budget": 5_000_000,
     },
     {
         "name": "Pioneer Motorsports",
         "car_rating": 86,
         "crew_rating": 74,
+        "reliability": 76,
         "budget": 5_500_000,
     },
     {
         "name": "Summit Racing",
         "car_rating": 79,
         "crew_rating": 84,
+        "reliability": 88,
         "budget": 4_800_000,
     },
 ]
@@ -71,25 +74,30 @@ tracks = [
         "name": "Atlantic Speedway",
         "type": "Superspeedway",
         "purse": 750_000,
+        "incident_risk": 18,
     },
     {
         "name": "Carolina Motor Speedway",
         "type": "Intermediate",
         "purse": 600_000,
+        "incident_risk": 10,
     },
     {
         "name": "Thunder Valley",
         "type": "Superspeedway",
         "purse": 700_000,
+        "incident_risk": 20,
     },
     {
         "name": "Pine Ridge Raceway",
         "type": "Short Track",
         "purse": 500_000,
+        "incident_risk": 16,
     },
     {
         "name": "Lone Star Circuit",
         "type": "Road Course",
         "purse": 650_000,
+        "incident_risk": 12,
     },
 ]
