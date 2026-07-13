@@ -26,3 +26,8 @@
 | 24 | League Integrity       | High     | In Progress |
 | 25 | Fan Interest           | High     | In Progress |
 | 26 | League Controversy     | Medium   | In Progress |
+| 27 | Driver Personality System | High | Completed   |
+| 28 | Commissioner Trust System | High | Completed   |
+| 29 | Driver Rivalry System  | Medium   | In Progress |
+| 30 | Personality-Based Reactions | High | Completed |
+| 31 | Driver Relationship Report | Medium | Completed   |

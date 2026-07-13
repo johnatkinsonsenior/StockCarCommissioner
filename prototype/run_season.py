@@ -10,6 +10,51 @@ from season_data import drivers, teams, tracks
 POINTS_BY_POSITION = [40, 35, 32, 30, 28, 26]
 PRIZE_PERCENTAGES = [0.30, 0.22, 0.17, 0.13, 0.10, 0.08]
 
+PERSONALITY_REACTIONS = {
+    "Professional": {
+        "1": -4,
+        "2": 1,
+        "3": 2,
+        "4": 3,
+        "5": 1,
+    },
+    "Veteran": {
+        "1": -1,
+        "2": 2,
+        "3": 1,
+        "4": 0,
+        "5": -3,
+    },
+    "Temperamental": {
+        "1": 4,
+        "2": -2,
+        "3": -6,
+        "4": -8,
+        "5": -12,
+    },
+    "Rookie": {
+        "1": 2,
+        "2": 0,
+        "3": -3,
+        "4": -5,
+        "5": -7,
+    },
+    "Aggressive": {
+        "1": 5,
+        "2": 1,
+        "3": -3,
+        "4": -6,
+        "5": -10,
+    },
+    "Popular": {
+        "1": 3,
+        "2": 1,
+        "3": -4,
+        "4": -5,
+        "5": -8,
+    },
+}
+
 league = {
     "integrity": 70,
     "fan_interest": 65,
@@ -26,6 +71,16 @@ def get_team(team_name):
             return team
 
     raise ValueError(f"Team not found: {team_name}")
+
+
+def get_driver(driver_name):
+    """Return the driver matching the supplied name."""
+
+    for driver in drivers:
+        if driver["name"] == driver_name:
+            return driver
+
+    raise ValueError(f"Driver not found: {driver_name}")
 
 
 def clamp(value, minimum=0, maximum=100):
@@ -287,8 +342,11 @@ def review_single_incident(incident):
         f"of {driver['team']} for possible reckless driving."
     )
 
+    print(f"Personality: {driver['personality']}")
+    print(f"Known rival: {driver['rival']}")
     print(f"Driver aggression rating: {driver['aggression']}")
     print(f"Current morale: {driver['morale']}")
+    print(f"Commissioner trust: {driver['commissioner_trust']}")
     print(f"Current championship points: {driver['points']}")
     print(f"Team budget: ${team['budget']:,}")
 
@@ -316,6 +374,75 @@ def get_valid_choice():
         print("Please enter a number from 1 through 5.")
 
 
+def apply_personality_reaction(choice, driver):
+    """Change commissioner trust based on the driver's personality."""
+
+    personality = driver["personality"]
+    reaction_table = PERSONALITY_REACTIONS.get(personality, {})
+    trust_change = reaction_table.get(choice, 0)
+
+    driver["commissioner_trust"] = clamp(
+        driver["commissioner_trust"] + trust_change
+    )
+
+    if trust_change > 0:
+        reaction = "responded positively"
+    elif trust_change < 0:
+        reaction = "responded negatively"
+    else:
+        reaction = "had a neutral reaction"
+
+    print(
+        f"{driver['name']} ({personality}) {reaction}. "
+        f"Commissioner trust changed by {trust_change:+d}."
+    )
+
+
+def apply_rival_reaction(choice, penalized_driver):
+    """Allow a rival to react to the commissioner's ruling."""
+
+    rival_name = penalized_driver.get("rival")
+
+    if not rival_name:
+        return
+
+    rival = get_driver(rival_name)
+
+    severe_decisions = {"3", "4", "5"}
+    lenient_decisions = {"1", "2"}
+
+    if choice in severe_decisions:
+        trust_change = 3
+        morale_change = 2
+        reaction = "approved of the punishment"
+    elif choice in lenient_decisions:
+        trust_change = -2
+        morale_change = -1
+        reaction = "believed the punishment was too lenient"
+    else:
+        trust_change = 0
+        morale_change = 0
+        reaction = "had no reaction"
+
+    rival["commissioner_trust"] = clamp(
+        rival["commissioner_trust"] + trust_change
+    )
+
+    rival["morale"] = clamp(
+        rival["morale"] + morale_change
+    )
+
+    print(
+        f"{rival['name']}, a rival of {penalized_driver['name']}, "
+        f"{reaction}."
+    )
+
+    print(
+        f"{rival['name']} commissioner trust: "
+        f"{rival['commissioner_trust']}"
+    )
+
+
 def apply_commissioner_ruling(choice, driver, team):
     """Apply the selected commissioner ruling."""
 
@@ -323,7 +450,6 @@ def apply_commissioner_ruling(choice, driver, team):
         league["integrity"] -= 4
         league["fan_interest"] += 2
         league["controversy"] += 8
-        driver["morale"] += 3
 
         decision = "No action taken"
 
@@ -331,7 +457,6 @@ def apply_commissioner_ruling(choice, driver, team):
         league["integrity"] += 1
         league["controversy"] += 2
         driver["warnings"] += 1
-        driver["morale"] -= 1
 
         decision = "Official warning issued"
 
@@ -343,7 +468,6 @@ def apply_commissioner_ruling(choice, driver, team):
         league["integrity"] += 3
         league["controversy"] += 1
         driver["fines"] += fine_amount
-        driver["morale"] -= 4
 
         decision = f"${fine_amount:,} fine issued"
 
@@ -354,12 +478,11 @@ def apply_commissioner_ruling(choice, driver, team):
         league["integrity"] += 5
         league["fan_interest"] -= 1
         driver["points_penalties"] += points_penalty
-        driver["morale"] -= 6
 
         decision = f"{points_penalty}-point penalty issued"
 
     else:
-        driver["suspension_races"] = 1
+        driver["suspension_races"] = 2
         driver["suspensions"] += 1
         driver["morale"] -= 10
         league["integrity"] += 7
@@ -368,16 +491,19 @@ def apply_commissioner_ruling(choice, driver, team):
 
         decision = "Driver suspended for the next race"
 
+    apply_personality_reaction(choice, driver)
+    apply_rival_reaction(choice, driver)
+
     league["integrity"] = clamp(league["integrity"])
     league["fan_interest"] = clamp(league["fan_interest"])
     league["controversy"] = clamp(league["controversy"])
     driver["morale"] = clamp(driver["morale"])
 
     print(f"\nRuling: {decision}")
-    print(f"{driver['name']} morale: {driver['morale']}")
     print(f"League integrity: {league['integrity']}")
     print(f"Fan interest: {league['fan_interest']}")
     print(f"Controversy: {league['controversy']}")
+    print(f"{driver['name']} morale: {driver['morale']}")
 
 
 def display_league_dashboard():
@@ -412,6 +538,7 @@ def display_driver_standings():
             f"- {driver['dnfs']} DNFs "
             f"- {driver['suspensions']} suspensions "
             f"- Morale: {driver['morale']} "
+            f"- Trust: {driver['commissioner_trust']} "
             f"- ${driver['earnings']:,}"
         )
 
@@ -433,6 +560,41 @@ def display_team_finances():
             f"{team['name']} "
             f"- Budget: ${team['budget']:,} "
             f"- Reliability: {team['reliability']}"
+        )
+
+
+def display_driver_relationship_report():
+    """Display each driver's relationship with the commissioner."""
+
+    relationship_ranking = sorted(
+        drivers,
+        key=lambda driver: driver["commissioner_trust"],
+        reverse=True,
+    )
+
+    print("\nDriver Relationship Report")
+    print("-" * 90)
+
+    for driver in relationship_ranking:
+        trust = driver["commissioner_trust"]
+
+        if trust >= 80:
+            relationship = "Strong Supporter"
+        elif trust >= 65:
+            relationship = "Supportive"
+        elif trust >= 50:
+            relationship = "Neutral"
+        elif trust >= 35:
+            relationship = "Distrustful"
+        else:
+            relationship = "Openly Hostile"
+
+        print(
+            f"{driver['name']} "
+            f"({driver['personality']}) "
+            f"- Trust: {trust}/100 "
+            f"- {relationship} "
+            f"- Rival: {driver['rival']}"
         )
 
 
@@ -469,6 +631,7 @@ def initialize_season():
         driver["wins"] = 0
         driver["dnfs"] = 0
         driver["morale"] = 70
+        driver["commissioner_trust"] = 60
         driver["warnings"] = 0
         driver["fines"] = 0
         driver["points_penalties"] = 0
@@ -487,6 +650,7 @@ def run_season():
     display_driver_standings()
     display_team_finances()
     display_commissioner_report()
+    display_driver_relationship_report()
 
 
 if __name__ == "__main__":

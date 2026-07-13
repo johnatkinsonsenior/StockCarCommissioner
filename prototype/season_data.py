@@ -7,6 +7,8 @@ drivers = [
         "speed": 84,
         "consistency": 78,
         "aggression": 62,
+        "personality": "Professional",
+        "rival": "Mason Reed",
     },
     {
         "name": "Ryan Holt",
@@ -14,6 +16,8 @@ drivers = [
         "speed": 76,
         "consistency": 88,
         "aggression": 55,
+        "personality": "Veteran",
+        "rival": "Derek Lane",
     },
     {
         "name": "Mason Reed",
@@ -21,6 +25,8 @@ drivers = [
         "speed": 91,
         "consistency": 69,
         "aggression": 81,
+        "personality": "Temperamental",
+        "rival": "Cole Baker",
     },
     {
         "name": "Tyler Knox",
@@ -28,6 +34,8 @@ drivers = [
         "speed": 73,
         "consistency": 82,
         "aggression": 70,
+        "personality": "Rookie",
+        "rival": "Austin Vale",
     },
     {
         "name": "Derek Lane",
@@ -35,6 +43,8 @@ drivers = [
         "speed": 88,
         "consistency": 74,
         "aggression": 77,
+        "personality": "Aggressive",
+        "rival": "Ryan Holt",
     },
     {
         "name": "Austin Vale",
@@ -42,6 +52,8 @@ drivers = [
         "speed": 80,
         "consistency": 80,
         "aggression": 60,
+        "personality": "Popular",
+        "rival": "Tyler Knox",
     },
 ]
 
