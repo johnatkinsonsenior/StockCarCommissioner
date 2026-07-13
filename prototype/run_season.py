@@ -10,6 +10,13 @@ from season_data import drivers, teams, tracks
 POINTS_BY_POSITION = [40, 35, 32, 30, 28, 26]
 PRIZE_PERCENTAGES = [0.30, 0.22, 0.17, 0.13, 0.10, 0.08]
 
+league = {
+    "integrity": 70,
+    "fan_interest": 65,
+    "controversy": 20,
+    "fines_collected": 0,
+}
+
 
 def get_team(team_name):
     """Return the team matching the supplied team name."""
@@ -21,14 +28,14 @@ def get_team(team_name):
     raise ValueError(f"Team not found: {team_name}")
 
 
-def calculate_crash_chance(driver, track):
-    """
-    Calculate a driver's crash chance.
+def clamp(value, minimum=0, maximum=100):
+    """Keep a numerical rating inside the allowed range."""
 
-    Aggressive drivers have a higher crash chance.
-    Consistent drivers have a lower crash chance.
-    Dangerous tracks increase the chance.
-    """
+    return max(minimum, min(value, maximum))
+
+
+def calculate_crash_chance(driver, track):
+    """Calculate a driver's likelihood of crashing."""
 
     aggression_effect = driver["aggression"] // 10
     consistency_effect = driver["consistency"] // 15
@@ -39,31 +46,28 @@ def calculate_crash_chance(driver, track):
         - consistency_effect
     )
 
-    return max(3, min(crash_chance, 40))
+    return clamp(crash_chance, 3, 40)
 
 
 def check_for_crash(driver, track):
-    """Return True when the driver crashes."""
+    """Return True if the driver crashes."""
 
     crash_chance = calculate_crash_chance(driver, track)
-    roll = random.randint(1, 100)
 
-    return roll <= crash_chance
+    return random.randint(1, 100) <= crash_chance
 
 
 def check_for_mechanical_failure(driver):
-    """Return True when the driver's car suffers a mechanical failure."""
+    """Return True if the car experiences a mechanical failure."""
 
     team = get_team(driver["team"])
-
     failure_chance = max(2, 100 - team["reliability"])
-    roll = random.randint(1, 100)
 
-    return roll <= failure_chance
+    return random.randint(1, 100) <= failure_chance
 
 
 def calculate_race_score(driver):
-    """Calculate the driver's performance score for the race."""
+    """Calculate the driver's performance score."""
 
     team = get_team(driver["team"])
     random_factor = random.randint(-25, 25)
@@ -77,13 +81,31 @@ def calculate_race_score(driver):
     )
 
 
+def determine_crash_cause(driver):
+    """
+    Determine whether a crash appears accidental or potentially reckless.
+
+    Aggressive drivers are more likely to trigger a reviewable incident.
+    """
+
+    reckless_chance = clamp(driver["aggression"] - 35, 10, 65)
+
+    if random.randint(1, 100) <= reckless_chance:
+        return "Reckless Driving"
+
+    return "Racing Incident"
+
+
 def determine_driver_result(driver, track):
     """Determine whether a driver finishes, crashes, or has a failure."""
 
     if check_for_crash(driver, track):
+        crash_cause = determine_crash_cause(driver)
+
         return {
             "driver": driver,
             "status": "Crash",
+            "cause": crash_cause,
             "score": random.randint(1, 50),
         }
 
@@ -91,22 +113,20 @@ def determine_driver_result(driver, track):
         return {
             "driver": driver,
             "status": "Mechanical Failure",
+            "cause": None,
             "score": random.randint(51, 100),
         }
 
     return {
         "driver": driver,
         "status": "Running",
+        "cause": None,
         "score": calculate_race_score(driver),
     }
 
 
 def sort_race_results(results):
-    """
-    Running cars finish ahead of cars that did not finish.
-
-    Among each group, the higher score finishes ahead.
-    """
+    """Place running cars ahead of cars that did not finish."""
 
     return sorted(
         results,
@@ -118,22 +138,46 @@ def sort_race_results(results):
     )
 
 
+def get_active_drivers():
+    """Return drivers who are eligible to compete in the current race."""
+
+    return [
+        driver
+        for driver in drivers
+        if driver["suspension_races"] == 0
+    ]
+
+
 def run_race(track, race_number):
     """Run one race and update season statistics."""
 
     results = []
+    active_drivers = get_active_drivers()
 
-    for driver in drivers:
+    print(f"\n{'=' * 75}")
+    print(f"Race {race_number}: {track['name']}")
+    print(f"Track type: {track['type']}")
+    print(f"Incident risk: {track['incident_risk']}%")
+    print(f"Purse: ${track['purse']:,}")
+    print("=" * 75)
+
+    suspended_drivers = [
+        driver
+        for driver in drivers
+        if driver["suspension_races"] > 0
+    ]
+
+    if suspended_drivers:
+        print("\nSuspended from this race:")
+
+        for driver in suspended_drivers:
+            print(f"- {driver['name']} ({driver['team']})")
+
+    for driver in active_drivers:
         result = determine_driver_result(driver, track)
         results.append(result)
 
     results = sort_race_results(results)
-
-    print(f"\nRace {race_number}: {track['name']}")
-    print(f"Track type: {track['type']}")
-    print(f"Incident risk: {track['incident_risk']}%")
-    print(f"Purse: ${track['purse']:,}")
-    print("-" * 75)
 
     for position, result in enumerate(results, start=1):
         driver = result["driver"]
@@ -158,7 +202,6 @@ def run_race(track, race_number):
                 driver["wins"] += 1
 
             status_display = "Finished"
-
         else:
             driver["dnfs"] += 1
             status_display = f"DNF: {status}"
@@ -172,10 +215,16 @@ def run_race(track, race_number):
         )
 
     display_incident_report(results)
+    review_race_incidents(results)
+
+    for driver in suspended_drivers:
+        driver["suspension_races"] -= 1
+
+    display_league_dashboard()
 
 
 def display_incident_report(results):
-    """Display crashes and mechanical failures from the race."""
+    """Display crashes and mechanical failures."""
 
     incidents = [
         result
@@ -188,12 +237,158 @@ def display_incident_report(results):
 
     if not incidents:
         print("No major incidents occurred.")
-
         return
 
     for incident in incidents:
         driver = incident["driver"]
-        print(f"{driver['name']}: {incident['status']}")
+
+        if incident["status"] == "Crash":
+            print(
+                f"{driver['name']}: Crash "
+                f"— Initial finding: {incident['cause']}"
+            )
+        else:
+            print(f"{driver['name']}: Mechanical Failure")
+
+
+def review_race_incidents(results):
+    """Allow the commissioner to review potentially reckless crashes."""
+
+    reviewable_incidents = [
+        result
+        for result in results
+        if (
+            result["status"] == "Crash"
+            and result["cause"] == "Reckless Driving"
+        )
+    ]
+
+    if not reviewable_incidents:
+        print("\nCommissioner Review")
+        print("-" * 75)
+        print("No incidents require commissioner action.")
+        return
+
+    print("\nCommissioner Review")
+    print("-" * 75)
+
+    for incident in reviewable_incidents:
+        review_single_incident(incident)
+
+
+def review_single_incident(incident):
+    """Present disciplinary options for one incident."""
+
+    driver = incident["driver"]
+    team = get_team(driver["team"])
+
+    print(
+        f"\nRace control has referred {driver['name']} "
+        f"of {driver['team']} for possible reckless driving."
+    )
+
+    print(f"Driver aggression rating: {driver['aggression']}")
+    print(f"Current morale: {driver['morale']}")
+    print(f"Current championship points: {driver['points']}")
+    print(f"Team budget: ${team['budget']:,}")
+
+    print("\nChoose a ruling:")
+    print("1. No action")
+    print("2. Official warning")
+    print("3. $50,000 fine")
+    print("4. Deduct 10 championship points")
+    print("5. Suspend for the next race")
+
+    choice = get_valid_choice()
+
+    apply_commissioner_ruling(choice, driver, team)
+
+
+def get_valid_choice():
+    """Ask the player for a valid disciplinary choice."""
+
+    while True:
+        choice = input("\nCommissioner decision (1-5): ").strip()
+
+        if choice in {"1", "2", "3", "4", "5"}:
+            return choice
+
+        print("Please enter a number from 1 through 5.")
+
+
+def apply_commissioner_ruling(choice, driver, team):
+    """Apply the selected commissioner ruling."""
+
+    if choice == "1":
+        league["integrity"] -= 4
+        league["fan_interest"] += 2
+        league["controversy"] += 8
+        driver["morale"] += 3
+
+        decision = "No action taken"
+
+    elif choice == "2":
+        league["integrity"] += 1
+        league["controversy"] += 2
+        driver["warnings"] += 1
+        driver["morale"] -= 1
+
+        decision = "Official warning issued"
+
+    elif choice == "3":
+        fine_amount = 50_000
+
+        team["budget"] -= fine_amount
+        league["fines_collected"] += fine_amount
+        league["integrity"] += 3
+        league["controversy"] += 1
+        driver["fines"] += fine_amount
+        driver["morale"] -= 4
+
+        decision = f"${fine_amount:,} fine issued"
+
+    elif choice == "4":
+        points_penalty = 10
+
+        driver["points"] = max(0, driver["points"] - points_penalty)
+        league["integrity"] += 5
+        league["fan_interest"] -= 1
+        driver["points_penalties"] += points_penalty
+        driver["morale"] -= 6
+
+        decision = f"{points_penalty}-point penalty issued"
+
+    else:
+        driver["suspension_races"] = 1
+        driver["suspensions"] += 1
+        driver["morale"] -= 10
+        league["integrity"] += 7
+        league["fan_interest"] -= 3
+        league["controversy"] += 5
+
+        decision = "Driver suspended for the next race"
+
+    league["integrity"] = clamp(league["integrity"])
+    league["fan_interest"] = clamp(league["fan_interest"])
+    league["controversy"] = clamp(league["controversy"])
+    driver["morale"] = clamp(driver["morale"])
+
+    print(f"\nRuling: {decision}")
+    print(f"{driver['name']} morale: {driver['morale']}")
+    print(f"League integrity: {league['integrity']}")
+    print(f"Fan interest: {league['fan_interest']}")
+    print(f"Controversy: {league['controversy']}")
+
+
+def display_league_dashboard():
+    """Display the league's current health after each race."""
+
+    print("\nLeague Dashboard")
+    print("-" * 75)
+    print(f"Integrity: {league['integrity']}/100")
+    print(f"Fan interest: {league['fan_interest']}/100")
+    print(f"Controversy: {league['controversy']}/100")
+    print(f"Fines collected: ${league['fines_collected']:,}")
 
 
 def display_driver_standings():
@@ -206,7 +401,7 @@ def display_driver_standings():
     )
 
     print("\nFinal Driver Standings")
-    print("-" * 75)
+    print("-" * 90)
 
     for position, driver in enumerate(standings, start=1):
         print(
@@ -215,6 +410,8 @@ def display_driver_standings():
             f"- {driver['points']} pts "
             f"- {driver['wins']} wins "
             f"- {driver['dnfs']} DNFs "
+            f"- {driver['suspensions']} suspensions "
+            f"- Morale: {driver['morale']} "
             f"- ${driver['earnings']:,}"
         )
 
@@ -239,8 +436,30 @@ def display_team_finances():
         )
 
 
+def display_commissioner_report():
+    """Display the commissioner's end-of-season performance."""
+
+    print("\nCommissioner Season Report")
+    print("-" * 75)
+    print(f"League integrity: {league['integrity']}/100")
+    print(f"Fan interest: {league['fan_interest']}/100")
+    print(f"Controversy: {league['controversy']}/100")
+    print(f"Fines collected: ${league['fines_collected']:,}")
+
+    if league["integrity"] >= 80:
+        rating = "Highly Respected Commissioner"
+    elif league["integrity"] >= 60:
+        rating = "Effective Commissioner"
+    elif league["integrity"] >= 40:
+        rating = "Controversial Commissioner"
+    else:
+        rating = "Commissioner Under Pressure"
+
+    print(f"Performance rating: {rating}")
+
+
 def initialize_season():
-    """Reset driver season statistics."""
+    """Reset driver and league season statistics."""
 
     for driver in drivers:
         driver["points"] = 0
@@ -249,6 +468,12 @@ def initialize_season():
         driver["finishes"] = 0
         driver["wins"] = 0
         driver["dnfs"] = 0
+        driver["morale"] = 70
+        driver["warnings"] = 0
+        driver["fines"] = 0
+        driver["points_penalties"] = 0
+        driver["suspensions"] = 0
+        driver["suspension_races"] = 0
 
 
 def run_season():
@@ -261,6 +486,7 @@ def run_season():
 
     display_driver_standings()
     display_team_finances()
+    display_commissioner_report()
 
 
 if __name__ == "__main__":

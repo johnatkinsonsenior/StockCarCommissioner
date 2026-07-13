@@ -4,7 +4,7 @@
 | 2  | Driver Database        | High     | In Progress |
 | 3  | Team Database          | High     | In Progress |
 | 4  | Points Standings       | High     | In Progress |
-| 5  | Commissioner Decisions | High     | Not Started |
+| 5  | Commissioner decisions | High     | In Progress |
 | 6  | Penalties              | Medium   | Not Started |
 | 7  | TV Contracts           | Medium   | Not Started |
 | 8  | Sponsors               | Medium   | Not Started |
@@ -17,3 +17,12 @@
 | 15 | Driver DNF Tracking    | High     | Completed   |
 | 16 | Team Reliability Rating | Medium  | Completed   |
 | 17 | Track Incident Risk    | Medium   | Completed   |
+| 18 | Commissioner Incident Review | High | Completed   |
+| 19 | Driver Warning System  | Medium   | Completed   |
+| 20 | Driver Fine System     | High     | Completed   |
+| 21 | Championship Points Penalties | High | Completed |
+| 22 | Driver Suspension System | High   | Completed   |
+| 23 | Driver Morale          | Medium   | In Progress |
+| 24 | League Integrity       | High     | In Progress |
+| 25 | Fan Interest           | High     | In Progress |
+| 26 | League Controversy     | Medium   | In Progress |
