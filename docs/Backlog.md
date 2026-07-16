@@ -37,3 +37,7 @@
 | 35 | Commissioner performance grade | High | Completed |
 | 36 | JSON season reports | High | Completed |
 | 37 | Historical season database | Medium | Not Started |
+| 38 | Driver class | High | Completed |
+| 39 | Team class | High | Completed |
+| 40 | Object-based season data | High | Completed |
+| 41 | Track class | Low | Not Started |
