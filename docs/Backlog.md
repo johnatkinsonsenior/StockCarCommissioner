@@ -41,3 +41,9 @@
 | 39 | Team class | High | Completed |
 | 40 | Object-based season data | High | Completed |
 | 41 | Track class | Low | Not Started |
+| 42 | Multi-season career mode | High | Completed |
+| 43 | Driver career statistics | High | Completed |
+| 44 | Team career statistics | Medium | Completed |
+| 45 | Championship history | High | Completed |
+| 46 | Persistent team budgets | High | In Progress |
+| 47 | Year-by-year season records | Medium | Completed |

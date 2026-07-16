@@ -67,6 +67,9 @@ league = {
 }
 
 race_history = []
+career_history = []
+current_season = 1
+championship_awarded = False
 
 
 def serve_suspensions():
@@ -156,6 +159,9 @@ def run_race(track, race_number):
             if position == 1:
                 driver.wins += 1
                 driver.popularity = clamp(driver.popularity + 4)
+
+                winning_team = get_team(driver.team_name)
+                winning_team.record_win()
             elif position <= 3:
                 driver.popularity = clamp(driver.popularity + 2)
 
@@ -424,10 +430,10 @@ def display_league_dashboard():
     print(f"Fines collected: ${league['fines_collected']:,}")
 
 
-def display_driver_standings():
-    """Display the final driver championship standings."""
+def get_driver_standings():
+    """Return drivers ranked by points and race victories."""
 
-    standings = sorted(
+    return sorted(
         drivers,
         key=lambda driver: (
             driver.points,
@@ -435,6 +441,12 @@ def display_driver_standings():
         ),
         reverse=True,
     )
+
+
+def display_driver_standings():
+    """Display the final driver championship standings."""
+
+    standings = get_driver_standings()
 
     print("\nFinal Driver Standings")
     print("-" * 90)
@@ -474,13 +486,7 @@ def display_team_finances():
 
 
 def get_driver_champion():
-    return max(
-        drivers,
-        key=lambda driver: (
-            driver.points,
-            driver.wins,
-        ),
-    )
+    return get_driver_standings()[0]
 
 
 def get_most_wins_driver():
@@ -646,7 +652,7 @@ def display_commissioner_report():
     print(f"Fines collected: ${league['fines_collected']:,}")
 
 
-def save_season_report():
+def save_season_report(season_number):
     """Save the completed season to a JSON file."""
 
     champion = get_driver_champion()
@@ -657,7 +663,8 @@ def save_season_report():
 
     report = {
         "game": "Stock Car Commissioner",
-        "version": "0.0.1",
+        "version": "0.0.2",
+        "season": season_number,
         "created_at": datetime.now().isoformat(timespec="seconds"),
         "league": {
             "integrity": league["integrity"],
@@ -682,17 +689,10 @@ def save_season_report():
         },
         "driver_standings": [],
         "team_finances": [],
-        "race_history": race_history,
+        "race_history": list(race_history),
     }
 
-    standings = sorted(
-        drivers,
-        key=lambda driver: (
-            driver.points,
-            driver.wins,
-        ),
-        reverse=True,
-    )
+    standings = get_driver_standings()
 
     for position, driver in enumerate(standings, start=1):
         report["driver_standings"].append(
@@ -711,6 +711,11 @@ def save_season_report():
                 "fines": driver.fines,
                 "points_penalties": driver.points_penalties,
                 "suspensions": driver.suspensions,
+                "career_starts": driver.career_starts + driver.starts,
+                "career_wins": driver.career_wins + driver.wins,
+                "career_points": driver.career_points + driver.points,
+                "career_earnings": driver.career_earnings + driver.earnings,
+                "championships": driver.championships,
             }
         )
 
@@ -730,7 +735,11 @@ def save_season_report():
     report_folder.mkdir(exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    report_path = report_folder / f"season_report_{timestamp}.json"
+
+    report_path = (
+        report_folder
+        / f"season_{season_number}_report_{timestamp}.json"
+    )
 
     with report_path.open("w", encoding="utf-8") as report_file:
         json.dump(report, report_file, indent=4)
@@ -739,10 +748,13 @@ def save_season_report():
     print(report_path)
 
 
-def initialize_season():
-    """Reset the league, teams, drivers, and race history."""
+def initialize_season(season_number):
+    """Prepare league, drivers, teams, and history for a new season."""
+
+    global championship_awarded
 
     race_history.clear()
+    championship_awarded = False
 
     league["integrity"] = 70
     league["fan_interest"] = 65
@@ -750,16 +762,97 @@ def initialize_season():
     league["fines_collected"] = 0
 
     for team in teams:
-        team.reset_season()
+        team.start_new_season()
 
     for driver in drivers:
         driver.reset_season()
 
+        # Small recovery between seasons
+        driver.morale = clamp(driver.morale + 5)
 
-def run_season():
-    """Run the complete racing season."""
+    print("\n" + "=" * 90)
+    print(f"STOCK CAR COMMISSIONER — SEASON {season_number}")
+    print("=" * 90)
 
-    initialize_season()
+
+def award_championship():
+    """Award the season championship to the top driver and team."""
+
+    global championship_awarded
+
+    champion = get_driver_champion()
+
+    if championship_awarded:
+        return champion
+
+    championship_awarded = True
+    champion_team = get_team(champion.team_name)
+
+    champion.record_championship()
+    champion_team.record_championship()
+
+    print("\nChampionship Awarded")
+    print("-" * 90)
+    print(
+        f"{champion.name} wins the championship "
+        f"for {champion.team_name}."
+    )
+
+    print(
+        f"Career championships: {champion.championships}"
+    )
+
+    return champion
+
+
+def record_completed_season(season_number, champion):
+    """Store a permanent summary of a completed season."""
+
+    commissioner_score, commissioner_grade = calculate_commissioner_grade()
+    standings = get_driver_standings()
+
+    season_record = {
+        "season": season_number,
+        "champion": champion.name,
+        "champion_team": champion.team_name,
+        "champion_points": champion.points,
+        "champion_wins": champion.wins,
+        "commissioner_score": commissioner_score,
+        "commissioner_grade": commissioner_grade,
+        "league_integrity": league["integrity"],
+        "fan_interest": league["fan_interest"],
+        "controversy": league["controversy"],
+        "standings": [],
+        "race_history": list(race_history),
+    }
+
+    for position, driver in enumerate(standings, start=1):
+        season_record["standings"].append(
+            {
+                "position": position,
+                "driver": driver.name,
+                "team": driver.team_name,
+                "points": driver.points,
+                "wins": driver.wins,
+                "dnfs": driver.dnfs,
+                "earnings": driver.earnings,
+            }
+        )
+
+    career_history.append(season_record)
+
+
+def finalize_driver_career_totals():
+    """Move current season results into driver career statistics."""
+
+    for driver in drivers:
+        driver.complete_season()
+
+
+def run_single_season(season_number):
+    """Run one complete championship season."""
+
+    initialize_season(season_number)
 
     for race_number, track in enumerate(tracks, start=1):
         run_race(track, race_number)
@@ -770,8 +863,108 @@ def run_season():
     display_driver_relationship_report()
     display_race_history()
     display_season_awards()
-    save_season_report()
+
+    champion = award_championship()
+
+    record_completed_season(
+        season_number,
+        champion,
+    )
+
+    save_season_report(season_number)
+    finalize_driver_career_totals()
+
+
+def display_career_report():
+    """Display career statistics after all seasons are completed."""
+
+    print("\n" + "=" * 100)
+    print("CAREER REPORT")
+    print("=" * 100)
+
+    print("\nChampionship History")
+    print("-" * 100)
+
+    for season in career_history:
+        print(
+            f"Season {season['season']}: "
+            f"{season['champion']} "
+            f"({season['champion_team']}) "
+            f"- {season['champion_points']} points "
+            f"- {season['champion_wins']} wins"
+        )
+
+    career_ranking = sorted(
+        drivers,
+        key=lambda driver: (
+            driver.championships,
+            driver.career_wins,
+            driver.career_points,
+        ),
+        reverse=True,
+    )
+
+    print("\nDriver Career Statistics")
+    print("-" * 100)
+
+    for driver in career_ranking:
+        print(
+            f"{driver.name} "
+            f"({driver.team_name}) "
+            f"- Championships: {driver.championships} "
+            f"- Wins: {driver.career_wins} "
+            f"- Starts: {driver.career_starts} "
+            f"- DNFs: {driver.career_dnfs} "
+            f"- Points: {driver.career_points} "
+            f"- Earnings: ${driver.career_earnings:,}"
+        )
+
+    team_ranking = sorted(
+        teams,
+        key=lambda team: (
+            team.championships,
+            team.career_wins,
+        ),
+        reverse=True,
+    )
+
+    print("\nTeam Career Statistics")
+    print("-" * 100)
+
+    for team in team_ranking:
+        print(
+            f"{team.name} "
+            f"- Championships: {team.championships} "
+            f"- Wins: {team.career_wins} "
+            f"- Career prize money: ${team.career_prize_money:,} "
+            f"- Current budget: ${team.budget:,}"
+        )
+
+
+def run_career(number_of_seasons=3):
+    """Run several consecutive seasons."""
+
+    career_history.clear()
+
+    for season_number in range(1, number_of_seasons + 1):
+        run_single_season(season_number)
+
+        if season_number < number_of_seasons:
+            input(
+                "\nPress Enter to begin the next season..."
+            )
+
+    display_career_report()
+
+
+def run_season():
+    """Run the complete racing season."""
+
+    global current_season
+
+    run_single_season(current_season)
+    current_season += 1
 
 
 if __name__ == "__main__":
-    run_season()
+    run_career(number_of_seasons=3)

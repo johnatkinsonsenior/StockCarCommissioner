@@ -141,3 +141,57 @@ Each season report includes:
 - Season award winners
 
 Future versions will use historical reports to create multi-season records, career statistics, hall-of-fame selections, and league evolution.
+
+## Career Mode
+
+Career mode allows the commissioner to manage the racing series across multiple seasons.
+
+### Persistent Driver Information
+
+The following information continues between seasons:
+
+- Career starts
+- Career wins
+- Career DNFs
+- Career points
+- Career earnings
+- Championships
+- Popularity
+- Morale
+- Commissioner trust
+
+### Persistent Team Information
+
+The following team information continues between seasons:
+
+- Team budget
+- Career prize money
+- Career victories
+- Championships
+
+### Season Resets
+
+At the start of each new season, these values reset:
+
+- Championship points
+- Season wins
+- Season earnings
+- Season starts
+- Season DNFs
+- Warnings
+- Fines
+- Points penalties
+- Suspensions
+
+### Championship History
+
+Every completed season records:
+
+- Champion
+- Championship team
+- Final points
+- Race wins
+- Commissioner grade
+- League health
+- Final standings
+- Race results
