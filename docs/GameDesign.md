@@ -195,3 +195,40 @@ Every completed season records:
 - League health
 - Final standings
 - Race results
+
+## Driver Aging and Career Progression
+
+Drivers age by one year after each completed season.
+
+### Development Stages
+
+- Young Prospect: rapid improvement
+- Prime Driver: modest improvement
+- Veteran: increased consistency with limited growth
+- Aging Veteran: gradual performance decline
+- Late Career: significant decline and retirement risk
+
+### Retirement
+
+Retirement probability is influenced by:
+
+- Age
+- Championships
+- Morale
+- Commissioner trust
+
+When a driver retires, the open team seat is filled by a generated rookie.
+
+### Rookie Drivers
+
+Generated rookies receive:
+
+- A unique name
+- An age between 19 and 23
+- Starting performance ratings
+- A personality
+- Popularity
+- A team assignment
+- A possible initial rivalry
+
+Retired drivers remain in career history and retain their final statistics.

@@ -60,25 +60,31 @@ class Driver:
         self,
         name,
         team_name,
+        age,
         speed,
         consistency,
         aggression,
         personality,
         rival,
         popularity,
+        is_rookie=False,
     ):
         self.name = name
         self.team_name = team_name
+        self.age = age
+
         self.speed = speed
         self.consistency = consistency
         self.aggression = aggression
+
         self.personality = personality
         self.rival = rival
-
-        # Persistent relationship and reputation values
         self.popularity = popularity
+        self.is_rookie = is_rookie
+
         self.morale = 70
         self.commissioner_trust = 60
+        self.is_retired = False
 
         # Career statistics
         self.career_starts = 0
@@ -93,7 +99,7 @@ class Driver:
         self.reset_season()
 
     def reset_season(self):
-        """Reset statistics that apply only to the new season."""
+        """Reset statistics that apply only to one season."""
 
         self.points = 0
         self.earnings = 0
@@ -119,6 +125,9 @@ class Driver:
         self.career_earnings += self.earnings
         self.seasons_completed += 1
 
+        if self.is_rookie:
+            self.is_rookie = False
+
     def record_championship(self):
         """Record a driver championship."""
 
@@ -137,6 +146,15 @@ class Driver:
 
     def is_suspended(self):
         return self.suspension_races > 0
+
+    def overall_rating(self):
+        """Return a simple overall driver rating."""
+
+        return round(
+            self.speed * 0.45
+            + self.consistency * 0.40
+            + (100 - self.aggression) * 0.15
+        )
 
     def __str__(self):
         return self.name

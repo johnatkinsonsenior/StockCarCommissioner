@@ -47,3 +47,10 @@
 | 45 | Championship history | High | Completed |
 | 46 | Persistent team budgets | High | In Progress |
 | 47 | Year-by-year season records | Medium | Completed |
+| 48 | Driver age system | High | Completed |
+| 49 | Offseason driver development | High | Completed |
+| 50 | Veteran performance decline | High | Completed |
+| 51 | Retirement system | High | Completed |
+| 52 | Rookie generation | High | Completed |
+| 53 | Retired driver history | Medium | Completed |
+| 54 | Dynamic rookie rivalries | Low | In Progress |

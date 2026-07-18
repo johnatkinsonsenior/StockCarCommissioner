@@ -1,8 +1,10 @@
 import json
+import random
 from datetime import datetime
 from pathlib import Path
 
 from data import drivers, teams, tracks
+from game.models import Driver
 from game.race import (
     POINTS_BY_POSITION,
     PRIZE_PERCENTAGES,
@@ -59,6 +61,40 @@ PERSONALITY_REACTIONS = {
     },
 }
 
+ROOKIE_FIRST_NAMES = [
+    "Evan",
+    "Logan",
+    "Caleb",
+    "Noah",
+    "Carter",
+    "Blake",
+    "Trevor",
+    "Jordan",
+    "Cameron",
+    "Wyatt",
+]
+
+ROOKIE_LAST_NAMES = [
+    "Hayes",
+    "Mercer",
+    "Dawson",
+    "Bishop",
+    "Carver",
+    "Stone",
+    "Ramsey",
+    "Foster",
+    "Barrett",
+    "Wheeler",
+]
+
+ROOKIE_PERSONALITIES = [
+    "Professional",
+    "Temperamental",
+    "Rookie",
+    "Aggressive",
+    "Popular",
+]
+
 league = {
     "integrity": 70,
     "fan_interest": 65,
@@ -68,8 +104,272 @@ league = {
 
 race_history = []
 career_history = []
+retired_drivers = []
+
 current_season = 1
 championship_awarded = False
+
+
+def generate_unique_rookie_name():
+    """Generate a driver name that is not currently in use."""
+
+    existing_names = {
+        driver.name
+        for driver in drivers
+    }
+
+    existing_names.update(
+        driver.name
+        for driver in retired_drivers
+    )
+
+    for _ in range(100):
+        first_name = random.choice(ROOKIE_FIRST_NAMES)
+        last_name = random.choice(ROOKIE_LAST_NAMES)
+        name = f"{first_name} {last_name}"
+
+        if name not in existing_names:
+            return name
+
+    raise RuntimeError("Unable to generate a unique rookie name.")
+
+
+def generate_rookie(team_name):
+    """Create a new rookie driver for an available team seat."""
+
+    rookie = Driver(
+        name=generate_unique_rookie_name(),
+        team_name=team_name,
+        age=random.randint(19, 23),
+        speed=random.randint(66, 78),
+        consistency=random.randint(64, 80),
+        aggression=random.randint(55, 82),
+        personality=random.choice(ROOKIE_PERSONALITIES),
+        rival=None,
+        popularity=random.randint(45, 65),
+        is_rookie=True,
+    )
+
+    return rookie
+
+
+def assign_rookie_rival(rookie):
+    """Assign an active driver as the rookie's first rival."""
+
+    possible_rivals = [
+        driver
+        for driver in drivers
+        if (
+            driver.name != rookie.name
+            and driver.team_name != rookie.team_name
+        )
+    ]
+
+    if possible_rivals:
+        rookie.rival = random.choice(possible_rivals).name
+
+
+def apply_driver_development(driver):
+    """Apply age-based offseason improvement or decline."""
+
+    old_speed = driver.speed
+    old_consistency = driver.consistency
+    old_aggression = driver.aggression
+
+    if driver.age <= 23:
+        speed_change = random.randint(1, 4)
+        consistency_change = random.randint(1, 3)
+        aggression_change = random.randint(-2, 1)
+
+        development_stage = "Young Prospect Development"
+
+    elif driver.age <= 29:
+        speed_change = random.randint(0, 2)
+        consistency_change = random.randint(0, 2)
+        aggression_change = random.randint(-1, 1)
+
+        development_stage = "Prime Development"
+
+    elif driver.age <= 34:
+        speed_change = random.randint(-1, 1)
+        consistency_change = random.randint(0, 2)
+        aggression_change = random.randint(-2, 0)
+
+        development_stage = "Veteran Refinement"
+
+    elif driver.age <= 38:
+        speed_change = random.randint(-3, 0)
+        consistency_change = random.randint(-1, 1)
+        aggression_change = random.randint(-2, 0)
+
+        development_stage = "Veteran Decline"
+
+    else:
+        speed_change = random.randint(-5, -1)
+        consistency_change = random.randint(-3, 0)
+        aggression_change = random.randint(-3, 0)
+
+        development_stage = "Late-Career Decline"
+
+    driver.speed = clamp(driver.speed + speed_change, 40, 99)
+    driver.consistency = clamp(
+        driver.consistency + consistency_change,
+        40,
+        99,
+    )
+    driver.aggression = clamp(
+        driver.aggression + aggression_change,
+        20,
+        95,
+    )
+
+    return {
+        "stage": development_stage,
+        "speed_change": driver.speed - old_speed,
+        "consistency_change": (
+            driver.consistency - old_consistency
+        ),
+        "aggression_change": (
+            driver.aggression - old_aggression
+        ),
+    }
+
+
+def calculate_retirement_chance(driver):
+    """Return a driver's retirement probability."""
+
+    if driver.age < 35:
+        chance = 0
+
+    elif driver.age <= 37:
+        chance = 5
+
+    elif driver.age <= 39:
+        chance = 15
+
+    elif driver.age <= 41:
+        chance = 30
+
+    elif driver.age <= 43:
+        chance = 50
+
+    else:
+        chance = 75
+
+    if driver.championships > 0:
+        chance += 5
+
+    if driver.morale < 40:
+        chance += 10
+
+    if driver.commissioner_trust < 35:
+        chance += 5
+
+    return clamp(chance, 0, 95)
+
+
+def should_driver_retire(driver):
+    """Determine whether a driver retires during the offseason."""
+
+    retirement_chance = calculate_retirement_chance(driver)
+    retirement_roll = random.randint(1, 100)
+
+    return retirement_roll <= retirement_chance
+
+
+def clear_retired_rivalries(retired_driver_name):
+    """Remove references to a driver who has retired."""
+
+    for driver in drivers:
+        if driver.rival == retired_driver_name:
+            driver.rival = None
+
+
+def retire_driver(driver):
+    """Move a driver from the active roster to retirement history."""
+
+    driver.is_retired = True
+    retired_drivers.append(driver)
+
+    drivers.remove(driver)
+    clear_retired_rivalries(driver.name)
+
+    print(
+        f"{driver.name} has retired at age {driver.age}. "
+        f"Career: {driver.career_wins} wins, "
+        f"{driver.championships} championships."
+    )
+
+
+def replace_retired_driver(retired_driver):
+    """Create a rookie to fill a retired driver's team seat."""
+
+    rookie = generate_rookie(retired_driver.team_name)
+    drivers.append(rookie)
+    assign_rookie_rival(rookie)
+
+    print(
+        f"{rookie.name}, age {rookie.age}, joins "
+        f"{rookie.team_name} as a rookie."
+    )
+
+    print(
+        f"Ratings — Speed: {rookie.speed}, "
+        f"Consistency: {rookie.consistency}, "
+        f"Aggression: {rookie.aggression}"
+    )
+
+    return rookie
+
+
+def run_offseason(completed_season):
+    """Age drivers, update abilities, and process retirements."""
+
+    print("\n" + "=" * 90)
+    print(f"OFFSEASON AFTER SEASON {completed_season}")
+    print("=" * 90)
+
+    retirement_candidates = []
+
+    print("\nDriver Development")
+    print("-" * 90)
+
+    for driver in list(drivers):
+        driver.age += 1
+        development = apply_driver_development(driver)
+
+        print(
+            f"{driver.name}, age {driver.age} "
+            f"- {development['stage']} "
+            f"- Speed {development['speed_change']:+d} "
+            f"- Consistency {development['consistency_change']:+d} "
+            f"- Aggression {development['aggression_change']:+d} "
+            f"- Overall {driver.overall_rating()}"
+        )
+
+        if should_driver_retire(driver):
+            retirement_candidates.append(driver)
+
+    print("\nRetirement Announcements")
+    print("-" * 90)
+
+    if not retirement_candidates:
+        print("No drivers retired this offseason.")
+        return
+
+    for retiring_driver in retirement_candidates:
+        team_name = retiring_driver.team_name
+
+        retire_driver(retiring_driver)
+
+        rookie = generate_rookie(team_name)
+        drivers.append(rookie)
+        assign_rookie_rival(rookie)
+
+        print(
+            f"{rookie.name}, age {rookie.age}, replaces "
+            f"{retiring_driver.name} at {team_name}."
+        )
 
 
 def serve_suspensions():
@@ -313,14 +613,18 @@ def apply_personality_reaction(choice, driver):
 
 
 def apply_rival_reaction(choice, penalized_driver):
-    """Allow a rival to react to the commissioner's ruling."""
+    """Allow a rival to react to a commissioner ruling."""
 
     rival_name = penalized_driver.rival
 
     if not rival_name:
         return
 
-    rival = get_driver(rival_name)
+    try:
+        rival = get_driver(rival_name)
+    except ValueError:
+        penalized_driver.rival = None
+        return
 
     severe_decisions = {"3", "4", "5"}
     lenient_decisions = {"1", "2"}
@@ -455,12 +759,11 @@ def display_driver_standings():
         print(
             f"{position}. {driver.name} "
             f"({driver.team_name}) "
+            f"- Age {driver.age} "
+            f"- Overall {driver.overall_rating()} "
             f"- {driver.points} pts "
             f"- {driver.wins} wins "
             f"- {driver.dnfs} DNFs "
-            f"- {driver.suspensions} suspensions "
-            f"- Morale: {driver.morale} "
-            f"- Trust: {driver.commissioner_trust} "
             f"- ${driver.earnings:,}"
         )
 
@@ -700,6 +1003,12 @@ def save_season_report(season_number):
                 "position": position,
                 "name": driver.name,
                 "team": driver.team_name,
+                "age": driver.age,
+                "overall_rating": driver.overall_rating(),
+                "is_rookie": driver.is_rookie,
+                "speed": driver.speed,
+                "consistency": driver.consistency,
+                "aggression": driver.aggression,
                 "points": driver.points,
                 "wins": driver.wins,
                 "dnfs": driver.dnfs,
@@ -911,6 +1220,7 @@ def display_career_report():
         print(
             f"{driver.name} "
             f"({driver.team_name}) "
+            f"- Age: {driver.age} "
             f"- Championships: {driver.championships} "
             f"- Wins: {driver.career_wins} "
             f"- Starts: {driver.career_starts} "
@@ -941,20 +1251,57 @@ def display_career_report():
         )
 
 
+def display_retirement_report():
+    """Display all retired drivers from the career."""
+
+    print("\nRetired Drivers")
+    print("-" * 100)
+
+    if not retired_drivers:
+        print("No drivers retired during this career.")
+        return
+
+    retirement_ranking = sorted(
+        retired_drivers,
+        key=lambda driver: (
+            driver.championships,
+            driver.career_wins,
+            driver.career_points,
+        ),
+        reverse=True,
+    )
+
+    for driver in retirement_ranking:
+        print(
+            f"{driver.name} "
+            f"- Retired age: {driver.age} "
+            f"- Seasons: {driver.seasons_completed} "
+            f"- Championships: {driver.championships} "
+            f"- Wins: {driver.career_wins} "
+            f"- Starts: {driver.career_starts} "
+            f"- Career points: {driver.career_points} "
+            f"- Career earnings: ${driver.career_earnings:,}"
+        )
+
+
 def run_career(number_of_seasons=3):
     """Run several consecutive seasons."""
 
     career_history.clear()
+    retired_drivers.clear()
 
     for season_number in range(1, number_of_seasons + 1):
         run_single_season(season_number)
 
         if season_number < number_of_seasons:
+            run_offseason(season_number)
+
             input(
                 "\nPress Enter to begin the next season..."
             )
 
     display_career_report()
+    display_retirement_report()
 
 
 def run_season():

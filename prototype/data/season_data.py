@@ -30,6 +30,7 @@ drivers = [
     Driver(
         name="Cole Baker",
         team_name="Liberty Racing",
+        age=29,
         speed=84,
         consistency=78,
         aggression=62,
@@ -40,6 +41,7 @@ drivers = [
     Driver(
         name="Ryan Holt",
         team_name="Liberty Racing",
+        age=38,
         speed=76,
         consistency=88,
         aggression=55,
@@ -50,6 +52,7 @@ drivers = [
     Driver(
         name="Mason Reed",
         team_name="Pioneer Motorsports",
+        age=27,
         speed=91,
         consistency=69,
         aggression=81,
@@ -60,16 +63,19 @@ drivers = [
     Driver(
         name="Tyler Knox",
         team_name="Pioneer Motorsports",
+        age=21,
         speed=73,
         consistency=82,
         aggression=70,
         personality="Rookie",
         rival="Austin Vale",
         popularity=61,
+        is_rookie=True,
     ),
     Driver(
         name="Derek Lane",
         team_name="Summit Racing",
+        age=34,
         speed=88,
         consistency=74,
         aggression=77,
@@ -80,6 +86,7 @@ drivers = [
     Driver(
         name="Austin Vale",
         team_name="Summit Racing",
+        age=25,
         speed=80,
         consistency=80,
         aggression=60,
