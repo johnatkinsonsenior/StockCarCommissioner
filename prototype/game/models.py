@@ -13,6 +13,7 @@ class Team:
         self.car_rating = car_rating
         self.crew_rating = crew_rating
         self.reliability = reliability
+
         self.starting_budget = starting_budget
         self.budget = starting_budget
 
@@ -21,12 +22,14 @@ class Team:
         self.championships = 0
         self.career_wins = 0
 
-    def start_new_season(self):
-        """Prepare the team for another season."""
+        # Financial statistics
+        self.current_payroll = 0
+        self.career_salary_expenses = 0
 
-        # For now, preserve the team's ending budget between seasons.
-        # Day 13 will add offseason spending and upgrades.
-        pass
+    def start_new_season(self):
+        """Reset values that apply only to the upcoming season."""
+
+        self.current_payroll = 0
 
     def add_prize_money(self, amount):
         """Add race winnings to the team's budget and career total."""
@@ -35,9 +38,21 @@ class Team:
         self.career_prize_money += amount
 
     def pay_fine(self, amount):
-        """Deduct a commissioner fine from the team budget."""
+        """Deduct a commissioner fine from the team's budget."""
 
         self.budget = max(0, self.budget - amount)
+
+    def pay_driver_salary(self, amount):
+        """Pay a driver's annual salary."""
+
+        self.budget -= amount
+        self.current_payroll += amount
+        self.career_salary_expenses += amount
+
+    def can_afford(self, amount, reserve=500_000):
+        """Return whether the team can afford an expense and retain reserves."""
+
+        return self.budget - amount >= reserve
 
     def record_win(self):
         """Record a race victory for the team."""
@@ -67,6 +82,8 @@ class Driver:
         personality,
         rival,
         popularity,
+        salary,
+        contract_years,
         is_rookie=False,
     ):
         self.name = name
@@ -80,6 +97,10 @@ class Driver:
         self.personality = personality
         self.rival = rival
         self.popularity = popularity
+        self.salary = salary
+        self.contract_years = contract_years
+        self.previous_team = None
+        self.is_free_agent = False
         self.is_rookie = is_rookie
 
         self.morale = 70
@@ -154,6 +175,59 @@ class Driver:
             self.speed * 0.45
             + self.consistency * 0.40
             + (100 - self.aggression) * 0.15
+        )
+
+    def calculate_market_value(self):
+        """Calculate the driver's estimated annual salary value."""
+
+        overall = self.overall_rating()
+
+        value = (
+            150_000
+            + overall * 11_000
+            + self.popularity * 3_000
+            + self.career_wins * 20_000
+            + self.championships * 250_000
+        )
+
+        if self.age <= 23:
+            value *= 0.85
+        elif self.age >= 38:
+            value *= 0.90
+
+        return int(round(value / 25_000) * 25_000)
+
+    def advance_contract(self):
+        """Reduce the number of years remaining on the contract."""
+
+        if self.contract_years > 0:
+            self.contract_years -= 1
+
+        if self.contract_years == 0:
+            self.is_free_agent = True
+
+    def sign_contract(self, team_name, salary, contract_years):
+        """Sign a new contract with a team."""
+
+        if self.team_name != team_name:
+            self.previous_team = self.team_name
+
+        self.team_name = team_name
+        self.salary = salary
+        self.contract_years = contract_years
+        self.is_free_agent = False
+
+    def contract_description(self):
+        """Return a readable description of the driver's contract."""
+
+        if self.is_free_agent:
+            return "Free Agent"
+
+        year_word = "year" if self.contract_years == 1 else "years"
+
+        return (
+            f"${self.salary:,} per season, "
+            f"{self.contract_years} {year_word} remaining"
         )
 
     def __str__(self):
