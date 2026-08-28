@@ -7,11 +7,11 @@
 | 5  | Commissioner decisions | High     | In Progress |
 | 6  | Penalties              | Medium   | Not Started |
 | 7  | TV Contracts           | Medium   | Not Started |
-| 8  | Sponsors               | Medium   | Not Started |
-| 9  | Driver Contracts       | Medium   | Not Started |
+| 8  | Sponsors               | Medium   | Completed   |
+| 9  | Driver Contracts       | Medium   | In Progress |
 | 10 | Hall of Fame           | Low      | Not Started |
 | 11 | Prize Money System     | Medium   | In Progress |
-| 12 | Team Finances          | High     | In Progress |
+| 12 | Team Finances          | High     | Completed   |
 | 13 | Crash System           | High     | Completed   |
 | 14 | Mechanical Failures    | High     | Completed   |
 | 15 | Driver DNF Tracking    | High     | Completed   |
@@ -45,7 +45,7 @@
 | 43 | Driver career statistics | High | Completed |
 | 44 | Team career statistics | Medium | Completed |
 | 45 | Championship history | High | Completed |
-| 46 | Persistent team budgets | High | In Progress |
+| 46 | Persistent team budgets | High | Completed |
 | 47 | Year-by-year season records | Medium | Completed |
 | 48 | Driver age system | High | Completed |
 | 49 | Offseason driver development | High | Completed |
@@ -54,3 +54,8 @@
 | 52 | Rookie generation | High | Completed |
 | 53 | Retired driver history | Medium | Completed |
 | 54 | Dynamic rookie rivalries | Low | In Progress |
+| 55 | Sponsorship revenue | High | Completed |
+| 56 | Team operating expenses | High | Completed |
+| 57 | Facility upgrades | High | Completed |
+| 58 | Performance investment | High | Completed |
+| 59 | Financial distress system | High | Completed |

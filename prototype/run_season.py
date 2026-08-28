@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 from data import drivers, teams, tracks
-from game.models import Driver
+from game.models import Driver, Team
 from game.race import (
     POINTS_BY_POSITION,
     PRIZE_PERCENTAGES,
@@ -109,6 +109,11 @@ retired_drivers = []
 current_season = 1
 championship_awarded = False
 
+BASE_OPERATING_EXPENSE = 350_000
+FACILITY_MAINTENANCE_PER_LEVEL = 75_000
+BASE_SPONSORSHIP = 800_000
+PERFORMANCE_INVESTMENT_UNIT = 250_000
+
 
 def generate_unique_rookie_name():
     """Generate a driver name that is not currently in use."""
@@ -147,8 +152,11 @@ def generate_rookie(team_name):
         personality=random.choice(ROOKIE_PERSONALITIES),
         rival=None,
         popularity=random.randint(45, 65),
+        salary=0,
+        contract_years=random.randint(1, 3),
         is_rookie=True,
     )
+    rookie.salary = rookie.calculate_market_value()
 
     return rookie
 
@@ -322,6 +330,209 @@ def replace_retired_driver(retired_driver):
     return rookie
 
 
+def get_team_drivers(team_name):
+    """Return all active drivers on a team."""
+
+    return [
+        driver
+        for driver in drivers
+        if driver.team_name == team_name
+    ]
+
+
+def get_team_season_wins(team_name):
+    """Return the number of race wins earned by a team this season."""
+
+    return sum(
+        driver.wins
+        for driver in get_team_drivers(team_name)
+    )
+
+
+def calculate_sponsorship_income(team):
+    """Calculate offseason sponsorship revenue for a team."""
+
+    team_drivers = get_team_drivers(team.name)
+
+    average_popularity = (
+        sum(driver.popularity for driver in team_drivers)
+        / len(team_drivers)
+    )
+
+    income = BASE_SPONSORSHIP
+    income += team.facility_level * 100_000
+    income += team.championships * 300_000
+    income += get_team_season_wins(team.name) * 75_000
+    income += int(average_popularity * 2_500)
+
+    if team.financial_status_label() == "Critical":
+        income = int(income * 0.75)
+    elif team.financial_status_label() == "Distressed":
+        income = int(income * 0.90)
+
+    return income
+
+
+def calculate_operating_expenses(team):
+    """Calculate seasonal operating expenses for a team."""
+
+    expenses = (
+        BASE_OPERATING_EXPENSE
+        + team.facility_level * FACILITY_MAINTENANCE_PER_LEVEL
+    )
+
+    if team.financial_distress_level >= 2:
+        expenses = int(expenses * 0.90)
+
+    return expenses
+
+
+def pay_team_driver_salaries(team):
+    """Pay annual salaries for every driver on the team."""
+
+    total_paid = 0
+
+    for driver in get_team_drivers(team.name):
+        if driver.is_free_agent:
+            continue
+
+        team.pay_driver_salary(driver.salary)
+        total_paid += driver.salary
+        driver.advance_contract()
+
+    return total_paid
+
+
+def apply_financial_distress_effects(team):
+    """Apply performance and morale penalties for teams in distress."""
+
+    team_drivers = get_team_drivers(team.name)
+
+    if team.financial_distress_level == 1:
+        for driver in team_drivers:
+            driver.morale = clamp(driver.morale - 2)
+
+    elif team.financial_distress_level == 2:
+        team.car_rating = clamp(team.car_rating - 2)
+        team.crew_rating = clamp(team.crew_rating - 2)
+        team.reliability = clamp(team.reliability - 3)
+
+        for driver in team_drivers:
+            driver.morale = clamp(driver.morale - 5)
+
+    elif team.financial_distress_level == 3:
+        team.car_rating = clamp(team.car_rating - 5)
+        team.crew_rating = clamp(team.crew_rating - 5)
+        team.reliability = clamp(team.reliability - 5)
+
+        for driver in team_drivers:
+            driver.morale = clamp(driver.morale - 10)
+
+
+def team_offseason_investment_decisions(team):
+    """Make automated facility and performance investments."""
+
+    actions = []
+
+    if team.financial_distress_level >= 2:
+        return actions
+
+    upgrade_cost = team.facility_upgrade_cost()
+
+    if (
+        upgrade_cost is not None
+        and team.can_afford(upgrade_cost)
+        and (
+            team.championships > 0
+            or team.budget >= 3_000_000
+        )
+    ):
+        old_level = team.facility_level
+
+        if team.upgrade_facility():
+            actions.append(
+                f"Upgraded facility to level {team.facility_level} "
+                f"(from level {old_level}) for ${upgrade_cost:,}"
+            )
+
+    investment_amount = PERFORMANCE_INVESTMENT_UNIT
+
+    if (
+        team.financial_distress_level == 0
+        and team.can_afford(investment_amount)
+    ):
+        if team.budget >= 4_000_000:
+            investment_amount = PERFORMANCE_INVESTMENT_UNIT * 2
+
+        result = team.invest_in_performance(investment_amount)
+
+        if result["spent"] > 0:
+            actions.append(
+                "Performance investment "
+                f"${result['spent']:,} "
+                f"(Car +{result['car_gain']}, "
+                f"Crew +{result['crew_gain']})"
+            )
+
+    return actions
+
+
+def process_team_offseason_finances(team):
+    """Process one team's complete offseason financial cycle."""
+
+    team.update_financial_distress()
+
+    salaries_paid = pay_team_driver_salaries(team)
+    sponsorship = calculate_sponsorship_income(team)
+    team.add_sponsorship(sponsorship)
+
+    operating_expenses = calculate_operating_expenses(team)
+    team.pay_operating_expense(operating_expenses)
+
+    investment_actions = team_offseason_investment_decisions(team)
+
+    team.update_financial_distress()
+    apply_financial_distress_effects(team)
+
+    return {
+        "salaries_paid": salaries_paid,
+        "sponsorship": sponsorship,
+        "operating_expenses": operating_expenses,
+        "investment_actions": investment_actions,
+        "financial_status": team.financial_status_label(),
+    }
+
+
+def run_offseason_finances():
+    """Collect sponsorship, pay expenses, and process team investments."""
+
+    print("\nOffseason Financial Review")
+    print("-" * 90)
+
+    for team in teams:
+        summary = process_team_offseason_finances(team)
+
+        print(f"\n{team.name}")
+        print(f"  Salaries paid: ${summary['salaries_paid']:,}")
+        print(f"  Sponsorship revenue: ${summary['sponsorship']:,}")
+        print(
+            f"  Operating expenses: "
+            f"${summary['operating_expenses']:,}"
+        )
+
+        if summary["investment_actions"]:
+            for action in summary["investment_actions"]:
+                print(f"  Investment: {action}")
+        else:
+            print("  Investment: No major spending this offseason")
+
+        print(
+            f"  Ending budget: ${team.budget:,} "
+            f"- Facility level {team.facility_level} "
+            f"- Status: {summary['financial_status']}"
+        )
+
+
 def run_offseason(completed_season):
     """Age drivers, update abilities, and process retirements."""
 
@@ -355,21 +566,22 @@ def run_offseason(completed_season):
 
     if not retirement_candidates:
         print("No drivers retired this offseason.")
-        return
+    else:
+        for retiring_driver in retirement_candidates:
+            team_name = retiring_driver.team_name
 
-    for retiring_driver in retirement_candidates:
-        team_name = retiring_driver.team_name
+            retire_driver(retiring_driver)
 
-        retire_driver(retiring_driver)
+            rookie = generate_rookie(team_name)
+            drivers.append(rookie)
+            assign_rookie_rival(rookie)
 
-        rookie = generate_rookie(team_name)
-        drivers.append(rookie)
-        assign_rookie_rival(rookie)
+            print(
+                f"{rookie.name}, age {rookie.age}, replaces "
+                f"{retiring_driver.name} at {team_name}."
+            )
 
-        print(
-            f"{rookie.name}, age {rookie.age}, replaces "
-            f"{retiring_driver.name} at {team_name}."
-        )
+    run_offseason_finances()
 
 
 def serve_suspensions():
@@ -784,6 +996,10 @@ def display_team_finances():
         print(
             f"{team.name} "
             f"- Budget: ${team.budget:,} "
+            f"- Facility: Level {team.facility_level} "
+            f"- Status: {team.financial_status_label()} "
+            f"- Car: {team.car_rating} "
+            f"- Crew: {team.crew_rating} "
             f"- Reliability: {team.reliability}"
         )
 
@@ -1033,6 +1249,13 @@ def save_season_report(season_number):
             {
                 "name": team.name,
                 "budget": team.budget,
+                "facility_level": team.facility_level,
+                "financial_status": team.financial_status_label(),
+                "season_sponsorship": team.season_sponsorship,
+                "season_operating_expenses": (
+                    team.season_operating_expenses
+                ),
+                "current_payroll": team.current_payroll,
                 "reliability": team.reliability,
                 "car_rating": team.car_rating,
                 "crew_rating": team.crew_rating,
@@ -1247,7 +1470,10 @@ def display_career_report():
             f"- Championships: {team.championships} "
             f"- Wins: {team.career_wins} "
             f"- Career prize money: ${team.career_prize_money:,} "
-            f"- Current budget: ${team.budget:,}"
+            f"- Sponsorship income: ${team.career_sponsorship_income:,} "
+            f"- Facility level: {team.facility_level} "
+            f"- Current budget: ${team.budget:,} "
+            f"- Status: {team.financial_status_label()}"
         )
 
 
