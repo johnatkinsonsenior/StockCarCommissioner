@@ -2,7 +2,7 @@
 | -- | ---------------------- | -------- | ----------- |
 | 1  | Race simulation        | High     | In Progress |
 | 2  | Driver Database        | High     | In Progress |
-| 3  | Team Database          | High     | In Progress |
+| 3  | Team Database          | High     | Completed   |
 | 4  | Points Standings       | High     | In Progress |
 | 5  | Commissioner decisions | High     | Completed   |
 | 6  | Penalties              | Medium   | Not Started |
@@ -69,3 +69,10 @@
 | 67 | Safety decisions | High | Completed |
 | 68 | Owner complaints | High | Completed |
 | 69 | Driver complaints | High | Completed |
+| 70 | Team owners | High | Completed |
+| 71 | Team reputation | High | Completed |
+| 72 | Performance trends | Medium | Completed |
+| 73 | Facilities | High | Completed |
+| 74 | Engineering departments | High | Completed |
+| 75 | Pit crews | High | Completed |
+| 76 | Financial health | High | Completed |

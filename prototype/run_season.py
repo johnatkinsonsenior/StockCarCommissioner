@@ -392,18 +392,34 @@ def collect_commissioner_alerts():
     if league["owner_pressure"] >= 55:
         alerts.append("Owner pressure is elevated.")
 
+    impatient_owners = [
+        team
+        for team in teams
+        if team.owner.patience < 40 or team.owner.pressure >= 60
+    ]
+
+    if impatient_owners:
+        names = ", ".join(
+            f"{team.owner.name} ({team.name})"
+            for team in impatient_owners
+        )
+        alerts.append(f"Impatient owners: {names}")
+
     if league["driver_sentiment"] < 45:
         alerts.append("Driver sentiment is poor.")
 
-    distressed_teams = [
+    struggling_teams = [
         team
         for team in teams
         if team.financial_distress_level >= 2
     ]
 
-    if distressed_teams:
-        names = ", ".join(team.name for team in distressed_teams)
-        alerts.append(f"Financial distress: {names}")
+    if struggling_teams:
+        names = ", ".join(
+            f"{team.name} ({team.financial_status_label()})"
+            for team in struggling_teams
+        )
+        alerts.append(f"Financial health: {names}")
 
     unhappy_drivers = [
         driver
@@ -466,6 +482,21 @@ def display_league_dashboard():
         f"watch {lowest_trust.name} "
         f"({relationship_label(lowest_trust.commissioner_trust)})"
     )
+
+    print("Organizations")
+
+    for team in teams:
+        owner = team.owner
+        print(
+            f"- {team.name}: {owner.description()} | "
+            f"{team.financial_status_label()} | "
+            f"Prestige {team.prestige} | "
+            f"{team.performance_trend_label()} | "
+            f"Shop {team.facility_rating()} "
+            f"(Lv {team.facility_level}) | "
+            f"Eng {team.engineering} | "
+            f"Crew {team.crew_rating}"
+        )
 
     print("Alerts")
 
@@ -814,10 +845,11 @@ def calculate_sponsorship_income(team):
     income += team.championships * 300_000
     income += get_team_season_wins(team.name) * 75_000
     income += int(average_popularity * 2_500)
+    income += team.sponsor_appeal() * 2_000
 
-    if team.financial_status_label() == "Critical":
+    if team.financial_status_label() == "Insolvent":
         income = int(income * 0.75)
-    elif team.financial_status_label() == "Distressed":
+    elif team.financial_status_label() == "Struggling":
         income = int(income * 0.90)
 
     return income
@@ -867,6 +899,8 @@ def apply_financial_distress_effects(team):
         team.car_rating = clamp(team.car_rating - 2)
         team.crew_rating = clamp(team.crew_rating - 2)
         team.reliability = clamp(team.reliability - 3)
+        team.prestige = clamp(team.prestige - 2)
+        team.engineering = clamp(team.engineering - 1)
 
         for driver in team_drivers:
             driver.morale = clamp(driver.morale - 5)
@@ -875,6 +909,8 @@ def apply_financial_distress_effects(team):
         team.car_rating = clamp(team.car_rating - 5)
         team.crew_rating = clamp(team.crew_rating - 5)
         team.reliability = clamp(team.reliability - 5)
+        team.prestige = clamp(team.prestige - 5)
+        team.engineering = clamp(team.engineering - 3)
 
         for driver in team_drivers:
             driver.morale = clamp(driver.morale - 10)
@@ -922,7 +958,17 @@ def team_offseason_investment_decisions(team):
                 "Performance investment "
                 f"${result['spent']:,} "
                 f"(Car +{result['car_gain']}, "
-                f"Crew +{result['crew_gain']})"
+                f"Crew +{result['crew_gain']}, "
+                f"Eng +{result['engineering_gain']})"
+            )
+
+    if team.financial_distress_level <= 1:
+        crew_gain = team.train_pit_crew()
+
+        if crew_gain:
+            actions.append(
+                f"Pit crew training +{crew_gain} "
+                f"(now {team.crew_rating})"
             )
 
     return actions
@@ -942,8 +988,10 @@ def process_team_offseason_finances(team):
 
     investment_actions = team_offseason_investment_decisions(team)
 
+    team.apply_trend_effects()
     team.update_financial_distress()
     apply_financial_distress_effects(team)
+    team.apply_owner_financial_mood()
 
     return {
         "salaries_paid": salaries_paid,
@@ -979,9 +1027,25 @@ def run_offseason_finances():
 
         print(
             f"  Ending budget: ${team.budget:,} "
-            f"- Facility level {team.facility_level} "
+            f"- Owner: {team.owner.name} "
+            f"- Prestige {team.prestige} "
+            f"- {team.performance_trend_label()} "
+            f"- Shop {team.facility_rating()} "
+            f"(Lv {team.facility_level}) "
+            f"- Eng {team.engineering} "
+            f"- Crew {team.crew_rating} "
             f"- Status: {summary['financial_status']}"
         )
+
+        if team.season_pit_mistakes:
+            print(
+                f"  Pit mistakes last season: {team.season_pit_mistakes}"
+            )
+
+        if team.financial_distress_level == 3:
+            print(
+                "  Entry status: Insolvent — remains on the grid"
+            )
 
 
 def run_offseason(completed_season):
@@ -1067,6 +1131,7 @@ def record_race_history(track, race_number, results):
                 "team": driver.team_name,
                 "status": result["status"],
                 "cause": result["cause"],
+                "pit_mistake": result.get("pit_mistake", False),
             }
         )
 
@@ -1134,6 +1199,9 @@ def run_race(track, race_number):
 
             status_display = "Finished"
 
+            if result.get("pit_mistake"):
+                status_display = "Finished (pit mistake)"
+
         else:
             driver.dnfs += 1
 
@@ -1160,12 +1228,17 @@ def run_race(track, race_number):
 
 
 def display_incident_report(results):
-    """Display crashes and mechanical failures."""
+    """Display crashes, mechanical failures, and pit-crew mistakes."""
 
     incidents = [
         result
         for result in results
         if result["status"] != "Running"
+    ]
+    pit_mistakes = [
+        result
+        for result in results
+        if result.get("pit_mistake")
     ]
 
     print("\nIncident Report")
@@ -1173,18 +1246,28 @@ def display_incident_report(results):
 
     if not incidents:
         print("No major incidents occurred.")
-        return
+    else:
+        for incident in incidents:
+            driver = incident["driver"]
 
-    for incident in incidents:
-        driver = incident["driver"]
+            if incident["status"] == "Crash":
+                print(
+                    f"{driver.name}: Crash "
+                    f"— Initial finding: {incident['cause']}"
+                )
+            else:
+                print(f"{driver.name}: Mechanical Failure")
 
-        if incident["status"] == "Crash":
+    if pit_mistakes:
+        print("\nPit Crew Report")
+        print("-" * 75)
+
+        for result in pit_mistakes:
+            driver = result["driver"]
             print(
-                f"{driver.name}: Crash "
-                f"— Initial finding: {incident['cause']}"
+                f"{driver.name} ({driver.team_name}): "
+                "costly pit stop"
             )
-        else:
-            print(f"{driver.name}: Mechanical Failure")
 
 
 def review_race_incidents(results):
@@ -1434,18 +1517,36 @@ def display_team_finances():
     )
 
     print("\nFinal Team Finances")
-    print("-" * 75)
+    print("-" * 90)
 
     for team in financial_ranking:
         print(
             f"{team.name} "
+            f"- Owner: {team.owner.name} "
             f"- Budget: ${team.budget:,} "
-            f"- Facility: Level {team.facility_level} "
-            f"- Status: {team.financial_status_label()} "
-            f"- Car: {team.car_rating} "
-            f"- Crew: {team.crew_rating} "
-            f"- Reliability: {team.reliability}"
+            f"- {team.financial_status_label()} "
+            f"- Prestige {team.prestige} "
+            f"- {team.performance_trend_label()} "
+            f"- Shop {team.facility_rating()} "
+            f"(Lv {team.facility_level}) "
+            f"- Eng {team.engineering} "
+            f"- Crew {team.crew_rating} "
+            f"- Rel {team.reliability}"
         )
+
+
+def record_team_season_trends():
+    """Store each team's season points and update performance trends."""
+
+    for team in teams:
+        if len(team.season_points_history) >= calendar.current_season:
+            continue
+
+        points = sum(
+            driver.points
+            for driver in get_team_drivers(team.name)
+        )
+        team.record_season_performance(points)
 
 
 def get_driver_champion():
@@ -1691,9 +1792,19 @@ def save_season_report(season_number):
         report["team_finances"].append(
             {
                 "name": team.name,
+                "owner": team.owner.name,
+                "owner_personality": team.owner.personality,
+                "owner_priority": team.owner.priority,
                 "budget": team.budget,
                 "facility_level": team.facility_level,
+                "facility_rating": team.facility_rating(),
                 "financial_status": team.financial_status_label(),
+                "prestige": team.prestige,
+                "attractiveness": team.attractiveness(),
+                "sponsor_appeal": team.sponsor_appeal(),
+                "performance_trend": team.performance_trend_label(),
+                "engineering": team.engineering,
+                "season_pit_mistakes": team.season_pit_mistakes,
                 "season_sponsorship": team.season_sponsorship,
                 "season_operating_expenses": (
                     team.season_operating_expenses
@@ -1886,6 +1997,7 @@ def run_postseason(season_number):
     display_league_dashboard()
 
     display_driver_standings()
+    record_team_season_trends()
     display_team_finances()
     display_commissioner_report()
     display_driver_relationship_report()
@@ -1983,11 +2095,17 @@ def display_career_report():
     for team in team_ranking:
         print(
             f"{team.name} "
+            f"- Owner: {team.owner.name} "
             f"- Championships: {team.championships} "
             f"- Wins: {team.career_wins} "
+            f"- Prestige: {team.prestige} "
+            f"- {team.performance_trend_label()} "
+            f"- Shop: {team.facility_rating()} "
+            f"(Lv {team.facility_level}) "
+            f"- Eng: {team.engineering} "
+            f"- Crew: {team.crew_rating} "
             f"- Career prize money: ${team.career_prize_money:,} "
             f"- Sponsorship income: ${team.career_sponsorship_income:,} "
-            f"- Facility level: {team.facility_level} "
             f"- Current budget: ${team.budget:,} "
             f"- Status: {team.financial_status_label()}"
         )

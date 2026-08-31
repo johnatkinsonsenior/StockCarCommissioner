@@ -1,5 +1,5 @@
 """Game simulation modules."""
 
-from .models import Driver, Team
+from .models import Driver, Owner, Team
 
-__all__ = ["Driver", "Team"]
+__all__ = ["Driver", "Owner", "Team"]

@@ -79,6 +79,25 @@ def apply_effect(effect, context):
             else:
                 team.budget += amount
 
+    elif effect_type == "subject_owner" and subject_team is not None:
+        owner = subject_team.owner
+
+        if owner is not None:
+            stat = effect["stat"]
+            setattr(
+                owner,
+                stat,
+                clamp(getattr(owner, stat) + effect["delta"]),
+            )
+
+    elif effect_type == "subject_team" and subject_team is not None:
+        stat = effect["stat"]
+        setattr(
+            subject_team,
+            stat,
+            clamp(getattr(subject_team, stat) + effect["delta"]),
+        )
+
 
 def apply_effects(effects, context):
     """Apply a list of effects."""

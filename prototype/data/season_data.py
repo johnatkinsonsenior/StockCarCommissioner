@@ -1,4 +1,4 @@
-from game.models import Driver, Team
+from game.models import Driver, Owner, Team
 
 
 def create_initial_teams():
@@ -11,6 +11,15 @@ def create_initial_teams():
             crew_rating=78,
             reliability=84,
             starting_budget=5_000_000,
+            owner=Owner(
+                name="Helen Voss",
+                personality="Patient",
+                wealth=72,
+                patience=80,
+                priority="stability",
+            ),
+            prestige=70,
+            engineering=74,
         ),
         Team(
             name="Pioneer Motorsports",
@@ -18,6 +27,15 @@ def create_initial_teams():
             crew_rating=74,
             reliability=76,
             starting_budget=5_500_000,
+            owner=Owner(
+                name="Marcus Hale",
+                personality="Aggressive",
+                wealth=78,
+                patience=40,
+                priority="wins",
+            ),
+            prestige=76,
+            engineering=80,
         ),
         Team(
             name="Summit Racing",
@@ -25,6 +43,15 @@ def create_initial_teams():
             crew_rating=84,
             reliability=88,
             starting_budget=4_800_000,
+            owner=Owner(
+                name="Ruth Calder",
+                personality="Cost-Cutter",
+                wealth=58,
+                patience=55,
+                priority="cost-control",
+            ),
+            prestige=64,
+            engineering=71,
         ),
     ]
 

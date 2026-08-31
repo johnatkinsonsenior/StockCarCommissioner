@@ -54,17 +54,29 @@ def check_for_crash(driver, track):
 
 
 def check_for_mechanical_failure(team):
-    failure_chance = max(2, 100 - team.reliability)
+    engineering_help = getattr(team, "engineering", 0) // 20
+    failure_chance = max(2, 100 - team.reliability - engineering_help)
 
     return random.randint(1, 100) <= failure_chance
 
 
+def check_for_pit_mistake(team):
+    """Return whether the team's pit crew makes a costly stop."""
+
+    mistake_chance = max(3, 22 - team.crew_rating // 5)
+
+    return random.randint(1, 100) <= mistake_chance
+
+
 def calculate_race_score(driver, team):
+    engineering = getattr(team, "engineering", 0)
+
     return (
         driver.speed
         + driver.consistency
         + team.car_rating
         + team.crew_rating
+        + engineering // 5
         + random.randint(-25, 25)
     )
 
@@ -91,6 +103,7 @@ def determine_driver_result(driver, track):
             "status": "Crash",
             "cause": determine_crash_cause(driver),
             "score": random.randint(1, 50),
+            "pit_mistake": False,
         }
 
     if check_for_mechanical_failure(team):
@@ -99,13 +112,22 @@ def determine_driver_result(driver, track):
             "status": "Mechanical Failure",
             "cause": None,
             "score": random.randint(51, 100),
+            "pit_mistake": False,
         }
+
+    score = calculate_race_score(driver, team)
+    pit_mistake = check_for_pit_mistake(team)
+
+    if pit_mistake:
+        team.record_pit_mistake()
+        score -= random.randint(8, 18)
 
     return {
         "driver": driver,
         "status": "Running",
         "cause": None,
-        "score": calculate_race_score(driver, team),
+        "score": score,
+        "pit_mistake": pit_mistake,
     }
 
 
