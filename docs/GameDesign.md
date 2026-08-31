@@ -81,6 +81,30 @@ Drivers have individual personality types that influence how they react to commi
 - Aggressive
 - Popular
 
+Those types still drive commissioner-ruling reactions. Each driver also has numerical traits on top of the type:
+
+- Temperament
+- Loyalty
+- Ambition
+- Media skill
+- Risk tolerance
+
+Traits shade how strongly a type reacts. They do not replace the type.
+
+### Happiness
+
+Driver morale is the happiness track. It is pulled toward:
+
+- Team satisfaction
+- Contract satisfaction
+- Competitive frustration
+
+There is no second mood meter. Labels such as Content, Settled, Restless, and Unhappy are read from morale.
+
+### Reputation
+
+Popularity is fan fame. Reputation is paddock standing. Credibility is whether the garage believes the driver. Reckless incidents hurt credibility; race wins raise reputation.
+
 ### Commissioner Trust
 
 Each driver maintains a commissioner trust rating from 0 to 100.
@@ -102,11 +126,15 @@ Low trust may eventually cause drivers to:
 - Encourage other drivers to protest
 - Refuse promotional appearances
 
-### Rivalries
+### Rivalries, Feuds, and Friendships
 
-Drivers may have established rivals. A commissioner ruling involving one driver may affect the rival's morale and trust.
+Drivers keep a named primary rival with a numerical intensity that escalates after contact, arguments, and lenient rulings, and decays in quiet offseasons. Rookie rival assignment and retired-rival cleanup still use that name field.
 
-This creates situations where one decision affects multiple people throughout the league.
+Heated rivalries can become long-term feuds that persist across races and seasons, with intensity and status (active, cooling, dormant) stored in career saves.
+
+Drivers also have allies, teammate bonds, and friendship strength. A commissioner's ruling on one driver can move a rival and an ally.
+
+Rivalry contact, garage arguments, and feud reviews use the same decision-event framework as owner and driver complaints. They do not add a separate crash-physics system.
 
 ## Season History and Awards
 
@@ -157,8 +185,13 @@ The following information continues between seasons:
 - Career earnings
 - Championships
 - Popularity
-- Morale
+- Reputation and credibility
+- Morale and happiness components
+- Personality type and numerical traits
 - Commissioner trust
+- Rival name and rivalry intensity
+- Feuds
+- Allies, friendships, and teammate bonds
 
 ### Persistent Team Information
 
@@ -233,10 +266,10 @@ Generated rookies receive:
 - A unique name
 - An age between 19 and 23
 - Starting performance ratings
-- A personality
-- Popularity
+- A personality type and numerical traits
+- Popularity, reputation, and credibility
 - A team assignment
-- A possible initial rivalry
+- A possible initial rivalry with intensity
 
 Retired drivers remain in career history and retain their final statistics.
 
@@ -299,6 +332,7 @@ Saved data includes:
 - League policies
 - Commissioner decision log
 - Team owners, reputation, trends, facilities, engineering, and pit crews
+- Driver traits, happiness, reputation, rivalries, feuds, and friendships
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -309,17 +343,17 @@ Each season moves through a fixed league calendar:
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order
 - Postseason: standings, awards, championship, and season records are finalized
-- Offseason: drivers develop or decline, retirements are processed, and team finances are settled
+- Offseason: drivers develop or decline, retirements are processed, team finances are settled, and paddock rivalries, feuds, and friendships are updated
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, team organizations (owners, reputation, trends, shops, engineering, pit crews, and financial health), driver relationships, active policies, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, driver-commissioner relationships, active policies, and key alerts.
 
 ### Decision Events
 
-Rule, safety, owner, and driver matters use one shared decision framework:
+Rule, safety, owner, driver, rivalry, and feud matters use one shared decision framework:
 
 - A prompt and numbered choices
 - Immediate consequences

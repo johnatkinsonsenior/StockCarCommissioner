@@ -431,6 +431,40 @@ def collect_commissioner_alerts():
         names = ", ".join(driver.name for driver in unhappy_drivers)
         alerts.append(f"Relationship risk: {names}")
 
+    hot_feuds = []
+    seen_feuds = set()
+
+    for driver in drivers:
+        feud = driver.hottest_feud()
+
+        if (
+            feud
+            and feud.get("status") == "active"
+            and feud.get("intensity", 0) >= 70
+        ):
+            pair = tuple(sorted((driver.name, feud["opponent"])))
+
+            if pair in seen_feuds:
+                continue
+
+            seen_feuds.add(pair)
+            hot_feuds.append(
+                f"{pair[0]}/{pair[1]} ({feud['intensity']})"
+            )
+
+    if hot_feuds:
+        alerts.append("Hot feuds: " + ", ".join(hot_feuds[:3]))
+
+    credibility_risks = [
+        driver
+        for driver in drivers
+        if driver.credibility < 40
+    ]
+
+    if credibility_risks:
+        names = ", ".join(driver.name for driver in credibility_risks)
+        alerts.append(f"Credibility watch: {names}")
+
     return alerts
 
 
@@ -483,6 +517,30 @@ def display_league_dashboard():
         f"({relationship_label(lowest_trust.commissioner_trust)})"
     )
 
+    print("Locker room")
+
+    for driver in drivers:
+        rival_text = (
+            f"{driver.rival} ({driver.rivalry_intensity})"
+            if driver.rival
+            else "none"
+        )
+        ally_text = driver.ally or "none"
+        feud = driver.hottest_feud()
+        feud_text = (
+            f"{feud['opponent']} {feud['intensity']} {feud['status']}"
+            if feud
+            else "none"
+        )
+        print(
+            f"- {driver.name}: {driver.happiness_label()} "
+            f"{driver.morale} | "
+            f"Rep {driver.reputation}/Cred {driver.credibility} | "
+            f"Rival {rival_text} | Ally {ally_text} | "
+            f"Teammate bond {driver.teammate_bond} | "
+            f"Feud {feud_text}"
+        )
+
     print("Organizations")
 
     for team in teams:
@@ -512,8 +570,10 @@ def build_event_context(event):
 
     subject_driver = None
     subject_team = None
+    subject_other_driver = None
     driver_name = event.get("subject_driver_name")
     team_name = event.get("subject_team_name")
+    other_name = event.get("subject_other_driver_name")
 
     if driver_name:
         subject_driver = get_driver(driver_name)
@@ -522,6 +582,9 @@ def build_event_context(event):
     if team_name:
         subject_team = get_team(team_name)
 
+    if other_name:
+        subject_other_driver = get_driver(other_name)
+
     return {
         "league": league,
         "policies": current_policies,
@@ -529,6 +592,8 @@ def build_event_context(event):
         "teams": teams,
         "subject_driver": subject_driver,
         "subject_team": subject_team,
+        "subject_other_driver": subject_other_driver,
+        "season": calendar.current_season,
     }
 
 
@@ -655,7 +720,9 @@ def assign_rookie_rival(rookie):
     ]
 
     if possible_rivals:
-        rookie.rival = random.choice(possible_rivals).name
+        rival = random.choice(possible_rivals)
+        intensity = 35 + rookie.ambition // 10
+        rookie.set_rival(rival.name, intensity)
 
 
 def apply_driver_development(driver):
@@ -770,8 +837,7 @@ def clear_retired_rivalries(retired_driver_name):
     """Remove references to a driver who has retired."""
 
     for driver in drivers:
-        if driver.rival == retired_driver_name:
-            driver.rival = None
+        driver.clear_relationship_with(retired_driver_name)
 
 
 def retire_driver(driver):
@@ -805,7 +871,9 @@ def replace_retired_driver(retired_driver):
     print(
         f"Ratings — Speed: {rookie.speed}, "
         f"Consistency: {rookie.consistency}, "
-        f"Aggression: {rookie.aggression}"
+        f"Aggression: {rookie.aggression}, "
+        f"{rookie.personality}, "
+        f"Rival: {rookie.rival or 'none'}"
     )
 
     return rookie
@@ -828,6 +896,193 @@ def get_team_season_wins(team_name):
         driver.wins
         for driver in get_team_drivers(team_name)
     )
+
+
+def refresh_driver_happiness(driver):
+    """Update satisfaction components and blend them into morale."""
+
+    team = get_team(driver.team_name)
+    market = max(1, driver.calculate_market_value())
+    ratio = driver.salary / market
+
+    if driver.is_free_agent:
+        contract = 40
+    elif ratio >= 1.05:
+        contract = 82
+    elif ratio >= 0.90:
+        contract = 68
+    elif ratio >= 0.75:
+        contract = 50
+    else:
+        contract = 35
+
+    driver.contract_satisfaction = contract
+
+    health_penalty = team.financial_distress_level * 8
+    team_sat = round(
+        team.prestige * 0.30
+        + team.facility_rating() * 0.15
+        + driver.teammate_bond * 0.40
+        + 25
+        - health_penalty
+    )
+    driver.team_satisfaction = clamp(team_sat)
+
+    standings = get_driver_standings()
+    position = 1
+
+    for index, ranked in enumerate(standings, start=1):
+        if ranked.name == driver.name:
+            position = index
+            break
+
+    rank_frustration = (position - 1) * 8
+    dnf_frustration = driver.dnfs * 6
+    win_relief = driver.wins * 10
+    ambition_heat = (position - 1) * 2 if driver.ambition >= 75 else 0
+
+    driver.competitive_frustration = clamp(
+        20 + rank_frustration + dnf_frustration + ambition_heat - win_relief
+    )
+    driver.sync_morale_from_happiness()
+
+
+def refresh_all_driver_happiness():
+    """Refresh happiness for every active driver."""
+
+    for driver in drivers:
+        refresh_driver_happiness(driver)
+
+
+def update_paddock_after_race(results):
+    """Escalate rivalries, bonds, reputation, and happiness after a race."""
+
+    results_by_name = {
+        result["driver"].name: result
+        for result in results
+    }
+
+    for result in results:
+        driver = result["driver"]
+
+        if result["status"] != "Running":
+            driver.competitive_frustration = clamp(
+                driver.competitive_frustration + 5
+            )
+
+            if result.get("cause") == "Reckless Driving":
+                driver.credibility = clamp(driver.credibility - 3)
+                driver.reputation = clamp(driver.reputation - 1)
+                driver.adjust_rivalry(8)
+            else:
+                driver.adjust_rivalry(4)
+
+            if driver.rival:
+                driver.record_feud(
+                    driver.rival,
+                    calendar.current_season,
+                    6,
+                    f"race incident ({result['status']})",
+                )
+                try:
+                    rival = get_driver(driver.rival)
+                    rival.record_feud(
+                        driver.name,
+                        calendar.current_season,
+                        4,
+                        f"race incident ({result['status']})",
+                    )
+                except ValueError:
+                    pass
+        else:
+            driver.competitive_frustration = clamp(
+                driver.competitive_frustration - 2
+            )
+            driver.credibility = clamp(driver.credibility + 1)
+
+        for teammate in get_team_drivers(driver.team_name):
+            if teammate.name == driver.name:
+                continue
+
+            teammate_result = results_by_name.get(teammate.name)
+
+            if teammate_result is None:
+                continue
+
+            if (
+                result["status"] == "Running"
+                and teammate_result["status"] == "Running"
+            ):
+                driver.teammate_bond = clamp(driver.teammate_bond + 1)
+                driver.adjust_friendship(teammate.name, 2)
+            elif teammate_result["status"] != "Running":
+                driver.teammate_bond = clamp(driver.teammate_bond - 1)
+
+    winner = None
+
+    for result in results:
+        if result["status"] == "Running":
+            winner = result["driver"]
+            break
+
+    if winner:
+        winner.reputation = clamp(winner.reputation + 2)
+        winner.competitive_frustration = clamp(
+            winner.competitive_frustration - 8
+        )
+
+        if winner.ally:
+            try:
+                ally = get_driver(winner.ally)
+                ally.morale = clamp(ally.morale + 2)
+                ally.adjust_friendship(winner.name, 2)
+            except ValueError:
+                winner.ally = None
+
+    refresh_all_driver_happiness()
+
+
+def process_paddock_relationships():
+    """Decay rivalries, cool feuds, and settle teammate bonds in the offseason."""
+
+    print("\nPaddock Relationships")
+    print("-" * 90)
+
+    for driver in drivers:
+        feud = driver.hottest_feud()
+        decay = 3 if feud and feud.get("status") == "active" else 8
+        driver.decay_rivalry(decay)
+        driver.cool_feuds()
+
+        for teammate in get_team_drivers(driver.team_name):
+            if teammate.name == driver.name:
+                continue
+
+            driver.teammate_bond = clamp(driver.teammate_bond + 2)
+            driver.adjust_friendship(teammate.name, 1)
+
+            if driver.ally is None and driver.teammate_bond >= 70:
+                driver.set_ally(teammate.name, driver.teammate_bond)
+
+        refresh_driver_happiness(driver)
+
+        rival_text = (
+            f"{driver.rival} ({driver.rivalry_intensity})"
+            if driver.rival
+            else "none"
+        )
+        feud = driver.hottest_feud()
+        feud_text = (
+            f"{feud['opponent']} {feud['intensity']} ({feud['status']})"
+            if feud
+            else "none"
+        )
+        print(
+            f"{driver.name} — {driver.happiness_label()} "
+            f"{driver.morale} | Rep {driver.reputation} | "
+            f"Cred {driver.credibility} | Rival {rival_text} | "
+            f"Ally {driver.ally or 'none'} | Feud {feud_text}"
+        )
 
 
 def calculate_sponsorship_income(team):
@@ -1098,6 +1353,7 @@ def run_offseason(completed_season):
             )
 
     run_offseason_finances()
+    process_paddock_relationships()
     present_events(
         offseason_events(current_policies, events_resolved)
     )
@@ -1222,6 +1478,7 @@ def run_race(track, race_number):
 
     display_incident_report(results)
     review_race_incidents(results)
+    update_paddock_after_race(results)
     record_race_history(track, race_number, results)
     serve_suspensions()
     display_league_dashboard()
@@ -1307,9 +1564,25 @@ def review_single_incident(incident):
     )
 
     print(f"Personality: {driver.personality}")
-    print(f"Known rival: {driver.rival}")
-    print(f"Driver aggression rating: {driver.aggression}")
-    print(f"Current morale: {driver.morale}")
+    print(
+        f"Traits — temperament {driver.temperament}, "
+        f"loyalty {driver.loyalty}, ambition {driver.ambition}, "
+        f"media {driver.media_skill}, risk {driver.risk_tolerance}"
+    )
+    print(
+        f"Known rival: {driver.rival} "
+        f"(intensity {driver.rivalry_intensity})"
+    )
+    print(f"Ally: {driver.ally or 'none'}")
+    print(
+        f"Reputation {driver.reputation} | "
+        f"Credibility {driver.credibility} | "
+        f"Popularity {driver.popularity}"
+    )
+    print(
+        f"Happiness: {driver.happiness_label()} "
+        f"(morale {driver.morale})"
+    )
     print(f"Commissioner trust: {driver.commissioner_trust}")
     print(f"Current championship points: {driver.points}")
     print(f"Team budget: ${team.budget:,}")
@@ -1345,6 +1618,15 @@ def apply_personality_reaction(choice, driver):
     reaction_table = PERSONALITY_REACTIONS.get(personality, {})
     trust_change = reaction_table.get(choice, 0)
 
+    if trust_change < 0 and driver.temperament < 40:
+        trust_change -= 1
+
+    if choice in {"3", "4", "5"} and driver.loyalty >= 75:
+        trust_change -= 1
+
+    if choice == "1" and driver.ambition >= 75:
+        trust_change += 1
+
     driver.commissioner_trust = clamp(
         driver.commissioner_trust + trust_change
     )
@@ -1378,15 +1660,33 @@ def apply_rival_reaction(choice, penalized_driver):
 
     severe_decisions = {"3", "4", "5"}
     lenient_decisions = {"1", "2"}
+    heat = 1 if penalized_driver.rivalry_intensity >= 60 else 0
 
     if choice in severe_decisions:
-        trust_change = 3
-        morale_change = 2
+        trust_change = 3 + heat
+        morale_change = 2 + heat
         reaction = "approved of the punishment"
+        penalized_driver.adjust_rivalry(-4)
+
+        if rival.rival == penalized_driver.name:
+            rival.adjust_rivalry(-4)
     elif choice in lenient_decisions:
-        trust_change = -2
-        morale_change = -1
+        trust_change = -2 - heat
+        morale_change = -1 - heat
         reaction = "believed the punishment was too lenient"
+        penalized_driver.adjust_rivalry(6)
+        penalized_driver.record_feud(
+            rival.name,
+            calendar.current_season,
+            6,
+            "lenient ruling",
+        )
+        rival.record_feud(
+            penalized_driver.name,
+            calendar.current_season,
+            6,
+            "lenient ruling",
+        )
     else:
         trust_change = 0
         morale_change = 0
@@ -1408,6 +1708,46 @@ def apply_rival_reaction(choice, penalized_driver):
     print(
         f"{rival.name} commissioner trust: "
         f"{rival.commissioner_trust}"
+    )
+
+
+def apply_ally_reaction(choice, penalized_driver):
+    """Let a driver's ally react to a commissioner ruling."""
+
+    ally_name = penalized_driver.ally
+
+    if not ally_name:
+        return
+
+    try:
+        ally = get_driver(ally_name)
+    except ValueError:
+        penalized_driver.ally = None
+        return
+
+    if choice in {"4", "5"}:
+        trust_change = -3 if penalized_driver.loyalty >= 70 else -2
+        bond_change = -4
+        reaction = "thought the ruling was hard on a friend"
+    elif choice == "1":
+        trust_change = 2
+        bond_change = 2
+        reaction = "appreciated the break given to a friend"
+    else:
+        trust_change = 0
+        bond_change = 0
+        reaction = None
+
+    if reaction is None:
+        return
+
+    ally.commissioner_trust = clamp(ally.commissioner_trust + trust_change)
+    ally.adjust_friendship(penalized_driver.name, bond_change)
+    penalized_driver.adjust_friendship(ally.name, bond_change)
+
+    print(
+        f"{ally.name}, an ally of {penalized_driver.name}, "
+        f"{reaction}."
     )
 
 
@@ -1460,6 +1800,7 @@ def apply_commissioner_ruling(choice, driver, team):
 
     apply_personality_reaction(choice, driver)
     apply_rival_reaction(choice, driver)
+    apply_ally_reaction(choice, driver)
 
     league["integrity"] = clamp(league["integrity"])
     league["fan_interest"] = clamp(league["fan_interest"])
@@ -1626,10 +1967,25 @@ def display_driver_relationship_report():
         print(
             f"{driver.name} "
             f"({driver.personality}) "
+            f"- {driver.happiness_label()} {driver.morale} "
             f"- Trust: {trust}/100 "
             f"- {relationship_label(trust)} "
-            f"- Rival: {driver.rival}"
+            f"- Rep {driver.reputation}/Cred {driver.credibility} "
+            f"- Rival: {driver.rival or 'none'} "
+            f"({driver.rivalry_intensity}) "
+            f"- Ally: {driver.ally or 'none'} "
+            f"- Bond {driver.teammate_bond}"
         )
+
+        feud = driver.hottest_feud()
+
+        if feud:
+            print(
+                f"    Feud: {feud['opponent']} "
+                f"{feud['intensity']} ({feud['status']}) "
+                f"since season {feud.get('started_season', '?')} "
+                f"— {feud.get('last_incident', '')}"
+            )
 
 
 def display_race_history():
@@ -1774,8 +2130,21 @@ def save_season_report(season_number):
                 "dnfs": driver.dnfs,
                 "earnings": driver.earnings,
                 "morale": driver.morale,
+                "happiness": driver.happiness_label(),
                 "popularity": driver.popularity,
+                "reputation": driver.reputation,
+                "credibility": driver.credibility,
                 "commissioner_trust": driver.commissioner_trust,
+                "temperament": driver.temperament,
+                "loyalty": driver.loyalty,
+                "ambition": driver.ambition,
+                "media_skill": driver.media_skill,
+                "risk_tolerance": driver.risk_tolerance,
+                "rival": driver.rival,
+                "rivalry_intensity": driver.rivalry_intensity,
+                "ally": driver.ally,
+                "teammate_bond": driver.teammate_bond,
+                "feuds": list(driver.feuds),
                 "warnings": driver.warnings,
                 "fines": driver.fines,
                 "points_penalties": driver.points_penalties,
@@ -1856,6 +2225,8 @@ def initialize_season(season_number):
 
         # Small recovery between seasons
         driver.morale = clamp(driver.morale + 5)
+
+    refresh_all_driver_happiness()
 
     print("\n" + "=" * 90)
     print(f"STOCK CAR COMMISSIONER — SEASON {season_number}")

@@ -28,6 +28,8 @@ def apply_effect(effect, context):
     teams = context["teams"]
     subject_driver = context.get("subject_driver")
     subject_team = context.get("subject_team")
+    subject_other_driver = context.get("subject_other_driver")
+    season = context.get("season", 1)
 
     if effect_type == "league":
         stat = effect["stat"]
@@ -98,6 +100,67 @@ def apply_effect(effect, context):
             clamp(getattr(subject_team, stat) + effect["delta"]),
         )
 
+    elif (
+        effect_type == "subject_other_driver"
+        and subject_other_driver is not None
+    ):
+        stat = effect["stat"]
+        setattr(
+            subject_other_driver,
+            stat,
+            clamp(
+                getattr(subject_other_driver, stat) + effect["delta"]
+            ),
+        )
+
+    elif effect_type == "rivalry" and subject_driver is not None:
+        amount = effect["delta"]
+        subject_driver.adjust_rivalry(amount)
+
+        if (
+            subject_other_driver is not None
+            and subject_other_driver.rival == subject_driver.name
+        ):
+            subject_other_driver.adjust_rivalry(amount)
+
+    elif effect_type == "feud" and subject_driver is not None:
+        other_name = effect.get("opponent")
+        if not other_name and subject_other_driver is not None:
+            other_name = subject_other_driver.name
+
+        if other_name:
+            incident = effect.get("incident", "")
+            delta = effect.get("delta", 8)
+            subject_driver.record_feud(
+                other_name,
+                season,
+                delta,
+                incident,
+            )
+
+            if subject_other_driver is not None:
+                subject_other_driver.record_feud(
+                    subject_driver.name,
+                    season,
+                    delta,
+                    incident,
+                )
+
+    elif effect_type == "friendship" and subject_driver is not None:
+        other_name = effect.get("friend")
+        if not other_name and subject_other_driver is not None:
+            other_name = subject_other_driver.name
+
+        if other_name:
+            delta = effect["delta"]
+            subject_driver.adjust_friendship(other_name, delta)
+
+            if subject_other_driver is not None:
+                subject_other_driver.adjust_friendship(
+                    subject_driver.name,
+                    delta,
+                )
+
 
 def apply_effects(effects, context):
     """Apply a list of effects."""
@@ -140,6 +203,11 @@ def resolve_event_choice(event, choice_id, context):
         "subject_team": (
             context["subject_team"].name
             if context.get("subject_team")
+            else None
+        ),
+        "subject_other_driver": (
+            context["subject_other_driver"].name
+            if context.get("subject_other_driver")
             else None
         ),
     }
