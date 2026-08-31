@@ -1,4 +1,6 @@
 FACILITY_MAX_LEVEL = 5
+CREW_TRAINING_COST = 80_000
+TREND_HISTORY_SEASONS = 4
 
 FACILITY_UPGRADE_COSTS = {
     2: 400_000,
@@ -7,9 +9,63 @@ FACILITY_UPGRADE_COSTS = {
     5: 1_200_000,
 }
 
+FINANCIAL_STATUS_LABELS = {
+    0: "Profitable",
+    1: "Stable",
+    2: "Struggling",
+    3: "Insolvent",
+}
+
+TREND_LABELS = {
+    2: "Rising Fast",
+    1: "Rising",
+    0: "Stable",
+    -1: "Falling",
+    -2: "Falling Fast",
+}
+
 
 def _clamp(value, minimum=0, maximum=100):
     return max(minimum, min(value, maximum))
+
+
+class Owner:
+    """Represents the person who owns a racing team."""
+
+    def __init__(
+        self,
+        name,
+        personality,
+        wealth,
+        patience,
+        priority,
+    ):
+        self.name = name
+        self.personality = personality
+        self.wealth = _clamp(wealth)
+        self.patience = _clamp(patience)
+        self.priority = priority
+        self.pressure = 25
+
+    @classmethod
+    def default_for_team(cls, team_name):
+        """Build a generic owner when a save or team has none."""
+
+        return cls(
+            name=f"{team_name} Ownership",
+            personality="Hands-On",
+            wealth=50,
+            patience=50,
+            priority="stability",
+        )
+
+    def description(self):
+        """Return a short owner label for prompts and reports."""
+
+        return f"{self.name} ({self.personality}, {self.priority})"
+
+    def __str__(self):
+        return self.name
 
 
 class Team:
@@ -22,6 +78,9 @@ class Team:
         crew_rating,
         reliability,
         starting_budget,
+        owner=None,
+        prestige=None,
+        engineering=None,
     ):
         self.name = name
         self.car_rating = car_rating
@@ -30,6 +89,14 @@ class Team:
 
         self.starting_budget = starting_budget
         self.budget = starting_budget
+
+        self.owner = owner or Owner.default_for_team(name)
+        self.prestige = prestige if prestige is not None else 55
+        self.engineering = (
+            engineering
+            if engineering is not None
+            else max(40, (car_rating + crew_rating) // 2)
+        )
 
         # Career statistics
         self.career_prize_money = 0
@@ -46,7 +113,12 @@ class Team:
         self.career_operating_expenses = 0
         self.career_facility_investment = 0
         self.career_performance_investment = 0
+        self.career_crew_training = 0
         self.financial_distress_level = 0
+
+        self.season_points_history = []
+        self.performance_trend = 0
+        self.season_pit_mistakes = 0
 
     def start_new_season(self):
         """Reset values that apply only to the upcoming season."""
@@ -54,6 +126,7 @@ class Team:
         self.current_payroll = 0
         self.season_sponsorship = 0
         self.season_operating_expenses = 0
+        self.season_pit_mistakes = 0
 
     def add_prize_money(self, amount):
         """Add race winnings to the team's budget and career total."""
@@ -102,6 +175,11 @@ class Team:
 
         return FACILITY_UPGRADE_COSTS[next_level]
 
+    def facility_rating(self):
+        """Return a 0-99 shop rating derived from facility_level."""
+
+        return min(99, 15 + self.facility_level * 17)
+
     def upgrade_facility(self):
         """Upgrade the team facility if affordable."""
 
@@ -114,16 +192,19 @@ class Team:
         self.career_facility_investment += cost
         self.facility_level += 1
         self.reliability = _clamp(self.reliability + 2, 0, 99)
+        self.prestige = _clamp(self.prestige + 2)
+        self.engineering = _clamp(self.engineering + 2, 0, 99)
 
         return True
 
     def invest_in_performance(self, amount):
-        """Invest in car and crew development."""
+        """Invest in car, crew, and engineering development."""
 
         if amount <= 0 or not self.can_afford(amount):
             return {
                 "car_gain": 0,
                 "crew_gain": 0,
+                "engineering_gain": 0,
                 "spent": 0,
             }
 
@@ -132,18 +213,134 @@ class Team:
 
         car_gain = _clamp(amount // 100_000, 1, 3)
         crew_gain = _clamp(amount // 120_000, 1, 2)
+        engineering_gain = _clamp(amount // 150_000, 1, 3)
 
         self.car_rating = _clamp(self.car_rating + car_gain, 0, 99)
         self.crew_rating = _clamp(self.crew_rating + crew_gain, 0, 99)
+        self.engineering = _clamp(
+            self.engineering + engineering_gain,
+            0,
+            99,
+        )
 
         return {
             "car_gain": car_gain,
             "crew_gain": crew_gain,
+            "engineering_gain": engineering_gain,
             "spent": amount,
         }
 
+    def train_pit_crew(self):
+        """Pay for offseason pit-crew training if the team can afford it."""
+
+        if not self.can_afford(CREW_TRAINING_COST):
+            return 0
+
+        self.budget -= CREW_TRAINING_COST
+        self.career_crew_training += CREW_TRAINING_COST
+
+        gain = 1 if self.crew_rating >= 85 else 2
+        self.crew_rating = _clamp(self.crew_rating + gain, 0, 99)
+
+        return gain
+
+    def record_pit_mistake(self):
+        """Record a race pit-crew mistake."""
+
+        self.season_pit_mistakes += 1
+
+    def attractiveness(self):
+        """Return how attractive the team is to drivers."""
+
+        health = 100 - self.financial_distress_level * 18
+
+        return round(
+            _clamp(
+                self.prestige * 0.40
+                + self.facility_rating() * 0.20
+                + health * 0.25
+                + self.engineering * 0.15
+            )
+        )
+
+    def sponsor_appeal(self):
+        """Return how attractive the team is to sponsors."""
+
+        return round(
+            _clamp(
+                self.prestige * 0.45
+                + self.facility_rating() * 0.25
+                + (3 - self.financial_distress_level) * 12
+                + self.championships * 4
+            )
+        )
+
+    def performance_trend_label(self):
+        """Return a readable multi-season momentum label."""
+
+        return TREND_LABELS.get(self.performance_trend, "Stable")
+
+    def record_season_performance(self, points):
+        """Store season points and update momentum from recent results."""
+
+        self.season_points_history.append(points)
+        self.season_points_history = self.season_points_history[
+            -TREND_HISTORY_SEASONS:
+        ]
+
+        if len(self.season_points_history) < 2:
+            self.performance_trend = 0
+            return
+
+        latest = self.season_points_history[-1]
+        previous = (
+            sum(self.season_points_history[:-1])
+            / len(self.season_points_history[:-1])
+        )
+        delta = latest - previous
+
+        if delta >= 20:
+            self.performance_trend = 2
+        elif delta >= 8:
+            self.performance_trend = 1
+        elif delta <= -20:
+            self.performance_trend = -2
+        elif delta <= -8:
+            self.performance_trend = -1
+        else:
+            self.performance_trend = 0
+
+        self.prestige = _clamp(self.prestige + self.performance_trend)
+
+    def apply_trend_effects(self):
+        """Apply modest offseason car and engineering drift from momentum."""
+
+        if self.performance_trend >= 1:
+            self.car_rating = _clamp(self.car_rating + 1, 0, 99)
+            self.engineering = _clamp(self.engineering + 1, 0, 99)
+            self.owner.patience = _clamp(self.owner.patience + 2)
+            self.owner.pressure = _clamp(self.owner.pressure - 3)
+        elif self.performance_trend <= -1:
+            self.car_rating = _clamp(self.car_rating - 1, 0, 99)
+            self.engineering = _clamp(self.engineering - 1, 0, 99)
+            self.owner.patience = _clamp(self.owner.patience - 4)
+            self.owner.pressure = _clamp(self.owner.pressure + 4)
+
+    def apply_owner_financial_mood(self):
+        """Adjust owner patience and pressure from financial health."""
+
+        if self.financial_distress_level == 0:
+            self.owner.patience = _clamp(self.owner.patience + 3)
+            self.owner.pressure = _clamp(self.owner.pressure - 5)
+        elif self.financial_distress_level == 2:
+            self.owner.patience = _clamp(self.owner.patience - 5)
+            self.owner.pressure = _clamp(self.owner.pressure + 8)
+        elif self.financial_distress_level == 3:
+            self.owner.patience = _clamp(self.owner.patience - 10)
+            self.owner.pressure = _clamp(self.owner.pressure + 15)
+
     def update_financial_distress(self):
-        """Update the team's financial distress level from its budget."""
+        """Update the team's financial health level from its budget."""
 
         if self.budget >= 1_500_000:
             self.financial_distress_level = 0
@@ -157,14 +354,7 @@ class Team:
     def financial_status_label(self):
         """Return a readable financial health label."""
 
-        labels = {
-            0: "Healthy",
-            1: "Cautious",
-            2: "Distressed",
-            3: "Critical",
-        }
-
-        return labels[self.financial_distress_level]
+        return FINANCIAL_STATUS_LABELS[self.financial_distress_level]
 
     def record_win(self):
         """Record a race victory for the team."""

@@ -4,10 +4,10 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from game.models import Driver, Team
+from game.models import Driver, Owner, Team
 
-SAVE_VERSION = "0.0.5"
-SUPPORTED_SAVE_VERSIONS = {"0.0.3", "0.0.4", "0.0.5"}
+SAVE_VERSION = "0.0.6"
+SUPPORTED_SAVE_VERSIONS = {"0.0.3", "0.0.4", "0.0.5", "0.0.6"}
 GAME_NAME = "Stock Car Commissioner"
 
 
@@ -112,6 +112,40 @@ def driver_from_dict(data):
     return driver
 
 
+def owner_to_dict(owner):
+    """Serialize an owner to a dictionary."""
+
+    if owner is None:
+        return None
+
+    return {
+        "name": owner.name,
+        "personality": owner.personality,
+        "wealth": owner.wealth,
+        "patience": owner.patience,
+        "priority": owner.priority,
+        "pressure": owner.pressure,
+    }
+
+
+def owner_from_dict(data, team_name):
+    """Restore an owner, or create a default if an older save has none."""
+
+    if not data:
+        return Owner.default_for_team(team_name)
+
+    owner = Owner(
+        name=data["name"],
+        personality=data.get("personality", "Hands-On"),
+        wealth=data.get("wealth", 50),
+        patience=data.get("patience", 50),
+        priority=data.get("priority", "stability"),
+    )
+    owner.pressure = data.get("pressure", 25)
+
+    return owner
+
+
 def team_to_dict(team):
     """Serialize a team to a dictionary."""
 
@@ -134,7 +168,14 @@ def team_to_dict(team):
         "career_operating_expenses": team.career_operating_expenses,
         "career_facility_investment": team.career_facility_investment,
         "career_performance_investment": team.career_performance_investment,
+        "career_crew_training": team.career_crew_training,
         "financial_distress_level": team.financial_distress_level,
+        "owner": owner_to_dict(team.owner),
+        "prestige": team.prestige,
+        "engineering": team.engineering,
+        "season_points_history": list(team.season_points_history),
+        "performance_trend": team.performance_trend,
+        "season_pit_mistakes": team.season_pit_mistakes,
     }
 
 
@@ -147,6 +188,9 @@ def team_from_dict(data):
         crew_rating=data["crew_rating"],
         reliability=data["reliability"],
         starting_budget=data["starting_budget"],
+        owner=owner_from_dict(data.get("owner"), data["name"]),
+        prestige=data.get("prestige"),
+        engineering=data.get("engineering"),
     )
 
     team.budget = data["budget"]
@@ -162,7 +206,11 @@ def team_from_dict(data):
     team.career_operating_expenses = data["career_operating_expenses"]
     team.career_facility_investment = data["career_facility_investment"]
     team.career_performance_investment = data["career_performance_investment"]
+    team.career_crew_training = data.get("career_crew_training", 0)
     team.financial_distress_level = data["financial_distress_level"]
+    team.season_points_history = list(data.get("season_points_history") or [])
+    team.performance_trend = data.get("performance_trend", 0)
+    team.season_pit_mistakes = data.get("season_pit_mistakes", 0)
 
     return team
 

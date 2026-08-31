@@ -10,12 +10,14 @@ from game.policies import policy_label
 
 
 def _team_by_pressure(teams):
-    """Return the team most likely to complain."""
+    """Return the team whose owner is most likely to complain."""
 
     return min(
         teams,
         key=lambda team: (
             -team.financial_distress_level,
+            team.owner.patience,
+            -team.owner.pressure,
             team.budget,
         ),
     )
@@ -588,6 +590,8 @@ def safety_mandate_event(policies):
 def owner_complaint_event(team):
     """In-season owner pressure over costs and officiating."""
 
+    owner = team.owner
+
     return {
         "id": "owner-complaint",
         "title": "Owner Complaint",
@@ -595,7 +599,8 @@ def owner_complaint_event(team):
         "phase": REGULAR_SEASON,
         "subject_team_name": team.name,
         "prompt": (
-            f"The owner of {team.name} requests a private meeting. "
+            f"{owner.description()}, owner of {team.name}, requests a "
+            f"private meeting. Patience {owner.patience}/100. "
             f"The team budget sits at ${team.budget:,} "
             f"({team.financial_status_label()}). They want relief on "
             "fines, inspection time, and what they call 'costly officiating.'"
@@ -607,6 +612,8 @@ def owner_complaint_event(team):
                 "effects": [
                     {"type": "league", "stat": "integrity", "delta": 3},
                     {"type": "league", "stat": "owner_pressure", "delta": 8},
+                    {"type": "subject_owner", "stat": "patience", "delta": -8},
+                    {"type": "subject_owner", "stat": "pressure", "delta": 12},
                     {"type": "team_drivers", "stat": "morale", "delta": -4},
                 ],
                 "outcomes": [
@@ -630,6 +637,8 @@ def owner_complaint_event(team):
                 "effects": [
                     {"type": "league", "stat": "owner_pressure", "delta": -2},
                     {"type": "league", "stat": "controversy", "delta": 1},
+                    {"type": "subject_owner", "stat": "patience", "delta": 2},
+                    {"type": "subject_owner", "stat": "pressure", "delta": -4},
                 ],
                 "outcomes": [
                     {
@@ -653,6 +662,8 @@ def owner_complaint_event(team):
                     {"type": "subject_team_budget", "delta": 150_000},
                     {"type": "league", "stat": "integrity", "delta": -4},
                     {"type": "league", "stat": "owner_pressure", "delta": -8},
+                    {"type": "subject_owner", "stat": "patience", "delta": 4},
+                    {"type": "subject_owner", "stat": "pressure", "delta": -10},
                     {"type": "team_drivers", "stat": "morale", "delta": 3},
                 ],
                 "outcomes": [
@@ -683,6 +694,8 @@ def owner_complaint_event(team):
 def owner_lobbying_event(team):
     """Postseason lobbying for next year's rules."""
 
+    owner = team.owner
+
     return {
         "id": "owner-lobbying",
         "title": "Owner Lobbying",
@@ -690,7 +703,9 @@ def owner_lobbying_event(team):
         "phase": POSTSEASON,
         "subject_team_name": team.name,
         "prompt": (
-            f"{team.name} organizes a postseason owners' call. They want "
+            f"{owner.description()} of {team.name} organizes a postseason "
+            "owners' call. Priority: "
+            f"{owner.priority}. Patience {owner.patience}/100. They want "
             "looser technical scrutiny and a friendlier cost environment "
             "before next year's contracts lock."
         ),
@@ -701,6 +716,8 @@ def owner_lobbying_event(team):
                 "effects": [
                     {"type": "league", "stat": "integrity", "delta": 4},
                     {"type": "league", "stat": "owner_pressure", "delta": 6},
+                    {"type": "subject_owner", "stat": "patience", "delta": -6},
+                    {"type": "subject_owner", "stat": "pressure", "delta": 8},
                 ],
                 "outcomes": [
                     {
@@ -723,6 +740,8 @@ def owner_lobbying_event(team):
                 "effects": [
                     {"type": "league", "stat": "owner_pressure", "delta": -4},
                     {"type": "league", "stat": "integrity", "delta": 1},
+                    {"type": "subject_owner", "stat": "patience", "delta": 3},
+                    {"type": "subject_owner", "stat": "pressure", "delta": -6},
                 ],
                 "outcomes": [
                     {
@@ -747,6 +766,8 @@ def owner_lobbying_event(team):
                     {"type": "league", "stat": "integrity", "delta": -5},
                     {"type": "league", "stat": "owner_pressure", "delta": -10},
                     {"type": "league", "stat": "controversy", "delta": 4},
+                    {"type": "subject_owner", "stat": "patience", "delta": 6},
+                    {"type": "subject_owner", "stat": "pressure", "delta": -12},
                 ],
                 "outcomes": [
                     {

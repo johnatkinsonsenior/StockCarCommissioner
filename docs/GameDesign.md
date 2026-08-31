@@ -168,6 +168,13 @@ The following team information continues between seasons:
 - Career prize money
 - Career victories
 - Championships
+- Owner personality, wealth, patience, and priorities
+- Prestige and reputation
+- Performance trends
+- Facility level
+- Engineering strength
+- Pit crew rating
+- Financial health
 
 ### Season Resets
 
@@ -243,11 +250,12 @@ Offseason sponsorship income is based on:
 
 - Base sponsor support
 - Facility level
+- Team prestige and sponsor appeal
 - Championships
 - Season race wins
 - Average driver popularity
 
-Teams in financial distress may receive reduced sponsorship offers.
+Struggling and insolvent teams may receive reduced sponsorship offers.
 
 ### Operating Expenses
 
@@ -259,22 +267,22 @@ Each offseason teams pay:
 
 ### Facility Upgrades
 
-Teams may upgrade their facility up to level 5. Upgrades improve reliability and increase future sponsorship potential.
+Teams may upgrade their shop up to facility level 5. The shop rating is derived from that level. Upgrades improve reliability, prestige, and engineering, and increase future sponsorship potential.
 
 ### Performance Investment
 
-Healthy teams may invest in car and crew development during the offseason, improving race performance.
+Profitable teams may invest in car, crew, and engineering development during the offseason, improving race performance.
 
-### Financial Distress
+### Financial Health
 
-Team financial health is tracked across four levels:
+Team financial health is tracked across four levels on a single money-status track:
 
-- Healthy
-- Cautious
-- Distressed
-- Critical
+- Profitable
+- Stable
+- Struggling
+- Insolvent
 
-Distressed teams face reduced morale, performance penalties, and limited investment options. Critical teams suffer severe performance declines and sponsor discounts.
+Struggling teams face reduced morale, performance penalties, and limited investment options. Insolvent teams suffer severe performance declines and sponsor discounts but remain entered in the series.
 
 ## Save and Load
 
@@ -290,6 +298,7 @@ Saved data includes:
 - Current season number and career length
 - League policies
 - Commissioner decision log
+- Team owners, reputation, trends, facilities, engineering, and pit crews
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -306,7 +315,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, team finances, driver relationships, active policies, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, team organizations (owners, reputation, trends, shops, engineering, pit crews, and financial health), driver relationships, active policies, and key alerts.
 
 ### Decision Events
 
@@ -335,4 +344,44 @@ During the offseason the commissioner may require current, enhanced, or maximum 
 
 ### Owner and Driver Complaints
 
-Owners lobby through their teams for financial relief and looser technical scrutiny. Drivers file grievances about officiating, safety, and trust. Both can appear during the regular season and again after the championship.
+Named owners lobby through their teams for financial relief and looser technical scrutiny. Each owner has a personality, wealth, patience, and a priority (wins, stability, cost-control, or prestige). Owner complaints and postseason lobbying are tied to those people, not anonymous team pressure. Drivers file grievances about officiating, safety, and trust. Both can appear during the regular season and again after the championship.
+
+## Teams as Organizations
+
+Teams are organizations, not just car ratings and a budget.
+
+### Owners
+
+Each team has a named owner with:
+
+- Personality
+- Wealth
+- Patience
+- A priority: wins, stability, cost-control, or prestige
+- Personal pressure on the commissioner
+
+Impatient or cash-strapped owners are more likely to request meetings. Commissioner rulings change that owner's patience and pressure as well as league-wide owner pressure.
+
+### Reputation
+
+Teams carry prestige that affects attractiveness to drivers and appeal to sponsors. Prestige moves with championships, facility upgrades, results trends, and financial health.
+
+### Performance Trends
+
+Recent championship points (up to four seasons) produce a momentum label: Rising Fast, Rising, Stable, Falling, or Falling Fast. Momentum slightly shifts car rating, engineering, prestige, and owner patience in the offseason.
+
+### Facilities
+
+Shop quality uses the existing facility level 1–5. A derived shop rating feeds sponsorship and driver attractiveness. Upgrades are the same `upgrade_facility` flow.
+
+### Engineering
+
+Each team has an engineering department rating. Stronger engineering reduces mechanical-failure risk, contributes to race pace, and grows through facility upgrades and performance investment.
+
+### Pit Crews
+
+Pit-crew skill uses the existing crew rating. Weaker crews can lose time with in-race mistakes. Profitable and stable teams may train crews in the offseason. Race-weekend pit strategy is not part of this system.
+
+### Financial Health
+
+The four-level money track is labeled Profitable, Stable, Struggling, and Insolvent. Insolvent teams stay on the grid.
