@@ -1,6 +1,6 @@
 | ID | Feature                | Priority | Status      |
 | -- | ---------------------- | -------- | ----------- |
-| 1  | Race simulation        | High     | In Progress |
+| 1  | Race simulation        | High     | Completed   |
 | 2  | Driver Database        | High     | In Progress |
 | 3  | Team Database          | High     | Completed   |
 | 4  | Points Standings       | High     | In Progress |
@@ -40,7 +40,7 @@
 | 38 | Driver class | High | Completed |
 | 39 | Team class | High | Completed |
 | 40 | Object-based season data | High | Completed |
-| 41 | Track class | Low | Not Started |
+| 41 | Track class | Low | Completed |
 | 42 | Multi-season career mode | High | Completed |
 | 43 | Driver career statistics | High | Completed |
 | 44 | Team career statistics | Medium | Completed |
@@ -83,3 +83,10 @@
 | 81 | Rivalry events | High | Completed |
 | 82 | Long-term feuds | High | Completed |
 | 83 | Driver friendships | High | Completed |
+| 84 | Track attributes | High | Completed |
+| 85 | Driver track skills | High | Completed |
+| 86 | Qualifying and starting grid | High | Completed |
+| 87 | Race stages and stage scoring | High | Completed |
+| 88 | Cautions and restarts | High | Completed |
+| 89 | Pit strategy | High | Completed |
+| 90 | Race-day weather | High | Completed |

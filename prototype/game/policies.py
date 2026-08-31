@@ -80,6 +80,27 @@ def get_points_by_position():
     return POINTS_TABLES[current_policies["points_system"]]
 
 
+def get_stage_points_by_position():
+    """Return stage points derived from the active championship table."""
+
+    return [
+        max(1, points // 4)
+        for points in get_points_by_position()
+    ]
+
+
+def uses_stage_racing():
+    """Return whether the current race format awards stage points."""
+
+    return current_policies["race_format"] == "stage-racing"
+
+
+def uses_heat_races():
+    """Return whether the current format runs a heat before the feature."""
+
+    return current_policies["race_format"] == "heat-and-feature"
+
+
 def get_crash_modifier():
     """Return an incident-risk adjustment from active policies."""
 

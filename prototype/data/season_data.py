@@ -1,4 +1,4 @@
-from game.models import Driver, Owner, Team
+from game.models import Driver, Owner, Team, Track
 
 
 def create_initial_teams():
@@ -78,6 +78,10 @@ def create_initial_drivers():
             credibility=76,
             salary=1_200_000,
             contract_years=2,
+            short_track=74,
+            road_course=80,
+            intermediate=82,
+            superspeedway=78,
             feuds=[
                 {
                     "opponent": "Mason Reed",
@@ -107,6 +111,10 @@ def create_initial_drivers():
             credibility=80,
             salary=975_000,
             contract_years=1,
+            short_track=86,
+            road_course=72,
+            intermediate=80,
+            superspeedway=70,
             friendships={"Cole Baker": 74},
         ),
         Driver(
@@ -125,6 +133,10 @@ def create_initial_drivers():
             credibility=48,
             salary=1_350_000,
             contract_years=3,
+            short_track=70,
+            road_course=68,
+            intermediate=84,
+            superspeedway=90,
             feuds=[
                 {
                     "opponent": "Cole Baker",
@@ -152,6 +164,10 @@ def create_initial_drivers():
             salary=850_000,
             contract_years=2,
             is_rookie=True,
+            short_track=76,
+            road_course=64,
+            intermediate=70,
+            superspeedway=68,
         ),
         Driver(
             name="Derek Lane",
@@ -171,6 +187,10 @@ def create_initial_drivers():
             credibility=55,
             salary=1_175_000,
             contract_years=2,
+            short_track=82,
+            road_course=70,
+            intermediate=85,
+            superspeedway=88,
             friendships={"Austin Vale": 62},
         ),
         Driver(
@@ -192,6 +212,10 @@ def create_initial_drivers():
             media_skill=92,
             salary=1_100_000,
             contract_years=3,
+            short_track=72,
+            road_course=84,
+            intermediate=78,
+            superspeedway=76,
             friendships={"Derek Lane": 62},
         ),
     ]
@@ -200,35 +224,67 @@ def create_initial_drivers():
 teams = create_initial_teams()
 drivers = create_initial_drivers()
 
-tracks = [
-    {
-        "name": "Atlantic Speedway",
-        "type": "Superspeedway",
-        "purse": 750_000,
-        "incident_risk": 18,
-    },
-    {
-        "name": "Carolina Motor Speedway",
-        "type": "Intermediate",
-        "purse": 600_000,
-        "incident_risk": 10,
-    },
-    {
-        "name": "Thunder Valley",
-        "type": "Superspeedway",
-        "purse": 700_000,
-        "incident_risk": 20,
-    },
-    {
-        "name": "Pine Ridge Raceway",
-        "type": "Short Track",
-        "purse": 500_000,
-        "incident_risk": 16,
-    },
-    {
-        "name": "Lone Star Circuit",
-        "type": "Road Course",
-        "purse": 650_000,
-        "incident_risk": 12,
-    },
-]
+
+def create_initial_tracks():
+    """Return the series schedule as Track objects."""
+
+    return [
+        Track(
+            name="Atlantic Speedway",
+            track_type="Superspeedway",
+            purse=750_000,
+            incident_risk=18,
+            length=2.5,
+            banking=31,
+            surface="asphalt",
+            tire_wear=45,
+            passing_difficulty=35,
+        ),
+        Track(
+            name="Carolina Motor Speedway",
+            track_type="Intermediate",
+            purse=600_000,
+            incident_risk=10,
+            length=1.5,
+            banking=24,
+            surface="asphalt",
+            tire_wear=62,
+            passing_difficulty=55,
+        ),
+        Track(
+            name="Thunder Valley",
+            track_type="Superspeedway",
+            purse=700_000,
+            incident_risk=20,
+            length=2.0,
+            banking=28,
+            surface="asphalt",
+            tire_wear=50,
+            passing_difficulty=40,
+        ),
+        Track(
+            name="Pine Ridge Raceway",
+            track_type="Short Track",
+            purse=500_000,
+            incident_risk=16,
+            length=0.5,
+            banking=14,
+            surface="concrete",
+            tire_wear=78,
+            passing_difficulty=70,
+        ),
+        Track(
+            name="Lone Star Circuit",
+            track_type="Road Course",
+            purse=650_000,
+            incident_risk=12,
+            length=2.3,
+            banking=8,
+            surface="asphalt",
+            tire_wear=55,
+            passing_difficulty=75,
+        ),
+    ]
+
+
+tracks = create_initial_tracks()
