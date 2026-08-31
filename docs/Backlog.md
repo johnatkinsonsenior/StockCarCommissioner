@@ -90,3 +90,10 @@
 | 88 | Cautions and restarts | High | Completed |
 | 89 | Pit strategy | High | Completed |
 | 90 | Race-day weather | High | Completed |
+| 91 | Tire wear and tire strategy | High | Completed |
+| 92 | Fuel windows and gambles | High | Completed |
+| 93 | Typed pit-road mistakes | High | Completed |
+| 94 | Mechanical components | High | Completed |
+| 95 | Contact model | High | Completed |
+| 96 | Multi-car crashes | High | Completed |
+| 97 | Post-race investigation | High | Completed |

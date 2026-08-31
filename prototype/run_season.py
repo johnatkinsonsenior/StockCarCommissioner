@@ -44,11 +44,13 @@ from game.save_game import (
     save_to_file,
 )
 from game.race import (
+    PART_LABELS,
     PRIZE_PERCENTAGES,
     clamp,
     get_driver,
     get_team,
     simulate_race_weekend,
+    tire_load,
     weather_label,
 )
 
@@ -589,6 +591,21 @@ def display_league_dashboard():
             f"pole {last_race.get('pole') or 'n/a'} | "
             f"{last_race.get('format', 'single-feature')}"
         )
+        wrecks = last_race.get("wrecks") or []
+        investigations = last_race.get("investigations") or []
+        if wrecks:
+            biggest = max(wrecks, key=lambda wreck: wreck.get("size", 0))
+            print(
+                f"Last wrecks: {len(wrecks)} "
+                f"(biggest {biggest['size']}-car, "
+                f"started by {biggest.get('initiator', 'n/a')})"
+            )
+        if investigations:
+            packet = investigations[0]
+            print(
+                f"Last investigation: blame {packet.get('blame')} "
+                f"({packet.get('confidence')} confidence)"
+            )
 
     print("Alerts")
 
@@ -1403,6 +1420,77 @@ def serve_suspensions():
             driver.suspension_races -= 1
 
 
+def result_strategy_text(result):
+    """Return pit plan plus fuel call for reports."""
+
+    strategy = (result.get("strategy") or "two-stop").replace("-", " ")
+    fuel_call = result.get("fuel_call")
+
+    if fuel_call and fuel_call != "window":
+        return f"{strategy}, {fuel_call}"
+
+    return strategy
+
+
+def result_status_display(result):
+    """Return a finish/DNF label including parts, wrecks, and pit penalties."""
+
+    status = result["status"]
+
+    if status == "Running":
+        bits = []
+
+        if result.get("contact") == "spin":
+            bits.append("spin")
+        elif result.get("contact") == "minor contact":
+            bits.append("contact")
+
+        if result.get("pit_mistake"):
+            mistake = result.get("pit_mistake_type") or "pit mistake"
+            penalty = result.get("pit_penalty")
+            if penalty:
+                bits.append(f"{mistake}, {penalty}")
+            else:
+                bits.append(mistake)
+
+        if bits:
+            return "Finished (" + "; ".join(bits) + ")"
+
+        return "Finished"
+
+    if status == "Mechanical Failure":
+        part = PART_LABELS.get(result.get("component"), "Mechanical")
+        return f"DNF: {part}"
+
+    if status == "Crash":
+        wreck = result.get("wreck")
+        if wreck:
+            role = wreck.get("role", "collected")
+            return f"DNF: Crash ({wreck['size']}-car wreck, {role})"
+        if result.get("contact") == "spin":
+            return "DNF: Spin"
+        return "DNF: Crash"
+
+    return f"DNF: {status}"
+
+
+def print_strategy_report(weekend, track):
+    """Print tire wear and the field's pit/fuel plans."""
+
+    weather = weekend["weather"]
+    load = tire_load(track, weather)
+    print(
+        f"\nTire/fuel: wear {load} "
+        f"(track {track.tire_wear}, weather {weather.get('tire_mod', 0):+d})"
+    )
+
+    for result in weekend["results"]:
+        driver = result["driver"]
+        print(
+            f"- {driver.name}: {result_strategy_text(result)}"
+        )
+
+
 def record_race_history(track, race_number, results, weekend):
     """Save the results of a completed race."""
 
@@ -1444,9 +1532,17 @@ def record_race_history(track, race_number, results, weekend):
                 "stage_points": weekend["stage_points"].get(driver.name, 0),
                 "qualifying_position": result.get("qualifying_position"),
                 "grid_penalty": result.get("grid_penalty", 0),
+                "fuel_call": result.get("fuel_call"),
+                "pit_mistake_type": result.get("pit_mistake_type"),
+                "pit_penalty": result.get("pit_penalty"),
+                "component": result.get("component"),
+                "contact": result.get("contact"),
+                "wreck": result.get("wreck"),
             }
         )
 
+    race_record["wrecks"] = list(weekend.get("wrecks") or [])
+    race_record["investigations"] = list(weekend.get("investigations") or [])
     race_history.append(race_record)
 
 
@@ -1537,6 +1633,7 @@ def run_race(track, race_number):
     print(f"Weather: {weather_label(weekend['weather'])}")
     print(f"Format: {policy_label('race_format')}")
     print_qualifying_report(weekend)
+    print_strategy_report(weekend, track)
 
     print("\nFeature Results")
     print("-" * 75)
@@ -1551,7 +1648,7 @@ def run_race(track, race_number):
             track.purse * PRIZE_PERCENTAGES[position - 1]
         )
         start_position = result.get("start", position)
-        strategy = (result.get("strategy") or "two-stop").replace("-", " ")
+        strategy = result_strategy_text(result)
 
         driver.add_points(points_earned)
         driver.add_earnings(prize_money)
@@ -1572,10 +1669,7 @@ def run_race(track, race_number):
             elif position <= 3:
                 driver.popularity = clamp(driver.popularity + 2)
 
-            status_display = "Finished"
-
-            if result.get("pit_mistake"):
-                status_display = "Finished (pit mistake)"
+            status_display = result_status_display(result)
 
         else:
             driver.dnfs += 1
@@ -1585,7 +1679,7 @@ def run_race(track, race_number):
             else:
                 driver.popularity = clamp(driver.popularity - 1)
 
-            status_display = f"DNF: {status}"
+            status_display = result_status_display(result)
 
         points_text = f"{points_earned} pts"
 
@@ -1604,44 +1698,78 @@ def run_race(track, race_number):
             f"- ${prize_money:,}"
         )
 
-    display_incident_report(results)
-    review_race_incidents(results)
+    display_incident_report(results, weekend)
+    review_race_incidents(results, weekend)
     update_paddock_after_race(results)
     record_race_history(track, race_number, results, weekend)
     serve_suspensions()
     display_league_dashboard()
 
 
-def display_incident_report(results):
-    """Display crashes, mechanical failures, and pit-crew mistakes."""
+def display_incident_report(results, weekend=None):
+    """Display crashes, parts, contact, wrecks, and pit-road mistakes."""
 
+    weekend = weekend or {}
     incidents = [
         result
         for result in results
         if result["status"] != "Running"
+    ]
+    contacts = [
+        result
+        for result in results
+        if result.get("contact") and result["status"] == "Running"
     ]
     pit_mistakes = [
         result
         for result in results
         if result.get("pit_mistake")
     ]
+    wrecks = weekend.get("wrecks") or []
 
     print("\nIncident Report")
     print("-" * 75)
 
-    if not incidents:
+    if not incidents and not contacts:
         print("No major incidents occurred.")
     else:
         for incident in incidents:
             driver = incident["driver"]
 
             if incident["status"] == "Crash":
+                wreck = incident.get("wreck")
+                wreck_text = ""
+                if wreck:
+                    wreck_text = f" — {wreck['size']}-car wreck ({wreck['role']})"
                 print(
-                    f"{driver.name}: Crash "
-                    f"— Initial finding: {incident['cause']}"
+                    f"{driver.name}: Crash"
+                    f"{wreck_text} "
+                    f"— Initial finding: {incident.get('cause') or 'Racing Incident'}"
                 )
+            elif incident["status"] == "Mechanical Failure":
+                part = PART_LABELS.get(incident.get("component"), "Mechanical")
+                print(f"{driver.name}: {part} failure")
             else:
-                print(f"{driver.name}: Mechanical Failure")
+                print(f"{driver.name}: {incident['status']}")
+
+        for result in contacts:
+            driver = result["driver"]
+            print(
+                f"{driver.name}: {result['contact']} "
+                f"— continued (finding: {result.get('cause') or 'Racing Incident'})"
+            )
+
+    if wrecks:
+        print("\nMulti-car Wrecks")
+        print("-" * 75)
+
+        for wreck in wrecks:
+            label = "Major" if wreck.get("major") else "Chain"
+            print(
+                f"{label} {wreck['size']}-car: "
+                f"{', '.join(wreck['cars'])} "
+                f"(started by {wreck['initiator']})"
+            )
 
     if pit_mistakes:
         print("\nPit Crew Report")
@@ -1649,23 +1777,37 @@ def display_incident_report(results):
 
         for result in pit_mistakes:
             driver = result["driver"]
+            mistake = result.get("pit_mistake_type") or "crew error"
+            penalty = result.get("pit_penalty")
+            penalty_text = f", {penalty} penalty" if penalty else ""
             print(
                 f"{driver.name} ({driver.team_name}): "
-                "costly pit stop"
+                f"{mistake}{penalty_text}"
             )
 
 
-def review_race_incidents(results):
-    """Allow the commissioner to review potentially reckless crashes."""
+def review_race_incidents(results, weekend=None):
+    """Allow the commissioner to review reckless crashes and wreck blame."""
+
+    weekend = weekend or {}
+    investigations = weekend.get("investigations") or []
+    by_name = {packet["driver"]: packet for packet in investigations}
 
     reviewable_incidents = [
         result
         for result in results
-        if (
-            result["status"] == "Crash"
-            and result["cause"] == "Reckless Driving"
-        )
+        if result["driver"].name in by_name
     ]
+
+    if not reviewable_incidents:
+        reviewable_incidents = [
+            result
+            for result in results
+            if (
+                result["status"] == "Crash"
+                and result.get("cause") == "Reckless Driving"
+            )
+        ]
 
     if not reviewable_incidents:
         print("\nCommissioner Review")
@@ -1677,10 +1819,11 @@ def review_race_incidents(results):
     print("-" * 75)
 
     for incident in reviewable_incidents:
-        review_single_incident(incident)
+        packet = by_name.get(incident["driver"].name)
+        review_single_incident(incident, packet)
 
 
-def review_single_incident(incident):
+def review_single_incident(incident, investigation=None):
     """Present disciplinary options for one incident."""
 
     driver = incident["driver"]
@@ -1690,6 +1833,20 @@ def review_single_incident(incident):
         f"\nRace control has referred {driver.name} "
         f"of {driver.team_name} for possible reckless driving."
     )
+
+    if investigation:
+        involved = ", ".join(investigation.get("involved") or [driver.name])
+        print("\nInvestigation")
+        print(
+            f"Assigned blame: {investigation.get('blame')} "
+            f"({investigation.get('confidence')} confidence)"
+        )
+        print(f"Contact: {investigation.get('contact') or 'crash'}")
+        print(f"Involved: {involved}")
+        print("Evidence:")
+
+        for line in investigation.get("evidence") or []:
+            print(f"- {line}")
 
     print(f"Personality: {driver.personality}")
     print(
@@ -1725,6 +1882,23 @@ def review_single_incident(incident):
     choice = get_valid_choice()
 
     apply_commissioner_ruling(choice, driver, team)
+
+    if investigation:
+        decision_log.append(
+            {
+                "season": calendar.current_season,
+                "id": "post-race-investigation",
+                "title": "Post-race investigation",
+                "choice_id": choice,
+                "choice_label": f"Disciplinary ruling on {driver.name}",
+                "outcome": (
+                    f"Blame assigned to {investigation.get('blame')} "
+                    f"({investigation.get('confidence')} confidence). "
+                    "Evidence: "
+                    + "; ".join(investigation.get("evidence") or [])
+                ),
+            }
+        )
 
 
 def get_valid_choice():
@@ -2140,11 +2314,14 @@ def display_race_history():
         else:
             caution_text = f", {cautions} yellows"
 
+        wrecks = race.get("wrecks") or []
+        wreck_text = f", {len(wrecks)} wrecks" if wrecks else ""
+
         print(
             f"Race {race['race_number']}: {race['track']} "
             f"- Winner: {winner['driver']} "
             f"({winner['team']}) "
-            f"- {weather}{caution_text} "
+            f"- {weather}{caution_text}{wreck_text} "
             f"- Pole: {race.get('pole') or 'n/a'} "
             f"- Incidents: {len(incidents)}"
         )

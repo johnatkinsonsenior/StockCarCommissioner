@@ -49,6 +49,8 @@ Following reviewable race incidents, the commissioner may choose from several di
 4. Championship points penalty
 5. Race suspension
 
+Post-race investigation packets (evidence, assigned blame, involved cars) feed this same review. There is no second investigation screen.
+
 Each ruling affects different stakeholders and league metrics.
 
 ### Commissioner Metrics
@@ -333,6 +335,7 @@ Saved data includes:
 - Current season number and career length
 - League policies
 - Commissioner decision log
+- Race investigations and wreck summaries
 - Team owners, reputation, trends, facilities, engineering, and pit crews
 - Driver traits, happiness, reputation, rivalries, feuds, and friendships
 
@@ -351,7 +354,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, and cautions, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
 
 ### Decision Events
 
@@ -412,11 +415,11 @@ Shop quality uses the existing facility level 1–5. A derived shop rating feeds
 
 ### Engineering
 
-Each team has an engineering department rating. Stronger engineering reduces mechanical-failure risk, contributes to race pace, and grows through facility upgrades and performance investment.
+Each team has an engineering department rating. Stronger engineering reduces mechanical-failure risk, contributes to race pace, and grows through facility upgrades and performance investment. Failures are named parts: engine, transmission, or brakes. Team reliability and engineering remain the durability source.
 
 ### Pit Crews
 
-Pit-crew skill uses the existing crew rating. Weaker crews can lose time with in-race mistakes. Profitable and stable teams may train crews in the offseason. Race weekends also pick an automated pit plan (tires, fuel, timing) that uses crew rating, tire wear, weather, and grid position. Component-level pit-road penalties are not part of this system.
+Pit-crew skill uses the existing crew rating. Weaker crews can lose time with in-race mistakes. Mistakes are typed as crew errors or pit-road speeding and can draw a drive-through or stop-and-go under the existing penalty standard. Profitable and stable teams may train crews in the offseason. Race weekends also pick an automated pit plan (tires, fuel, timing) that uses crew rating, tire wear, weather, and grid position.
 
 ### Financial Health
 
@@ -453,3 +456,15 @@ Each car is assigned an automated plan: two-stop, three-stop, fuel-save, short-r
 ### Weather
 
 Race day generates conditions (clear, hot, cloudy, windy, or light rain) that apply to both qualifying and the feature. Weather shifts pace, incident risk, and tire load.
+
+### Tires and Fuel
+
+Tire wear is the existing track rating plus weather. It degrades pace unless the pit plan (especially a three-stop) covers it. There is no second tire number. Fuel is handled on the same pit plan: standard windows, fuel-save conservation, or a late-race gamble that can pay off or run the car dry.
+
+### Contact and Wrecks
+
+Crash chance still decides whether a car is in trouble. Contact then escalates to minor contact, a spin, or a crash. Nearby cars can be collected into a chain-reaction wreck at race-outcome level. This is not a lap-by-lap physics engine.
+
+### Post-Race Investigation
+
+Reckless crashes and wreck initiators generate an investigation packet: evidence, blame, confidence, and involved cars. That packet is printed in the existing commissioner review and stored on the race record and decision log.
