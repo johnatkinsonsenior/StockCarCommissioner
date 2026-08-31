@@ -3,8 +3,21 @@ import random
 from datetime import datetime
 from pathlib import Path
 
-from data import drivers, teams, tracks
+from data import (
+    create_initial_drivers,
+    create_initial_teams,
+    drivers,
+    teams,
+    tracks,
+)
 from game.models import Driver, Team
+from game.save_game import (
+    build_save_data,
+    get_saves_folder,
+    list_save_files,
+    load_from_file,
+    save_to_file,
+)
 from game.race import (
     POINTS_BY_POSITION,
     PRIZE_PERCENTAGES,
@@ -108,11 +121,170 @@ retired_drivers = []
 
 current_season = 1
 championship_awarded = False
+career_seasons_total = 3
+season_in_progress = False
 
 BASE_OPERATING_EXPENSE = 350_000
 FACILITY_MAINTENANCE_PER_LEVEL = 75_000
 BASE_SPONSORSHIP = 800_000
 PERFORMANCE_INVESTMENT_UNIT = 250_000
+
+
+def reset_career_state():
+    """Restore league data for a brand-new career."""
+
+    global current_season, championship_awarded
+    global career_seasons_total, season_in_progress
+
+    race_history.clear()
+    career_history.clear()
+    retired_drivers.clear()
+
+    drivers.clear()
+    drivers.extend(create_initial_drivers())
+
+    teams.clear()
+    teams.extend(create_initial_teams())
+
+    league["integrity"] = 70
+    league["fan_interest"] = 65
+    league["controversy"] = 20
+    league["fines_collected"] = 0
+
+    current_season = 1
+    championship_awarded = False
+    career_seasons_total = 3
+    season_in_progress = False
+
+
+def is_season_mid_progress():
+    """Return whether the active season still has races remaining."""
+
+    return season_in_progress and len(race_history) < len(tracks)
+
+
+def apply_loaded_state(restored_state):
+    """Replace live game state with data from a save file."""
+
+    global current_season, championship_awarded
+    global career_seasons_total, season_in_progress
+
+    race_history.clear()
+    race_history.extend(restored_state["race_history"])
+
+    career_history.clear()
+    career_history.extend(restored_state["career_history"])
+
+    retired_drivers.clear()
+    retired_drivers.extend(restored_state["retired_drivers"])
+
+    drivers.clear()
+    drivers.extend(restored_state["drivers"])
+
+    teams.clear()
+    teams.extend(restored_state["teams"])
+
+    league.clear()
+    league.update(restored_state["league"])
+
+    current_season = restored_state["current_season"]
+    championship_awarded = restored_state["championship_awarded"]
+    career_seasons_total = restored_state["career_seasons_total"]
+    season_in_progress = restored_state["season_in_progress"]
+
+
+def save_career(save_name=None):
+    """Save the current career progress to disk."""
+
+    save_data = build_save_data(
+        league=league,
+        race_history=race_history,
+        career_history=career_history,
+        retired_drivers=retired_drivers,
+        drivers=drivers,
+        teams=teams,
+        current_season=current_season,
+        championship_awarded=championship_awarded,
+        career_seasons_total=career_seasons_total,
+        season_in_progress=season_in_progress,
+    )
+
+    save_path = save_to_file(save_data, save_name)
+
+    print("\nCareer saved:")
+    print(save_path)
+
+    return save_path
+
+
+def choose_save_file():
+    """Prompt the player to choose a save file."""
+
+    save_files = list_save_files()
+
+    if not save_files:
+        print("\nNo save files found in:")
+        print(get_saves_folder())
+        return None
+
+    print("\nAvailable Saves")
+    print("-" * 75)
+
+    for index, save_path in enumerate(save_files, start=1):
+        print(f"{index}. {save_path.name}")
+
+    while True:
+        choice = input(
+            "\nChoose a save number (or press Enter to cancel): "
+        ).strip()
+
+        if not choice:
+            return None
+
+        if choice.isdigit():
+            choice_index = int(choice)
+
+            if 1 <= choice_index <= len(save_files):
+                return save_files[choice_index - 1]
+
+        print("Please enter a valid save number.")
+
+
+def load_career(save_path=None):
+    """Load a saved career from disk."""
+
+    if save_path is None:
+        save_path = choose_save_file()
+
+    if save_path is None:
+        return False
+
+    restored_state = load_from_file(save_path)
+    apply_loaded_state(restored_state)
+
+    print("\nCareer loaded:")
+    print(save_path)
+    print(
+        f"Season {current_season} of {career_seasons_total} "
+        f"{'(in progress)' if season_in_progress else '(ready to start)'}"
+    )
+
+    return True
+
+
+def prompt_save_career():
+    """Offer to save the current career progress."""
+
+    choice = input("\nSave career progress? (y/n): ").strip().lower()
+
+    if choice != "y":
+        return
+
+    save_name = input(
+        "Save name (press Enter for timestamp): "
+    ).strip()
+
+    save_career(save_name or None)
 
 
 def generate_unique_rookie_name():
@@ -1381,12 +1553,23 @@ def finalize_driver_career_totals():
         driver.complete_season()
 
 
-def run_single_season(season_number):
+def run_single_season(season_number, resume=False):
     """Run one complete championship season."""
 
-    initialize_season(season_number)
+    global season_in_progress, championship_awarded
 
-    for race_number, track in enumerate(tracks, start=1):
+    if resume:
+        season_in_progress = True
+    else:
+        initialize_season(season_number)
+        season_in_progress = True
+
+    start_race = len(race_history) + 1
+
+    for race_number, track in enumerate(
+        tracks[start_race - 1:],
+        start=start_race,
+    ):
         run_race(track, race_number)
 
     display_driver_standings()
@@ -1405,6 +1588,9 @@ def run_single_season(season_number):
 
     save_season_report(season_number)
     finalize_driver_career_totals()
+
+    season_in_progress = False
+    championship_awarded = False
 
 
 def display_career_report():
@@ -1510,24 +1696,101 @@ def display_retirement_report():
         )
 
 
-def run_career(number_of_seasons=3):
+def run_career(number_of_seasons=3, start_season=1, resume_mid_season=False):
     """Run several consecutive seasons."""
 
-    career_history.clear()
-    retired_drivers.clear()
+    global current_season, career_seasons_total
 
-    for season_number in range(1, number_of_seasons + 1):
-        run_single_season(season_number)
+    career_seasons_total = number_of_seasons
+
+    for season_number in range(start_season, number_of_seasons + 1):
+        current_season = season_number
+
+        should_resume = (
+            resume_mid_season
+            and season_number == start_season
+            and is_season_mid_progress()
+        )
+
+        run_single_season(season_number, resume=should_resume)
+        resume_mid_season = False
 
         if season_number < number_of_seasons:
             run_offseason(season_number)
+            prompt_save_career()
 
             input(
                 "\nPress Enter to begin the next season..."
             )
 
+            current_season = season_number + 1
+
     display_career_report()
     display_retirement_report()
+
+
+def continue_loaded_career():
+    """Continue a career that was loaded from a save file."""
+
+    run_career(
+        number_of_seasons=career_seasons_total,
+        start_season=current_season,
+        resume_mid_season=is_season_mid_progress(),
+    )
+
+
+def display_main_menu():
+    """Display the main menu."""
+
+    print("\n" + "=" * 75)
+    print("STOCK CAR COMMISSIONER")
+    print("=" * 75)
+    print("1. Start new career (3 seasons)")
+    print("2. Load saved career")
+    print("3. Save current career")
+    print("4. Run one quick season")
+    print("5. Exit")
+
+
+def get_main_menu_choice():
+    """Return a valid main menu choice."""
+
+    while True:
+        choice = input("\nChoose an option (1-5): ").strip()
+
+        if choice in {"1", "2", "3", "4", "5"}:
+            return choice
+
+        print("Please enter a number from 1 to 5.")
+
+
+def main():
+    """Run the commissioner sim main menu."""
+
+    while True:
+        display_main_menu()
+        choice = get_main_menu_choice()
+
+        if choice == "1":
+            reset_career_state()
+            run_career(number_of_seasons=3)
+
+        elif choice == "2":
+            if load_career():
+                continue_loaded_career()
+
+        elif choice == "3":
+            if drivers:
+                save_career()
+            else:
+                print("\nNo active career to save.")
+
+        elif choice == "4":
+            run_season()
+
+        elif choice == "5":
+            print("\nGoodbye.")
+            break
 
 
 def run_season():
@@ -1540,4 +1803,4 @@ def run_season():
 
 
 if __name__ == "__main__":
-    run_career(number_of_seasons=3)
+    main()

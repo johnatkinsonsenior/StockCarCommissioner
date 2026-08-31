@@ -275,3 +275,18 @@ Team financial health is tracked across four levels:
 - Critical
 
 Distressed teams face reduced morale, performance penalties, and limited investment options. Critical teams suffer severe performance declines and sponsor discounts.
+
+## Save and Load
+
+Career progress can be saved to JSON files in the local `saves/` folder and loaded later to continue play.
+
+Saved data includes:
+
+- Active drivers and teams
+- Retired drivers
+- League metrics
+- Race history for the current season
+- Completed season history
+- Current season number and career length
+
+Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
