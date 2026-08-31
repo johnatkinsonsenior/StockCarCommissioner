@@ -59,3 +59,5 @@
 | 57 | Facility upgrades | High | Completed |
 | 58 | Performance investment | High | Completed |
 | 59 | Financial distress system | High | Completed |
+| 60 | Career save system | High | Completed |
+| 61 | Career load system | High | Completed |
