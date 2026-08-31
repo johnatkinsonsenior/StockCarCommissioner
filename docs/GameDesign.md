@@ -290,3 +290,14 @@ Saved data includes:
 - Current season number and career length
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
+
+## League Calendar
+
+Each season moves through a fixed league calendar:
+
+- Preseason: the series prepares teams and drivers for the new year
+- Regular Season: championship races are run in order
+- Postseason: standings, awards, championship, and season records are finalized
+- Offseason: drivers develop or decline, retirements are processed, and team finances are settled
+
+The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.

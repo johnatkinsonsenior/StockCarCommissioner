@@ -10,6 +10,13 @@ from data import (
     teams,
     tracks,
 )
+from game.calendar import (
+    LeagueCalendar,
+    OFFSEASON,
+    POSTSEASON,
+    PRESEASON,
+    REGULAR_SEASON,
+)
 from game.models import Driver, Team
 from game.save_game import (
     build_save_data,
@@ -123,6 +130,7 @@ current_season = 1
 championship_awarded = False
 career_seasons_total = 3
 season_in_progress = False
+calendar = LeagueCalendar()
 
 BASE_OPERATING_EXPENSE = 350_000
 FACILITY_MAINTENANCE_PER_LEVEL = 75_000
@@ -130,11 +138,28 @@ BASE_SPONSORSHIP = 800_000
 PERFORMANCE_INVESTMENT_UNIT = 250_000
 
 
+def sync_calendar_aliases():
+    """Keep Day 14 season fields aligned with the league calendar."""
+
+    global current_season, career_seasons_total, season_in_progress
+
+    current_season = calendar.current_season
+    career_seasons_total = calendar.career_seasons_total
+    season_in_progress = calendar.season_in_progress()
+
+
+def display_calendar_banner():
+    """Display the current league calendar phase."""
+
+    print("\n" + "-" * 90)
+    print(f"LEAGUE CALENDAR — {calendar.description()}")
+    print("-" * 90)
+
+
 def reset_career_state():
     """Restore league data for a brand-new career."""
 
-    global current_season, championship_awarded
-    global career_seasons_total, season_in_progress
+    global championship_awarded
 
     race_history.clear()
     career_history.clear()
@@ -151,23 +176,26 @@ def reset_career_state():
     league["controversy"] = 20
     league["fines_collected"] = 0
 
-    current_season = 1
     championship_awarded = False
-    career_seasons_total = 3
-    season_in_progress = False
+    calendar.current_season = 1
+    calendar.career_seasons_total = 3
+    calendar.enter_preseason()
+    sync_calendar_aliases()
 
 
 def is_season_mid_progress():
     """Return whether the active season still has races remaining."""
 
-    return season_in_progress and len(race_history) < len(tracks)
+    return (
+        calendar.phase == REGULAR_SEASON
+        and len(race_history) < len(tracks)
+    )
 
 
 def apply_loaded_state(restored_state):
     """Replace live game state with data from a save file."""
 
-    global current_season, championship_awarded
-    global career_seasons_total, season_in_progress
+    global championship_awarded
 
     race_history.clear()
     race_history.extend(restored_state["race_history"])
@@ -187,14 +215,22 @@ def apply_loaded_state(restored_state):
     league.clear()
     league.update(restored_state["league"])
 
-    current_season = restored_state["current_season"]
     championship_awarded = restored_state["championship_awarded"]
-    career_seasons_total = restored_state["career_seasons_total"]
-    season_in_progress = restored_state["season_in_progress"]
+
+    restored_calendar = LeagueCalendar.from_save_data(
+        restored_state,
+        track_count=len(tracks),
+    )
+    calendar.current_season = restored_calendar.current_season
+    calendar.career_seasons_total = restored_calendar.career_seasons_total
+    calendar.phase = restored_calendar.phase
+    sync_calendar_aliases()
 
 
 def save_career(save_name=None):
     """Save the current career progress to disk."""
+
+    sync_calendar_aliases()
 
     save_data = build_save_data(
         league=league,
@@ -203,10 +239,11 @@ def save_career(save_name=None):
         retired_drivers=retired_drivers,
         drivers=drivers,
         teams=teams,
-        current_season=current_season,
+        current_season=calendar.current_season,
         championship_awarded=championship_awarded,
-        career_seasons_total=career_seasons_total,
-        season_in_progress=season_in_progress,
+        career_seasons_total=calendar.career_seasons_total,
+        season_in_progress=calendar.season_in_progress(),
+        calendar_phase=calendar.phase,
     )
 
     save_path = save_to_file(save_data, save_name)
@@ -264,10 +301,7 @@ def load_career(save_path=None):
 
     print("\nCareer loaded:")
     print(save_path)
-    print(
-        f"Season {current_season} of {career_seasons_total} "
-        f"{'(in progress)' if season_in_progress else '(ready to start)'}"
-    )
+    print(calendar.description())
 
     return True
 
@@ -1553,24 +1587,51 @@ def finalize_driver_career_totals():
         driver.complete_season()
 
 
-def run_single_season(season_number, resume=False):
-    """Run one complete championship season."""
+def run_preseason(season_number):
+    """Open the season and prepare teams and drivers."""
 
-    global season_in_progress, championship_awarded
+    calendar.current_season = season_number
+    calendar.enter_preseason()
+    sync_calendar_aliases()
+    display_calendar_banner()
+    initialize_season(season_number)
+    calendar.enter_regular_season()
+    sync_calendar_aliases()
 
-    if resume:
-        season_in_progress = True
-    else:
-        initialize_season(season_number)
-        season_in_progress = True
+
+def run_regular_season():
+    """Run remaining regular-season races."""
+
+    calendar.enter_regular_season()
+    sync_calendar_aliases()
+    display_calendar_banner()
 
     start_race = len(race_history) + 1
+
+    print(
+        f"Next race: {start_race} of {len(tracks)}"
+        if start_race <= len(tracks)
+        else "All regular-season races are complete."
+    )
 
     for race_number, track in enumerate(
         tracks[start_race - 1:],
         start=start_race,
     ):
         run_race(track, race_number)
+
+    calendar.enter_postseason()
+    sync_calendar_aliases()
+
+
+def run_postseason(season_number):
+    """Close the season with standings, awards, and records."""
+
+    global championship_awarded
+
+    calendar.enter_postseason()
+    sync_calendar_aliases()
+    display_calendar_banner()
 
     display_driver_standings()
     display_team_finances()
@@ -1589,8 +1650,22 @@ def run_single_season(season_number, resume=False):
     save_season_report(season_number)
     finalize_driver_career_totals()
 
-    season_in_progress = False
     championship_awarded = False
+
+
+def run_single_season(season_number, resume=False):
+    """Run one complete championship season through postseason."""
+
+    calendar.current_season = season_number
+
+    if not resume or calendar.phase == PRESEASON:
+        run_preseason(season_number)
+
+    if calendar.phase == REGULAR_SEASON:
+        run_regular_season()
+
+    if calendar.phase == POSTSEASON:
+        run_postseason(season_number)
 
 
 def display_career_report():
@@ -1696,34 +1771,62 @@ def display_retirement_report():
         )
 
 
-def run_career(number_of_seasons=3, start_season=1, resume_mid_season=False):
-    """Run several consecutive seasons."""
+def process_offseason_and_advance():
+    """Run the offseason, then move the calendar into the next preseason."""
 
-    global current_season, career_seasons_total
+    calendar.enter_offseason()
+    sync_calendar_aliases()
+    display_calendar_banner()
+    run_offseason(calendar.current_season)
+    calendar.advance_to_next_season()
+    sync_calendar_aliases()
+    prompt_save_career()
 
-    career_seasons_total = number_of_seasons
+    input(
+        "\nPress Enter to begin the next season..."
+    )
 
-    for season_number in range(start_season, number_of_seasons + 1):
-        current_season = season_number
 
-        should_resume = (
-            resume_mid_season
-            and season_number == start_season
-            and is_season_mid_progress()
+def run_career(number_of_seasons=3, start_season=1, resume=False):
+    """Run several consecutive seasons through the league calendar."""
+
+    calendar.career_seasons_total = number_of_seasons
+
+    if not resume:
+        calendar.current_season = start_season
+        calendar.enter_preseason()
+
+    sync_calendar_aliases()
+
+    while calendar.current_season <= calendar.career_seasons_total:
+        if calendar.phase == OFFSEASON:
+            if calendar.has_more_seasons():
+                display_calendar_banner()
+                run_offseason(calendar.current_season)
+                calendar.advance_to_next_season()
+                sync_calendar_aliases()
+                prompt_save_career()
+
+                input(
+                    "\nPress Enter to begin the next season..."
+                )
+                continue
+
+            break
+
+        resume_season = calendar.phase in {
+            REGULAR_SEASON,
+            POSTSEASON,
+        }
+        run_single_season(
+            calendar.current_season,
+            resume=resume_season,
         )
 
-        run_single_season(season_number, resume=should_resume)
-        resume_mid_season = False
-
-        if season_number < number_of_seasons:
-            run_offseason(season_number)
-            prompt_save_career()
-
-            input(
-                "\nPress Enter to begin the next season..."
-            )
-
-            current_season = season_number + 1
+        if calendar.has_more_seasons():
+            process_offseason_and_advance()
+        else:
+            break
 
     display_career_report()
     display_retirement_report()
@@ -1733,9 +1836,9 @@ def continue_loaded_career():
     """Continue a career that was loaded from a save file."""
 
     run_career(
-        number_of_seasons=career_seasons_total,
-        start_season=current_season,
-        resume_mid_season=is_season_mid_progress(),
+        number_of_seasons=calendar.career_seasons_total,
+        start_season=calendar.current_season,
+        resume=True,
     )
 
 
@@ -1796,10 +1899,9 @@ def main():
 def run_season():
     """Run the complete racing season."""
 
-    global current_season
-
-    run_single_season(current_season)
-    current_season += 1
+    run_single_season(calendar.current_season)
+    calendar.advance_to_next_season()
+    sync_calendar_aliases()
 
 
 if __name__ == "__main__":

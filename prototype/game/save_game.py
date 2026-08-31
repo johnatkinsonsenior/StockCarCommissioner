@@ -6,7 +6,8 @@ from pathlib import Path
 
 from game.models import Driver, Team
 
-SAVE_VERSION = "0.0.3"
+SAVE_VERSION = "0.0.4"
+SUPPORTED_SAVE_VERSIONS = {"0.0.3", "0.0.4"}
 GAME_NAME = "Stock Car Commissioner"
 
 
@@ -177,6 +178,7 @@ def build_save_data(
     championship_awarded,
     career_seasons_total,
     season_in_progress,
+    calendar_phase,
 ):
     """Build a save file dictionary from live game state."""
 
@@ -189,6 +191,7 @@ def build_save_data(
         "championship_awarded": championship_awarded,
         "career_seasons_total": career_seasons_total,
         "season_in_progress": season_in_progress,
+        "calendar_phase": calendar_phase,
         "league": dict(league),
         "race_history": list(race_history),
         "career_history": list(career_history),
@@ -207,7 +210,7 @@ def validate_save_data(save_data):
     if save_data.get("game") != GAME_NAME:
         raise ValueError("This file is not a Stock Car Commissioner save.")
 
-    if save_data.get("version") != SAVE_VERSION:
+    if save_data.get("version") not in SUPPORTED_SAVE_VERSIONS:
         raise ValueError(
             "Unsupported save version: "
             f"{save_data.get('version')}"
@@ -245,6 +248,7 @@ def parse_save_data(save_data):
         "championship_awarded": save_data["championship_awarded"],
         "career_seasons_total": save_data["career_seasons_total"],
         "season_in_progress": save_data["season_in_progress"],
+        "calendar_phase": save_data.get("calendar_phase"),
     }
 
 
