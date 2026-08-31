@@ -17,7 +17,24 @@ from game.calendar import (
     PRESEASON,
     REGULAR_SEASON,
 )
+from game.event_catalog import (
+    offseason_events,
+    postseason_events,
+    preseason_events,
+    regular_season_events,
+)
+from game.events import resolve_event_choice
 from game.models import Driver, Team
+from game.policies import (
+    current_policies,
+    get_penalty_fine_amount,
+    get_penalty_points_amount,
+    get_points_by_position,
+    get_policy_operating_cost,
+    load_policies,
+    policy_label,
+    reset_policies,
+)
 from game.save_game import (
     build_save_data,
     get_saves_folder,
@@ -26,7 +43,6 @@ from game.save_game import (
     save_to_file,
 )
 from game.race import (
-    POINTS_BY_POSITION,
     PRIZE_PERCENTAGES,
     clamp,
     determine_driver_result,
@@ -120,11 +136,15 @@ league = {
     "fan_interest": 65,
     "controversy": 20,
     "fines_collected": 0,
+    "owner_pressure": 25,
+    "driver_sentiment": 60,
 }
 
 race_history = []
 career_history = []
 retired_drivers = []
+decision_log = []
+events_resolved = []
 
 current_season = 1
 championship_awarded = False
@@ -164,6 +184,8 @@ def reset_career_state():
     race_history.clear()
     career_history.clear()
     retired_drivers.clear()
+    decision_log.clear()
+    events_resolved.clear()
 
     drivers.clear()
     drivers.extend(create_initial_drivers())
@@ -175,6 +197,10 @@ def reset_career_state():
     league["fan_interest"] = 65
     league["controversy"] = 20
     league["fines_collected"] = 0
+    league["owner_pressure"] = 25
+    league["driver_sentiment"] = 60
+
+    reset_policies()
 
     championship_awarded = False
     calendar.current_season = 1
@@ -206,6 +232,12 @@ def apply_loaded_state(restored_state):
     retired_drivers.clear()
     retired_drivers.extend(restored_state["retired_drivers"])
 
+    decision_log.clear()
+    decision_log.extend(restored_state.get("decision_log") or [])
+
+    events_resolved.clear()
+    events_resolved.extend(restored_state.get("events_resolved") or [])
+
     drivers.clear()
     drivers.extend(restored_state["drivers"])
 
@@ -214,6 +246,10 @@ def apply_loaded_state(restored_state):
 
     league.clear()
     league.update(restored_state["league"])
+    league.setdefault("owner_pressure", 25)
+    league.setdefault("driver_sentiment", 60)
+
+    load_policies(restored_state.get("policies"))
 
     championship_awarded = restored_state["championship_awarded"]
 
@@ -244,6 +280,9 @@ def save_career(save_name=None):
         career_seasons_total=calendar.career_seasons_total,
         season_in_progress=calendar.season_in_progress(),
         calendar_phase=calendar.phase,
+        policies=current_policies,
+        decision_log=decision_log,
+        events_resolved=events_resolved,
     )
 
     save_path = save_to_file(save_data, save_name)
@@ -319,6 +358,211 @@ def prompt_save_career():
     ).strip()
 
     save_career(save_name or None)
+
+
+def relationship_label(trust):
+    """Return a short relationship label from commissioner trust."""
+
+    if trust >= 80:
+        return "Strong Supporter"
+    if trust >= 65:
+        return "Supportive"
+    if trust >= 50:
+        return "Neutral"
+    if trust >= 35:
+        return "Distrustful"
+
+    return "Openly Hostile"
+
+
+def collect_commissioner_alerts():
+    """Build key alerts for the commissioner dashboard."""
+
+    alerts = []
+
+    if league["integrity"] < 55:
+        alerts.append("League integrity is under pressure.")
+
+    if league["fan_interest"] < 50:
+        alerts.append("Fan interest is sliding.")
+
+    if league["controversy"] >= 50:
+        alerts.append("Controversy is running hot.")
+
+    if league["owner_pressure"] >= 55:
+        alerts.append("Owner pressure is elevated.")
+
+    if league["driver_sentiment"] < 45:
+        alerts.append("Driver sentiment is poor.")
+
+    distressed_teams = [
+        team
+        for team in teams
+        if team.financial_distress_level >= 2
+    ]
+
+    if distressed_teams:
+        names = ", ".join(team.name for team in distressed_teams)
+        alerts.append(f"Financial distress: {names}")
+
+    unhappy_drivers = [
+        driver
+        for driver in drivers
+        if driver.morale < 40 or driver.commissioner_trust < 35
+    ]
+
+    if unhappy_drivers:
+        names = ", ".join(driver.name for driver in unhappy_drivers)
+        alerts.append(f"Relationship risk: {names}")
+
+    return alerts
+
+
+def display_league_dashboard():
+    """Display league health, finances, relationships, and alerts."""
+
+    score, grade = calculate_commissioner_grade()
+    average_trust = round(
+        sum(driver.commissioner_trust for driver in drivers) / len(drivers)
+    )
+    average_morale = round(
+        sum(driver.morale for driver in drivers) / len(drivers)
+    )
+    lowest_trust = min(drivers, key=lambda driver: driver.commissioner_trust)
+    richest_team = max(teams, key=lambda team: team.budget)
+    poorest_team = min(teams, key=lambda team: team.budget)
+    alerts = collect_commissioner_alerts()
+
+    print("\nCommissioner Dashboard")
+    print("-" * 90)
+    print(calendar.description())
+    print(
+        f"Integrity {league['integrity']}/100 | "
+        f"Fan interest {league['fan_interest']}/100 | "
+        f"Controversy {league['controversy']}/100"
+    )
+    print(
+        f"Owner pressure {league['owner_pressure']}/100 | "
+        f"Driver sentiment {league['driver_sentiment']}/100 | "
+        f"Grade {grade} ({score}/100)"
+    )
+    print(f"Fines collected: ${league['fines_collected']:,}")
+    print(
+        "Policies — "
+        f"{policy_label('points_system')}; "
+        f"{policy_label('race_format')}; "
+        f"{policy_label('penalty_standard')}; "
+        f"{policy_label('technical_rules')}; "
+        f"{policy_label('safety_standard')}"
+    )
+    print(
+        "Finances — "
+        f"{richest_team.name} ${richest_team.budget:,} / "
+        f"{poorest_team.name} ${poorest_team.budget:,}"
+    )
+    print(
+        "Relationships — "
+        f"avg trust {average_trust}, avg morale {average_morale}; "
+        f"watch {lowest_trust.name} "
+        f"({relationship_label(lowest_trust.commissioner_trust)})"
+    )
+
+    print("Alerts")
+
+    if alerts:
+        for alert in alerts:
+            print(f"- {alert}")
+    else:
+        print("- No critical alerts.")
+
+
+def build_event_context(event):
+    """Attach live subjects to a decision event."""
+
+    subject_driver = None
+    subject_team = None
+    driver_name = event.get("subject_driver_name")
+    team_name = event.get("subject_team_name")
+
+    if driver_name:
+        subject_driver = get_driver(driver_name)
+        subject_team = get_team(subject_driver.team_name)
+
+    if team_name:
+        subject_team = get_team(team_name)
+
+    return {
+        "league": league,
+        "policies": current_policies,
+        "drivers": drivers,
+        "teams": teams,
+        "subject_driver": subject_driver,
+        "subject_team": subject_team,
+    }
+
+
+def get_numbered_choice(choice_count):
+    """Ask the player for a numbered choice."""
+
+    valid = {str(number) for number in range(1, choice_count + 1)}
+
+    while True:
+        choice = input(
+            f"\nCommissioner decision (1-{choice_count}): "
+        ).strip()
+
+        if choice in valid:
+            return choice
+
+        print(f"Please enter a number from 1 through {choice_count}.")
+
+
+def present_decision_event(event):
+    """Present one commissioner event and apply the chosen outcome."""
+
+    if event["id"] in events_resolved:
+        return None
+
+    print("\n" + "=" * 90)
+    print(f"COMMISSIONER DECISION — {event['title']}")
+    print(f"Category: {event['category']}")
+    print("=" * 90)
+    print(event["prompt"])
+    print()
+
+    for choice in event["choices"]:
+        print(f"{choice['id']}. {choice['label']}")
+
+    choice_id = get_numbered_choice(len(event["choices"]))
+    context = build_event_context(event)
+    result = resolve_event_choice(event, choice_id, context)
+
+    events_resolved.append(event["id"])
+    decision_log.append(
+        {
+            "season": calendar.current_season,
+            **result,
+        }
+    )
+
+    print(f"\nDecision: {result['choice_label']}")
+    print(f"Outcome: {result['outcome']}")
+    print(
+        f"Integrity {league['integrity']} | "
+        f"Fans {league['fan_interest']} | "
+        f"Controversy {league['controversy']} | "
+        f"Owners {league['owner_pressure']} | "
+        f"Drivers {league['driver_sentiment']}"
+    )
+
+    return result
+
+
+def present_events(event_list):
+    """Present each unresolved event in order."""
+
+    for event in event_list:
+        present_decision_event(event)
 
 
 def generate_unique_rookie_name():
@@ -585,6 +829,7 @@ def calculate_operating_expenses(team):
     expenses = (
         BASE_OPERATING_EXPENSE
         + team.facility_level * FACILITY_MAINTENANCE_PER_LEVEL
+        + get_policy_operating_cost()
     )
 
     if team.financial_distress_level >= 2:
@@ -745,6 +990,7 @@ def run_offseason(completed_season):
     print("\n" + "=" * 90)
     print(f"OFFSEASON AFTER SEASON {completed_season}")
     print("=" * 90)
+    display_league_dashboard()
 
     retirement_candidates = []
 
@@ -788,6 +1034,9 @@ def run_offseason(completed_season):
             )
 
     run_offseason_finances()
+    present_events(
+        offseason_events(current_policies, events_resolved)
+    )
 
 
 def serve_suspensions():
@@ -859,7 +1108,7 @@ def run_race(track, race_number):
         driver = result["driver"]
         status = result["status"]
 
-        points_earned = POINTS_BY_POSITION[position - 1]
+        points_earned = get_points_by_position()[position - 1]
         prize_money = int(
             track["purse"] * PRIZE_PERCENTAGES[position - 1]
         )
@@ -985,8 +1234,8 @@ def review_single_incident(incident):
     print("\nChoose a ruling:")
     print("1. No action")
     print("2. Official warning")
-    print("3. $50,000 fine")
-    print("4. Deduct 10 championship points")
+    print("3. Financial fine")
+    print("4. Championship points penalty")
     print("5. Suspend for the next race")
 
     choice = get_valid_choice()
@@ -1097,7 +1346,7 @@ def apply_commissioner_ruling(choice, driver, team):
         decision = "Official warning issued"
 
     elif choice == "3":
-        fine_amount = 50_000
+        fine_amount = get_penalty_fine_amount()
 
         team.pay_fine(fine_amount)
         league["fines_collected"] += fine_amount
@@ -1108,7 +1357,7 @@ def apply_commissioner_ruling(choice, driver, team):
         decision = f"${fine_amount:,} fine issued"
 
     elif choice == "4":
-        points_penalty = 10
+        points_penalty = get_penalty_points_amount()
 
         driver.deduct_points(points_penalty)
         league["integrity"] += 5
@@ -1139,17 +1388,6 @@ def apply_commissioner_ruling(choice, driver, team):
     print(f"Fan interest: {league['fan_interest']}")
     print(f"Controversy: {league['controversy']}")
     print(f"{driver.name} morale: {driver.morale}")
-
-
-def display_league_dashboard():
-    """Display the league's current health after each race."""
-
-    print("\nLeague Dashboard")
-    print("-" * 75)
-    print(f"Integrity: {league['integrity']}/100")
-    print(f"Fan interest: {league['fan_interest']}/100")
-    print(f"Controversy: {league['controversy']}/100")
-    print(f"Fines collected: ${league['fines_collected']:,}")
 
 
 def get_driver_standings():
@@ -1284,22 +1522,11 @@ def display_driver_relationship_report():
     for driver in relationship_ranking:
         trust = driver.commissioner_trust
 
-        if trust >= 80:
-            relationship = "Strong Supporter"
-        elif trust >= 65:
-            relationship = "Supportive"
-        elif trust >= 50:
-            relationship = "Neutral"
-        elif trust >= 35:
-            relationship = "Distrustful"
-        else:
-            relationship = "Openly Hostile"
-
         print(
             f"{driver.name} "
             f"({driver.personality}) "
             f"- Trust: {trust}/100 "
-            f"- {relationship} "
+            f"- {relationship_label(trust)} "
             f"- Rival: {driver.rival}"
         )
 
@@ -1375,6 +1602,8 @@ def display_commissioner_report():
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
     print(f"Fines collected: ${league['fines_collected']:,}")
+    print(f"Owner pressure: {league['owner_pressure']}/100")
+    print(f"Driver sentiment: {league['driver_sentiment']}/100")
 
 
 def save_season_report(season_number):
@@ -1396,7 +1625,15 @@ def save_season_report(season_number):
             "fan_interest": league["fan_interest"],
             "controversy": league["controversy"],
             "fines_collected": league["fines_collected"],
+            "owner_pressure": league["owner_pressure"],
+            "driver_sentiment": league["driver_sentiment"],
         },
+        "policies": dict(current_policies),
+        "decisions": [
+            record
+            for record in decision_log
+            if record.get("season") == season_number
+        ],
         "commissioner": {
             "score": commissioner_score,
             "grade": commissioner_grade,
@@ -1493,6 +1730,7 @@ def initialize_season(season_number):
 
     race_history.clear()
     championship_awarded = False
+    events_resolved.clear()
 
     league["integrity"] = 70
     league["fan_interest"] = 65
@@ -1511,6 +1749,10 @@ def initialize_season(season_number):
     print("\n" + "=" * 90)
     print(f"STOCK CAR COMMISSIONER — SEASON {season_number}")
     print("=" * 90)
+    display_league_dashboard()
+    present_events(
+        preseason_events(current_policies, season_number)
+    )
 
 
 def award_championship():
@@ -1613,12 +1855,21 @@ def run_regular_season():
         if start_race <= len(tracks)
         else "All regular-season races are complete."
     )
+    display_league_dashboard()
 
     for race_number, track in enumerate(
         tracks[start_race - 1:],
         start=start_race,
     ):
         run_race(track, race_number)
+        present_events(
+            regular_season_events(
+                race_number,
+                teams,
+                drivers,
+                events_resolved,
+            )
+        )
 
     calendar.enter_postseason()
     sync_calendar_aliases()
@@ -1632,6 +1883,7 @@ def run_postseason(season_number):
     calendar.enter_postseason()
     sync_calendar_aliases()
     display_calendar_banner()
+    display_league_dashboard()
 
     display_driver_standings()
     display_team_finances()
@@ -1651,6 +1903,9 @@ def run_postseason(season_number):
     finalize_driver_career_totals()
 
     championship_awarded = False
+    present_events(
+        postseason_events(teams, drivers, events_resolved)
+    )
 
 
 def run_single_season(season_number, resume=False):

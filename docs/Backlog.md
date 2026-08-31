@@ -4,7 +4,7 @@
 | 2  | Driver Database        | High     | In Progress |
 | 3  | Team Database          | High     | In Progress |
 | 4  | Points Standings       | High     | In Progress |
-| 5  | Commissioner decisions | High     | In Progress |
+| 5  | Commissioner decisions | High     | Completed   |
 | 6  | Penalties              | Medium   | Not Started |
 | 7  | TV Contracts           | Medium   | Not Started |
 | 8  | Sponsors               | Medium   | Completed   |
@@ -23,9 +23,9 @@
 | 21 | Championship Points Penalties | High | Completed |
 | 22 | Driver Suspension System | High   | Completed   |
 | 23 | Driver Morale          | Medium   | In Progress |
-| 24 | League Integrity       | High     | In Progress |
-| 25 | Fan Interest           | High     | In Progress |
-| 26 | League Controversy     | Medium   | In Progress |
+| 24 | League Integrity       | High     | Completed   |
+| 25 | Fan Interest           | High     | Completed   |
+| 26 | League Controversy     | Medium   | Completed   |
 | 27 | Driver Personality System | High | Completed   |
 | 28 | Commissioner Trust System | High | Completed   |
 | 29 | Driver Rivalry System  | Medium   | In Progress |
@@ -63,3 +63,9 @@
 | 61 | Career load system | High | Completed |
 | 62 | League calendar | High | Completed |
 | 63 | Formal game states | High | Completed |
+| 64 | Commissioner dashboard | High | Completed |
+| 65 | Decision-event framework | High | Completed |
+| 66 | Rule-change decisions | High | Completed |
+| 67 | Safety decisions | High | Completed |
+| 68 | Owner complaints | High | Completed |
+| 69 | Driver complaints | High | Completed |

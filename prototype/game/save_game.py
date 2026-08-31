@@ -6,8 +6,8 @@ from pathlib import Path
 
 from game.models import Driver, Team
 
-SAVE_VERSION = "0.0.4"
-SUPPORTED_SAVE_VERSIONS = {"0.0.3", "0.0.4"}
+SAVE_VERSION = "0.0.5"
+SUPPORTED_SAVE_VERSIONS = {"0.0.3", "0.0.4", "0.0.5"}
 GAME_NAME = "Stock Car Commissioner"
 
 
@@ -179,6 +179,9 @@ def build_save_data(
     career_seasons_total,
     season_in_progress,
     calendar_phase,
+    policies,
+    decision_log,
+    events_resolved,
 ):
     """Build a save file dictionary from live game state."""
 
@@ -192,6 +195,9 @@ def build_save_data(
         "career_seasons_total": career_seasons_total,
         "season_in_progress": season_in_progress,
         "calendar_phase": calendar_phase,
+        "policies": dict(policies),
+        "decision_log": list(decision_log),
+        "events_resolved": list(events_resolved),
         "league": dict(league),
         "race_history": list(race_history),
         "career_history": list(career_history),
@@ -249,6 +255,9 @@ def parse_save_data(save_data):
         "career_seasons_total": save_data["career_seasons_total"],
         "season_in_progress": save_data["season_in_progress"],
         "calendar_phase": save_data.get("calendar_phase"),
+        "policies": dict(save_data.get("policies") or {}),
+        "decision_log": list(save_data.get("decision_log") or []),
+        "events_resolved": list(save_data.get("events_resolved") or []),
     }
 
 
