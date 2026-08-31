@@ -145,6 +145,16 @@ def get_penalty_points_amount():
     }[current_policies["penalty_standard"]]
 
 
+def pit_road_enforcement():
+    """Return how hard pit-road speeding is punished."""
+
+    return {
+        "lenient": 0,
+        "balanced": 1,
+        "strict": 2,
+    }[current_policies["penalty_standard"]]
+
+
 def get_policy_operating_cost():
     """Return extra per-team operating cost from league mandates."""
 

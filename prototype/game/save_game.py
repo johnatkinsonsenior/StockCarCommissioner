@@ -6,7 +6,7 @@ from pathlib import Path
 
 from game.models import Driver, Owner, Team, Track
 
-SAVE_VERSION = "0.0.8"
+SAVE_VERSION = "0.0.9"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -14,6 +14,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.6",
     "0.0.7",
     "0.0.8",
+    "0.0.9",
 }
 GAME_NAME = "Stock Car Commissioner"
 
