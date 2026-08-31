@@ -61,3 +61,5 @@
 | 59 | Financial distress system | High | Completed |
 | 60 | Career save system | High | Completed |
 | 61 | Career load system | High | Completed |
+| 62 | League calendar | High | Completed |
+| 63 | Formal game states | High | Completed |
