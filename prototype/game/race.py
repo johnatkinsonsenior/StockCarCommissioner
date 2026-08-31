@@ -42,6 +42,7 @@ def calculate_crash_chance(driver, track):
         + aggression_effect
         - consistency_effect
         + get_crash_modifier()
+        + (getattr(driver, "risk_tolerance", 50) - 50) // 25
     )
 
     return clamp(crash_chance, 3, 40)

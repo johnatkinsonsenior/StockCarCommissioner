@@ -6,8 +6,8 @@ from pathlib import Path
 
 from game.models import Driver, Owner, Team
 
-SAVE_VERSION = "0.0.6"
-SUPPORTED_SAVE_VERSIONS = {"0.0.3", "0.0.4", "0.0.5", "0.0.6"}
+SAVE_VERSION = "0.0.7"
+SUPPORTED_SAVE_VERSIONS = {"0.0.3", "0.0.4", "0.0.5", "0.0.6", "0.0.7"}
 GAME_NAME = "Stock Car Commissioner"
 
 
@@ -33,6 +33,22 @@ def driver_to_dict(driver):
         "aggression": driver.aggression,
         "personality": driver.personality,
         "rival": driver.rival,
+        "rivalry_intensity": driver.rivalry_intensity,
+        "ally": driver.ally,
+        "friendship_strength": driver.friendship_strength,
+        "teammate_bond": driver.teammate_bond,
+        "friendships": dict(driver.friendships),
+        "feuds": list(driver.feuds),
+        "temperament": driver.temperament,
+        "loyalty": driver.loyalty,
+        "ambition": driver.ambition,
+        "media_skill": driver.media_skill,
+        "risk_tolerance": driver.risk_tolerance,
+        "reputation": driver.reputation,
+        "credibility": driver.credibility,
+        "team_satisfaction": driver.team_satisfaction,
+        "contract_satisfaction": driver.contract_satisfaction,
+        "competitive_frustration": driver.competitive_frustration,
         "popularity": driver.popularity,
         "salary": driver.salary,
         "contract_years": driver.contract_years,
@@ -80,6 +96,22 @@ def driver_from_dict(data):
         salary=data["salary"],
         contract_years=data["contract_years"],
         is_rookie=data.get("is_rookie", False),
+        temperament=data.get("temperament"),
+        loyalty=data.get("loyalty"),
+        ambition=data.get("ambition"),
+        media_skill=data.get("media_skill"),
+        risk_tolerance=data.get("risk_tolerance"),
+        rivalry_intensity=data.get("rivalry_intensity"),
+        ally=data.get("ally"),
+        friendship_strength=data.get("friendship_strength", 0),
+        teammate_bond=data.get("teammate_bond", 55),
+        reputation=data.get("reputation"),
+        credibility=data.get("credibility"),
+        team_satisfaction=data.get("team_satisfaction", 65),
+        contract_satisfaction=data.get("contract_satisfaction", 65),
+        competitive_frustration=data.get("competitive_frustration", 30),
+        feuds=data.get("feuds") or [],
+        friendships=data.get("friendships") or {},
     )
 
     driver.previous_team = data.get("previous_team")

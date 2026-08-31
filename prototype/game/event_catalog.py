@@ -1016,6 +1016,530 @@ def driver_grievance_event(driver):
     }
 
 
+def _driver_by_name(drivers, name):
+    """Return a driver by name, or None."""
+
+    for driver in drivers:
+        if driver.name == name:
+            return driver
+
+    return None
+
+
+def _hottest_rivalry_pair(drivers):
+    """Return the active pair with the strongest named rivalry."""
+
+    best_pair = None
+    best_score = -1
+
+    for driver in drivers:
+        if not driver.rival:
+            continue
+
+        rival = _driver_by_name(drivers, driver.rival)
+
+        if rival is None:
+            continue
+
+        score = driver.rivalry_intensity
+
+        if score > best_score:
+            best_pair = (driver, rival)
+            best_score = score
+
+    return best_pair
+
+
+def _hottest_feud_pair(drivers):
+    """Return the drivers in the strongest active or cooling feud."""
+
+    best = None
+    best_score = -1
+
+    for driver in drivers:
+        for feud in driver.feuds:
+            if feud.get("status") == "dormant":
+                continue
+
+            opponent = _driver_by_name(drivers, feud.get("opponent"))
+
+            if opponent is None:
+                continue
+
+            intensity = feud.get("intensity", 0)
+
+            if intensity > best_score:
+                best = (driver, opponent, feud)
+                best_score = intensity
+
+    return best
+
+
+def rivalry_contact_event(driver, rival):
+    """In-season contact between rivals, without new crash physics."""
+
+    return {
+        "id": "rivalry-contact",
+        "title": "Rivalry Contact",
+        "category": "rivalry",
+        "phase": REGULAR_SEASON,
+        "subject_driver_name": driver.name,
+        "subject_other_driver_name": rival.name,
+        "prompt": (
+            f"{driver.name} ({driver.personality}) and {rival.name} "
+            f"({rival.personality}) made contact off a restart. "
+            f"Rivalry intensity {driver.rivalry_intensity}/100. "
+            f"{driver.name} risk tolerance {driver.risk_tolerance}, "
+            f"{rival.name} temperament {rival.temperament}. "
+            "Garage cameras caught the chop. Race control wants a ruling "
+            "before it becomes a weekly feature."
+        ),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Let them race it out",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": 5},
+                    {"type": "league", "stat": "controversy", "delta": 6},
+                    {"type": "league", "stat": "integrity", "delta": -3},
+                    {"type": "rivalry", "delta": 10},
+                    {
+                        "type": "feud",
+                        "delta": 12,
+                        "incident": "on-track contact",
+                    },
+                    {
+                        "type": "subject_driver",
+                        "stat": "competitive_frustration",
+                        "delta": 6,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "competitive_frustration",
+                        "delta": 6,
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 55,
+                        "text": "The crowd loves it. Crew chiefs do not.",
+                        "effects": [
+                            {
+                                "type": "subject_driver",
+                                "stat": "popularity",
+                                "delta": 3,
+                            },
+                            {
+                                "type": "subject_other_driver",
+                                "stat": "popularity",
+                                "delta": 2,
+                            },
+                        ],
+                    },
+                    {
+                        "weight": 45,
+                        "text": "A second chop on the next run makes it personal.",
+                        "effects": [
+                            {"type": "rivalry", "delta": 6},
+                            {
+                                "type": "feud",
+                                "delta": 8,
+                                "incident": "follow-up contact",
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Call both to the hauler for a private warning",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 3},
+                    {"type": "rivalry", "delta": -8},
+                    {
+                        "type": "subject_driver",
+                        "stat": "commissioner_trust",
+                        "delta": 2,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "commissioner_trust",
+                        "delta": 2,
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 70,
+                        "text": "They nod, glare, and park it — for this week.",
+                        "effects": [],
+                    },
+                    {
+                        "weight": 30,
+                        "text": "One of them leaks that the office is babysitting.",
+                        "effects": [
+                            {"type": "league", "stat": "controversy", "delta": 3},
+                            {
+                                "type": "subject_driver",
+                                "stat": "morale",
+                                "delta": -3,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Park the aggressor and put the feud on notice",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 5},
+                    {"type": "league", "stat": "fan_interest", "delta": -3},
+                    {"type": "league", "stat": "controversy", "delta": 4},
+                    {
+                        "type": "subject_driver",
+                        "stat": "morale",
+                        "delta": -8,
+                    },
+                    {
+                        "type": "subject_driver",
+                        "stat": "reputation",
+                        "delta": -4,
+                    },
+                    {"type": "rivalry", "delta": -12},
+                    {
+                        "type": "feud",
+                        "delta": 4,
+                        "incident": "commissioner parked a car",
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 60,
+                        "text": "The message lands. The rivalry cools on camera.",
+                        "effects": [
+                            {
+                                "type": "subject_other_driver",
+                                "stat": "morale",
+                                "delta": 3,
+                            },
+                        ],
+                    },
+                    {
+                        "weight": 40,
+                        "text": "Fans boo the caution. The other shop claims favoritism.",
+                        "effects": [
+                            {"type": "league", "stat": "driver_sentiment", "delta": -3},
+                            {
+                                "type": "subject_other_driver",
+                                "stat": "commissioner_trust",
+                                "delta": -2,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def rivalry_argument_event(driver, rival):
+    """Garage or media argument between rivals."""
+
+    return {
+        "id": "rivalry-argument",
+        "title": "Rivalry Argument",
+        "category": "rivalry",
+        "phase": REGULAR_SEASON,
+        "subject_driver_name": driver.name,
+        "subject_other_driver_name": rival.name,
+        "prompt": (
+            f"{driver.name} and {rival.name} go at it in the garage. "
+            f"Media skill {driver.media_skill} vs {rival.media_skill}. "
+            f"Rivalry {driver.rivalry_intensity}/100. "
+            "Microphones are hot. The series needs a line."
+        ),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Ignore it and let the clip run",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": 6},
+                    {"type": "league", "stat": "controversy", "delta": 7},
+                    {"type": "rivalry", "delta": 8},
+                    {
+                        "type": "feud",
+                        "delta": 10,
+                        "incident": "garage argument",
+                    },
+                    {
+                        "type": "subject_driver",
+                        "stat": "credibility",
+                        "delta": -3,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "credibility",
+                        "delta": -3,
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 60,
+                        "text": "The sound bite leads every show. Sponsors wince.",
+                        "effects": [
+                            {
+                                "type": "subject_driver",
+                                "stat": "popularity",
+                                "delta": 4,
+                            },
+                        ],
+                    },
+                    {
+                        "weight": 40,
+                        "text": "A shove is caught on a phone. The feud is now a storyline.",
+                        "effects": [
+                            {"type": "rivalry", "delta": 6},
+                            {
+                                "type": "feud",
+                                "delta": 8,
+                                "incident": "shove on camera",
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Fine both for conduct detrimental",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 3},
+                    {"type": "league", "stat": "controversy", "delta": 2},
+                    {"type": "rivalry", "delta": -6},
+                    {
+                        "type": "subject_driver",
+                        "stat": "morale",
+                        "delta": -4,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "morale",
+                        "delta": -4,
+                    },
+                    {
+                        "type": "subject_driver",
+                        "stat": "reputation",
+                        "delta": -2,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "reputation",
+                        "delta": -2,
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 75,
+                        "text": "Both haulers pay. The volume drops.",
+                        "effects": [],
+                    },
+                    {
+                        "weight": 25,
+                        "text": "They call it a tax on personality.",
+                        "effects": [
+                            {
+                                "type": "league",
+                                "stat": "driver_sentiment",
+                                "delta": -4,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Force a joint media session to cool it",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": 3},
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                    {"type": "rivalry", "delta": -4},
+                    {
+                        "type": "subject_driver",
+                        "stat": "media_skill",
+                        "delta": 1,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "media_skill",
+                        "delta": 1,
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 65,
+                        "text": "The staged handshake is awkward. It still airs.",
+                        "effects": [
+                            {"type": "friendship", "delta": 4},
+                        ],
+                    },
+                    {
+                        "weight": 35,
+                        "text": "One of them uses the mic to reload the feud.",
+                        "effects": [
+                            {"type": "league", "stat": "controversy", "delta": 4},
+                            {
+                                "type": "feud",
+                                "delta": 6,
+                                "incident": "press-conference shot",
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def feud_review_event(driver, rival, feud):
+    """Postseason sit-down over a long-running feud."""
+
+    started = feud.get("started_season", 1)
+    intensity = feud.get("intensity", 0)
+
+    return {
+        "id": "feud-review",
+        "title": "Long-Term Feud Review",
+        "category": "rivalry",
+        "phase": POSTSEASON,
+        "subject_driver_name": driver.name,
+        "subject_other_driver_name": rival.name,
+        "prompt": (
+            f"The {driver.name}–{rival.name} feud is still on the board "
+            f"(intensity {intensity}/100, started season {started}, "
+            f"last incident: {feud.get('last_incident', 'unknown')}). "
+            "Owners want it managed before next year's sponsor decks lock."
+        ),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Let the storyline ride into next season",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": 5},
+                    {"type": "league", "stat": "controversy", "delta": 5},
+                    {"type": "rivalry", "delta": 6},
+                    {
+                        "type": "feud",
+                        "delta": 8,
+                        "incident": "postseason green light",
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 70,
+                        "text": "Marketing is thrilled. Race control is not.",
+                        "effects": [],
+                    },
+                    {
+                        "weight": 30,
+                        "text": "A columnist asks who is actually in charge of safety.",
+                        "effects": [
+                            {"type": "league", "stat": "integrity", "delta": -3},
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Mediate a closed-door truce",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 3},
+                    {"type": "rivalry", "delta": -14},
+                    {
+                        "type": "feud",
+                        "delta": -18,
+                        "incident": "offseason truce",
+                    },
+                    {"type": "friendship", "delta": 8},
+                    {
+                        "type": "subject_driver",
+                        "stat": "morale",
+                        "delta": 3,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "morale",
+                        "delta": 3,
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 60,
+                        "text": "They shake on it. Nobody believes it will last.",
+                        "effects": [],
+                    },
+                    {
+                        "weight": 40,
+                        "text": "One owner claims the other shop got the better deal.",
+                        "effects": [
+                            {"type": "league", "stat": "owner_pressure", "delta": 4},
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Put both on a conduct watch for next year",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 5},
+                    {"type": "league", "stat": "fan_interest", "delta": -2},
+                    {"type": "rivalry", "delta": -8},
+                    {
+                        "type": "feud",
+                        "delta": -6,
+                        "incident": "conduct watch",
+                    },
+                    {
+                        "type": "subject_driver",
+                        "stat": "commissioner_trust",
+                        "delta": -3,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "commissioner_trust",
+                        "delta": -3,
+                    },
+                    {
+                        "type": "subject_driver",
+                        "stat": "credibility",
+                        "delta": 3,
+                    },
+                    {
+                        "type": "subject_other_driver",
+                        "stat": "credibility",
+                        "delta": 3,
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 80,
+                        "text": "The watch list is public. The feud goes quieter.",
+                        "effects": [],
+                    },
+                    {
+                        "weight": 20,
+                        "text": "Both drivers say the office is writing the script.",
+                        "effects": [
+                            {
+                                "type": "league",
+                                "stat": "driver_sentiment",
+                                "delta": -4,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+
 RULE_EVENTS = (
     points_system_event,
     race_format_event,
@@ -1032,21 +1556,33 @@ def preseason_events(policies, season_number):
 
 
 def regular_season_events(race_number, teams, drivers, resolved_ids):
-    """Return in-season complaint events tied to specific races."""
+    """Return in-season complaint and rivalry events tied to specific races."""
 
     events = []
 
     if race_number == 2 and "owner-complaint" not in resolved_ids:
         events.append(owner_complaint_event(_team_by_pressure(teams)))
 
+    if race_number == 3 and "rivalry-contact" not in resolved_ids:
+        pair = _hottest_rivalry_pair(drivers)
+
+        if pair is not None and pair[0].rivalry_intensity >= 40:
+            events.append(rivalry_contact_event(pair[0], pair[1]))
+
     if race_number == 4 and "driver-complaint" not in resolved_ids:
         events.append(driver_complaint_event(_driver_by_unrest(drivers)))
+
+    if race_number == 5 and "rivalry-argument" not in resolved_ids:
+        pair = _hottest_rivalry_pair(drivers)
+
+        if pair is not None and pair[0].rivalry_intensity >= 45:
+            events.append(rivalry_argument_event(pair[0], pair[1]))
 
     return events
 
 
 def postseason_events(teams, drivers, resolved_ids):
-    """Return postseason owner and driver events."""
+    """Return postseason owner, driver, and feud events."""
 
     events = []
 
@@ -1055,6 +1591,14 @@ def postseason_events(teams, drivers, resolved_ids):
 
     if "driver-grievance" not in resolved_ids:
         events.append(driver_grievance_event(_driver_by_unrest(drivers)))
+
+    if "feud-review" not in resolved_ids:
+        feud_pair = _hottest_feud_pair(drivers)
+
+        if feud_pair is not None and feud_pair[2].get("intensity", 0) >= 50:
+            events.append(
+                feud_review_event(feud_pair[0], feud_pair[1], feud_pair[2])
+            )
 
     return events
 

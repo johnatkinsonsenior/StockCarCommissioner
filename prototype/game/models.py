@@ -24,6 +24,69 @@ TREND_LABELS = {
     -2: "Falling Fast",
 }
 
+PERSONALITY_TRAIT_DEFAULTS = {
+    "Professional": {
+        "temperament": 72,
+        "loyalty": 78,
+        "ambition": 65,
+        "media_skill": 70,
+        "risk_tolerance": 48,
+    },
+    "Veteran": {
+        "temperament": 80,
+        "loyalty": 82,
+        "ambition": 55,
+        "media_skill": 68,
+        "risk_tolerance": 42,
+    },
+    "Temperamental": {
+        "temperament": 35,
+        "loyalty": 50,
+        "ambition": 78,
+        "media_skill": 45,
+        "risk_tolerance": 75,
+    },
+    "Rookie": {
+        "temperament": 58,
+        "loyalty": 62,
+        "ambition": 80,
+        "media_skill": 40,
+        "risk_tolerance": 68,
+    },
+    "Aggressive": {
+        "temperament": 45,
+        "loyalty": 55,
+        "ambition": 82,
+        "media_skill": 52,
+        "risk_tolerance": 85,
+    },
+    "Popular": {
+        "temperament": 70,
+        "loyalty": 60,
+        "ambition": 70,
+        "media_skill": 88,
+        "risk_tolerance": 55,
+    },
+}
+
+HAPPINESS_LABELS = (
+    (75, "Content"),
+    (55, "Settled"),
+    (40, "Restless"),
+    (0, "Unhappy"),
+)
+
+
+def trait_defaults_for(personality):
+    """Return numerical trait defaults for a personality type."""
+
+    return dict(
+        PERSONALITY_TRAIT_DEFAULTS.get(
+            personality,
+            PERSONALITY_TRAIT_DEFAULTS["Professional"],
+        )
+    )
+
 
 def _clamp(value, minimum=0, maximum=100):
     return max(minimum, min(value, maximum))
@@ -387,6 +450,22 @@ class Driver:
         salary,
         contract_years,
         is_rookie=False,
+        temperament=None,
+        loyalty=None,
+        ambition=None,
+        media_skill=None,
+        risk_tolerance=None,
+        rivalry_intensity=None,
+        ally=None,
+        friendship_strength=0,
+        teammate_bond=55,
+        reputation=None,
+        credibility=None,
+        team_satisfaction=65,
+        contract_satisfaction=65,
+        competitive_frustration=30,
+        feuds=None,
+        friendships=None,
     ):
         self.name = name
         self.team_name = team_name
@@ -408,6 +487,54 @@ class Driver:
         self.morale = 70
         self.commissioner_trust = 60
         self.is_retired = False
+
+        traits = trait_defaults_for(personality)
+        self.temperament = _clamp(
+            temperament if temperament is not None else traits["temperament"]
+        )
+        self.loyalty = _clamp(
+            loyalty if loyalty is not None else traits["loyalty"]
+        )
+        self.ambition = _clamp(
+            ambition if ambition is not None else traits["ambition"]
+        )
+        self.media_skill = _clamp(
+            media_skill if media_skill is not None else traits["media_skill"]
+        )
+        self.risk_tolerance = _clamp(
+            risk_tolerance
+            if risk_tolerance is not None
+            else traits["risk_tolerance"]
+        )
+
+        if rivalry_intensity is not None:
+            self.rivalry_intensity = _clamp(rivalry_intensity)
+        elif rival:
+            self.rivalry_intensity = 50
+        else:
+            self.rivalry_intensity = 0
+
+        self.ally = ally
+        self.friendship_strength = _clamp(friendship_strength)
+        self.teammate_bond = _clamp(teammate_bond)
+        self.friendships = dict(friendships or {})
+
+        if reputation is not None:
+            self.reputation = _clamp(reputation)
+        else:
+            self.reputation = _clamp((popularity + 50) // 2)
+
+        if credibility is not None:
+            self.credibility = _clamp(credibility)
+        else:
+            self.credibility = _clamp(
+                (self.temperament + self.loyalty) // 2
+            )
+
+        self.team_satisfaction = _clamp(team_satisfaction)
+        self.contract_satisfaction = _clamp(contract_satisfaction)
+        self.competitive_frustration = _clamp(competitive_frustration)
+        self.feuds = list(feuds or [])
 
         # Career statistics
         self.career_starts = 0
@@ -531,6 +658,163 @@ class Driver:
             f"${self.salary:,} per season, "
             f"{self.contract_years} {year_word} remaining"
         )
+
+    def happiness_label(self):
+        """Return a readable label derived from morale, not a second mood."""
+
+        for threshold, label in HAPPINESS_LABELS:
+            if self.morale >= threshold:
+                return label
+
+        return "Unhappy"
+
+    def sync_morale_from_happiness(self):
+        """Move morale toward team, contract, and competitive satisfaction."""
+
+        target = round(
+            self.team_satisfaction * 0.35
+            + self.contract_satisfaction * 0.30
+            + (100 - self.competitive_frustration) * 0.35
+        )
+        self.morale = _clamp(round(self.morale * 0.6 + target * 0.4))
+
+    def set_rival(self, rival_name, intensity=40):
+        """Set the primary rival name and intensity."""
+
+        self.rival = rival_name
+        self.rivalry_intensity = _clamp(intensity) if rival_name else 0
+
+    def adjust_rivalry(self, amount):
+        """Escalate or decay the primary rivalry without clearing the name."""
+
+        if not self.rival:
+            return
+
+        self.rivalry_intensity = _clamp(self.rivalry_intensity + amount)
+
+    def decay_rivalry(self, amount=6):
+        """Reduce rivalry intensity during quiet stretches."""
+
+        if not self.rival:
+            self.rivalry_intensity = 0
+            return
+
+        self.rivalry_intensity = _clamp(self.rivalry_intensity - amount)
+
+    def hottest_feud(self):
+        """Return the driver's strongest feud dictionary, if any."""
+
+        if not self.feuds:
+            return None
+
+        return max(self.feuds, key=lambda feud: feud.get("intensity", 0))
+
+    def feud_with(self, opponent_name):
+        """Return the feud record against one opponent, or None."""
+
+        for feud in self.feuds:
+            if feud.get("opponent") == opponent_name:
+                return feud
+
+        return None
+
+    def record_feud(self, opponent_name, season, delta=8, incident=""):
+        """Open or escalate a long-term feud that persists across races."""
+
+        if not opponent_name or opponent_name == self.name:
+            return None
+
+        feud = self.feud_with(opponent_name)
+
+        if feud is None:
+            feud = {
+                "opponent": opponent_name,
+                "intensity": _clamp(40 + delta),
+                "started_season": season,
+                "last_incident": incident,
+                "status": "active",
+            }
+            self.feuds.append(feud)
+        else:
+            feud["intensity"] = _clamp(feud.get("intensity", 40) + delta)
+            if incident:
+                feud["last_incident"] = incident
+
+        if feud["intensity"] >= 55:
+            feud["status"] = "active"
+        elif feud["intensity"] >= 25:
+            feud["status"] = "cooling"
+        else:
+            feud["status"] = "dormant"
+
+        if self.rival == opponent_name:
+            self.adjust_rivalry(max(2, delta // 2))
+
+        return feud
+
+    def cool_feuds(self):
+        """Decay feud intensity in the offseason."""
+
+        for feud in self.feuds:
+            decay = 4 if feud.get("status") == "active" else 8
+            feud["intensity"] = _clamp(feud.get("intensity", 0) - decay)
+
+            if feud["intensity"] >= 55:
+                feud["status"] = "active"
+            elif feud["intensity"] >= 25:
+                feud["status"] = "cooling"
+            else:
+                feud["status"] = "dormant"
+
+    def clear_relationship_with(self, other_name):
+        """Drop rival, ally, feud, and friendship ties to a retired driver."""
+
+        if self.rival == other_name:
+            self.rival = None
+            self.rivalry_intensity = 0
+
+        if self.ally == other_name:
+            self.ally = None
+            self.friendship_strength = 0
+
+        self.feuds = [
+            feud
+            for feud in self.feuds
+            if feud.get("opponent") != other_name
+        ]
+        self.friendships.pop(other_name, None)
+
+    def set_ally(self, ally_name, strength=60):
+        """Set the primary ally and friendship strength."""
+
+        self.ally = ally_name
+        self.friendship_strength = _clamp(strength) if ally_name else 0
+
+        if ally_name:
+            self.friendships[ally_name] = self.friendship_strength
+
+    def adjust_friendship(self, other_name, amount):
+        """Change friendship strength with another driver."""
+
+        if not other_name or other_name == self.name:
+            return
+
+        current = self.friendships.get(other_name, 0)
+        updated = _clamp(current + amount)
+        self.friendships[other_name] = updated
+
+        if self.ally == other_name:
+            self.friendship_strength = updated
+        elif self.ally is None and updated >= 65:
+            self.set_ally(other_name, updated)
+
+    def friendship_with(self, other_name):
+        """Return friendship strength with another driver."""
+
+        if other_name == self.ally:
+            return self.friendship_strength
+
+        return self.friendships.get(other_name, 0)
 
     def __str__(self):
         return self.name

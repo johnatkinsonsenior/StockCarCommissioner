@@ -22,13 +22,13 @@
 | 20 | Driver Fine System     | High     | Completed   |
 | 21 | Championship Points Penalties | High | Completed |
 | 22 | Driver Suspension System | High   | Completed   |
-| 23 | Driver Morale          | Medium   | In Progress |
+| 23 | Driver Morale          | Medium   | Completed   |
 | 24 | League Integrity       | High     | Completed   |
 | 25 | Fan Interest           | High     | Completed   |
 | 26 | League Controversy     | Medium   | Completed   |
 | 27 | Driver Personality System | High | Completed   |
 | 28 | Commissioner Trust System | High | Completed   |
-| 29 | Driver Rivalry System  | Medium   | In Progress |
+| 29 | Driver Rivalry System  | Medium   | Completed   |
 | 30 | Personality-Based Reactions | High | Completed |
 | 31 | Driver Relationship Report | Medium | Completed   |
 | 32 | Race history tracking | Medium | Completed |
@@ -53,7 +53,7 @@
 | 51 | Retirement system | High | Completed |
 | 52 | Rookie generation | High | Completed |
 | 53 | Retired driver history | Medium | Completed |
-| 54 | Dynamic rookie rivalries | Low | In Progress |
+| 54 | Dynamic rookie rivalries | Low | Completed |
 | 55 | Sponsorship revenue | High | Completed |
 | 56 | Team operating expenses | High | Completed |
 | 57 | Facility upgrades | High | Completed |
@@ -76,3 +76,10 @@
 | 74 | Engineering departments | High | Completed |
 | 75 | Pit crews | High | Completed |
 | 76 | Financial health | High | Completed |
+| 77 | Expanded personalities | High | Completed |
+| 78 | Driver happiness | High | Completed |
+| 79 | Driver reputation | High | Completed |
+| 80 | Rivalry strength | High | Completed |
+| 81 | Rivalry events | High | Completed |
+| 82 | Long-term feuds | High | Completed |
+| 83 | Driver friendships | High | Completed |
