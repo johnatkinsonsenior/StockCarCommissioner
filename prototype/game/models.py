@@ -88,6 +88,37 @@ def trait_defaults_for(personality):
     )
 
 
+TRACK_TYPE_SKILL_KEYS = {
+    "Short Track": "short_track",
+    "Road Course": "road_course",
+    "Intermediate": "intermediate",
+    "Superspeedway": "superspeedway",
+}
+
+
+def default_track_skills(speed, consistency, aggression):
+    """Return track-type skills derived from core driver ratings."""
+
+    return {
+        "short_track": _clamp(
+            round(aggression * 0.40 + consistency * 0.60)
+        ),
+        "road_course": _clamp(
+            round(speed * 0.35 + consistency * 0.65)
+        ),
+        "intermediate": _clamp(
+            round(speed * 0.50 + consistency * 0.50)
+        ),
+        "superspeedway": _clamp(
+            round(
+                speed * 0.55
+                + aggression * 0.25
+                + consistency * 0.20
+            )
+        ),
+    }
+
+
 def _clamp(value, minimum=0, maximum=100):
     return max(minimum, min(value, maximum))
 
@@ -433,6 +464,48 @@ class Team:
         return self.name
 
 
+class Track:
+    """Represents a race track. Replaces the old track dictionaries."""
+
+    def __init__(
+        self,
+        name,
+        track_type,
+        purse,
+        incident_risk,
+        length,
+        banking,
+        surface,
+        tire_wear,
+        passing_difficulty,
+    ):
+        self.name = name
+        self.type = track_type
+        self.purse = purse
+        self.incident_risk = incident_risk
+        self.length = length
+        self.banking = banking
+        self.surface = surface
+        self.tire_wear = _clamp(tire_wear)
+        self.passing_difficulty = _clamp(passing_difficulty)
+
+    def skill_key(self):
+        """Return the driver skill attribute used at this track type."""
+
+        return TRACK_TYPE_SKILL_KEYS.get(self.type, "intermediate")
+
+    def description(self):
+        """Return a short physical description."""
+
+        return (
+            f"{self.length} mi, {self.banking}° {self.surface}, "
+            f"wear {self.tire_wear}, pass {self.passing_difficulty}"
+        )
+
+    def __str__(self):
+        return self.name
+
+
 class Driver:
     """Represents a stock car racing driver."""
 
@@ -466,6 +539,10 @@ class Driver:
         competitive_frustration=30,
         feuds=None,
         friendships=None,
+        short_track=None,
+        road_course=None,
+        intermediate=None,
+        superspeedway=None,
     ):
         self.name = name
         self.team_name = team_name
@@ -535,6 +612,30 @@ class Driver:
         self.contract_satisfaction = _clamp(contract_satisfaction)
         self.competitive_frustration = _clamp(competitive_frustration)
         self.feuds = list(feuds or [])
+
+        skills = default_track_skills(speed, consistency, aggression)
+        self.short_track = _clamp(
+            short_track if short_track is not None else skills["short_track"],
+            0,
+            99,
+        )
+        self.road_course = _clamp(
+            road_course if road_course is not None else skills["road_course"],
+            0,
+            99,
+        )
+        self.intermediate = _clamp(
+            intermediate if intermediate is not None else skills["intermediate"],
+            0,
+            99,
+        )
+        self.superspeedway = _clamp(
+            superspeedway
+            if superspeedway is not None
+            else skills["superspeedway"],
+            0,
+            99,
+        )
 
         # Career statistics
         self.career_starts = 0
@@ -624,7 +725,14 @@ class Driver:
         elif self.age >= 38:
             value *= 0.90
 
-        return int(round(value / 25_000) * 25_000)
+        return int(round(value / 25_000) * 25_000        )
+
+    def track_skill_for(self, track_type):
+        """Return the driver's rating for a track type."""
+
+        key = TRACK_TYPE_SKILL_KEYS.get(track_type, "intermediate")
+
+        return getattr(self, key)
 
     def advance_contract(self):
         """Reduce the number of years remaining on the contract."""

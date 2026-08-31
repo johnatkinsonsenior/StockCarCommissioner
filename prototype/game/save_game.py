@@ -4,10 +4,17 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from game.models import Driver, Owner, Team
+from game.models import Driver, Owner, Team, Track
 
-SAVE_VERSION = "0.0.7"
-SUPPORTED_SAVE_VERSIONS = {"0.0.3", "0.0.4", "0.0.5", "0.0.6", "0.0.7"}
+SAVE_VERSION = "0.0.8"
+SUPPORTED_SAVE_VERSIONS = {
+    "0.0.3",
+    "0.0.4",
+    "0.0.5",
+    "0.0.6",
+    "0.0.7",
+    "0.0.8",
+}
 GAME_NAME = "Stock Car Commissioner"
 
 
@@ -39,6 +46,10 @@ def driver_to_dict(driver):
         "teammate_bond": driver.teammate_bond,
         "friendships": dict(driver.friendships),
         "feuds": list(driver.feuds),
+        "short_track": driver.short_track,
+        "road_course": driver.road_course,
+        "intermediate": driver.intermediate,
+        "superspeedway": driver.superspeedway,
         "temperament": driver.temperament,
         "loyalty": driver.loyalty,
         "ambition": driver.ambition,
@@ -112,6 +123,10 @@ def driver_from_dict(data):
         competitive_frustration=data.get("competitive_frustration", 30),
         feuds=data.get("feuds") or [],
         friendships=data.get("friendships") or {},
+        short_track=data.get("short_track"),
+        road_course=data.get("road_course"),
+        intermediate=data.get("intermediate"),
+        superspeedway=data.get("superspeedway"),
     )
 
     driver.previous_team = data.get("previous_team")
@@ -247,6 +262,38 @@ def team_from_dict(data):
     return team
 
 
+def track_to_dict(track):
+    """Serialize a track to a dictionary."""
+
+    return {
+        "name": track.name,
+        "type": track.type,
+        "purse": track.purse,
+        "incident_risk": track.incident_risk,
+        "length": track.length,
+        "banking": track.banking,
+        "surface": track.surface,
+        "tire_wear": track.tire_wear,
+        "passing_difficulty": track.passing_difficulty,
+    }
+
+
+def track_from_dict(data):
+    """Restore a track from a saved dictionary."""
+
+    return Track(
+        name=data["name"],
+        track_type=data.get("type", "Intermediate"),
+        purse=data["purse"],
+        incident_risk=data["incident_risk"],
+        length=data.get("length", 1.5),
+        banking=data.get("banking", 18),
+        surface=data.get("surface", "asphalt"),
+        tire_wear=data.get("tire_wear", 55),
+        passing_difficulty=data.get("passing_difficulty", 50),
+    )
+
+
 def build_save_data(
     league,
     race_history,
@@ -262,10 +309,11 @@ def build_save_data(
     policies,
     decision_log,
     events_resolved,
+    tracks=None,
 ):
     """Build a save file dictionary from live game state."""
 
-    return {
+    save_data = {
         "game": GAME_NAME,
         "version": SAVE_VERSION,
         "save_type": "career",
@@ -288,6 +336,11 @@ def build_save_data(
             for driver in retired_drivers
         ],
     }
+
+    if tracks is not None:
+        save_data["tracks"] = [track_to_dict(track) for track in tracks]
+
+    return save_data
 
 
 def validate_save_data(save_data):
@@ -323,6 +376,14 @@ def parse_save_data(save_data):
         for driver_data in save_data["retired_drivers"]
     ]
 
+    restored_tracks = None
+
+    if save_data.get("tracks"):
+        restored_tracks = [
+            track_from_dict(track_data)
+            for track_data in save_data["tracks"]
+        ]
+
     return {
         "league": dict(save_data["league"]),
         "race_history": list(save_data["race_history"]),
@@ -330,6 +391,7 @@ def parse_save_data(save_data):
         "drivers": restored_drivers,
         "teams": restored_teams,
         "retired_drivers": restored_retired,
+        "tracks": restored_tracks,
         "current_season": save_data["current_season"],
         "championship_awarded": save_data["championship_awarded"],
         "career_seasons_total": save_data["career_seasons_total"],

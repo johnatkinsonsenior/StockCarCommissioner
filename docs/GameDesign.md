@@ -188,6 +188,7 @@ The following information continues between seasons:
 - Reputation and credibility
 - Morale and happiness components
 - Personality type and numerical traits
+- Track-type skills (short track, road course, intermediate, superspeedway)
 - Commissioner trust
 - Rival name and rivalry intensity
 - Feuds
@@ -325,6 +326,7 @@ Saved data includes:
 
 - Active drivers and teams
 - Retired drivers
+- Series tracks
 - League metrics
 - Race history for the current season
 - Completed season history
@@ -349,7 +351,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, driver-commissioner relationships, active policies, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, and cautions, and key alerts.
 
 ### Decision Events
 
@@ -370,7 +372,7 @@ During preseason the commissioner may set:
 - Penalty standards
 - Technical rules
 
-These policies persist between seasons and affect scoring, incident risk, fines, and operating costs.
+These policies persist between seasons and affect scoring, incident risk, fines, and operating costs. Stage points, when the format is stage racing, are taken from the same championship points table rather than a separate scoring system.
 
 ### Safety Mandates
 
@@ -414,8 +416,40 @@ Each team has an engineering department rating. Stronger engineering reduces mec
 
 ### Pit Crews
 
-Pit-crew skill uses the existing crew rating. Weaker crews can lose time with in-race mistakes. Profitable and stable teams may train crews in the offseason. Race-weekend pit strategy is not part of this system.
+Pit-crew skill uses the existing crew rating. Weaker crews can lose time with in-race mistakes. Profitable and stable teams may train crews in the offseason. Race weekends also pick an automated pit plan (tires, fuel, timing) that uses crew rating, tire wear, weather, and grid position. Component-level pit-road penalties are not part of this system.
 
 ### Financial Health
 
 The four-level money track is labeled Profitable, Stable, Struggling, and Insolvent. Insolvent teams stay on the grid.
+
+## Race Simulation
+
+Race weekends use a single outcome-level simulation. The commissioner does not drive.
+
+### Tracks
+
+Each venue is a Track object with name, type, purse, incident risk, length, banking, surface, tire wear, and passing difficulty. Track types remain Short Track, Road Course, Intermediate, and Superspeedway.
+
+### Driver Track Skills
+
+Drivers carry a rating for each of those four types. Skills persist on the driver, feed qualifying and race pace, and default from core speed, consistency, and aggression when missing from older saves.
+
+### Qualifying
+
+Each weekend sets a starting grid from qualifying performance. Inspection infractions can drop a car one or two spots, more often under inspection-heavy technical rules. Grid position changes race outcomes, especially at tracks that are hard to pass.
+
+### Stages and Heats
+
+Race format stays on the existing policy. Stage racing awards stage points derived from the active championship points table (one quarter, minimum 1). Heat-and-feature runs a heat that sets the feature grid. There is no second points system.
+
+### Cautions
+
+Yellow flags, restarts, and field compression are applied at race-outcome level. Caution count comes from track incident risk, weather, and crashes. This is not a lap-by-lap wreck chain.
+
+### Pit Strategy
+
+Each car is assigned an automated plan: two-stop, three-stop, fuel-save, short-run, or wet tires. The plan uses tire wear, weather, crew rating, and starting spot. Pit-crew mistakes still use crew rating, with extra risk on more aggressive plans.
+
+### Weather
+
+Race day generates conditions (clear, hot, cloudy, windy, or light rain) that apply to both qualifying and the feature. Weather shifts pace, incident risk, and tire load.

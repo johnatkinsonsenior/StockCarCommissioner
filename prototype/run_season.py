@@ -6,6 +6,7 @@ from pathlib import Path
 from data import (
     create_initial_drivers,
     create_initial_teams,
+    create_initial_tracks,
     drivers,
     teams,
     tracks,
@@ -45,11 +46,10 @@ from game.save_game import (
 from game.race import (
     PRIZE_PERCENTAGES,
     clamp,
-    determine_driver_result,
-    get_active_drivers,
     get_driver,
     get_team,
-    sort_race_results,
+    simulate_race_weekend,
+    weather_label,
 )
 
 PERSONALITY_REACTIONS = {
@@ -193,6 +193,9 @@ def reset_career_state():
     teams.clear()
     teams.extend(create_initial_teams())
 
+    tracks.clear()
+    tracks.extend(create_initial_tracks())
+
     league["integrity"] = 70
     league["fan_interest"] = 65
     league["controversy"] = 20
@@ -244,6 +247,10 @@ def apply_loaded_state(restored_state):
     teams.clear()
     teams.extend(restored_state["teams"])
 
+    if restored_state.get("tracks"):
+        tracks.clear()
+        tracks.extend(restored_state["tracks"])
+
     league.clear()
     league.update(restored_state["league"])
     league.setdefault("owner_pressure", 25)
@@ -283,6 +290,7 @@ def save_career(save_name=None):
         policies=current_policies,
         decision_log=decision_log,
         events_resolved=events_resolved,
+        tracks=tracks,
     )
 
     save_path = save_to_file(save_data, save_name)
@@ -554,6 +562,32 @@ def display_league_dashboard():
             f"(Lv {team.facility_level}) | "
             f"Eng {team.engineering} | "
             f"Crew {team.crew_rating}"
+        )
+
+    next_index = len(race_history)
+
+    if next_index < len(tracks):
+        next_track = tracks[next_index]
+        print(
+            f"Next weekend: {next_track.name} ({next_track.type}) — "
+            f"{next_track.description()} | purse ${next_track.purse:,}"
+        )
+
+    if race_history:
+        last_race = race_history[-1]
+        weather_text = last_race.get("weather")
+        last_weather = (
+            f"{weather_text}, {last_race.get('temperature')}°"
+            if weather_text
+            else "weather n/a"
+        )
+        last_cautions = last_race.get("cautions", 0) or 0
+        yellow_word = "yellow" if last_cautions == 1 else "yellows"
+        print(
+            f"Last weekend: {last_race['track']} — {last_weather} | "
+            f"{last_cautions} {yellow_word} | "
+            f"pole {last_race.get('pole') or 'n/a'} | "
+            f"{last_race.get('format', 'single-feature')}"
         )
 
     print("Alerts")
@@ -872,6 +906,8 @@ def replace_retired_driver(retired_driver):
         f"Ratings — Speed: {rookie.speed}, "
         f"Consistency: {rookie.consistency}, "
         f"Aggression: {rookie.aggression}, "
+        f"ST {rookie.short_track}/RC {rookie.road_course}/"
+        f"Int {rookie.intermediate}/SS {rookie.superspeedway}, "
         f"{rookie.personality}, "
         f"Rival: {rookie.rival or 'none'}"
     )
@@ -1367,13 +1403,28 @@ def serve_suspensions():
             driver.suspension_races -= 1
 
 
-def record_race_history(track, race_number, results):
+def record_race_history(track, race_number, results, weekend):
     """Save the results of a completed race."""
 
+    pole = None
+
+    for entry in weekend["grid"]:
+        if entry.get("qualifying_position") == 1:
+            pole = entry["driver"].name
+            break
+
+    weather = weekend["weather"]
     race_record = {
         "race_number": race_number,
-        "track": track["name"],
-        "track_type": track["type"],
+        "track": track.name,
+        "track_type": track.type,
+        "weather": weather["condition"],
+        "temperature": weather["temperature"],
+        "format": weekend["format"],
+        "cautions": weekend["cautions"],
+        "pole": pole,
+        "heat_results": list(weekend["heat_results"]),
+        "stage_results": list(weekend["stage_results"]),
         "results": [],
     }
 
@@ -1388,23 +1439,84 @@ def record_race_history(track, race_number, results):
                 "status": result["status"],
                 "cause": result["cause"],
                 "pit_mistake": result.get("pit_mistake", False),
+                "start": result.get("start"),
+                "strategy": result.get("strategy"),
+                "stage_points": weekend["stage_points"].get(driver.name, 0),
+                "qualifying_position": result.get("qualifying_position"),
+                "grid_penalty": result.get("grid_penalty", 0),
             }
         )
 
     race_history.append(race_record)
 
 
-def run_race(track, race_number):
-    """Run one race and update season statistics."""
+def print_qualifying_report(weekend):
+    """Print starting grid, penalties, heats, stages, and cautions."""
 
-    results = []
-    active_drivers = get_active_drivers()
+    print("\nQualifying / Starting Grid")
+    print("-" * 75)
+
+    for entry in weekend["grid"]:
+        penalty = entry.get("penalty", 0)
+        penalty_text = ""
+
+        if penalty:
+            penalty_text = (
+                f" — {entry['penalty_reason']} "
+                f"(+{penalty} spot{'s' if penalty != 1 else ''})"
+            )
+
+        print(
+            f"{entry['grid']}. {entry['driver'].name} "
+            f"({entry['driver'].team_name}) "
+            f"qualified {entry['qualifying_position']}"
+            f"{penalty_text}"
+        )
+
+    if weekend["heat_results"]:
+        print("\nHeat Results (feature grid)")
+        print("-" * 75)
+
+        for heat in weekend["heat_results"]:
+            print(
+                f"{heat['position']}. {heat['driver']} "
+                f"({heat['team']})"
+            )
+
+    if weekend["stage_results"]:
+        print("\nStage Results")
+        print("-" * 75)
+
+        for stage in weekend["stage_results"]:
+            if not stage:
+                continue
+
+            print(f"Stage {stage[0]['stage']}")
+
+            for row in stage[:3]:
+                print(
+                    f"  {row['position']}. {row['driver']} "
+                    f"- {row['points']} stage pts"
+                )
+
+    print(
+        f"\nCautions: {weekend['cautions']} yellow"
+        f"{'' if weekend['cautions'] == 1 else 's'} "
+        "(restarts compressed the field)"
+        if weekend["cautions"]
+        else "\nCautions: none (green-flag race)"
+    )
+
+
+def run_race(track, race_number):
+    """Run one race weekend and update season statistics."""
 
     print(f"\n{'=' * 75}")
-    print(f"Race {race_number}: {track['name']}")
-    print(f"Track type: {track['type']}")
-    print(f"Incident risk: {track['incident_risk']}%")
-    print(f"Purse: ${track['purse']:,}")
+    print(f"Race {race_number}: {track.name}")
+    print(f"Track type: {track.type}")
+    print(f"Layout: {track.description()}")
+    print(f"Incident risk: {track.incident_risk}%")
+    print(f"Purse: ${track.purse:,}")
     print("=" * 75)
 
     suspended_drivers = [
@@ -1419,20 +1531,27 @@ def run_race(track, race_number):
         for driver in suspended_drivers:
             print(f"- {driver.name} ({driver.team_name})")
 
-    for driver in active_drivers:
-        result = determine_driver_result(driver, track)
-        results.append(result)
+    weekend = simulate_race_weekend(track)
+    results = weekend["results"]
 
-    results = sort_race_results(results)
+    print(f"Weather: {weather_label(weekend['weather'])}")
+    print(f"Format: {policy_label('race_format')}")
+    print_qualifying_report(weekend)
+
+    print("\nFeature Results")
+    print("-" * 75)
 
     for position, result in enumerate(results, start=1):
         driver = result["driver"]
         status = result["status"]
-
-        points_earned = get_points_by_position()[position - 1]
+        finish_points = get_points_by_position()[position - 1]
+        stage_points = weekend["stage_points"].get(driver.name, 0)
+        points_earned = finish_points + stage_points
         prize_money = int(
-            track["purse"] * PRIZE_PERCENTAGES[position - 1]
+            track.purse * PRIZE_PERCENTAGES[position - 1]
         )
+        start_position = result.get("start", position)
+        strategy = (result.get("strategy") or "two-stop").replace("-", " ")
 
         driver.add_points(points_earned)
         driver.add_earnings(prize_money)
@@ -1468,18 +1587,27 @@ def run_race(track, race_number):
 
             status_display = f"DNF: {status}"
 
+        points_text = f"{points_earned} pts"
+
+        if stage_points:
+            points_text = (
+                f"{points_earned} pts "
+                f"(finish {finish_points} + stage {stage_points})"
+            )
+
         print(
             f"{position}. {driver.name} "
             f"({driver.team_name}) "
+            f"- start P{start_position}, {strategy} "
             f"- {status_display} "
-            f"- {points_earned} pts "
+            f"- {points_text} "
             f"- ${prize_money:,}"
         )
 
     display_incident_report(results)
     review_race_incidents(results)
     update_paddock_after_race(results)
-    record_race_history(track, race_number, results)
+    record_race_history(track, race_number, results, weekend)
     serve_suspensions()
     display_league_dashboard()
 
@@ -2003,10 +2131,21 @@ def display_race_history():
             if result["status"] != "Running"
         ]
 
+        weather = race.get("weather", "n/a")
+        cautions = race.get("cautions")
+        if cautions is None:
+            caution_text = ""
+        elif cautions == 1:
+            caution_text = ", 1 yellow"
+        else:
+            caution_text = f", {cautions} yellows"
+
         print(
             f"Race {race['race_number']}: {race['track']} "
             f"- Winner: {winner['driver']} "
             f"({winner['team']}) "
+            f"- {weather}{caution_text} "
+            f"- Pole: {race.get('pole') or 'n/a'} "
             f"- Incidents: {len(incidents)}"
         )
 
@@ -2125,6 +2264,10 @@ def save_season_report(season_number):
                 "speed": driver.speed,
                 "consistency": driver.consistency,
                 "aggression": driver.aggression,
+                "short_track": driver.short_track,
+                "road_course": driver.road_course,
+                "intermediate": driver.intermediate,
+                "superspeedway": driver.superspeedway,
                 "points": driver.points,
                 "wins": driver.wins,
                 "dnfs": driver.dnfs,
