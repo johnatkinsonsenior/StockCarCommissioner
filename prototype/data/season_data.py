@@ -37,6 +37,8 @@ drivers = [
         personality="Professional",
         rival="Mason Reed",
         popularity=72,
+        salary=1_200_000,
+        contract_years=2,
     ),
     Driver(
         name="Ryan Holt",
@@ -48,6 +50,8 @@ drivers = [
         personality="Veteran",
         rival="Derek Lane",
         popularity=68,
+        salary=975_000,
+        contract_years=1,
     ),
     Driver(
         name="Mason Reed",
@@ -59,6 +63,8 @@ drivers = [
         personality="Temperamental",
         rival="Cole Baker",
         popularity=84,
+        salary=1_350_000,
+        contract_years=3,
     ),
     Driver(
         name="Tyler Knox",
@@ -70,6 +76,8 @@ drivers = [
         personality="Rookie",
         rival="Austin Vale",
         popularity=61,
+        salary=850_000,
+        contract_years=2,
         is_rookie=True,
     ),
     Driver(
@@ -82,6 +90,8 @@ drivers = [
         personality="Aggressive",
         rival="Ryan Holt",
         popularity=76,
+        salary=1_175_000,
+        contract_years=2,
     ),
     Driver(
         name="Austin Vale",
@@ -93,6 +103,8 @@ drivers = [
         personality="Popular",
         rival="Tyler Knox",
         popularity=90,
+        salary=1_100_000,
+        contract_years=3,
     ),
 ]
 

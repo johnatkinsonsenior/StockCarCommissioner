@@ -232,3 +232,46 @@ Generated rookies receive:
 - A possible initial rivalry
 
 Retired drivers remain in career history and retain their final statistics.
+
+## Team Finances and Offseason Spending
+
+Teams manage a persistent budget across seasons. Income comes from race prize money and offseason sponsorship deals. Expenses include driver salaries, operating costs, and optional investments.
+
+### Sponsorship Revenue
+
+Offseason sponsorship income is based on:
+
+- Base sponsor support
+- Facility level
+- Championships
+- Season race wins
+- Average driver popularity
+
+Teams in financial distress may receive reduced sponsorship offers.
+
+### Operating Expenses
+
+Each offseason teams pay:
+
+- Base operating costs
+- Facility maintenance
+- Driver salaries
+
+### Facility Upgrades
+
+Teams may upgrade their facility up to level 5. Upgrades improve reliability and increase future sponsorship potential.
+
+### Performance Investment
+
+Healthy teams may invest in car and crew development during the offseason, improving race performance.
+
+### Financial Distress
+
+Team financial health is tracked across four levels:
+
+- Healthy
+- Cautious
+- Distressed
+- Critical
+
+Distressed teams face reduced morale, performance penalties, and limited investment options. Critical teams suffer severe performance declines and sponsor discounts.

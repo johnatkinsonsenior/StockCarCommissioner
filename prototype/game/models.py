@@ -1,3 +1,17 @@
+FACILITY_MAX_LEVEL = 5
+
+FACILITY_UPGRADE_COSTS = {
+    2: 400_000,
+    3: 650_000,
+    4: 900_000,
+    5: 1_200_000,
+}
+
+
+def _clamp(value, minimum=0, maximum=100):
+    return max(minimum, min(value, maximum))
+
+
 class Team:
     """Represents a stock car racing team."""
 
@@ -25,11 +39,21 @@ class Team:
         # Financial statistics
         self.current_payroll = 0
         self.career_salary_expenses = 0
+        self.facility_level = 1
+        self.season_sponsorship = 0
+        self.season_operating_expenses = 0
+        self.career_sponsorship_income = 0
+        self.career_operating_expenses = 0
+        self.career_facility_investment = 0
+        self.career_performance_investment = 0
+        self.financial_distress_level = 0
 
     def start_new_season(self):
         """Reset values that apply only to the upcoming season."""
 
         self.current_payroll = 0
+        self.season_sponsorship = 0
+        self.season_operating_expenses = 0
 
     def add_prize_money(self, amount):
         """Add race winnings to the team's budget and career total."""
@@ -53,6 +77,94 @@ class Team:
         """Return whether the team can afford an expense and retain reserves."""
 
         return self.budget - amount >= reserve
+
+    def add_sponsorship(self, amount):
+        """Add sponsorship revenue to the team budget."""
+
+        self.budget += amount
+        self.season_sponsorship += amount
+        self.career_sponsorship_income += amount
+
+    def pay_operating_expense(self, amount):
+        """Pay a seasonal operating expense."""
+
+        self.budget -= amount
+        self.season_operating_expenses += amount
+        self.career_operating_expenses += amount
+
+    def facility_upgrade_cost(self):
+        """Return the cost to upgrade to the next facility level."""
+
+        next_level = self.facility_level + 1
+
+        if next_level > FACILITY_MAX_LEVEL:
+            return None
+
+        return FACILITY_UPGRADE_COSTS[next_level]
+
+    def upgrade_facility(self):
+        """Upgrade the team facility if affordable."""
+
+        cost = self.facility_upgrade_cost()
+
+        if cost is None or not self.can_afford(cost):
+            return False
+
+        self.budget -= cost
+        self.career_facility_investment += cost
+        self.facility_level += 1
+        self.reliability = _clamp(self.reliability + 2, 0, 99)
+
+        return True
+
+    def invest_in_performance(self, amount):
+        """Invest in car and crew development."""
+
+        if amount <= 0 or not self.can_afford(amount):
+            return {
+                "car_gain": 0,
+                "crew_gain": 0,
+                "spent": 0,
+            }
+
+        self.budget -= amount
+        self.career_performance_investment += amount
+
+        car_gain = _clamp(amount // 100_000, 1, 3)
+        crew_gain = _clamp(amount // 120_000, 1, 2)
+
+        self.car_rating = _clamp(self.car_rating + car_gain, 0, 99)
+        self.crew_rating = _clamp(self.crew_rating + crew_gain, 0, 99)
+
+        return {
+            "car_gain": car_gain,
+            "crew_gain": crew_gain,
+            "spent": amount,
+        }
+
+    def update_financial_distress(self):
+        """Update the team's financial distress level from its budget."""
+
+        if self.budget >= 1_500_000:
+            self.financial_distress_level = 0
+        elif self.budget >= 750_000:
+            self.financial_distress_level = 1
+        elif self.budget >= 250_000:
+            self.financial_distress_level = 2
+        else:
+            self.financial_distress_level = 3
+
+    def financial_status_label(self):
+        """Return a readable financial health label."""
+
+        labels = {
+            0: "Healthy",
+            1: "Cautious",
+            2: "Distressed",
+            3: "Critical",
+        }
+
+        return labels[self.financial_distress_level]
 
     def record_win(self):
         """Record a race victory for the team."""
