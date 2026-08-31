@@ -3,6 +3,7 @@
 import random
 
 from data import drivers, teams
+from game.policies import get_crash_modifier
 
 POINTS_BY_POSITION = [40, 35, 32, 30, 28, 26]
 PRIZE_PERCENTAGES = [0.30, 0.22, 0.17, 0.13, 0.10, 0.08]
@@ -40,6 +41,7 @@ def calculate_crash_chance(driver, track):
         track["incident_risk"]
         + aggression_effect
         - consistency_effect
+        + get_crash_modifier()
     )
 
     return clamp(crash_chance, 3, 40)

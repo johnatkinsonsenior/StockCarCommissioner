@@ -288,6 +288,8 @@ Saved data includes:
 - Race history for the current season
 - Completed season history
 - Current season number and career length
+- League policies
+- Commissioner decision log
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -301,3 +303,36 @@ Each season moves through a fixed league calendar:
 - Offseason: drivers develop or decline, retirements are processed, and team finances are settled
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
+
+## Commissioner Management
+
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, team finances, driver relationships, active policies, and key alerts.
+
+### Decision Events
+
+Rule, safety, owner, and driver matters use one shared decision framework:
+
+- A prompt and numbered choices
+- Immediate consequences
+- Weighted secondary outcomes
+
+Decisions are logged and stored in career saves.
+
+### Rule Changes
+
+During preseason the commissioner may set:
+
+- Championship points structure
+- Race format
+- Penalty standards
+- Technical rules
+
+These policies persist between seasons and affect scoring, incident risk, fines, and operating costs.
+
+### Safety Mandates
+
+During the offseason the commissioner may require current, enhanced, or maximum safety equipment. Stronger mandates lower crash risk and raise team costs.
+
+### Owner and Driver Complaints
+
+Owners lobby through their teams for financial relief and looser technical scrutiny. Drivers file grievances about officiating, safety, and trust. Both can appear during the regular season and again after the championship.
