@@ -29,6 +29,11 @@ from game.event_catalog import (
 from game.events import resolve_event_choice
 from game.models import Driver, Team
 from game.records import build_record_book
+from game.sponsorships import (
+    age_endorsements,
+    assign_endorsements,
+    obligation_met,
+)
 from game.policies import (
     current_policies,
     get_penalty_fine_amount,
@@ -643,6 +648,55 @@ def display_sponsor_directory():
             f"- values: {sponsor.priorities_summary()} "
             f"- risk tolerance {sponsor.risk_tolerance}"
         )
+
+
+def pay_endorsement_income():
+    """Pay each driver their annual personal endorsement value."""
+
+    for driver in drivers:
+        if driver.endorsement:
+            driver.add_earnings(driver.endorsement["annual_value"])
+
+
+def display_driver_endorsements(show_status=False):
+    """Show each driver's personal endorsement deal and obligation."""
+
+    print("\nDriver Endorsements")
+    print("-" * 90)
+
+    for driver in drivers:
+        endorsement = driver.endorsement
+
+        if not endorsement:
+            print(f"- {driver.name}: no personal sponsor")
+            continue
+
+        line = (
+            f"- {driver.name}: {endorsement['sponsor']} "
+            f"[{endorsement['industry']}] "
+            f"- ${endorsement['annual_value']:,}/yr, "
+            f"{endorsement['years_remaining']} yr(s) left "
+            f"| Obligation: {endorsement['obligation']}"
+        )
+
+        if show_status:
+            line += " (MET)" if obligation_met(driver) else " (not met)"
+
+        print(line)
+
+
+def review_endorsement_obligations():
+    """Apply small morale effects based on whether obligations were met."""
+
+    for driver in drivers:
+        if not driver.endorsement:
+            continue
+
+        if obligation_met(driver):
+            driver.morale = clamp(driver.morale + 2)
+            driver.popularity = clamp(driver.popularity + 1)
+        else:
+            driver.morale = clamp(driver.morale - 2)
 
 
 def build_event_context(event):
@@ -1436,6 +1490,19 @@ def run_offseason(completed_season):
 
     run_offseason_finances()
     process_paddock_relationships()
+
+    expired_deals = age_endorsements(drivers)
+
+    if expired_deals:
+        print("\nEndorsement Contracts")
+        print("-" * 90)
+
+        for driver, sponsor_name in expired_deals:
+            print(
+                f"{driver.name}'s endorsement with {sponsor_name} "
+                "has expired and returns to the sponsor market."
+            )
+
     present_events(
         offseason_events(current_policies, events_resolved)
     )
@@ -2820,6 +2887,8 @@ def save_season_report(season_number):
                 "career_points": driver.career_points + driver.points,
                 "career_earnings": driver.career_earnings + driver.earnings,
                 "championships": driver.championships,
+                "endorsement": driver.endorsement,
+                "endorsement_met": obligation_met(driver),
             }
         )
 
@@ -2899,11 +2968,15 @@ def initialize_season(season_number):
 
     refresh_all_driver_happiness()
 
+    assign_endorsements(drivers, sponsors)
+    pay_endorsement_income()
+
     print("\n" + "=" * 90)
     print(f"STOCK CAR COMMISSIONER — SEASON {season_number}")
     print("=" * 90)
     display_league_dashboard()
     display_sponsor_directory()
+    display_driver_endorsements()
     present_events(
         preseason_events(current_policies, season_number)
     )
@@ -3061,6 +3134,8 @@ def run_postseason(season_number):
     display_manufacturer_standings()
     display_commissioner_report()
     display_driver_relationship_report()
+    review_endorsement_obligations()
+    display_driver_endorsements(show_status=True)
     display_race_history()
     display_season_awards()
 
