@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–54 complete. Next coding day: **Day 55 — Team
-standings**.
+**Current position:** Days 1–55 complete. Next coding day: **Day 56 —
+Historical records**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -93,7 +93,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 52 — Expanded points (bonuses, penalties, configurable scoring)
 - [x] Day 53 — Playoff format (optional postseason/championship system)
 - [x] Day 54 — Manufacturer standings
-- [ ] Day 55 — Team standings (organization championship)
+- [x] Day 55 — Team standings (organization championship)
 - [ ] Day 56 — Historical records (all-time wins, championships, streaks)
 
 ## Week 9 — Sponsors and Commercial Model
