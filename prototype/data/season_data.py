@@ -225,12 +225,13 @@ teams = create_initial_teams()
 drivers = create_initial_drivers()
 
 
-def create_initial_tracks():
-    """Return the series schedule as Track objects.
+def create_track_pool():
+    """Return the full catalog of venues the series can visit.
 
-    A full 22-race championship calendar with a realistic mix of
-    superspeedways, intermediates, short tracks, and road courses. The
-    season opens at a superspeedway and closes with a marquee finale.
+    The pool is larger than a single season's calendar so the schedule
+    generator can rotate venues in and out from year to year. It contains a
+    realistic mix of superspeedways, intermediates, short tracks, and road
+    courses. "Grand National Speedway" is reserved as the marquee finale.
     """
 
     return [
@@ -476,7 +477,249 @@ def create_initial_tracks():
             tire_wear=46,
             passing_difficulty=36,
         ),
+        Track(
+            name="Daybreak Superspeedway",
+            track_type="Superspeedway",
+            purse=710_000,
+            incident_risk=19,
+            length=2.4,
+            banking=29,
+            surface="asphalt",
+            tire_wear=47,
+            passing_difficulty=38,
+        ),
+        Track(
+            name="Coastal Superspeedway",
+            track_type="Superspeedway",
+            purse=730_000,
+            incident_risk=20,
+            length=2.55,
+            banking=32,
+            surface="asphalt",
+            tire_wear=44,
+            passing_difficulty=34,
+        ),
+        Track(
+            name="Riverside Motor Speedway",
+            track_type="Intermediate",
+            purse=612_000,
+            incident_risk=11,
+            length=1.5,
+            banking=23,
+            surface="asphalt",
+            tire_wear=62,
+            passing_difficulty=56,
+        ),
+        Track(
+            name="Highland Speedway",
+            track_type="Intermediate",
+            purse=598_000,
+            incident_risk=12,
+            length=1.25,
+            banking=18,
+            surface="asphalt",
+            tire_wear=66,
+            passing_difficulty=59,
+        ),
+        Track(
+            name="Prairie Motor Speedway",
+            track_type="Intermediate",
+            purse=625_000,
+            incident_risk=10,
+            length=1.5,
+            banking=21,
+            surface="asphalt",
+            tire_wear=61,
+            passing_difficulty=55,
+        ),
+        Track(
+            name="Old Dominion Speedway",
+            track_type="Short Track",
+            purse=475_000,
+            incident_risk=19,
+            length=0.58,
+            banking=15,
+            surface="asphalt",
+            tire_wear=81,
+            passing_difficulty=69,
+        ),
+        Track(
+            name="Cedar Creek Speedway",
+            track_type="Short Track",
+            purse=485_000,
+            incident_risk=20,
+            length=0.66,
+            banking=20,
+            surface="concrete",
+            tire_wear=83,
+            passing_difficulty=67,
+        ),
+        Track(
+            name="Glen Haven Circuit",
+            track_type="Road Course",
+            purse=655_000,
+            incident_risk=13,
+            length=2.5,
+            banking=7,
+            surface="asphalt",
+            tire_wear=57,
+            passing_difficulty=77,
+        ),
+        Track(
+            name="Northgate Circuit",
+            track_type="Road Course",
+            purse=635_000,
+            incident_risk=14,
+            length=2.1,
+            banking=10,
+            surface="asphalt",
+            tire_wear=53,
+            passing_difficulty=74,
+        ),
     ]
+
+
+FINALE_VENUE = "Grand National Speedway"
+
+SEASON_COMPOSITION = {
+    "Superspeedway": 4,
+    "Intermediate": 9,
+    "Short Track": 5,
+    "Road Course": 4,
+}
+
+SEASON_LENGTH = sum(SEASON_COMPOSITION.values())
+
+
+def _rotate_pick(items, count, offset):
+    """Pick ``count`` venues from ``items`` using a wrapping rotation window.
+
+    Advancing ``offset`` season to season slides the window, rotating venues
+    into and out of the calendar while keeping the count stable.
+    """
+
+    pool_size = len(items)
+
+    if count >= pool_size:
+        return list(items)
+
+    start = offset % pool_size
+    return [items[(start + index) % pool_size] for index in range(count)]
+
+
+def _spread_by_type(tracks_to_order):
+    """Reorder venues to avoid back-to-back races of the same track type."""
+
+    buckets = {}
+
+    for track in tracks_to_order:
+        buckets.setdefault(track.type, []).append(track)
+
+    ordered = []
+    last_type = None
+    remaining = len(tracks_to_order)
+
+    while remaining:
+        candidates = sorted(
+            buckets.items(),
+            key=lambda item: len(item[1]),
+            reverse=True,
+        )
+
+        chosen_type = None
+
+        for track_type, bucket in candidates:
+            if bucket and track_type != last_type:
+                chosen_type = track_type
+                break
+
+        if chosen_type is None:
+            for track_type, bucket in candidates:
+                if bucket:
+                    chosen_type = track_type
+                    break
+
+        ordered.append(buckets[chosen_type].pop(0))
+        last_type = chosen_type
+        remaining -= 1
+
+    return ordered
+
+
+def generate_season_schedule(season_number=1, pool=None):
+    """Build one season's calendar from the venue pool.
+
+    Venues rotate year to year (driven by ``season_number``), while the
+    track-type mix, a superspeedway opener, and the marquee finale stay
+    consistent. Returns a fresh, ordered list of Track objects.
+    """
+
+    if pool is None:
+        pool = create_track_pool()
+
+    by_type = {
+        "Superspeedway": [],
+        "Intermediate": [],
+        "Short Track": [],
+        "Road Course": [],
+    }
+
+    for track in pool:
+        by_type.setdefault(track.type, []).append(track)
+
+    offset = max(season_number - 1, 0)
+
+    finale = None
+    superspeedways = []
+
+    for track in by_type["Superspeedway"]:
+        if finale is None and track.name == FINALE_VENUE:
+            finale = track
+        else:
+            superspeedways.append(track)
+
+    ss_needed = SEASON_COMPOSITION["Superspeedway"]
+    reserve_finale = finale is not None
+    ss_pick_count = ss_needed - 1 if reserve_finale else ss_needed
+
+    chosen_ss = _rotate_pick(superspeedways, ss_pick_count, offset)
+    chosen_intermediate = _rotate_pick(
+        by_type["Intermediate"],
+        SEASON_COMPOSITION["Intermediate"],
+        offset * 3,
+    )
+    chosen_short = _rotate_pick(
+        by_type["Short Track"],
+        SEASON_COMPOSITION["Short Track"],
+        offset * 2,
+    )
+    chosen_road = _rotate_pick(
+        by_type["Road Course"],
+        SEASON_COMPOSITION["Road Course"],
+        offset * 2,
+    )
+
+    opener = chosen_ss[0] if chosen_ss else None
+    middle = chosen_ss[1:] + chosen_intermediate + chosen_short + chosen_road
+    middle = _spread_by_type(middle)
+
+    schedule = []
+
+    if opener is not None:
+        schedule.append(opener)
+
+    schedule.extend(middle)
+
+    if finale is not None:
+        schedule.append(finale)
+
+    return schedule
+
+
+def create_initial_tracks():
+    """Return the opening-season schedule (season 1's generated calendar)."""
+
+    return generate_season_schedule(season_number=1)
 
 
 tracks = create_initial_tracks()

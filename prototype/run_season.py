@@ -7,6 +7,7 @@ from data import (
     create_initial_drivers,
     create_initial_teams,
     create_initial_tracks,
+    generate_season_schedule,
     drivers,
     teams,
     tracks,
@@ -2531,6 +2532,9 @@ def initialize_season(season_number):
     race_history.clear()
     championship_awarded = False
     events_resolved.clear()
+
+    tracks.clear()
+    tracks.extend(generate_season_schedule(season_number))
 
     league["integrity"] = 70
     league["fan_interest"] = 65
