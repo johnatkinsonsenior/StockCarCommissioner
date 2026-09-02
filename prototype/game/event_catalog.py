@@ -245,6 +245,87 @@ def scoring_bonus_event(policies):
     }
 
 
+def championship_format_event(policies):
+    """Preseason decision about how the champion is crowned."""
+
+    current = policy_label("championship_format", policies["championship_format"])
+
+    return {
+        "id": "rule-championship-format",
+        "title": "Championship Format",
+        "category": "rule-change",
+        "phase": PRESEASON,
+        "prompt": (
+            "The board wants a decision on how the title is decided: a "
+            "season-long points championship, or a playoff where the top "
+            "seeds settle it over the final races. "
+            f"Current policy: {current}."
+        ),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Keep the season-long points championship",
+                "effects": [
+                    {
+                        "type": "policy",
+                        "key": "championship_format",
+                        "value": "season-long",
+                    },
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 75,
+                        "text": "Traditionalists praise a full-season title fight.",
+                        "effects": [],
+                    },
+                    {
+                        "weight": 25,
+                        "text": "Broadcasters wish for a bigger finale hook.",
+                        "effects": [
+                            {"type": "league", "stat": "fan_interest", "delta": -2},
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Adopt a playoff to decide the champion",
+                "effects": [
+                    {
+                        "type": "policy",
+                        "key": "championship_format",
+                        "value": "playoff",
+                    },
+                    {"type": "league", "stat": "fan_interest", "delta": 7},
+                    {"type": "league", "stat": "controversy", "delta": 4},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 60,
+                        "text": "A win-or-go-home finale electrifies the schedule.",
+                        "effects": [
+                            {"type": "all_drivers", "stat": "morale", "delta": 1},
+                        ],
+                    },
+                    {
+                        "weight": 40,
+                        "text": "Points purists call the reset a gimmick.",
+                        "effects": [
+                            {"type": "league", "stat": "integrity", "delta": -3},
+                            {
+                                "type": "league",
+                                "stat": "driver_sentiment",
+                                "delta": -3,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+
 def race_format_event(policies):
     """Preseason decision about race format."""
 
@@ -1651,6 +1732,7 @@ RULE_EVENTS = (
     penalty_standard_event,
     technical_rules_event,
     scoring_bonus_event,
+    championship_format_event,
 )
 
 

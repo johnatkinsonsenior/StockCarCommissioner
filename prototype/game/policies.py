@@ -7,7 +7,12 @@ DEFAULT_POLICIES = {
     "technical_rules": "open",
     "safety_standard": "current",
     "scoring_bonuses": "standard",
+    "championship_format": "season-long",
 }
+
+# Playoff configuration used when championship_format is "playoff".
+PLAYOFF_FIELD_SIZE = 4
+PLAYOFF_RACE_COUNT = 4
 
 POLICY_LABELS = {
     "points_system": {
@@ -39,6 +44,10 @@ POLICY_LABELS = {
         "none": "No bonus points",
         "standard": "Standard bonus points",
         "rich": "Rich bonus points",
+    },
+    "championship_format": {
+        "season-long": "Season-long championship",
+        "playoff": "Playoff championship",
     },
 }
 
@@ -107,6 +116,24 @@ def get_scoring_bonuses():
     """Return the active bonus-point values for win, pole, and hard charger."""
 
     return dict(SCORING_BONUSES[current_policies["scoring_bonuses"]])
+
+
+def uses_playoff():
+    """Return whether the champion is decided by a playoff postseason."""
+
+    return current_policies["championship_format"] == "playoff"
+
+
+def get_playoff_field_size():
+    """Return how many drivers make the championship playoff."""
+
+    return PLAYOFF_FIELD_SIZE
+
+
+def get_playoff_race_count():
+    """Return how many end-of-season races make up the playoff round."""
+
+    return PLAYOFF_RACE_COUNT
 
 
 def get_points_speeding_penalty():

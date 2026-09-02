@@ -31,6 +31,8 @@ from game.policies import (
     current_policies,
     get_penalty_fine_amount,
     get_penalty_points_amount,
+    get_playoff_field_size,
+    get_playoff_race_count,
     get_points_by_position,
     get_points_speeding_penalty,
     get_policy_operating_cost,
@@ -38,6 +40,7 @@ from game.policies import (
     load_policies,
     policy_label,
     reset_policies,
+    uses_playoff,
 )
 from game.save_game import (
     build_save_data,
@@ -517,7 +520,8 @@ def display_league_dashboard():
         f"{policy_label('penalty_standard')}; "
         f"{policy_label('technical_rules')}; "
         f"{policy_label('safety_standard')}; "
-        f"{policy_label('scoring_bonuses')}"
+        f"{policy_label('scoring_bonuses')}; "
+        f"{policy_label('championship_format')}"
     )
     print(
         "Finances — "
@@ -1495,8 +1499,10 @@ def print_strategy_report(weekend, track):
         )
 
 
-def record_race_history(track, race_number, results, weekend):
+def record_race_history(track, race_number, results, weekend, race_points=None):
     """Save the results of a completed race."""
+
+    race_points = race_points or {}
 
     pole = None
 
@@ -1533,6 +1539,7 @@ def record_race_history(track, race_number, results, weekend):
                 "pit_mistake": result.get("pit_mistake", False),
                 "start": result.get("start"),
                 "strategy": result.get("strategy"),
+                "points_earned": race_points.get(driver.name, 0),
                 "stage_points": weekend["stage_points"].get(driver.name, 0),
                 "qualifying_position": result.get("qualifying_position"),
                 "grid_penalty": result.get("grid_penalty", 0),
@@ -1644,6 +1651,7 @@ def run_race(track, race_number):
 
     bonuses = get_scoring_bonuses()
     speeding_penalty = get_points_speeding_penalty()
+    race_points = {}
 
     pole_name = None
     for entry in results:
@@ -1700,6 +1708,8 @@ def run_race(track, race_number):
             0,
             finish_points + stage_points + bonus_points - points_penalty,
         )
+
+        race_points[driver.name] = points_earned
 
         driver.add_points(points_earned)
         driver.add_earnings(prize_money)
@@ -1758,7 +1768,7 @@ def run_race(track, race_number):
     display_incident_report(results, weekend)
     review_race_incidents(results, weekend)
     update_paddock_after_race(results)
-    record_race_history(track, race_number, results, weekend)
+    record_race_history(track, race_number, results, weekend, race_points)
     serve_suspensions()
     display_league_dashboard()
 
@@ -2249,7 +2259,75 @@ def record_team_season_trends():
         team.record_season_performance(points)
 
 
+def compute_playoff_results():
+    """Compute playoff seeds and champion from the season's race history.
+
+    Seeds are the top drivers by points earned in the regular-season races;
+    the champion is the seed with the most points across the final playoff
+    races (regular-season points break ties). Returns None when the playoff
+    format is off or there is not enough of a season to run one.
+    """
+
+    if not uses_playoff():
+        return None
+
+    total_races = len(race_history)
+    race_count = min(get_playoff_race_count(), max(0, total_races - 1))
+
+    if total_races < 2 or race_count < 1:
+        return None
+
+    cutoff = total_races - race_count
+    active_names = {driver.name for driver in drivers}
+
+    seed_points = {}
+    playoff_points = {}
+
+    for index, race in enumerate(race_history):
+        for entry in race["results"]:
+            name = entry["driver"]
+            earned = entry.get("points_earned", 0)
+
+            if index < cutoff:
+                seed_points[name] = seed_points.get(name, 0) + earned
+            else:
+                playoff_points[name] = playoff_points.get(name, 0) + earned
+
+    ranked = sorted(
+        (name for name in seed_points if name in active_names),
+        key=lambda name: (seed_points[name], playoff_points.get(name, 0)),
+        reverse=True,
+    )
+
+    seeds = ranked[: get_playoff_field_size()]
+
+    if not seeds:
+        return None
+
+    champion = max(
+        seeds,
+        key=lambda name: (
+            playoff_points.get(name, 0),
+            seed_points.get(name, 0),
+        ),
+    )
+
+    return {
+        "cutoff": cutoff,
+        "race_count": race_count,
+        "seeds": seeds,
+        "seed_points": seed_points,
+        "playoff_points": playoff_points,
+        "champion": champion,
+    }
+
+
 def get_driver_champion():
+    playoff = compute_playoff_results()
+
+    if playoff is not None:
+        return get_driver(playoff["champion"])
+
     return get_driver_standings()[0]
 
 
@@ -2381,6 +2459,42 @@ def display_race_history():
             f"- {weather}{caution_text}{wreck_text} "
             f"- Pole: {race.get('pole') or 'n/a'} "
             f"- Incidents: {len(incidents)}"
+        )
+
+
+def display_playoff_results():
+    """Display the championship playoff bracket, when the format is active."""
+
+    playoff = compute_playoff_results()
+
+    if playoff is None:
+        return
+
+    champion = playoff["champion"]
+    ranked_seeds = sorted(
+        playoff["seeds"],
+        key=lambda name: (
+            playoff["playoff_points"].get(name, 0),
+            playoff["seed_points"].get(name, 0),
+        ),
+        reverse=True,
+    )
+
+    print("\nChampionship Playoff")
+    print("-" * 90)
+    print(
+        f"Format: {policy_label('championship_format')} — "
+        f"top {len(playoff['seeds'])} seeds decided over "
+        f"the final {playoff['race_count']} races"
+    )
+
+    for rank, name in enumerate(ranked_seeds, start=1):
+        marker = "  <-- Champion" if name == champion else ""
+        print(
+            f"{rank}. {name} — "
+            f"seeded {playoff['seed_points'].get(name, 0)} pts, "
+            f"playoff {playoff['playoff_points'].get(name, 0)} pts"
+            f"{marker}"
         )
 
 
@@ -2748,6 +2862,7 @@ def run_postseason(season_number):
     display_league_dashboard()
 
     display_driver_standings()
+    display_playoff_results()
     record_team_season_trends()
     display_team_finances()
     display_commissioner_report()
