@@ -32,7 +32,9 @@ from game.policies import (
     get_penalty_fine_amount,
     get_penalty_points_amount,
     get_points_by_position,
+    get_points_speeding_penalty,
     get_policy_operating_cost,
+    get_scoring_bonuses,
     load_policies,
     policy_label,
     reset_policies,
@@ -514,7 +516,8 @@ def display_league_dashboard():
         f"{policy_label('race_format')}; "
         f"{policy_label('penalty_standard')}; "
         f"{policy_label('technical_rules')}; "
-        f"{policy_label('safety_standard')}"
+        f"{policy_label('safety_standard')}; "
+        f"{policy_label('scoring_bonuses')}"
     )
     print(
         "Finances — "
@@ -1639,17 +1642,64 @@ def run_race(track, race_number):
     print("\nFeature Results")
     print("-" * 75)
 
+    bonuses = get_scoring_bonuses()
+    speeding_penalty = get_points_speeding_penalty()
+
+    pole_name = None
+    for entry in results:
+        if entry.get("qualifying_position") == 1:
+            pole_name = entry["driver"].name
+            break
+
+    hard_charger_name = None
+    best_gain = 0
+
+    for entry_position, entry in enumerate(results, start=1):
+        if entry["status"] != "Running":
+            continue
+
+        gain = entry.get("start", entry_position) - entry_position
+
+        if gain > best_gain:
+            best_gain = gain
+            hard_charger_name = entry["driver"].name
+
     for position, result in enumerate(results, start=1):
         driver = result["driver"]
         status = result["status"]
         finish_points = get_points_by_position()[position - 1]
         stage_points = weekend["stage_points"].get(driver.name, 0)
-        points_earned = finish_points + stage_points
         prize_money = int(
             track.purse * PRIZE_PERCENTAGES[position - 1]
         )
         start_position = result.get("start", position)
         strategy = result_strategy_text(result)
+
+        bonus_points = 0
+        bonus_parts = []
+
+        if status == "Running" and position == 1 and bonuses["win"]:
+            bonus_points += bonuses["win"]
+            bonus_parts.append(f"win +{bonuses['win']}")
+
+        if driver.name == pole_name and bonuses["pole"]:
+            bonus_points += bonuses["pole"]
+            bonus_parts.append(f"pole +{bonuses['pole']}")
+
+        if driver.name == hard_charger_name and bonuses["hard_charger"]:
+            bonus_points += bonuses["hard_charger"]
+            bonus_parts.append(f"charger +{bonuses['hard_charger']}")
+
+        points_penalty = 0
+
+        if speeding_penalty and result.get("pit_mistake_type") == "speeding":
+            points_penalty = speeding_penalty
+            bonus_parts.append(f"speeding -{speeding_penalty}")
+
+        points_earned = max(
+            0,
+            finish_points + stage_points + bonus_points - points_penalty,
+        )
 
         driver.add_points(points_earned)
         driver.add_earnings(prize_money)
@@ -1682,13 +1732,19 @@ def run_race(track, race_number):
 
             status_display = result_status_display(result)
 
-        points_text = f"{points_earned} pts"
+        breakdown = []
 
         if stage_points:
-            points_text = (
-                f"{points_earned} pts "
-                f"(finish {finish_points} + stage {stage_points})"
-            )
+            breakdown.append(f"finish {finish_points} + stage {stage_points}")
+        elif bonus_parts:
+            breakdown.append(f"finish {finish_points}")
+
+        breakdown.extend(bonus_parts)
+
+        if breakdown:
+            points_text = f"{points_earned} pts ({'; '.join(breakdown)})"
+        else:
+            points_text = f"{points_earned} pts"
 
         print(
             f"{position}. {driver.name} "

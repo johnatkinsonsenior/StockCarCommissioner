@@ -6,6 +6,7 @@ DEFAULT_POLICIES = {
     "penalty_standard": "balanced",
     "technical_rules": "open",
     "safety_standard": "current",
+    "scoring_bonuses": "standard",
 }
 
 POLICY_LABELS = {
@@ -34,12 +35,25 @@ POLICY_LABELS = {
         "enhanced": "Enhanced safety mandate",
         "maximum": "Maximum safety package",
     },
+    "scoring_bonuses": {
+        "none": "No bonus points",
+        "standard": "Standard bonus points",
+        "rich": "Rich bonus points",
+    },
 }
 
 POINTS_TABLES = {
     "standard": [40, 35, 32, 30, 28, 26],
     "winner-heavy": [50, 35, 28, 24, 20, 16],
     "flattened": [32, 30, 28, 26, 24, 22],
+}
+
+# Bonus points awarded on top of the finishing-position table. "hard_charger"
+# goes to the driver who gains the most positions from their start.
+SCORING_BONUSES = {
+    "none": {"win": 0, "pole": 0, "hard_charger": 0},
+    "standard": {"win": 5, "pole": 1, "hard_charger": 3},
+    "rich": {"win": 10, "pole": 3, "hard_charger": 5},
 }
 
 current_policies = dict(DEFAULT_POLICIES)
@@ -87,6 +101,29 @@ def get_stage_points_by_position():
         max(1, points // 4)
         for points in get_points_by_position()
     ]
+
+
+def get_scoring_bonuses():
+    """Return the active bonus-point values for win, pole, and hard charger."""
+
+    return dict(SCORING_BONUSES[current_policies["scoring_bonuses"]])
+
+
+def get_points_speeding_penalty():
+    """Return championship points docked for a pit-road speeding infraction.
+
+    Scales with the league's penalty standard. Returns 0 when bonus scoring is
+    switched off entirely, keeping "No bonus points" a clean vanilla table.
+    """
+
+    if current_policies["scoring_bonuses"] == "none":
+        return 0
+
+    return {
+        "lenient": 0,
+        "balanced": 1,
+        "strict": 2,
+    }[current_policies["penalty_standard"]]
 
 
 def uses_stage_racing():

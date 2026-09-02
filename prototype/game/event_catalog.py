@@ -140,6 +140,111 @@ def points_system_event(policies):
     }
 
 
+def scoring_bonus_event(policies):
+    """Preseason decision about bonus points for wins, poles, and charges."""
+
+    current = policy_label("scoring_bonuses", policies["scoring_bonuses"])
+
+    return {
+        "id": "rule-scoring-bonuses",
+        "title": "Bonus Points Structure",
+        "category": "rule-change",
+        "phase": PRESEASON,
+        "prompt": (
+            "Marketing wants extra storylines in the points race through "
+            "bonuses for race wins, pole positions, and drivers who charge "
+            f"through the field. Current policy: {current}."
+        ),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Keep standard bonus points",
+                "effects": [
+                    {
+                        "type": "policy",
+                        "key": "scoring_bonuses",
+                        "value": "standard",
+                    },
+                ],
+                "outcomes": [
+                    {
+                        "weight": 80,
+                        "text": "The garage is comfortable with the current bonuses.",
+                        "effects": [],
+                    },
+                    {
+                        "weight": 20,
+                        "text": "A broadcaster wishes the swings were bigger.",
+                        "effects": [
+                            {"type": "league", "stat": "fan_interest", "delta": -2},
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Reward winning and charging with rich bonuses",
+                "effects": [
+                    {
+                        "type": "policy",
+                        "key": "scoring_bonuses",
+                        "value": "rich",
+                    },
+                    {"type": "league", "stat": "fan_interest", "delta": 6},
+                    {"type": "league", "stat": "controversy", "delta": 3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 60,
+                        "text": "Aggressive drivers love the upside of a big day.",
+                        "effects": [
+                            {"type": "all_drivers", "stat": "morale", "delta": 2},
+                        ],
+                    },
+                    {
+                        "weight": 40,
+                        "text": "Consistent points racers call the swings a gimmick.",
+                        "effects": [
+                            {
+                                "type": "league",
+                                "stat": "driver_sentiment",
+                                "delta": -3,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Remove bonus points and score on finish only",
+                "effects": [
+                    {
+                        "type": "policy",
+                        "key": "scoring_bonuses",
+                        "value": "none",
+                    },
+                    {"type": "league", "stat": "integrity", "delta": 3},
+                    {"type": "league", "stat": "fan_interest", "delta": -4},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 70,
+                        "text": "Purists applaud a clean finishing-order table.",
+                        "effects": [],
+                    },
+                    {
+                        "weight": 30,
+                        "text": "Promoters grumble that the title math got boring.",
+                        "effects": [
+                            {"type": "league", "stat": "controversy", "delta": 3},
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+
 def race_format_event(policies):
     """Preseason decision about race format."""
 
@@ -1545,6 +1650,7 @@ RULE_EVENTS = (
     race_format_event,
     penalty_standard_event,
     technical_rules_event,
+    scoring_bonus_event,
 )
 
 
