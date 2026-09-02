@@ -207,6 +207,7 @@ def team_to_dict(team):
         "budget": team.budget,
         "career_prize_money": team.career_prize_money,
         "championships": team.championships,
+        "organization_titles": team.organization_titles,
         "career_wins": team.career_wins,
         "current_payroll": team.current_payroll,
         "career_salary_expenses": team.career_salary_expenses,
@@ -246,6 +247,7 @@ def team_from_dict(data):
     team.budget = data["budget"]
     team.career_prize_money = data["career_prize_money"]
     team.championships = data["championships"]
+    team.organization_titles = data.get("organization_titles", 0)
     team.career_wins = data["career_wins"]
     team.current_payroll = data["current_payroll"]
     team.career_salary_expenses = data["career_salary_expenses"]

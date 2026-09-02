@@ -197,6 +197,7 @@ class Team:
         # Career statistics
         self.career_prize_money = 0
         self.championships = 0
+        self.organization_titles = 0
         self.career_wins = 0
 
         # Financial statistics
@@ -461,6 +462,11 @@ class Team:
         """Record a team championship."""
 
         self.championships += 1
+
+    def record_organization_title(self):
+        """Record an organization (team-points) championship."""
+
+        self.organization_titles += 1
 
     def __str__(self):
         return self.name
