@@ -9,6 +9,7 @@ from data import (
     create_initial_tracks,
     generate_season_schedule,
     drivers,
+    sponsors,
     teams,
     tracks,
 )
@@ -624,6 +625,24 @@ def display_league_dashboard():
             print(f"- {alert}")
     else:
         print("- No critical alerts.")
+
+
+def display_sponsor_directory():
+    """Display the sponsor market: companies, budgets, and what they value."""
+
+    if not sponsors:
+        return
+
+    print("\nSponsor Market — Commercial Landscape")
+    print("-" * 90)
+
+    for sponsor in sorted(sponsors, key=lambda s: s.budget, reverse=True):
+        print(
+            f"- {sponsor.name} [{sponsor.industry}] "
+            f"- budget ${sponsor.budget:,} "
+            f"- values: {sponsor.priorities_summary()} "
+            f"- risk tolerance {sponsor.risk_tolerance}"
+        )
 
 
 def build_event_context(event):
@@ -2728,6 +2747,17 @@ def save_season_report(season_number):
             {"manufacturer": manufacturer, "points": points}
             for manufacturer, points in get_manufacturer_standings()
         ],
+        "sponsor_market": [
+            {
+                "name": sponsor.name,
+                "industry": sponsor.industry,
+                "budget": sponsor.budget,
+                "preferences": dict(sponsor.preferences),
+                "risk_tolerance": sponsor.risk_tolerance,
+                "top_priority": sponsor.top_priority(),
+            }
+            for sponsor in sponsors
+        ],
         "team_standings": [
             {
                 "position": position,
@@ -2873,6 +2903,7 @@ def initialize_season(season_number):
     print(f"STOCK CAR COMMISSIONER — SEASON {season_number}")
     print("=" * 90)
     display_league_dashboard()
+    display_sponsor_directory()
     present_events(
         preseason_events(current_policies, season_number)
     )

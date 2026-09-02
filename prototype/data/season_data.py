@@ -1,4 +1,4 @@
-from game.models import Driver, Owner, Team, Track
+from game.models import Driver, Owner, Sponsor, Team, Track
 
 
 def create_initial_teams():
@@ -726,3 +726,88 @@ def create_initial_tracks():
 
 
 tracks = create_initial_tracks()
+
+
+def create_initial_sponsors():
+    """Return the pool of fictional sponsor companies.
+
+    A spread of industries, annual marketing budgets, and preferences (how much
+    each values wins, popularity, exposure, and a clean image) plus a tolerance
+    for controversy. Later days match these sponsors to teams and drivers.
+    """
+
+    return [
+        Sponsor(
+            name="Nova Technologies",
+            industry="Technology",
+            budget=4_500_000,
+            preferences={"wins": 70, "exposure": 85, "popularity": 45},
+            risk_tolerance=55,
+        ),
+        Sponsor(
+            name="Ironclad Insurance",
+            industry="Insurance",
+            budget=4_000_000,
+            preferences={"clean_image": 90, "exposure": 55, "popularity": 40},
+            risk_tolerance=20,
+        ),
+        Sponsor(
+            name="Frontier Telecom",
+            industry="Telecom",
+            budget=3_800_000,
+            preferences={"exposure": 80, "popularity": 65, "wins": 40},
+            risk_tolerance=50,
+        ),
+        Sponsor(
+            name="BlueSky Airlines",
+            industry="Travel",
+            budget=3_600_000,
+            preferences={"exposure": 75, "clean_image": 60, "popularity": 55},
+            risk_tolerance=35,
+        ),
+        Sponsor(
+            name="Summit Bank",
+            industry="Finance",
+            budget=3_500_000,
+            preferences={"clean_image": 75, "exposure": 60, "wins": 35},
+            risk_tolerance=25,
+        ),
+        Sponsor(
+            name="Apex Energy",
+            industry="Beverages",
+            budget=3_200_000,
+            preferences={"wins": 80, "popularity": 75, "exposure": 60},
+            risk_tolerance=75,
+        ),
+        Sponsor(
+            name="Titan Tires",
+            industry="Automotive",
+            budget=3_000_000,
+            preferences={"wins": 85, "exposure": 55, "popularity": 40},
+            risk_tolerance=60,
+        ),
+        Sponsor(
+            name="Velocity Motor Oil",
+            industry="Automotive",
+            budget=2_800_000,
+            preferences={"wins": 75, "exposure": 60, "popularity": 45},
+            risk_tolerance=65,
+        ),
+        Sponsor(
+            name="RedRock Hardware",
+            industry="Retail",
+            budget=2_200_000,
+            preferences={"popularity": 70, "exposure": 65, "clean_image": 50},
+            risk_tolerance=45,
+        ),
+        Sponsor(
+            name="Homestead Foods",
+            industry="Food",
+            budget=2_000_000,
+            preferences={"clean_image": 80, "popularity": 70, "exposure": 45},
+            risk_tolerance=30,
+        ),
+    ]
+
+
+sponsors = create_initial_sponsors()

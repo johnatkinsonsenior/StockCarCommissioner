@@ -514,6 +514,78 @@ class Track:
         return self.name
 
 
+SPONSOR_VALUE_KEYS = ("wins", "popularity", "exposure", "clean_image")
+
+SPONSOR_VALUE_LABELS = {
+    "wins": "wins",
+    "popularity": "popularity",
+    "exposure": "exposure",
+    "clean_image": "clean image",
+}
+
+
+class Sponsor:
+    """A fictional company that can back drivers, teams, or the league.
+
+    Sponsors have an industry, an annual marketing budget, and preferences —
+    how much they value on-track wins, driver popularity, media exposure, and a
+    clean image — plus a risk tolerance for controversy. Later days use these
+    to match sponsors to teams/drivers and drive revenue and objectives.
+    """
+
+    def __init__(
+        self,
+        name,
+        industry,
+        budget,
+        preferences=None,
+        risk_tolerance=50,
+    ):
+        self.name = name
+        self.industry = industry
+        self.budget = budget
+
+        preferences = preferences or {}
+        self.preferences = {
+            key: _clamp(int(preferences.get(key, 0)))
+            for key in SPONSOR_VALUE_KEYS
+        }
+        self.risk_tolerance = _clamp(risk_tolerance)
+
+    def top_priority(self):
+        """Return the value this sponsor cares about most."""
+
+        return max(self.preferences, key=lambda key: self.preferences[key])
+
+    def priorities_summary(self):
+        """Return a readable, highest-first summary of what the sponsor values."""
+
+        ordered = sorted(
+            self.preferences.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+
+        return ", ".join(
+            f"{SPONSOR_VALUE_LABELS[key]} {value}"
+            for key, value in ordered
+            if value > 0
+        )
+
+    def description(self):
+        """Return a one-line profile of the sponsor."""
+
+        return (
+            f"{self.name} [{self.industry}] — "
+            f"budget ${self.budget:,} | "
+            f"values {SPONSOR_VALUE_LABELS[self.top_priority()]} | "
+            f"risk tolerance {self.risk_tolerance}"
+        )
+
+    def __str__(self):
+        return self.name
+
+
 class Driver:
     """Represents a stock car racing driver."""
 

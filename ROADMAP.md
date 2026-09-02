@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–56 complete (Week 8 done). Next coding day: **Day
-57 — Sponsor entities** (start of Week 9).
+**Current position:** Days 1–57 complete. Next coding day: **Day 58 — Driver
+sponsors**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -97,7 +97,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 56 — Historical records (all-time wins, championships, streaks)
 
 ## Week 9 — Sponsors and Commercial Model
-- [ ] Day 57 — Sponsor entities (companies, industries, preferences)
+- [x] Day 57 — Sponsor entities (companies, industries, preferences)
 - [ ] Day 58 — Driver sponsors (endorsement deals)
 - [ ] Day 59 — Team sponsors (multi-year contracts, revenue)
 - [ ] Day 60 — Sponsor objectives (performance, exposure, conduct)
