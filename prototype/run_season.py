@@ -27,6 +27,7 @@ from game.event_catalog import (
 )
 from game.events import resolve_event_choice
 from game.models import Driver, Team
+from game.records import build_record_book
 from game.policies import (
     current_policies,
     get_penalty_fine_amount,
@@ -3138,6 +3139,69 @@ def display_career_report():
             f"- Current budget: ${team.budget:,} "
             f"- Status: {team.financial_status_label()}"
         )
+
+    display_record_book()
+
+
+def display_record_book():
+    """Display the all-time record book at the end of a career."""
+
+    book = build_record_book(
+        drivers,
+        retired_drivers,
+        teams,
+        career_history,
+    )
+
+    print("\nAll-Time Record Book")
+    print("-" * 100)
+
+    def show(label, record, formatter):
+        if record and record[0] is not None:
+            print(f"{label}: {formatter(record)}")
+        else:
+            print(f"{label}: n/a")
+
+    show(
+        "Most race wins",
+        book["most_career_wins"],
+        lambda record: f"{record[0]} ({record[1]})",
+    )
+    show(
+        "Most championships",
+        book["most_championships"],
+        lambda record: f"{record[0]} ({record[1]})",
+    )
+    show(
+        "Most wins in a season",
+        book["most_wins_in_a_season"],
+        lambda record: f"{record[0]} — {record[1]} in season {record[2]}",
+    )
+    show(
+        "Highest season points",
+        book["highest_season_points"],
+        lambda record: f"{record[0]} — {record[1]} in season {record[2]}",
+    )
+    show(
+        "Longest win streak",
+        book["longest_win_streak"],
+        lambda record: f"{record[0]} — {record[1]} straight races",
+    )
+    show(
+        "Longest title streak",
+        book["longest_title_streak"],
+        lambda record: f"{record[0]} — {record[1]} straight seasons",
+    )
+    show(
+        "Most team wins",
+        book["most_team_wins"],
+        lambda record: f"{record[0]} ({record[1]})",
+    )
+    show(
+        "Most organization titles",
+        book["most_organization_titles"],
+        lambda record: f"{record[0]} ({record[1]})",
+    )
 
 
 def display_retirement_report():
