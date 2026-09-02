@@ -7,6 +7,7 @@ def create_initial_teams():
     return [
         Team(
             name="Liberty Racing",
+            manufacturer="Vanguard",
             car_rating=82,
             crew_rating=78,
             reliability=84,
@@ -23,6 +24,7 @@ def create_initial_teams():
         ),
         Team(
             name="Pioneer Motorsports",
+            manufacturer="Apex",
             car_rating=86,
             crew_rating=74,
             reliability=76,
@@ -39,6 +41,7 @@ def create_initial_teams():
         ),
         Team(
             name="Summit Racing",
+            manufacturer="Falcon",
             car_rating=79,
             crew_rating=84,
             reliability=88,

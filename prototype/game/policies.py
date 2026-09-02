@@ -65,6 +65,10 @@ SCORING_BONUSES = {
     "rich": {"win": 10, "pole": 3, "hard_charger": 5},
 }
 
+# Manufacturer championship points, awarded each race to a manufacturer based
+# on the finishing position of its best-placed car (index 0 == P1).
+MANUFACTURER_POINTS = [10, 6, 4, 3, 2, 1]
+
 current_policies = dict(DEFAULT_POLICIES)
 
 
@@ -116,6 +120,12 @@ def get_scoring_bonuses():
     """Return the active bonus-point values for win, pole, and hard charger."""
 
     return dict(SCORING_BONUSES[current_policies["scoring_bonuses"]])
+
+
+def get_manufacturer_points_by_position():
+    """Return the manufacturer points table (by best-finisher position)."""
+
+    return MANUFACTURER_POINTS
 
 
 def uses_playoff():

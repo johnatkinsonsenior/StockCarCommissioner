@@ -199,6 +199,7 @@ def team_to_dict(team):
 
     return {
         "name": team.name,
+        "manufacturer": team.manufacturer,
         "car_rating": team.car_rating,
         "crew_rating": team.crew_rating,
         "reliability": team.reliability,
@@ -239,6 +240,7 @@ def team_from_dict(data):
         owner=owner_from_dict(data.get("owner"), data["name"]),
         prestige=data.get("prestige"),
         engineering=data.get("engineering"),
+        manufacturer=data.get("manufacturer"),
     )
 
     team.budget = data["budget"]

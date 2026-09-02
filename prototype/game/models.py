@@ -175,8 +175,10 @@ class Team:
         owner=None,
         prestige=None,
         engineering=None,
+        manufacturer=None,
     ):
         self.name = name
+        self.manufacturer = manufacturer or "Independent"
         self.car_rating = car_rating
         self.crew_rating = crew_rating
         self.reliability = reliability

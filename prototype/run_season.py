@@ -31,6 +31,7 @@ from game.policies import (
     current_policies,
     get_penalty_fine_amount,
     get_penalty_points_amount,
+    get_manufacturer_points_by_position,
     get_playoff_field_size,
     get_playoff_race_count,
     get_points_by_position,
@@ -564,7 +565,7 @@ def display_league_dashboard():
     for team in teams:
         owner = team.owner
         print(
-            f"- {team.name}: {owner.description()} | "
+            f"- {team.name} [{team.manufacturer}]: {owner.description()} | "
             f"{team.financial_status_label()} | "
             f"Prestige {team.prestige} | "
             f"{team.performance_trend_label()} | "
@@ -2462,6 +2463,70 @@ def display_race_history():
         )
 
 
+def get_manufacturer_standings():
+    """Return manufacturers ranked by season points.
+
+    Each race awards manufacturer points based on the finishing position of
+    that manufacturer's best-placed car (NASCAR-style best-finisher scoring).
+    """
+
+    team_manufacturer = {team.name: team.manufacturer for team in teams}
+    points_table = get_manufacturer_points_by_position()
+    points = {}
+
+    for race in race_history:
+        best_position = {}
+
+        for entry in race["results"]:
+            manufacturer = team_manufacturer.get(entry["team"], "Independent")
+            position = entry["position"]
+
+            if (
+                manufacturer not in best_position
+                or position < best_position[manufacturer]
+            ):
+                best_position[manufacturer] = position
+
+        for manufacturer, position in best_position.items():
+            index = position - 1
+            earned = (
+                points_table[index]
+                if index < len(points_table)
+                else points_table[-1]
+            )
+            points[manufacturer] = points.get(manufacturer, 0) + earned
+
+    return sorted(points.items(), key=lambda item: item[1], reverse=True)
+
+
+def get_manufacturer_champion():
+    """Return the name of the manufacturer leading the standings, if any."""
+
+    standings = get_manufacturer_standings()
+
+    return standings[0][0] if standings else None
+
+
+def display_manufacturer_standings():
+    """Display the manufacturer championship standings."""
+
+    standings = get_manufacturer_standings()
+
+    if not standings:
+        return
+
+    print("\nManufacturer Standings")
+    print("-" * 90)
+
+    for rank, (manufacturer, points) in enumerate(standings, start=1):
+        badged_teams = ", ".join(
+            team.name
+            for team in teams
+            if team.manufacturer == manufacturer
+        )
+        print(f"{rank}. {manufacturer} — {points} pts ({badged_teams})")
+
+
 def display_playoff_results():
     """Display the championship playoff bracket, when the format is active."""
 
@@ -2505,6 +2570,7 @@ def display_season_awards():
     most_wins = get_most_wins_driver()
     most_popular = get_most_popular_driver()
     reliable_team = get_most_reliable_team()
+    manufacturer_champion = get_manufacturer_champion()
     commissioner_score, commissioner_grade = calculate_commissioner_grade()
 
     print("\nSeason Awards")
@@ -2515,6 +2581,9 @@ def display_season_awards():
         f"({champion.team_name}) "
         f"- {champion.points} points"
     )
+
+    if manufacturer_champion:
+        print(f"Manufacturer Champion: {manufacturer_champion}")
 
     print(
         f"Most Race Wins: {most_wins.name} "
@@ -2592,7 +2661,12 @@ def save_season_report(season_number):
             "most_popular_rating": most_popular.popularity,
             "most_reliable_team": reliable_team.name,
             "most_reliable_team_rating": reliable_team.reliability,
+            "manufacturer_champion": get_manufacturer_champion(),
         },
+        "manufacturer_standings": [
+            {"manufacturer": manufacturer, "points": points}
+            for manufacturer, points in get_manufacturer_standings()
+        ],
         "driver_standings": [],
         "team_finances": [],
         "race_history": list(race_history),
@@ -2865,6 +2939,7 @@ def run_postseason(season_number):
     display_playoff_results()
     record_team_season_trends()
     display_team_finances()
+    display_manufacturer_standings()
     display_commissioner_report()
     display_driver_relationship_report()
     display_race_history()
