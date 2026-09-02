@@ -89,6 +89,7 @@ def driver_to_dict(driver):
         "points_penalties": driver.points_penalties,
         "suspensions": driver.suspensions,
         "suspension_races": driver.suspension_races,
+        "endorsement": driver.endorsement,
     }
 
 
@@ -156,6 +157,7 @@ def driver_from_dict(data):
     driver.points_penalties = data["points_penalties"]
     driver.suspensions = data["suspensions"]
     driver.suspension_races = data["suspension_races"]
+    driver.endorsement = data.get("endorsement")
 
     return driver
 

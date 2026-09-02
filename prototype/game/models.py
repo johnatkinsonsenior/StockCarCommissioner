@@ -727,6 +727,9 @@ class Driver:
         self.championships = 0
         self.seasons_completed = 0
 
+        # Personal endorsement deal (see game.sponsorships); None when unsigned.
+        self.endorsement = None
+
         self.reset_season()
 
     def reset_season(self):
