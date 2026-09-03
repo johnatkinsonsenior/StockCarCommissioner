@@ -402,9 +402,13 @@ The dashboard shows the last house, the season-average fill, and a multi-season 
 
 ### Media Stories
 
-Each completed weekend files one to three **media stories**: a lead headline plus optional follow-ups. Copy is generated from the facts already on the race — winner, cautions, wrecks, weather, TV rating, and gate — and attributed to the rights holder (or the wire services when the series is unsigned). A wreckfest lead is spicy; a packed house is upbeat; a soft rating or empty grandstand is downbeat. Stewards opening a file produces a serious investigation brief. Press-conference responses and media controversies come later.
+Each completed weekend files one to three **media stories**: a lead headline plus optional follow-ups. Copy is generated from the facts already on the race — winner, cautions, wrecks, weather, TV rating, and gate — and attributed to the rights holder (or the wire services when the series is unsigned). A wreckfest lead is spicy; a packed house is upbeat; a soft rating or empty grandstand is downbeat. Stewards opening a file produces a serious investigation brief. Newsworthy weekends call a press conference. Media controversies come later.
 
 The dashboard lists last weekend's headlines and the season story count. Postseason prints a kind recap.
+
+### Press Conferences
+
+After a newsworthy weekend — wrecks, steward files, rain, or downbeat copy — the commissioner takes the podium. The prompt quotes the lead headline. Three answers sit on the same decision framework as owner and driver complaints: **stay on script** (dry, protects integrity), **celebrate the show** (feeds fans and controversy), or **promise a review** (the garage hears the league is watching). A quiet, clean win does not call a presser. Answers are logged. Media controversies come later.
 
 ## Save and Load
 
@@ -437,6 +441,7 @@ Saved data includes:
 - Television ratings, viewer counts, and ratings trend
 - Race-weekend gate attendance, fill, and attendance trend
 - Generated media headlines and narratives
+- Press-conference answers
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -453,11 +458,11 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 
-Rule, safety, owner, driver, rivalry, and feud matters use one shared decision framework:
+Rule, safety, owner, driver, rivalry, feud, and press-conference matters use one shared decision framework:
 
 - A prompt and numbered choices
 - Immediate consequences

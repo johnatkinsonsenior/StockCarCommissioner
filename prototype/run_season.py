@@ -191,6 +191,8 @@ league = {
     "gate_trend": 0,
     "season_media_stories": [],
     "last_media_stories": [],
+    "season_press_conferences": [],
+    "last_press_conference": None,
 }
 
 race_history = []
@@ -329,6 +331,8 @@ def reset_career_state():
     league["gate_trend"] = 0
     league["season_media_stories"] = []
     league["last_media_stories"] = []
+    league["season_press_conferences"] = []
+    league["last_press_conference"] = None
 
     reset_policies()
 
@@ -450,6 +454,9 @@ def apply_loaded_state(restored_state):
         league["season_media_stories"] = []
     if not isinstance(league.get("last_media_stories"), list):
         league["last_media_stories"] = []
+    if not isinstance(league.get("season_press_conferences"), list):
+        league["season_press_conferences"] = []
+    league.setdefault("last_press_conference", None)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -1003,7 +1010,7 @@ def get_network(name):
 
 
 def ensure_league_commercial_state():
-    """Make sure league naming-rights, partner, TV, gate, and media slots exist."""
+    """Make sure league naming-rights, partner, TV, gate, media, and press slots exist."""
 
     if not isinstance(league.get("official_partners"), list):
         league["official_partners"] = []
@@ -1042,6 +1049,9 @@ def ensure_league_commercial_state():
         league["season_media_stories"] = []
     if not isinstance(league.get("last_media_stories"), list):
         league["last_media_stories"] = []
+    if not isinstance(league.get("season_press_conferences"), list):
+        league["season_press_conferences"] = []
+    league.setdefault("last_press_conference", None)
 
 
 def has_naming_rights():
@@ -3607,6 +3617,7 @@ def display_league_dashboard():
         )
         for story in last_stories:
             print(f'- "{story["headline"]}" — {story["outlet"]}')
+    print_press_dashboard_line()
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -3829,11 +3840,57 @@ def present_decision_event(event):
     return result
 
 
+def record_press_conference(result, stories):
+    """Store the last podium answer on the league book."""
+
+    ensure_league_commercial_state()
+    lead = (stories or [{}])[0] or {}
+    record = {
+        "season": calendar.current_season,
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "headline": lead.get("headline"),
+        "outlet": lead.get("outlet"),
+        "outcome": result.get("outcome"),
+    }
+    league["last_press_conference"] = record
+    league["season_press_conferences"].append(record)
+    return record
+
+
+def print_press_dashboard_line():
+    """Print the last press-conference line for the dashboard."""
+
+    ensure_league_commercial_state()
+    presser = league.get("last_press_conference")
+    if not presser:
+        print("Press: no conference this season")
+        return
+    headline = presser.get("headline") or "the weekend"
+    print(
+        'Press: last {0} after "{1}"'.format(
+            presser.get("choice_label"),
+            headline,
+        )
+    )
+
+
 def present_events(event_list):
     """Present each unresolved event in order."""
 
+    results = []
+
     for event in event_list:
-        present_decision_event(event)
+        result = present_decision_event(event)
+        if result and result.get("category") == "press-conference":
+            record_press_conference(
+                result,
+                league.get("last_media_stories") or [],
+            )
+        if result:
+            results.append(result)
+
+    return results
 
 
 def generate_unique_rookie_name():
@@ -6103,6 +6160,7 @@ def display_commissioner_report():
         )
         for story in last_stories:
             print(f'- "{story["headline"]}" — {story["outlet"]}')
+    print_press_dashboard_line()
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -6178,6 +6236,14 @@ def save_season_report(season_number):
             "gate_history": list(league.get("gate_history") or []),
             "season_media_count": len(league.get("season_media_stories") or []),
             "last_media_stories": list(league.get("last_media_stories") or []),
+            "season_press_conferences": list(
+                league.get("season_press_conferences") or []
+            ),
+            "last_press_conference": (
+                dict(league["last_press_conference"])
+                if league.get("last_press_conference")
+                else None
+            ),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -6458,6 +6524,8 @@ def initialize_season(season_number):
     league["last_gate_draw"] = None
     league["season_media_stories"] = []
     league["last_media_stories"] = []
+    league["season_press_conferences"] = []
+    league["last_press_conference"] = None
 
     for team in teams:
         team.start_new_season()
@@ -6606,6 +6674,7 @@ def run_regular_season():
                 teams,
                 drivers,
                 events_resolved,
+                media_stories=league.get("last_media_stories"),
             )
         )
 

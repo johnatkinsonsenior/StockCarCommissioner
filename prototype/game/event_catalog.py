@@ -1736,6 +1736,107 @@ RULE_EVENTS = (
 )
 
 
+def press_conference_needed(stories):
+    """Return whether last weekend's copy warrants a podium appearance."""
+
+    for story in stories or []:
+        if story.get("kind") in ("wreck", "investigation", "weather"):
+            return True
+        if story.get("tone") in ("spicy", "downbeat", "serious"):
+            return True
+    return False
+
+
+def press_conference_event(race_number, stories):
+    """In-season podium after a newsworthy weekend."""
+
+    stories = list(stories or [])
+    lead = stories[0] if stories else {}
+    headline = lead.get("headline") or "the weekend"
+    outlet = lead.get("outlet") or "the wire services"
+    extras = [
+        story.get("headline")
+        for story in stories[1:]
+        if story.get("headline")
+    ]
+    extra_text = ""
+    if extras:
+        quoted = ", ".join('"{0}"'.format(item) for item in extras)
+        extra_text = " Follow-ups: {0}.".format(quoted)
+
+    kinds = [story.get("kind") for story in stories]
+    if "wreck" in kinds or lead.get("tone") == "spicy":
+        hook = "Reporters want to know if the product is too rough."
+    elif "investigation" in kinds:
+        hook = "Reporters want a comment on the steward file."
+    elif any(story.get("tone") == "downbeat" for story in stories):
+        hook = "Reporters want to know why the show did not land."
+    else:
+        hook = "Reporters want the league's read on the weekend."
+
+    return {
+        "id": "press-conference-r{0}".format(race_number),
+        "title": "Press Conference",
+        "category": "press-conference",
+        "phase": REGULAR_SEASON,
+        "prompt": (
+            "{0} has you at the podium after the weekend. "
+            'Lead story: "{1}".{2} {3}'
+        ).format(outlet, headline, extra_text, hook),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Stay on script",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                    {"type": "league", "stat": "controversy", "delta": -2},
+                    {"type": "league", "stat": "fan_interest", "delta": -1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "The podium is dry. The clip does not go viral.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Celebrate the show",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": 5},
+                    {"type": "league", "stat": "controversy", "delta": 4},
+                    {"type": "league", "stat": "integrity", "delta": -3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You call it great racing. The clip does too.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Promise a review",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 4},
+                    {"type": "league", "stat": "controversy", "delta": -3},
+                    {"type": "league", "stat": "fan_interest", "delta": -2},
+                    {"type": "league", "stat": "driver_sentiment", "delta": 3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "The garage hears that the league is watching.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
 def preseason_events(policies, season_number):
     """Return the preseason rule-change event for this season."""
 
@@ -1743,10 +1844,21 @@ def preseason_events(policies, season_number):
     return [builder(policies)]
 
 
-def regular_season_events(race_number, teams, drivers, resolved_ids):
-    """Return in-season complaint and rivalry events tied to specific races."""
+def regular_season_events(
+    race_number,
+    teams,
+    drivers,
+    resolved_ids,
+    media_stories=None,
+):
+    """Return in-season complaint, rivalry, and press-conference events."""
 
     events = []
+
+    if press_conference_needed(media_stories):
+        event_id = "press-conference-r{0}".format(race_number)
+        if event_id not in resolved_ids:
+            events.append(press_conference_event(race_number, media_stories))
 
     if race_number == 2 and "owner-complaint" not in resolved_ids:
         events.append(owner_complaint_event(_team_by_pressure(teams)))
