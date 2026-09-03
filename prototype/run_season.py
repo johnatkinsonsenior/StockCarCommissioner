@@ -189,6 +189,8 @@ league = {
     "last_gate_draw": None,
     "gate_history": [],
     "gate_trend": 0,
+    "season_media_stories": [],
+    "last_media_stories": [],
 }
 
 race_history = []
@@ -235,6 +237,7 @@ TRACK_TYPE_FILL_BIAS = {
     "Short Track": 1.14,
     "Road Course": 0.86,
 }
+MEDIA_STORY_MAX = 3
 SPONSOR_CONFLICT_CONDUCT_FLOOR = 40
 SPONSOR_CONFLICT_SATISFACTION_FLOOR = 48
 RULING_SPONSOR_SEVERITY = {
@@ -324,6 +327,8 @@ def reset_career_state():
     league["last_gate_draw"] = None
     league["gate_history"] = []
     league["gate_trend"] = 0
+    league["season_media_stories"] = []
+    league["last_media_stories"] = []
 
     reset_policies()
 
@@ -441,6 +446,10 @@ def apply_loaded_state(restored_state):
     if not isinstance(league.get("gate_history"), list):
         league["gate_history"] = []
     league.setdefault("gate_trend", 0)
+    if not isinstance(league.get("season_media_stories"), list):
+        league["season_media_stories"] = []
+    if not isinstance(league.get("last_media_stories"), list):
+        league["last_media_stories"] = []
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -994,7 +1003,7 @@ def get_network(name):
 
 
 def ensure_league_commercial_state():
-    """Make sure league naming-rights, partner, TV, and gate slots exist."""
+    """Make sure league naming-rights, partner, TV, gate, and media slots exist."""
 
     if not isinstance(league.get("official_partners"), list):
         league["official_partners"] = []
@@ -1029,6 +1038,10 @@ def ensure_league_commercial_state():
     if not isinstance(league.get("gate_history"), list):
         league["gate_history"] = []
     league.setdefault("gate_trend", 0)
+    if not isinstance(league.get("season_media_stories"), list):
+        league["season_media_stories"] = []
+    if not isinstance(league.get("last_media_stories"), list):
+        league["last_media_stories"] = []
 
 
 def has_naming_rights():
@@ -2836,6 +2849,285 @@ def review_race_popularity():
     return avg
 
 
+def media_outlet_name():
+    """Return the byline network, or wire services when unsigned."""
+
+    network = tv_rights_network()
+    if network is not None:
+        return network.name
+    return "the wire services"
+
+
+def race_winner_name(race_record, results):
+    """Return the winning driver name from live results or the race record."""
+
+    if results:
+        driver = results[0].get("driver")
+        if hasattr(driver, "name"):
+            return driver.name
+        if driver:
+            return driver
+    stored = (race_record.get("results") or [{}])[0]
+    return stored.get("driver") or "the field"
+
+
+def build_media_story(kind, headline, body, tone="straight"):
+    """Return one media story dictionary."""
+
+    return {
+        "kind": kind,
+        "headline": headline,
+        "body": body,
+        "outlet": media_outlet_name(),
+        "tone": tone,
+        "season": calendar.current_season,
+    }
+
+
+def collect_weekend_media_stories(race_record, track, results, weekend):
+    """Build 1-3 deterministic headlines from the completed weekend."""
+
+    winner = race_winner_name(race_record, results)
+    track_name = track.name
+    cautions = race_record.get("cautions")
+    if cautions is None:
+        cautions = weekend.get("cautions", 0) or 0
+    wrecks = race_record.get("wrecks") or weekend.get("wrecks") or []
+    wreck_size = 0
+    for wreck in wrecks:
+        wreck_size = max(wreck_size, wreck.get("size", 1) or 1)
+    weather = race_record.get("weather")
+    if not weather:
+        weather = (weekend.get("weather") or {}).get("condition", "clear")
+    weather_l = str(weather).lower()
+    raining = weather_l in ("light rain", "rain")
+    wreckfest = cautions >= 6 or wreck_size >= 6
+    rating = race_record.get("tv_rating")
+    viewers = race_record.get("tv_viewers")
+    fill = race_record.get("gate_fill")
+    attendance = race_record.get("gate_attendance")
+    capacity = race_record.get("gate_capacity")
+    investigations = (
+        race_record.get("investigations")
+        or weekend.get("investigations")
+        or []
+    )
+    outlet = media_outlet_name()
+    outlet_lead = outlet if outlet != "the wire services" else "Syndication"
+
+    if wreckfest:
+        headline = "{0} Survives {1} Wreckfest".format(winner, track_name)
+        tone = "spicy"
+    elif raining:
+        headline = "{0} Wins Rain-Soaked {1}".format(winner, track_name)
+        tone = "straight"
+    elif fill is not None and fill >= 97:
+        headline = "{0} Wins Before a Packed {1}".format(winner, track_name)
+        tone = "upbeat"
+    else:
+        headline = "{0} Wins at {1}".format(winner, track_name)
+        tone = "upbeat"
+
+    body_bits = [
+        "{0} took the checkered flag at {1}.".format(winner, track_name)
+    ]
+    if rating is not None:
+        body_bits.append(
+            "{0} posted a {1} ({2} viewers).".format(
+                outlet_lead,
+                rating,
+                format_viewers(viewers),
+            )
+        )
+    if attendance is not None:
+        body_bits.append(
+            "The gate was {0}.".format(
+                format_gate_house(attendance, capacity, fill)
+            )
+        )
+    stories = [
+        build_media_story("winner", headline, " ".join(body_bits), tone)
+    ]
+
+    extras = []
+
+    if wreck_size >= 4:
+        extras.append(
+            build_media_story(
+                "wreck",
+                "{0}-Car Crash Headlines {1}".format(wreck_size, track_name),
+                "A {0}-car incident and {1} cautions turned {2} into a survival race.".format(
+                    wreck_size,
+                    cautions,
+                    track_name,
+                ),
+                "spicy",
+            )
+        )
+    elif cautions >= 6:
+        extras.append(
+            build_media_story(
+                "wreck",
+                "Caution Flag Flies {0} Times at {1}".format(
+                    cautions,
+                    track_name,
+                ),
+                "{0} went yellow {1} times, bunching the field again and again.".format(
+                    track_name,
+                    cautions,
+                ),
+                "spicy",
+            )
+        )
+
+    if raining and wreckfest:
+        extras.append(
+            build_media_story(
+                "weather",
+                "Rain Turns {0} Slick".format(track_name),
+                "Light rain cut the live crowd and made the already-chaotic show harder to finish.",
+                "straight",
+            )
+        )
+
+    if investigations:
+        packet = investigations[0]
+        blamed = packet.get("blame") or packet.get("driver") or "the field"
+        extras.append(
+            build_media_story(
+                "investigation",
+                "Stewards Open File After {0}".format(track_name),
+                "Officials logged a post-race packet with blame on {0}.".format(
+                    blamed
+                ),
+                "serious",
+            )
+        )
+
+    if rating is not None and rating >= 80:
+        extras.append(
+            build_media_story(
+                "ratings",
+                "{0} Hits a {1} at {2}".format(
+                    outlet if outlet != "the wire services" else "Wire services",
+                    rating,
+                    track_name,
+                ),
+                "The broadcast pulled {0} viewers, one of the stronger shows on the book.".format(
+                    format_viewers(viewers)
+                ),
+                "upbeat",
+            )
+        )
+    elif rating is not None and rating < 42:
+        extras.append(
+            build_media_story(
+                "ratings",
+                "{0} Ratings Come In Soft".format(track_name),
+                "The telecast managed only a {0} ({1} viewers).".format(
+                    rating,
+                    format_viewers(viewers),
+                ),
+                "downbeat",
+            )
+        )
+
+    if fill is not None and fill >= 97:
+        extras.append(
+            build_media_story(
+                "gate",
+                "Sellout Crowd at {0}".format(track_name),
+                "{0} packed {1} into a {2}-seat house.".format(
+                    track_name,
+                    format_attendance(attendance),
+                    format_attendance(capacity),
+                ),
+                "upbeat",
+            )
+        )
+    elif fill is not None and fill < 55:
+        extras.append(
+            build_media_story(
+                "gate",
+                "Empty Seats at {0}".format(track_name),
+                "Only {0} of {1} seats were filled ({2}%).".format(
+                    format_attendance(attendance),
+                    format_attendance(capacity),
+                    fill,
+                ),
+                "downbeat",
+            )
+        )
+
+    stories.extend(extras[: MEDIA_STORY_MAX - 1])
+    return stories[:MEDIA_STORY_MAX]
+
+
+def print_media_stories(stories, heading="Media"):
+    """Print headlines and narratives for a weekend or recap."""
+
+    print("\n" + heading)
+    print("-" * 90)
+    if not stories:
+        print("No stories filed.")
+        return
+    for story in stories:
+        print(f'- "{story["headline"]}" — {story["outlet"]}')
+        print(f'  {story["body"]}')
+
+
+def apply_race_media_stories(
+    race_record,
+    track,
+    results,
+    weekend,
+    silent=False,
+):
+    """Attach generated stories to a race and update the season book."""
+
+    ensure_league_commercial_state()
+    stories = collect_weekend_media_stories(
+        race_record,
+        track,
+        results,
+        weekend,
+    )
+    race_record["media_stories"] = stories
+    league["last_media_stories"] = list(stories)
+    league["season_media_stories"].extend(stories)
+    if not silent:
+        print_media_stories(stories)
+    return stories
+
+
+def review_media_stories():
+    """Close the season's media book with a kind breakdown."""
+
+    print("\nMedia Recap")
+    print("-" * 90)
+    ensure_league_commercial_state()
+    stories = league.get("season_media_stories") or []
+    if not stories:
+        print("No stories this season.")
+        return None
+
+    kinds = {}
+    for story in stories:
+        kind = story.get("kind") or "other"
+        kinds[kind] = kinds.get(kind, 0) + 1
+    parts = [
+        "{0} {1}".format(count, kind)
+        for kind, count in sorted(kinds.items(), key=lambda item: (-item[1], item[0]))
+    ]
+    print(f"- {len(stories)} stories this season")
+    print("- Kinds: " + ", ".join(parts))
+    lead = stories[0]
+    print(f'- Opening lead: "{lead["headline"]}" — {lead["outlet"]}')
+    last = (league.get("last_media_stories") or stories)[-1]
+    print(f'- Latest: "{last["headline"]}" — {last["outlet"]}')
+    return stories
+
+
 def tv_rights_terms(network):
     """Return (interest, annual bid, years) for a television-rights package."""
 
@@ -3304,6 +3596,17 @@ def display_league_dashboard():
             f"| season avg {avg_fill}% | "
             f"{gate_trend_label()}"
         )
+    season_stories = league.get("season_media_stories") or []
+    last_stories = league.get("last_media_stories") or []
+    if not season_stories:
+        print("Media: season not started")
+    else:
+        print(
+            f"Media: {len(last_stories)} last weekend | "
+            f"{len(season_stories)} this season"
+        )
+        for story in last_stories:
+            print(f'- "{story["headline"]}" — {story["outlet"]}')
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -3407,6 +3710,11 @@ def display_league_dashboard():
                 f"Last gate: {format_gate_house(last_race.get('gate_attendance'), last_race.get('gate_capacity'), last_race.get('gate_fill'))} "
                 f"— {last_race['track']}"
             )
+        media = last_race.get("media_stories") or []
+        if media:
+            print("Last headlines:")
+            for story in media:
+                print(f'- "{story["headline"]}" — {story["outlet"]}')
         wrecks = last_race.get("wrecks") or []
         investigations = last_race.get("investigations") or []
         if wrecks:
@@ -4618,6 +4926,7 @@ def record_race_history(track, race_number, results, weekend, race_points=None):
     race_record["investigations"] = list(weekend.get("investigations") or [])
     apply_race_tv_rating(race_record, track, results, weekend)
     apply_race_gate(race_record, track, results, weekend)
+    apply_race_media_stories(race_record, track, results, weekend)
     race_history.append(race_record)
 
 
@@ -5545,6 +5854,10 @@ def display_race_history():
             print(
                 f"    Gate: {format_gate_house(race.get('gate_attendance'), race.get('gate_capacity'), race.get('gate_fill'))}"
             )
+        media = race.get("media_stories") or []
+        if media:
+            lead = media[0]
+            print(f'    Media: "{lead["headline"]}" — {lead["outlet"]}')
 
 
 def get_manufacturer_standings():
@@ -5779,6 +6092,17 @@ def display_commissioner_report():
             f"| season avg {avg_fill}% | "
             f"{gate_trend_label()}"
         )
+    season_stories = league.get("season_media_stories") or []
+    last_stories = league.get("last_media_stories") or []
+    if not season_stories:
+        print("Media: season not started")
+    else:
+        print(
+            f"Media: {len(last_stories)} last weekend | "
+            f"{len(season_stories)} this season"
+        )
+        for story in last_stories:
+            print(f'- "{story["headline"]}" — {story["outlet"]}')
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -5852,6 +6176,8 @@ def save_season_report(season_number):
             "season_gate_attendance": average_gate_attendance(),
             "gate_trend": gate_trend_label(),
             "gate_history": list(league.get("gate_history") or []),
+            "season_media_count": len(league.get("season_media_stories") or []),
+            "last_media_stories": list(league.get("last_media_stories") or []),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -6130,6 +6456,8 @@ def initialize_season(season_number):
     league["last_gate_capacity"] = None
     league["last_gate_fill"] = None
     league["last_gate_draw"] = None
+    league["season_media_stories"] = []
+    league["last_media_stories"] = []
 
     for team in teams:
         team.start_new_season()
@@ -6301,6 +6629,7 @@ def run_postseason(season_number):
     review_sponsor_objectives()
     review_tv_ratings()
     review_race_popularity()
+    review_media_stories()
     resolve_sponsor_conflicts()
     display_team_finances()
     display_team_sponsors()

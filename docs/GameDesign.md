@@ -372,7 +372,7 @@ Struggling teams face reduced morale, performance penalties, and limited investm
 
 ## Television
 
-The league keeps a market of named television networks. Named rights deals attach to them. Each race is rated for television audience. Live gate attendance is a separate book. Media stories follow in later days. Each broadcaster has:
+The league keeps a market of named television networks. Named rights deals attach to them. Each race is rated for television audience. Live gate attendance is a separate book. Each completed weekend files media headlines. Each broadcaster has:
 
 - A kind (national, cable, regional, or motorsport)
 - Audience reach and bid power
@@ -399,6 +399,12 @@ The dashboard shows the last race, the season average, and a multi-season trend 
 Each race weekend also produces a **gate** — how many people bought a ticket, kept separate from the TV rating. Demand is set before the green flag: fan interest, advertised star drivers, track type, purse, and weather. Short tracks pack a smaller house; superspeedways are harder to fill. Cautions and wrecks lift television, not the live crowd. Rain keeps people home more than it hurts the broadcast. Attendance never exceeds seating capacity. A 97% house counts as sold out.
 
 The dashboard shows the last house, the season-average fill, and a multi-season attendance trend. Soft or sliding gates raise a dashboard alert. Television and gate stay on separate books.
+
+### Media Stories
+
+Each completed weekend files one to three **media stories**: a lead headline plus optional follow-ups. Copy is generated from the facts already on the race — winner, cautions, wrecks, weather, TV rating, and gate — and attributed to the rights holder (or the wire services when the series is unsigned). A wreckfest lead is spicy; a packed house is upbeat; a soft rating or empty grandstand is downbeat. Stewards opening a file produces a serious investigation brief. Press-conference responses and media controversies come later.
+
+The dashboard lists last weekend's headlines and the season story count. Postseason prints a kind recap.
 
 ## Save and Load
 
@@ -430,6 +436,7 @@ Saved data includes:
 - Series television rights, bids, and TV income
 - Television ratings, viewer counts, and ratings trend
 - Race-weekend gate attendance, fill, and attendance trend
+- Generated media headlines and narratives
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -446,7 +453,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, and last gate, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 

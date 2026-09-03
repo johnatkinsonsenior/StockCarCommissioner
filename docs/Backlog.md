@@ -122,3 +122,5 @@
 | 120 | Ratings trends | Medium | Completed |
 | 121 | Race popularity / gate attendance | High | Completed |
 | 122 | Attendance trends | Medium | Completed |
+| 123 | Media stories / headlines | High | Completed |
+| 124 | Weekend news narratives | Medium | Completed |
