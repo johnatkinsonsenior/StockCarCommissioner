@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–59 complete (Week 9 underway). Next coding day: **Day
-60 — Sponsor objectives**.
+**Current position:** Days 1–63 complete (Week 9 Business Ecosystem). Next coding day: **Day
+64 — TV networks**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -103,10 +103,10 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 60 — Sponsor objectives (performance, exposure, conduct)
 - [x] Day 61 — Sponsor conflicts (controversies, withdrawals)
 - [x] Day 62 — League sponsorship (naming rights, league-wide partners)
-- [ ] Day 63 — Sponsorship market (companies enter/leave over time)
+- [x] Day 63 — Sponsorship market (companies enter/leave over time)
 
 > **Milestone — Day 63 Business Ecosystem:** teams, sponsors, and league
-> finances connect to performance and decisions.
+> finances connect to performance and decisions. ✅
 
 ## Week 10 — Television and Media
 - [ ] Day 64 — TV networks (broadcasters and profiles)
