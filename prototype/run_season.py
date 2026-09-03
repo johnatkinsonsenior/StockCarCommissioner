@@ -168,7 +168,7 @@ BASE_OPERATING_EXPENSE = 350_000
 FACILITY_MAINTENANCE_PER_LEVEL = 75_000
 BASE_SPONSORSHIP = 800_000
 PERFORMANCE_INVESTMENT_UNIT = 250_000
-ENDORSEMENT_MIN_INTEREST = 55
+ENDORSEMENT_MIN_INTEREST = 40
 
 
 def sync_calendar_aliases():
@@ -613,63 +613,65 @@ def endorsement_deal_terms(sponsor, driver):
     return interest, value, years
 
 
-def ranked_endorsement_pairs(available_sponsors, unsigned_drivers):
-    """Return (score, sponsor, driver) triples, strongest first."""
-
-    pairs = []
-
-    for sponsor in available_sponsors:
-        for driver in unsigned_drivers:
-            score = sponsor.interest_in_driver(driver)
-
-            if score >= ENDORSEMENT_MIN_INTEREST:
-                pairs.append((score, sponsor, driver))
-
-    pairs.sort(key=lambda item: (-item[0], item[1].name, item[2].name))
-    return pairs
-
-
 def assign_endorsement_deals(season, apply_signing_boost=True):
-    """Greedy unique matching of free brands to unsigned drivers."""
+    """Match free brands to unsigned drivers, stars picking first."""
 
     signed = []
     taken = taken_endorsement_sponsors()
-    available = [
-        sponsor for sponsor in sponsors if sponsor.name not in taken
-    ]
+    available = {
+        sponsor.name: sponsor
+        for sponsor in sponsors
+        if sponsor.name not in taken
+    }
     unsigned = [
         driver for driver in drivers if not driver.has_endorsement()
     ]
-    claimed_sponsors = set()
-    claimed_drivers = set()
+    unsigned.sort(
+        key=lambda driver: (
+            driver.popularity,
+            driver.overall_rating(),
+            driver.career_wins,
+        ),
+        reverse=True,
+    )
 
-    for score, sponsor, driver in ranked_endorsement_pairs(
-        available,
-        unsigned,
-    ):
-        if (
-            sponsor.name in claimed_sponsors
-            or driver.name in claimed_drivers
-        ):
+    for driver in unsigned:
+        best_sponsor = None
+        best_score = ENDORSEMENT_MIN_INTEREST - 1
+
+        for sponsor in available.values():
+            score = sponsor.interest_in_driver(driver)
+
+            if score < ENDORSEMENT_MIN_INTEREST:
+                continue
+
+            if best_sponsor is None or score > best_score:
+                best_sponsor = sponsor
+                best_score = score
+            elif score == best_score and sponsor.name < best_sponsor.name:
+                best_sponsor = sponsor
+
+        if best_sponsor is None:
             continue
 
-        interest, value, years = endorsement_deal_terms(sponsor, driver)
-        driver.sign_endorsement(sponsor.name, value, years, season)
+        interest, value, years = endorsement_deal_terms(best_sponsor, driver)
+        driver.sign_endorsement(best_sponsor.name, value, years, season)
 
         if apply_signing_boost:
             driver.morale = clamp(driver.morale + 3)
             driver.contract_satisfaction = clamp(
                 driver.contract_satisfaction + 4
             )
-            popularity_gain = 2 if sponsor.popularity_preference >= 70 else 1
+            popularity_gain = (
+                2 if best_sponsor.popularity_preference >= 70 else 1
+            )
             driver.popularity = clamp(driver.popularity + popularity_gain)
 
-        claimed_sponsors.add(sponsor.name)
-        claimed_drivers.add(driver.name)
+        del available[best_sponsor.name]
         signed.append(
             {
                 "driver": driver,
-                "sponsor": sponsor,
+                "sponsor": best_sponsor,
                 "interest": interest,
                 "value": value,
                 "years": years,
@@ -1637,13 +1639,18 @@ def run_offseason_endorsements():
     expired = []
 
     for driver in drivers:
+        previous_sponsor = (
+            driver.endorsement["sponsor"]
+            if driver.has_endorsement()
+            else None
+        )
         amount = driver.collect_endorsement_pay()
 
         if amount:
             paid.append((driver, amount, driver.endorsement_label()))
 
         if driver.advance_endorsement():
-            expired.append(driver)
+            expired.append((driver, previous_sponsor))
 
     if paid:
         print("Payouts")
@@ -1652,19 +1659,47 @@ def run_offseason_endorsements():
     else:
         print("No personal-sponsor payouts this offseason.")
 
-    if expired:
-        print("Expired deals")
-        for driver in expired:
-            print(f"- {driver.name} is now unsponsored")
-
     signed = assign_endorsement_deals(
         season=calendar.current_season,
         apply_signing_boost=True,
     )
+    signed_by_name = {
+        deal["driver"].name: deal for deal in signed
+    }
 
-    if signed:
+    lapsed = []
+    renewals = []
+    fresh = []
+
+    for driver, previous_sponsor in expired:
+        deal = signed_by_name.get(driver.name)
+        if deal and deal["sponsor"].name == previous_sponsor:
+            renewals.append(deal)
+        else:
+            lapsed.append(driver)
+
+    for deal in signed:
+        if deal not in renewals:
+            fresh.append(deal)
+
+    if lapsed:
+        print("Expired deals")
+        for driver in lapsed:
+            print(f"- {driver.name} is now unsponsored")
+
+    if renewals:
+        print("Renewals")
+        for deal in renewals:
+            year_word = "year" if deal["years"] == 1 else "years"
+            print(
+                f"- {deal['driver'].name} renews with "
+                f"{deal['sponsor'].name} — ${deal['value']:,}/yr "
+                f"for {deal['years']} {year_word}"
+            )
+
+    if fresh:
         print("New deals")
-        for deal in signed:
+        for deal in fresh:
             year_word = "year" if deal["years"] == 1 else "years"
             print(
                 f"- {deal['driver'].name} signs with "
