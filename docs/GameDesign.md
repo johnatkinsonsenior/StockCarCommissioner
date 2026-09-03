@@ -301,7 +301,13 @@ The league also keeps a market of named sponsor companies. Each company has:
 - A risk posture (cautious brands avoid struggling or aggressive teams; bold brands tolerate them)
 - An optional manufacturer affinity
 
-Offseason income still uses the factors above, then scales with how well the team matches that market. Named team contracts, sponsor objectives, conflicts, and league-wide partners are later days.
+Offseason team revenue now comes from a named main-sponsor contract when one exists. Sponsor objectives, conflicts, and league-wide partners are later days.
+
+### Team Main Sponsors
+
+Each organization can hold one exclusive main-sponsor contract (the hood/title deal). Brands pick teams using the same preference model, with extra caution toward struggling or insolvent shops. Deal length is two to four years. The annual check is a large slice of that brand's spending power and goes to the **team**. Prestige-first matching assigns leftover brands when a career starts. A brand can title a team and still back a driver personally.
+
+A team **may run with no main sponsor**. Unsponsored entries collect only a contingency stipend (about a third of the old blanket check). Losing a main sponsor costs prestige and raises owner pressure. The dashboard flags `No main sponsor`.
 
 ### Driver Endorsements
 
@@ -354,6 +360,7 @@ Saved data includes:
 - Driver traits, happiness, reputation, rivalries, feuds, and friendships
 - Sponsor companies, industries, and preferences
 - Driver endorsement deals and personal-sponsor income
+- Team main-sponsor contracts, including unsponsored entries
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -370,7 +377,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, the sponsor market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, main-sponsor contracts, the sponsor market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
 
 ### Decision Events
 

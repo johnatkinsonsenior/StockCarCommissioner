@@ -102,3 +102,5 @@
 | 100 | Sponsor preference matching | High | Completed |
 | 101 | Driver endorsement deals | High | Completed |
 | 102 | Personal sponsor income | High | Completed |
+| 103 | Team main-sponsor contracts | High | Completed |
+| 104 | Unsponsored team stipend | Medium | Completed |

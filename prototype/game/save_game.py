@@ -6,7 +6,7 @@ from pathlib import Path
 
 from game.models import Driver, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.11"
+SAVE_VERSION = "0.0.12"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -17,6 +17,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.9",
     "0.0.10",
     "0.0.11",
+    "0.0.12",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -244,6 +245,9 @@ def team_to_dict(team):
         "season_points_history": list(team.season_points_history),
         "performance_trend": team.performance_trend,
         "season_pit_mistakes": team.season_pit_mistakes,
+        "primary_sponsor": (
+            dict(team.primary_sponsor) if team.primary_sponsor else None
+        ),
     }
 
 
@@ -281,6 +285,9 @@ def team_from_dict(data):
     team.season_points_history = list(data.get("season_points_history") or [])
     team.performance_trend = data.get("performance_trend", 0)
     team.season_pit_mistakes = data.get("season_pit_mistakes", 0)
+    team.primary_sponsor = (
+        dict(data["primary_sponsor"]) if data.get("primary_sponsor") else None
+    )
 
     return team
 

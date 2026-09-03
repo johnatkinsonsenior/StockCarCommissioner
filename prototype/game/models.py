@@ -407,6 +407,7 @@ class Team:
         self.season_points_history = []
         self.performance_trend = 0
         self.season_pit_mistakes = 0
+        self.primary_sponsor = None
 
     def start_new_season(self):
         """Reset values that apply only to the upcoming season."""
@@ -445,6 +446,70 @@ class Team:
         self.budget += amount
         self.season_sponsorship += amount
         self.career_sponsorship_income += amount
+
+    def has_primary_sponsor(self):
+        """Return whether the team has a named main-sponsor contract."""
+
+        return bool(
+            self.primary_sponsor and self.primary_sponsor.get("sponsor")
+        )
+
+    def primary_sponsor_label(self):
+        """Return the main-sponsor line for reports, or unsponsored."""
+
+        if not self.has_primary_sponsor():
+            return "unsponsored"
+
+        deal = self.primary_sponsor
+        year_word = "yr" if deal["years"] == 1 else "yrs"
+        return (
+            f"{deal['sponsor']} "
+            f"(${deal['value']:,}/yr, {deal['years']} {year_word})"
+        )
+
+    def sign_primary_sponsor(self, sponsor_name, value, years, season):
+        """Sign a multi-year main-sponsor contract."""
+
+        self.primary_sponsor = {
+            "sponsor": sponsor_name,
+            "value": int(value),
+            "years": int(years),
+            "signed_season": season,
+        }
+
+    def clear_primary_sponsor(self, penalize=True):
+        """Drop the main sponsor. Optional prestige hit if the deal is lost."""
+
+        had_deal = self.has_primary_sponsor()
+        self.primary_sponsor = None
+
+        if had_deal and penalize:
+            self.prestige = _clamp(self.prestige - 4)
+            self.owner.pressure = _clamp(self.owner.pressure + 5)
+
+    def collect_primary_sponsor_pay(self):
+        """Pay this year's main-sponsor check into the team budget."""
+
+        if not self.has_primary_sponsor():
+            return 0
+
+        amount = self.primary_sponsor["value"]
+        self.add_sponsorship(amount)
+        return amount
+
+    def advance_primary_sponsor(self):
+        """Tick one year off the contract. Return True if it expired."""
+
+        if not self.has_primary_sponsor():
+            return False
+
+        self.primary_sponsor["years"] -= 1
+
+        if self.primary_sponsor["years"] <= 0:
+            self.clear_primary_sponsor(penalize=False)
+            return True
+
+        return False
 
     def pay_operating_expense(self, amount):
         """Pay a seasonal operating expense."""

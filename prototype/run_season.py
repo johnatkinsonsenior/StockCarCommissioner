@@ -169,6 +169,8 @@ FACILITY_MAINTENANCE_PER_LEVEL = 75_000
 BASE_SPONSORSHIP = 800_000
 PERFORMANCE_INVESTMENT_UNIT = 250_000
 ENDORSEMENT_MIN_INTEREST = 40
+TEAM_SPONSOR_MIN_INTEREST = 48
+UNSPONSORED_STIPEND_FACTOR = 0.35
 
 
 def sync_calendar_aliases():
@@ -227,6 +229,10 @@ def reset_career_state():
     calendar.enter_preseason()
     sync_calendar_aliases()
     assign_endorsement_deals(
+        season=calendar.current_season,
+        apply_signing_boost=False,
+    )
+    assign_team_sponsor_deals(
         season=calendar.current_season,
         apply_signing_boost=False,
     )
@@ -298,6 +304,12 @@ def apply_loaded_state(restored_state):
 
     if not any(driver.has_endorsement() for driver in drivers):
         assign_endorsement_deals(
+            season=calendar.current_season,
+            apply_signing_boost=False,
+        )
+
+    if not any(team.has_primary_sponsor() for team in teams):
+        assign_team_sponsor_deals(
             season=calendar.current_season,
             apply_signing_boost=False,
         )
@@ -462,6 +474,14 @@ def collect_commissioner_alerts():
             for team in struggling_teams
         )
         alerts.append(f"Financial health: {names}")
+
+    unsponsored_teams = [
+        team for team in teams if not team.has_primary_sponsor()
+    ]
+
+    if unsponsored_teams:
+        names = ", ".join(team.name for team in unsponsored_teams)
+        alerts.append(f"No main sponsor: {names}")
 
     unhappy_drivers = [
         driver
@@ -681,6 +701,132 @@ def assign_endorsement_deals(season, apply_signing_boost=True):
     return signed
 
 
+def team_titled_by(sponsor):
+    """Return the team this brand holds as main sponsor, if any."""
+
+    for team in teams:
+        if (
+            team.has_primary_sponsor()
+            and team.primary_sponsor["sponsor"] == sponsor.name
+        ):
+            return team
+
+    return None
+
+
+def taken_team_sponsors():
+    """Return sponsor names already on a team main-sponsor contract."""
+
+    return {
+        team.primary_sponsor["sponsor"]
+        for team in teams
+        if team.has_primary_sponsor()
+    }
+
+
+def team_sponsor_interest(sponsor, team):
+    """Score a brand's interest in a team, with distress penalties."""
+
+    score = sponsor.interest_in_team(
+        team,
+        get_team_drivers(team.name),
+        get_team_season_wins(team.name),
+    )
+
+    if team.financial_distress_level >= 3:
+        score -= 12
+    elif team.financial_distress_level >= 2:
+        score -= 6
+
+    return clamp(score)
+
+
+def team_sponsor_deal_terms(sponsor, team):
+    """Return (interest, annual value, years) for a main-sponsor contract."""
+
+    interest = team_sponsor_interest(sponsor, team)
+    share = 0.75 + (interest / 100.0) * 0.55
+    value = int(round(sponsor.spending_power() * share / 1_000) * 1_000)
+    value = max(250_000, value)
+
+    if team.financial_distress_level >= 3:
+        value = int(value * 0.75)
+    elif team.financial_distress_level >= 2:
+        value = int(value * 0.90)
+
+    if interest >= 70:
+        years = 4
+    elif interest >= 58:
+        years = 3
+    else:
+        years = 2
+
+    return interest, value, years
+
+
+def assign_team_sponsor_deals(season, apply_signing_boost=True):
+    """Match free brands to teams without a main sponsor, prestige first."""
+
+    signed = []
+    taken = taken_team_sponsors()
+    available = {
+        sponsor.name: sponsor
+        for sponsor in sponsors
+        if sponsor.name not in taken
+    }
+    unsigned = [
+        team for team in teams if not team.has_primary_sponsor()
+    ]
+    unsigned.sort(
+        key=lambda team: (
+            team.prestige,
+            team.sponsor_appeal(),
+            team.championships,
+        ),
+        reverse=True,
+    )
+
+    for team in unsigned:
+        best_sponsor = None
+        best_score = TEAM_SPONSOR_MIN_INTEREST - 1
+
+        for sponsor in available.values():
+            score = team_sponsor_interest(sponsor, team)
+
+            if score < TEAM_SPONSOR_MIN_INTEREST:
+                continue
+
+            if best_sponsor is None or score > best_score:
+                best_sponsor = sponsor
+                best_score = score
+            elif score == best_score and sponsor.name < best_sponsor.name:
+                best_sponsor = sponsor
+
+        if best_sponsor is None:
+            continue
+
+        interest, value, years = team_sponsor_deal_terms(best_sponsor, team)
+        team.sign_primary_sponsor(best_sponsor.name, value, years, season)
+
+        if apply_signing_boost:
+            team.prestige = clamp(team.prestige + 2)
+            team.owner.patience = clamp(team.owner.patience + 2)
+            team.owner.pressure = clamp(team.owner.pressure - 3)
+
+        del available[best_sponsor.name]
+        signed.append(
+            {
+                "team": team,
+                "sponsor": best_sponsor,
+                "interest": interest,
+                "value": value,
+                "years": years,
+            }
+        )
+
+    return signed
+
+
 def display_sponsor_market():
     """Display the named sponsor companies and their current tastes."""
 
@@ -698,16 +844,22 @@ def display_sponsor_market():
             else "none"
         )
         backed = driver_backed_by(sponsor)
+        titled = team_titled_by(sponsor)
         backer_text = (
             f"backs {backed.name} | "
             if backed is not None
+            else ""
+        )
+        title_text = (
+            f"titles {titled.name} | "
+            if titled is not None
             else ""
         )
         print(
             f"- {sponsor.description()} | "
             f"{sponsor.preference_summary()} | "
             f"${sponsor.spending_power():,} | "
-            f"{backer_text}"
+            f"{title_text}{backer_text}"
             f"eyes {favorite_text}"
         )
 
@@ -732,6 +884,23 @@ def display_driver_endorsements():
                 f"    Career personal-sponsor income: "
                 f"${driver.career_endorsement_income:,}"
             )
+
+
+def display_team_sponsors():
+    """Display each team's main-sponsor contract."""
+
+    print("\nTeam Sponsors")
+    print("-" * 90)
+
+    if not teams:
+        print("No teams entered.")
+        return
+
+    for team in teams:
+        print(
+            f"{team.name} [{team.manufacturer}] — "
+            f"{team.primary_sponsor_label()}"
+        )
 
 
 def display_league_dashboard():
@@ -822,7 +991,8 @@ def display_league_dashboard():
             f"Shop {team.facility_rating()} "
             f"(Lv {team.facility_level}) | "
             f"Eng {team.engineering} | "
-            f"Crew {team.crew_rating}"
+            f"Crew {team.crew_rating} | "
+            f"Main {team.primary_sponsor_label()}"
         )
 
     display_sponsor_market()
@@ -1399,15 +1569,18 @@ def process_paddock_relationships():
         )
 
 
-def calculate_sponsorship_income(team):
-    """Calculate offseason sponsorship revenue for a team."""
+def unsponsored_stipend(team):
+    """Return contingency cash for a team with no main sponsor."""
 
     team_drivers = get_team_drivers(team.name)
 
-    average_popularity = (
-        sum(driver.popularity for driver in team_drivers)
-        / len(team_drivers)
-    )
+    if team_drivers:
+        average_popularity = (
+            sum(driver.popularity for driver in team_drivers)
+            / len(team_drivers)
+        )
+    else:
+        average_popularity = 50
 
     income = BASE_SPONSORSHIP
     income += team.facility_level * 100_000
@@ -1415,16 +1588,23 @@ def calculate_sponsorship_income(team):
     income += get_team_season_wins(team.name) * 75_000
     income += int(average_popularity * 2_500)
     income += team.sponsor_appeal() * 2_000
+    income = int(income * UNSPONSORED_STIPEND_FACTOR)
 
     if team.financial_status_label() == "Insolvent":
         income = int(income * 0.75)
     elif team.financial_status_label() == "Struggling":
         income = int(income * 0.90)
 
-    if sponsors:
-        income = int(income * market_interest_multiplier(team))
+    return max(100_000, income)
 
-    return income
+
+def calculate_sponsorship_income(team):
+    """Return this offseason's team sponsorship check."""
+
+    if team.has_primary_sponsor():
+        return team.primary_sponsor["value"]
+
+    return unsponsored_stipend(team)
 
 
 def calculate_operating_expenses(team):
@@ -1585,6 +1765,7 @@ def run_offseason_finances():
 
         print(f"\n{team.name}")
         print(f"  Salaries paid: ${summary['salaries_paid']:,}")
+        print(f"  Main sponsor: {team.primary_sponsor_label()}")
         print(f"  Sponsorship revenue: ${summary['sponsorship']:,}")
 
         top_interest = top_sponsors_for_team(team)
@@ -1627,6 +1808,97 @@ def run_offseason_finances():
             print(
                 "  Entry status: Insolvent — remains on the grid"
             )
+
+
+def run_offseason_team_sponsors():
+    """Tick main-sponsor years, expire finished deals, and sign free teams."""
+
+    print("\nTeam Sponsors")
+    print("-" * 90)
+
+    expired = []
+
+    for team in teams:
+        previous_sponsor = (
+            team.primary_sponsor["sponsor"]
+            if team.has_primary_sponsor()
+            else None
+        )
+
+        if team.advance_primary_sponsor():
+            expired.append((team, previous_sponsor))
+
+    signed = assign_team_sponsor_deals(
+        season=calendar.current_season,
+        apply_signing_boost=False,
+    )
+    signed_by_name = {deal["team"].name: deal for deal in signed}
+
+    lapsed = []
+    renewals = []
+    fresh = []
+
+    for team, previous_sponsor in expired:
+        deal = signed_by_name.get(team.name)
+        if deal and deal["sponsor"].name == previous_sponsor:
+            renewals.append(deal)
+        else:
+            lapsed.append(team)
+
+    for deal in signed:
+        if deal not in renewals:
+            fresh.append(deal)
+
+    for team in lapsed:
+        team.prestige = clamp(team.prestige - 4)
+        team.owner.pressure = clamp(team.owner.pressure + 5)
+
+    for deal in fresh:
+        team = deal["team"]
+        team.prestige = clamp(team.prestige + 2)
+        team.owner.patience = clamp(team.owner.patience + 2)
+        team.owner.pressure = clamp(team.owner.pressure - 3)
+
+    if lapsed:
+        print("Expired contracts")
+        for team in lapsed:
+            print(f"- {team.name} is now unsponsored")
+
+    if renewals:
+        print("Renewals")
+        for deal in renewals:
+            year_word = "year" if deal["years"] == 1 else "years"
+            print(
+                f"- {deal['team'].name} renews with "
+                f"{deal['sponsor'].name} — ${deal['value']:,}/yr "
+                f"for {deal['years']} {year_word}"
+            )
+
+    if fresh:
+        print("New contracts")
+        for deal in fresh:
+            year_word = "year" if deal["years"] == 1 else "years"
+            print(
+                f"- {deal['team'].name} signs with "
+                f"{deal['sponsor'].name} — ${deal['value']:,}/yr "
+                f"for {deal['years']} {year_word} "
+                f"(interest {deal['interest']})"
+            )
+
+    unsigned = [
+        team for team in teams if not team.has_primary_sponsor()
+    ]
+
+    if unsigned:
+        print("Unsponsored")
+        for team in unsigned:
+            print(
+                f"- {team.name} has no main sponsor "
+                "(contingency stipend only)"
+            )
+
+    if not lapsed and not renewals and not fresh and not unsigned:
+        print("All main-sponsor contracts continue.")
 
 
 def run_offseason_endorsements():
@@ -1770,6 +2042,7 @@ def run_offseason(completed_season):
             )
 
     run_offseason_finances()
+    run_offseason_team_sponsors()
     run_offseason_endorsements()
     process_paddock_relationships()
     present_events(
@@ -2600,6 +2873,7 @@ def display_team_finances():
             f"- Crew {team.crew_rating} "
             f"- Rel {team.reliability}"
         )
+        print(f"  Main sponsor: {team.primary_sponsor_label()}")
         top_interest = top_sponsors_for_team(team)
 
         if top_interest:
@@ -3127,6 +3401,11 @@ def save_season_report(season_number):
                     if driver_backed_by(sponsor) is not None
                     else None
                 ),
+                "titled_team": (
+                    team_titled_by(sponsor).name
+                    if team_titled_by(sponsor) is not None
+                    else None
+                ),
                 "team_interest": [
                     {
                         "team": team.name,
@@ -3222,6 +3501,13 @@ def save_season_report(season_number):
                 "prestige": team.prestige,
                 "attractiveness": team.attractiveness(),
                 "sponsor_appeal": team.sponsor_appeal(),
+                "primary_sponsor": (
+                    dict(team.primary_sponsor)
+                    if team.primary_sponsor
+                    else None
+                ),
+                "primary_sponsor_label": team.primary_sponsor_label(),
+                "unsponsored": not team.has_primary_sponsor(),
                 "market_interest": [
                     {
                         "sponsor": sponsor.name,
@@ -3446,6 +3732,7 @@ def run_postseason(season_number):
     display_playoff_results()
     record_team_season_trends()
     display_team_finances()
+    display_team_sponsors()
     display_driver_endorsements()
     display_team_standings()
     display_manufacturer_standings()
@@ -3559,6 +3846,7 @@ def display_career_report():
             f"- Crew: {team.crew_rating} "
             f"- Career prize money: ${team.career_prize_money:,} "
             f"- Sponsorship income: ${team.career_sponsorship_income:,} "
+            f"- Main sponsor: {team.primary_sponsor_label()} "
             f"- Current budget: ${team.budget:,} "
             f"- Status: {team.financial_status_label()}"
         )
@@ -3790,6 +4078,12 @@ def run_season():
 
     if not any(driver.has_endorsement() for driver in drivers):
         assign_endorsement_deals(
+            season=calendar.current_season,
+            apply_signing_boost=False,
+        )
+
+    if not any(team.has_primary_sponsor() for team in teams):
+        assign_team_sponsor_deals(
             season=calendar.current_season,
             apply_signing_boost=False,
         )
