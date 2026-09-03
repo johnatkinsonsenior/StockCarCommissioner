@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–65 complete (Week 10 underway). Next coding day: **Day
-66 — Ratings**.
+**Current position:** Days 1–66 complete (Week 10 underway). Next coding day: **Day
+67 — Race popularity**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -111,7 +111,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 ## Week 10 — Television and Media
 - [x] Day 64 — TV networks (broadcasters and profiles)
 - [x] Day 65 — TV contracts (rights bids, length, negotiations)
-- [ ] Day 66 — Ratings (audience simulation and trends)
+- [x] Day 66 — Ratings (audience simulation and trends)
 - [ ] Day 67 — Race popularity (event audience and attendance)
 - [ ] Day 68 — Media stories (generated headlines and narratives)
 - [ ] Day 69 — Press conferences (commissioner response choices)
