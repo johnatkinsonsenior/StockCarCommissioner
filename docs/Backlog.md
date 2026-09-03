@@ -107,3 +107,5 @@
 | 105 | Sponsor objectives | High | Completed |
 | 106 | Sponsor satisfaction and pay | High | Completed |
 | 107 | Unhappy sponsor renewal refusal | Medium | Completed |
+| 108 | Sponsor conflicts and controversies | High | Completed |
+| 109 | Mid-contract sponsor withdrawals | High | Completed |

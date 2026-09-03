@@ -301,7 +301,7 @@ The league also keeps a market of named sponsor companies. Each company has:
 - A risk posture (cautious brands avoid struggling or aggressive teams; bold brands tolerate them)
 - An optional manufacturer affinity
 
-Offseason team revenue now comes from a named main-sponsor contract when one exists. Signed brands score the season they just backed. Conflicts, withdrawals, and league-wide partners are later days.
+Offseason team revenue now comes from a named main-sponsor contract when one exists. Signed brands score the season they just backed. A scandal can pull a live deal. League-wide partners are a later day.
 
 ### Team Main Sponsors
 
@@ -321,7 +321,13 @@ Every signed title deal and personal endorsement starts content. After each regu
 - Exposure: popularity and media presence
 - Conduct: reputation and credibility, reduced by warnings, suspensions, and wrecks
 
-That score moves a 0–100 satisfaction mood (thrilled, pleased, content, restless, unhappy). Mood scales the next offseason check up or down. Brands do not walk mid-contract. If a deal expires while the brand is unhappy, it will not immediately re-sign the same team or driver; another company may still step in. The dashboard flags restless title sponsors and restless endorsements.
+That score moves a 0–100 satisfaction mood (thrilled, pleased, content, restless, unhappy). Mood scales the next offseason check up or down. If a deal expires while the brand is unhappy, it will not immediately re-sign the same team or driver; another company may still step in. The dashboard flags restless title sponsors and restless endorsements.
+
+### Sponsor Conflicts
+
+Cautious and conduct-first brands can pull a live deal when scandal piles up. Conflict heat comes from low satisfaction, poor conduct, warnings, suspensions, insolvent shops, and league controversy. Bold brands tolerate more. A commissioner ruling on a wreck shocks related deals; an unpunished incident or a suspension can trigger an immediate walk.
+
+Withdrawal cancels the remaining years. The team or driver goes unsponsored, takes a prestige/morale hit, and that brand will not rematch the same party this offseason. The next check is lost. The dashboard flags `Sponsor walked`. Replacements wait until the offseason market.
 
 ### Operating Expenses
 
@@ -372,6 +378,7 @@ Saved data includes:
 - Driver endorsement deals and personal-sponsor income
 - Team main-sponsor contracts, including unsponsored entries
 - Sponsor deal satisfaction, last delivery, and objective breakdowns
+- Sponsor withdrawals and brands blocked from rematching the same party
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -388,7 +395,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, main-sponsor contracts, the sponsor market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, main-sponsor contracts, sponsor withdrawals, the sponsor market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
 
 ### Decision Events
 

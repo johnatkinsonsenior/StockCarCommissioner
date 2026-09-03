@@ -88,6 +88,15 @@ def apply_objective_review(deal, delivery, breakdown):
     deal["last_objectives"] = dict(breakdown)
     return previous, deal["satisfaction"], delta
 
+
+def apply_controversy_shock(deal, amount):
+    """Cut deal satisfaction after a scandal. Return previous, current, delta."""
+
+    previous = deal.get("satisfaction", 55)
+    delta = -abs(int(amount))
+    deal["satisfaction"] = _clamp(previous + delta)
+    return previous, deal["satisfaction"], delta
+
 PERSONALITY_TRAIT_DEFAULTS = {
     "Professional": {
         "temperament": 72,
@@ -273,15 +282,29 @@ class Sponsor:
         )
         top = [label for label, value in ranked[:2] if value >= 55]
 
-        if self.risk_tolerance >= 65:
-            posture = "bold"
-        elif self.risk_tolerance <= 40:
-            posture = "cautious"
-        else:
-            posture = "measured"
-
         tastes = ", ".join(top) if top else "balanced"
-        return f"{tastes}; {posture}"
+        return f"{tastes}; {self.risk_posture()}"
+
+    def risk_posture(self):
+        """Return cautious, measured, or bold from risk tolerance."""
+
+        if self.risk_tolerance >= 65:
+            return "bold"
+        if self.risk_tolerance <= 40:
+            return "cautious"
+        return "measured"
+
+    def controversy_sensitivity(self):
+        """Return 0-1 how badly scandal bothers this brand."""
+
+        caution = (100 - self.risk_tolerance) / 100.0
+        conduct = self.conduct_preference / 100.0
+        return 0.35 * caution + 0.65 * conduct
+
+    def conflict_walk_threshold(self):
+        """Return the conflict heat needed to pull a live deal."""
+
+        return round(18 + self.risk_tolerance * 0.40)
 
     def objective_profile(self):
         """Return normalized weights for performance, exposure, and conduct."""

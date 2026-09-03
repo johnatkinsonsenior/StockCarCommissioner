@@ -32,6 +32,7 @@ from game.models import (
     Driver,
     Team,
     SPONSOR_RENEWAL_MIN_SATISFACTION,
+    apply_controversy_shock,
     apply_objective_review,
     sponsor_pay_multiplier,
     sponsor_satisfaction_label,
@@ -157,6 +158,8 @@ league = {
     "fines_collected": 0,
     "owner_pressure": 25,
     "driver_sentiment": 60,
+    "sponsor_conflicts": [],
+    "sponsor_walk_blocks": [],
 }
 
 race_history = []
@@ -178,6 +181,15 @@ PERFORMANCE_INVESTMENT_UNIT = 250_000
 ENDORSEMENT_MIN_INTEREST = 40
 TEAM_SPONSOR_MIN_INTEREST = 48
 UNSPONSORED_STIPEND_FACTOR = 0.35
+SPONSOR_CONFLICT_CONDUCT_FLOOR = 40
+SPONSOR_CONFLICT_SATISFACTION_FLOOR = 48
+RULING_SPONSOR_SEVERITY = {
+    "1": 10,
+    "2": 3,
+    "3": 1,
+    "4": 2,
+    "5": 12,
+}
 
 
 def sync_calendar_aliases():
@@ -227,6 +239,8 @@ def reset_career_state():
     league["fines_collected"] = 0
     league["owner_pressure"] = 25
     league["driver_sentiment"] = 60
+    league["sponsor_conflicts"] = []
+    league["sponsor_walk_blocks"] = []
 
     reset_policies()
 
@@ -295,6 +309,8 @@ def apply_loaded_state(restored_state):
     league.update(restored_state["league"])
     league.setdefault("owner_pressure", 25)
     league.setdefault("driver_sentiment", 60)
+    league.setdefault("sponsor_conflicts", [])
+    league.setdefault("sponsor_walk_blocks", [])
 
     load_policies(restored_state.get("policies"))
 
@@ -521,6 +537,19 @@ def collect_commissioner_alerts():
             for driver in restless_deals
         )
         alerts.append(f"Restless endorsements: {names}")
+
+    walked = [
+        item
+        for item in league.get("sponsor_conflicts") or []
+        if item.get("season") == calendar.current_season
+    ]
+
+    if walked:
+        names = ", ".join(
+            f"{item['sponsor']} left {item['party']}"
+            for item in walked
+        )
+        alerts.append(f"Sponsor walked: {names}")
 
     unhappy_drivers = [
         driver
@@ -909,6 +938,312 @@ def review_sponsor_objectives():
         )
 
     return reports
+
+
+def ensure_sponsor_conflict_state():
+    """Make sure career league state has conflict lists."""
+
+    if not isinstance(league.get("sponsor_conflicts"), list):
+        league["sponsor_conflicts"] = []
+    if not isinstance(league.get("sponsor_walk_blocks"), list):
+        league["sponsor_walk_blocks"] = []
+
+
+def walk_block_set():
+    """Return (sponsor, party) pairs that will not rematch this offseason."""
+
+    ensure_sponsor_conflict_state()
+    return {
+        (item[0], item[1])
+        for item in league["sponsor_walk_blocks"]
+        if item and len(item) >= 2
+    }
+
+
+def add_walk_block(sponsor_name, party_name):
+    """Remember that this brand walked on this team or driver."""
+
+    ensure_sponsor_conflict_state()
+    pair = [sponsor_name, party_name]
+    if pair not in league["sponsor_walk_blocks"]:
+        league["sponsor_walk_blocks"].append(pair)
+
+
+def record_sponsor_conflict(record):
+    """Append a withdrawal to the career conflict log."""
+
+    ensure_sponsor_conflict_state()
+    league["sponsor_conflicts"].append(record)
+
+
+def current_season_conflicts():
+    """Return withdrawals recorded during the active season."""
+
+    ensure_sponsor_conflict_state()
+    season = calendar.current_season
+    return [
+        item
+        for item in league["sponsor_conflicts"]
+        if item.get("season") == season
+    ]
+
+
+def deal_conflict_signals(kind, party_name):
+    """Return satisfaction, conduct, and scandal extras for a signed deal."""
+
+    if kind == "team":
+        team = get_team(party_name)
+        deal = team.primary_sponsor or {}
+        team_drivers = get_team_drivers(team.name)
+        last = deal.get("last_objectives") or {}
+        conduct = last.get("conduct")
+        if conduct is None:
+            _, _, conduct = team_objective_signals(team)
+        return {
+            "satisfaction": deal.get("satisfaction", 55),
+            "conduct": conduct,
+            "warnings": sum(driver.warnings for driver in team_drivers),
+            "suspensions": sum(driver.suspensions for driver in team_drivers),
+            "distress": team.financial_distress_level,
+            "years": deal.get("years", 0),
+            "sponsor_name": deal.get("sponsor"),
+            "value": deal.get("value", 0),
+        }
+
+    driver = get_driver(party_name)
+    deal = driver.endorsement or {}
+    last = deal.get("last_objectives") or {}
+    conduct = last.get("conduct")
+    if conduct is None:
+        _, _, conduct = driver_objective_signals(driver)
+    return {
+        "satisfaction": deal.get("satisfaction", 55),
+        "conduct": conduct,
+        "warnings": driver.warnings,
+        "suspensions": driver.suspensions,
+        "distress": 0,
+        "years": deal.get("years", 0),
+        "sponsor_name": deal.get("sponsor"),
+        "value": deal.get("value", 0),
+    }
+
+
+def sponsor_conflict_heat(sponsor, signals, severity=0):
+    """Score how badly a live deal is on fire for this brand."""
+
+    heat = 0
+    heat += max(0, SPONSOR_CONFLICT_SATISFACTION_FLOOR - signals["satisfaction"])
+    heat += max(0, SPONSOR_CONFLICT_CONDUCT_FLOOR - signals["conduct"])
+    heat += signals.get("warnings", 0)
+    heat += signals.get("suspensions", 0) * 6
+    heat += max(0, league.get("controversy", 0) - 50) // 4
+    if signals.get("distress", 0) >= 3:
+        heat += 6
+    heat += max(0, int(severity))
+    return round(heat * (0.50 + sponsor.controversy_sensitivity()))
+
+
+def should_sponsor_withdraw(sponsor, signals, severity=0, immediate=False):
+    """Return (walks, heat, threshold) for a live deal."""
+
+    heat = sponsor_conflict_heat(sponsor, signals, severity)
+    threshold = sponsor.conflict_walk_threshold()
+
+    if heat < threshold:
+        return False, heat, threshold
+
+    if immediate:
+        walks = severity >= 8 or signals["satisfaction"] < 40
+    else:
+        walks = signals["satisfaction"] < 50 or signals["conduct"] < 30
+
+    return walks, heat, threshold
+
+
+def withdraw_team_sponsor(team, reason, heat, threshold):
+    """Pull a title deal mid-contract and log the walk."""
+
+    deal = team.primary_sponsor
+    sponsor_name = deal["sponsor"]
+    record = {
+        "season": calendar.current_season,
+        "kind": "team",
+        "sponsor": sponsor_name,
+        "party": team.name,
+        "reason": reason,
+        "heat": heat,
+        "threshold": threshold,
+        "years_left": deal.get("years", 0),
+        "satisfaction": deal.get("satisfaction", 55),
+        "value": deal.get("value", 0),
+    }
+    add_walk_block(sponsor_name, team.name)
+    record_sponsor_conflict(record)
+    team.clear_primary_sponsor(penalize=True)
+    league["controversy"] = clamp(league["controversy"] + 4)
+    league["fan_interest"] = clamp(league["fan_interest"] - 2)
+    league["owner_pressure"] = clamp(league.get("owner_pressure", 25) + 4)
+    return record
+
+
+def withdraw_driver_endorsement(driver, reason, heat, threshold):
+    """Pull a personal deal mid-contract and log the walk."""
+
+    deal = driver.endorsement
+    sponsor_name = deal["sponsor"]
+    record = {
+        "season": calendar.current_season,
+        "kind": "driver",
+        "sponsor": sponsor_name,
+        "party": driver.name,
+        "reason": reason,
+        "heat": heat,
+        "threshold": threshold,
+        "years_left": deal.get("years", 0),
+        "satisfaction": deal.get("satisfaction", 55),
+        "value": deal.get("value", 0),
+    }
+    add_walk_block(sponsor_name, driver.name)
+    record_sponsor_conflict(record)
+    driver.clear_endorsement()
+    driver.morale = clamp(driver.morale - 6)
+    driver.popularity = clamp(driver.popularity - 2)
+    driver.contract_satisfaction = clamp(driver.contract_satisfaction - 5)
+    league["controversy"] = clamp(league["controversy"] + 2)
+    return record
+
+
+def maybe_withdraw_deal(kind, party_name, reason, severity=0, immediate=False):
+    """Withdraw one deal if conflict heat clears the brand's threshold."""
+
+    if kind == "team":
+        team = get_team(party_name)
+        if not team.has_primary_sponsor():
+            return None
+        sponsor = get_sponsor(team.primary_sponsor["sponsor"])
+    else:
+        driver = get_driver(party_name)
+        if not driver.has_endorsement():
+            return None
+        sponsor = get_sponsor(driver.endorsement["sponsor"])
+
+    if sponsor is None:
+        return None
+
+    signals = deal_conflict_signals(kind, party_name)
+    walks, heat, threshold = should_sponsor_withdraw(
+        sponsor,
+        signals,
+        severity=severity,
+        immediate=immediate,
+    )
+
+    if not walks:
+        return None
+
+    if kind == "team":
+        return withdraw_team_sponsor(team, reason, heat, threshold)
+
+    return withdraw_driver_endorsement(driver, reason, heat, threshold)
+
+
+def apply_ruling_sponsor_fallout(choice, driver, team):
+    """Let signed brands react to a commissioner incident ruling."""
+
+    severity = RULING_SPONSOR_SEVERITY.get(choice, 0)
+
+    if severity <= 0:
+        return
+
+    reasons = {
+        "1": "unpunished incident",
+        "2": "official warning",
+        "3": "on-track fine",
+        "4": "points penalty",
+        "5": "race suspension",
+    }
+    reason = reasons.get(choice, "incident")
+
+    candidates = []
+
+    if driver.has_endorsement():
+        candidates.append(("driver", driver.name, driver.endorsement))
+    if team.has_primary_sponsor():
+        candidates.append(("team", team.name, team.primary_sponsor))
+
+    for kind, party_name, deal in candidates:
+        sponsor = get_sponsor(deal["sponsor"])
+        if sponsor is None:
+            continue
+
+        shock = max(1, round(severity * sponsor.controversy_sensitivity()))
+        previous, current, delta = apply_controversy_shock(deal, shock)
+        print(
+            f"{sponsor.name} ({sponsor.risk_posture()}) took the {reason} "
+            f"hard: {sponsor_satisfaction_label(previous)} "
+            f"{previous} → {sponsor_satisfaction_label(current)} "
+            f"{current} ({delta:+d})."
+        )
+
+        if severity >= 8:
+            record = maybe_withdraw_deal(
+                kind,
+                party_name,
+                reason,
+                severity=severity,
+                immediate=True,
+            )
+            if record:
+                year_word = "year" if record["years_left"] == 1 else "years"
+                print(
+                    f"{record['sponsor']} withdrew from {record['party']} "
+                    f"with {record['years_left']} {year_word} left "
+                    f"(heat {record['heat']}/{record['threshold']})."
+                )
+
+
+def resolve_sponsor_conflicts():
+    """Let scandalized brands pull live deals after the season review."""
+
+    print("\nSponsor Conflicts")
+    print("-" * 90)
+
+    withdrawals = []
+
+    for team in list(teams):
+        if team.has_primary_sponsor():
+            record = maybe_withdraw_deal(
+                "team",
+                team.name,
+                "season controversy",
+            )
+            if record:
+                withdrawals.append(record)
+
+    for driver in list(drivers):
+        if driver.has_endorsement():
+            record = maybe_withdraw_deal(
+                "driver",
+                driver.name,
+                "season controversy",
+            )
+            if record:
+                withdrawals.append(record)
+
+    if not withdrawals:
+        print("No signed sponsors walked away.")
+        return withdrawals
+
+    for record in withdrawals:
+        year_word = "year" if record["years_left"] == 1 else "years"
+        print(
+            f"- {record['sponsor']} withdrew from {record['party']} "
+            f"({record['kind']}, {record['reason']}, "
+            f"{record['years_left']} {year_word} left, "
+            f"heat {record['heat']}/{record['threshold']})"
+        )
+
+    return withdrawals
 
 
 def team_titled_by(sponsor):
@@ -2057,7 +2392,7 @@ def run_offseason_team_sponsors():
     print("-" * 90)
 
     expired = []
-    blocked = set()
+    blocked = walk_block_set()
     declined = []
 
     for team in teams:
@@ -2168,7 +2503,7 @@ def run_offseason_endorsements():
 
     paid = []
     expired = []
-    blocked = set()
+    blocked = walk_block_set()
     declined = []
 
     for driver in drivers:
@@ -3089,6 +3424,7 @@ def apply_commissioner_ruling(choice, driver, team):
     print(f"Fan interest: {league['fan_interest']}")
     print(f"Controversy: {league['controversy']}")
     print(f"{driver.name} morale: {driver.morale}")
+    apply_ruling_sponsor_fallout(choice, driver, team)
 
 
 def get_driver_standings():
@@ -3612,6 +3948,7 @@ def save_season_report(season_number):
             "fines_collected": league["fines_collected"],
             "owner_pressure": league["owner_pressure"],
             "driver_sentiment": league["driver_sentiment"],
+            "sponsor_conflicts": current_season_conflicts(),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -3668,6 +4005,7 @@ def save_season_report(season_number):
                 "preferred_track_types": list(sponsor.preferred_track_types),
                 "spending_power": sponsor.spending_power(),
                 "preference_summary": sponsor.preference_summary(),
+                "risk_posture": sponsor.risk_posture(),
                 "primary_objective": sponsor.primary_objective(),
                 "favorite_team": (
                     best_team_for_sponsor(sponsor)[0].name
@@ -3842,6 +4180,7 @@ def initialize_season(season_number):
     league["fan_interest"] = 65
     league["controversy"] = 20
     league["fines_collected"] = 0
+    league["sponsor_walk_blocks"] = []
 
     for team in teams:
         team.start_new_season()
@@ -4011,6 +4350,7 @@ def run_postseason(season_number):
     display_playoff_results()
     record_team_season_trends()
     review_sponsor_objectives()
+    resolve_sponsor_conflicts()
     display_team_finances()
     display_team_sponsors()
     display_driver_endorsements()
