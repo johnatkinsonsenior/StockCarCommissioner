@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–69 complete (Week 10 underway). Next coding day: **Day
-70 — Media controversies**.
+**Current position:** Days 1–70 complete (Week 10 complete). Next coding day: **Day
+71 — Owner council**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -115,7 +115,10 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 67 — Race popularity (event audience and attendance)
 - [x] Day 68 — Media stories (generated headlines and narratives)
 - [x] Day 69 — Press conferences (commissioner response choices)
-- [ ] Day 70 — Media controversies (scandals, public pressure)
+- [x] Day 70 — Media controversies (scandals, public pressure)
+
+> **Milestone — Day 70 Television and Media:** networks, rights, ratings, the
+> gate, headlines, pressers, and scandals feed one media loop. ✅
 
 ## Week 11 — League Politics
 - [ ] Day 71 — Owner council (representation and voting)
@@ -159,7 +162,8 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 21 | Commissioner Loop | ✅ Done |
 | 35 | Emergent Personalities | ✅ Done |
 | 49 | Race Simulation Depth | ✅ Done |
-| 63 | Business Ecosystem | ⬜ Pending |
+| 63 | Business Ecosystem | ✅ Done |
+| 70 | Television and Media | ✅ Done |
 | 77 | Political Career | ⬜ Pending |
 | 84 | Living Racing World | ⬜ Pending |
 | 90 | Playable Alpha | ⬜ Pending |
