@@ -168,6 +168,7 @@ BASE_OPERATING_EXPENSE = 350_000
 FACILITY_MAINTENANCE_PER_LEVEL = 75_000
 BASE_SPONSORSHIP = 800_000
 PERFORMANCE_INVESTMENT_UNIT = 250_000
+ENDORSEMENT_MIN_INTEREST = 55
 
 
 def sync_calendar_aliases():
@@ -225,6 +226,10 @@ def reset_career_state():
     calendar.career_seasons_total = 3
     calendar.enter_preseason()
     sync_calendar_aliases()
+    assign_endorsement_deals(
+        season=calendar.current_season,
+        apply_signing_boost=False,
+    )
 
 
 def is_season_mid_progress():
@@ -290,6 +295,12 @@ def apply_loaded_state(restored_state):
     calendar.career_seasons_total = restored_calendar.career_seasons_total
     calendar.phase = restored_calendar.phase
     sync_calendar_aliases()
+
+    if not any(driver.has_endorsement() for driver in drivers):
+        assign_endorsement_deals(
+            season=calendar.current_season,
+            apply_signing_boost=False,
+        )
 
 
 def save_career(save_name=None):
@@ -557,6 +568,117 @@ def best_team_for_sponsor(sponsor):
     return team, score
 
 
+def driver_backed_by(sponsor):
+    """Return the active driver this brand personally sponsors, if any."""
+
+    for driver in drivers:
+        if (
+            driver.has_endorsement()
+            and driver.endorsement["sponsor"] == sponsor.name
+        ):
+            return driver
+
+    return None
+
+
+def taken_endorsement_sponsors():
+    """Return sponsor names already on an active driver deal."""
+
+    return {
+        driver.endorsement["sponsor"]
+        for driver in drivers
+        if driver.has_endorsement()
+    }
+
+
+def endorsement_deal_terms(sponsor, driver):
+    """Return (interest, annual value, years) for a personal deal."""
+
+    interest = sponsor.interest_in_driver(driver)
+    share = 0.08 + (interest / 100.0) * 0.12
+    value = int(round(sponsor.spending_power() * share / 1_000) * 1_000)
+    value = max(50_000, value)
+
+    if interest >= 72:
+        years = 3
+    elif interest >= 60:
+        years = 2
+    else:
+        years = 1
+
+    if driver.is_rookie:
+        value = max(50_000, int(round(value * 0.75 / 1_000) * 1_000))
+        years = min(years, 2)
+
+    return interest, value, years
+
+
+def ranked_endorsement_pairs(available_sponsors, unsigned_drivers):
+    """Return (score, sponsor, driver) triples, strongest first."""
+
+    pairs = []
+
+    for sponsor in available_sponsors:
+        for driver in unsigned_drivers:
+            score = sponsor.interest_in_driver(driver)
+
+            if score >= ENDORSEMENT_MIN_INTEREST:
+                pairs.append((score, sponsor, driver))
+
+    pairs.sort(key=lambda item: (-item[0], item[1].name, item[2].name))
+    return pairs
+
+
+def assign_endorsement_deals(season, apply_signing_boost=True):
+    """Greedy unique matching of free brands to unsigned drivers."""
+
+    signed = []
+    taken = taken_endorsement_sponsors()
+    available = [
+        sponsor for sponsor in sponsors if sponsor.name not in taken
+    ]
+    unsigned = [
+        driver for driver in drivers if not driver.has_endorsement()
+    ]
+    claimed_sponsors = set()
+    claimed_drivers = set()
+
+    for score, sponsor, driver in ranked_endorsement_pairs(
+        available,
+        unsigned,
+    ):
+        if (
+            sponsor.name in claimed_sponsors
+            or driver.name in claimed_drivers
+        ):
+            continue
+
+        interest, value, years = endorsement_deal_terms(sponsor, driver)
+        driver.sign_endorsement(sponsor.name, value, years, season)
+
+        if apply_signing_boost:
+            driver.morale = clamp(driver.morale + 3)
+            driver.contract_satisfaction = clamp(
+                driver.contract_satisfaction + 4
+            )
+            popularity_gain = 2 if sponsor.popularity_preference >= 70 else 1
+            driver.popularity = clamp(driver.popularity + popularity_gain)
+
+        claimed_sponsors.add(sponsor.name)
+        claimed_drivers.add(driver.name)
+        signed.append(
+            {
+                "driver": driver,
+                "sponsor": sponsor,
+                "interest": interest,
+                "value": value,
+                "years": years,
+            }
+        )
+
+    return signed
+
+
 def display_sponsor_market():
     """Display the named sponsor companies and their current tastes."""
 
@@ -573,12 +695,41 @@ def display_sponsor_market():
             if favorite is not None
             else "none"
         )
+        backed = driver_backed_by(sponsor)
+        backer_text = (
+            f"backs {backed.name} | "
+            if backed is not None
+            else ""
+        )
         print(
             f"- {sponsor.description()} | "
             f"{sponsor.preference_summary()} | "
             f"${sponsor.spending_power():,} | "
+            f"{backer_text}"
             f"eyes {favorite_text}"
         )
+
+
+def display_driver_endorsements():
+    """Display personal endorsement deals on the grid."""
+
+    print("\nDriver Endorsements")
+    print("-" * 90)
+
+    if not drivers:
+        print("No drivers on the grid.")
+        return
+
+    for driver in drivers:
+        print(
+            f"{driver.name} ({driver.team_name}) — "
+            f"{driver.endorsement_label()}"
+        )
+        if driver.career_endorsement_income:
+            print(
+                f"    Career personal-sponsor income: "
+                f"${driver.career_endorsement_income:,}"
+            )
 
 
 def display_league_dashboard():
@@ -651,6 +802,7 @@ def display_league_dashboard():
             f"- {driver.name}: {driver.happiness_label()} "
             f"{driver.morale} | "
             f"Rep {driver.reputation}/Cred {driver.credibility} | "
+            f"Deal {driver.endorsement_label()} | "
             f"Rival {rival_text} | Ally {ally_text} | "
             f"Teammate bond {driver.teammate_bond} | "
             f"Feud {feud_text}"
@@ -1475,6 +1627,64 @@ def run_offseason_finances():
             )
 
 
+def run_offseason_endorsements():
+    """Pay personal deals, expire finished years, and sign free drivers."""
+
+    print("\nDriver Endorsements")
+    print("-" * 90)
+
+    paid = []
+    expired = []
+
+    for driver in drivers:
+        amount = driver.collect_endorsement_pay()
+
+        if amount:
+            paid.append((driver, amount, driver.endorsement_label()))
+
+        if driver.advance_endorsement():
+            expired.append(driver)
+
+    if paid:
+        print("Payouts")
+        for driver, amount, label in paid:
+            print(f"- {driver.name} collected ${amount:,} ({label})")
+    else:
+        print("No personal-sponsor payouts this offseason.")
+
+    if expired:
+        print("Expired deals")
+        for driver in expired:
+            print(f"- {driver.name} is now unsponsored")
+
+    signed = assign_endorsement_deals(
+        season=calendar.current_season,
+        apply_signing_boost=True,
+    )
+
+    if signed:
+        print("New deals")
+        for deal in signed:
+            year_word = "year" if deal["years"] == 1 else "years"
+            print(
+                f"- {deal['driver'].name} signs with "
+                f"{deal['sponsor'].name} — ${deal['value']:,}/yr "
+                f"for {deal['years']} {year_word} "
+                f"(interest {deal['interest']})"
+            )
+
+    unsigned = [
+        driver for driver in drivers if not driver.has_endorsement()
+    ]
+
+    if unsigned:
+        print("Unsigned")
+        for driver in unsigned:
+            print(f"- {driver.name} remains unsponsored")
+
+    refresh_all_driver_happiness()
+
+
 def run_offseason(completed_season):
     """Age drivers, update abilities, and process retirements."""
 
@@ -1525,6 +1735,7 @@ def run_offseason(completed_season):
             )
 
     run_offseason_finances()
+    run_offseason_endorsements()
     process_paddock_relationships()
     present_events(
         offseason_events(current_policies, events_resolved)
@@ -2530,7 +2741,8 @@ def display_driver_relationship_report():
             f"- Rival: {driver.rival or 'none'} "
             f"({driver.rivalry_intensity}) "
             f"- Ally: {driver.ally or 'none'} "
-            f"- Bond {driver.teammate_bond}"
+            f"- Bond {driver.teammate_bond} "
+            f"- Deal: {driver.endorsement_label()}"
         )
 
         feud = driver.hottest_feud()
@@ -2875,6 +3087,11 @@ def save_season_report(season_number):
                     else None
                 ),
                 "favorite_team_interest": best_team_for_sponsor(sponsor)[1],
+                "endorsed_driver": (
+                    driver_backed_by(sponsor).name
+                    if driver_backed_by(sponsor) is not None
+                    else None
+                ),
                 "team_interest": [
                     {
                         "team": team.name,
@@ -2916,6 +3133,16 @@ def save_season_report(season_number):
                 "wins": driver.wins,
                 "dnfs": driver.dnfs,
                 "earnings": driver.earnings,
+                "endorsement": (
+                    dict(driver.endorsement) if driver.endorsement else None
+                ),
+                "endorsement_label": driver.endorsement_label(),
+                "season_endorsement_income": (
+                    driver.season_endorsement_income
+                ),
+                "career_endorsement_income": (
+                    driver.career_endorsement_income
+                ),
                 "morale": driver.morale,
                 "happiness": driver.happiness_label(),
                 "popularity": driver.popularity,
@@ -3184,6 +3411,7 @@ def run_postseason(season_number):
     display_playoff_results()
     record_team_season_trends()
     display_team_finances()
+    display_driver_endorsements()
     display_team_standings()
     display_manufacturer_standings()
     display_commissioner_report()
@@ -3264,7 +3492,9 @@ def display_career_report():
             f"- Starts: {driver.career_starts} "
             f"- DNFs: {driver.career_dnfs} "
             f"- Points: {driver.career_points} "
-            f"- Earnings: ${driver.career_earnings:,}"
+            f"- Earnings: ${driver.career_earnings:,} "
+            f"- Endorsements: ${driver.career_endorsement_income:,} "
+            f"- Deal: {driver.endorsement_label()}"
         )
 
     team_ranking = sorted(
@@ -3522,6 +3752,12 @@ def main():
 
 def run_season():
     """Run the complete racing season."""
+
+    if not any(driver.has_endorsement() for driver in drivers):
+        assign_endorsement_deals(
+            season=calendar.current_season,
+            apply_signing_boost=False,
+        )
 
     run_single_season(calendar.current_season)
     calendar.advance_to_next_season()

@@ -301,7 +301,11 @@ The league also keeps a market of named sponsor companies. Each company has:
 - A risk posture (cautious brands avoid struggling or aggressive teams; bold brands tolerate them)
 - An optional manufacturer affinity
 
-Offseason income still uses the factors above, then scales with how well the team matches that market. Named contracts, driver endorsements, sponsor objectives, conflicts, and league-wide partners are later days.
+Offseason income still uses the factors above, then scales with how well the team matches that market. Named team contracts, sponsor objectives, conflicts, and league-wide partners are later days.
+
+### Driver Endorsements
+
+Drivers can hold one personal endorsement at a time. Brands pick drivers using the same preference model (exposure, conduct, performance, risk). A company backs at most one driver. Deal length is one to three years and the annual check is a slice of that brand's spending power. The money goes to the driver, not the team. Signing a deal lifts morale, contract satisfaction, and popularity slightly. Deals are matched when a career starts, paid and renewed in the offseason, and drop when they expire or a driver retires.
 
 ### Operating Expenses
 
@@ -349,6 +353,7 @@ Saved data includes:
 - Team owners, reputation, trends, facilities, engineering, and pit crews
 - Driver traits, happiness, reputation, rivalries, feuds, and friendships
 - Sponsor companies, industries, and preferences
+- Driver endorsement deals and personal-sponsor income
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 

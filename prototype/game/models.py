@@ -339,6 +339,14 @@ class Sponsor:
             * (driver.media_skill - 50)
             * 0.15
         )
+        score += (
+            (self.performance_preference / 100.0)
+            * (
+                min(driver.career_wins, 12) * 1.2
+                + driver.championships * 6
+                + (driver.overall_rating() - 75) * 0.15
+            )
+        )
         return round(_clamp(score))
 
     def __str__(self):
@@ -837,6 +845,8 @@ class Driver:
         self.career_earnings = 0
         self.championships = 0
         self.seasons_completed = 0
+        self.endorsement = None
+        self.career_endorsement_income = 0
 
         self.reset_season()
 
@@ -855,6 +865,7 @@ class Driver:
         self.points_penalties = 0
         self.suspensions = 0
         self.suspension_races = 0
+        self.season_endorsement_income = 0
 
     def complete_season(self):
         """Transfer season statistics into career totals."""
@@ -957,6 +968,65 @@ class Driver:
             f"${self.salary:,} per season, "
             f"{self.contract_years} {year_word} remaining"
         )
+
+    def has_endorsement(self):
+        """Return whether the driver has an active personal sponsor."""
+
+        return bool(self.endorsement and self.endorsement.get("sponsor"))
+
+    def endorsement_label(self):
+        """Return a short personal-sponsor label for reports."""
+
+        if not self.has_endorsement():
+            return "unsponsored"
+
+        deal = self.endorsement
+        year_word = "yr" if deal["years"] == 1 else "yrs"
+        return (
+            f"{deal['sponsor']} "
+            f"(${deal['value']:,}/yr, {deal['years']} {year_word})"
+        )
+
+    def sign_endorsement(self, sponsor_name, value, years, season):
+        """Sign a personal endorsement deal with a brand."""
+
+        self.endorsement = {
+            "sponsor": sponsor_name,
+            "value": int(value),
+            "years": int(years),
+            "signed_season": season,
+        }
+
+    def clear_endorsement(self):
+        """Drop the current personal sponsor, if any."""
+
+        self.endorsement = None
+
+    def collect_endorsement_pay(self):
+        """Pay this year's personal-sponsor check to the driver."""
+
+        if not self.has_endorsement():
+            return 0
+
+        amount = self.endorsement["value"]
+        self.season_endorsement_income += amount
+        self.career_endorsement_income += amount
+        self.career_earnings += amount
+        return amount
+
+    def advance_endorsement(self):
+        """Tick one year off the deal. Return True if it expired."""
+
+        if not self.has_endorsement():
+            return False
+
+        self.endorsement["years"] -= 1
+
+        if self.endorsement["years"] <= 0:
+            self.clear_endorsement()
+            return True
+
+        return False
 
     def happiness_label(self):
         """Return a readable label derived from morale, not a second mood."""

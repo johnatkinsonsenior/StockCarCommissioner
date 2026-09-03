@@ -100,3 +100,5 @@
 | 98 | Sponsor entities | High | Completed |
 | 99 | Sponsor industries | Medium | Completed |
 | 100 | Sponsor preference matching | High | Completed |
+| 101 | Driver endorsement deals | High | Completed |
+| 102 | Personal sponsor income | High | Completed |
