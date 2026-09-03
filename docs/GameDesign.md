@@ -293,6 +293,16 @@ Offseason sponsorship income is based on:
 
 Struggling and insolvent teams may receive reduced sponsorship offers.
 
+The league also keeps a market of named sponsor companies. Each company has:
+
+- An industry (automotive, energy, finance, retail, telecom, beverage, tools, insurance, electronics, or logistics)
+- Spending power derived from wealth
+- Preferences for prestige, on-track performance, public exposure, and conduct
+- A risk posture (cautious brands avoid struggling or aggressive teams; bold brands tolerate them)
+- An optional manufacturer affinity
+
+Offseason income still uses the factors above, then scales with how well the team matches that market. Named contracts, driver endorsements, sponsor objectives, conflicts, and league-wide partners are later days.
+
 ### Operating Expenses
 
 Each offseason teams pay:
@@ -338,6 +348,7 @@ Saved data includes:
 - Race investigations and wreck summaries
 - Team owners, reputation, trends, facilities, engineering, and pit crews
 - Driver traits, happiness, reputation, rivalries, feuds, and friendships
+- Sponsor companies, industries, and preferences
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -354,7 +365,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, the sponsor market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
 
 ### Decision Events
 

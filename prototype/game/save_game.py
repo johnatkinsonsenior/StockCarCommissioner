@@ -4,9 +4,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from game.models import Driver, Owner, Team, Track
+from game.models import Driver, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.9"
+SAVE_VERSION = "0.0.10"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -15,6 +15,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.7",
     "0.0.8",
     "0.0.9",
+    "0.0.10",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -267,6 +268,40 @@ def team_from_dict(data):
     return team
 
 
+def sponsor_to_dict(sponsor):
+    """Serialize a sponsor to a dictionary."""
+
+    return {
+        "name": sponsor.name,
+        "industry": sponsor.industry,
+        "wealth": sponsor.wealth,
+        "risk_tolerance": sponsor.risk_tolerance,
+        "prestige_preference": sponsor.prestige_preference,
+        "performance_preference": sponsor.performance_preference,
+        "popularity_preference": sponsor.popularity_preference,
+        "conduct_preference": sponsor.conduct_preference,
+        "manufacturer_affinity": sponsor.manufacturer_affinity,
+        "preferred_track_types": list(sponsor.preferred_track_types),
+    }
+
+
+def sponsor_from_dict(data):
+    """Restore a sponsor from a saved dictionary."""
+
+    return Sponsor(
+        name=data["name"],
+        industry=data.get("industry", "Retail"),
+        wealth=data.get("wealth", 50),
+        risk_tolerance=data.get("risk_tolerance", 50),
+        prestige_preference=data.get("prestige_preference", 50),
+        performance_preference=data.get("performance_preference", 50),
+        popularity_preference=data.get("popularity_preference", 50),
+        conduct_preference=data.get("conduct_preference", 50),
+        manufacturer_affinity=data.get("manufacturer_affinity"),
+        preferred_track_types=data.get("preferred_track_types") or [],
+    )
+
+
 def track_to_dict(track):
     """Serialize a track to a dictionary."""
 
@@ -315,6 +350,7 @@ def build_save_data(
     decision_log,
     events_resolved,
     tracks=None,
+    sponsors=None,
 ):
     """Build a save file dictionary from live game state."""
 
@@ -344,6 +380,11 @@ def build_save_data(
 
     if tracks is not None:
         save_data["tracks"] = [track_to_dict(track) for track in tracks]
+
+    if sponsors is not None:
+        save_data["sponsors"] = [
+            sponsor_to_dict(sponsor) for sponsor in sponsors
+        ]
 
     return save_data
 
@@ -389,6 +430,14 @@ def parse_save_data(save_data):
             for track_data in save_data["tracks"]
         ]
 
+    restored_sponsors = None
+
+    if save_data.get("sponsors"):
+        restored_sponsors = [
+            sponsor_from_dict(sponsor_data)
+            for sponsor_data in save_data["sponsors"]
+        ]
+
     return {
         "league": dict(save_data["league"]),
         "race_history": list(save_data["race_history"]),
@@ -397,6 +446,7 @@ def parse_save_data(save_data):
         "teams": restored_teams,
         "retired_drivers": restored_retired,
         "tracks": restored_tracks,
+        "sponsors": restored_sponsors,
         "current_season": save_data["current_season"],
         "championship_awarded": save_data["championship_awarded"],
         "career_seasons_total": save_data["career_seasons_total"],

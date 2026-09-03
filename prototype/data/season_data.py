@@ -1,4 +1,4 @@
-from game.models import Driver, Owner, Team, Track
+from game.models import Driver, Owner, Sponsor, Team, Track
 
 
 def create_initial_teams():
@@ -224,8 +224,126 @@ def create_initial_drivers():
     ]
 
 
+def create_initial_sponsors():
+    """Return the opening sponsor market for a new career.
+
+    These companies are not yet bound by contracts. Each has an industry
+    and tastes that score how interested the brand is in a given team or
+    driver. Later days attach deals, objectives, and conflicts to them.
+    """
+
+    return [
+        Sponsor(
+            name="Ironclad Tools",
+            industry="Tools",
+            wealth=62,
+            risk_tolerance=60,
+            prestige_preference=48,
+            performance_preference=86,
+            popularity_preference=40,
+            conduct_preference=44,
+            preferred_track_types=["Short Track"],
+        ),
+        Sponsor(
+            name="Harbor Mutual",
+            industry="Insurance",
+            wealth=78,
+            risk_tolerance=22,
+            prestige_preference=72,
+            performance_preference=38,
+            popularity_preference=34,
+            conduct_preference=92,
+        ),
+        Sponsor(
+            name="VoltCharge Energy",
+            industry="Energy",
+            wealth=80,
+            risk_tolerance=82,
+            prestige_preference=50,
+            performance_preference=74,
+            popularity_preference=58,
+            conduct_preference=28,
+            preferred_track_types=["Superspeedway"],
+        ),
+        Sponsor(
+            name="Northstar Capital",
+            industry="Finance",
+            wealth=88,
+            risk_tolerance=28,
+            prestige_preference=90,
+            performance_preference=56,
+            popularity_preference=42,
+            conduct_preference=76,
+        ),
+        Sponsor(
+            name="Redline Cola",
+            industry="Beverage",
+            wealth=70,
+            risk_tolerance=72,
+            prestige_preference=44,
+            performance_preference=52,
+            popularity_preference=94,
+            conduct_preference=32,
+        ),
+        Sponsor(
+            name="Copperline Logistics",
+            industry="Logistics",
+            wealth=58,
+            risk_tolerance=48,
+            prestige_preference=55,
+            performance_preference=62,
+            popularity_preference=46,
+            conduct_preference=58,
+            manufacturer_affinity="Falcon",
+        ),
+        Sponsor(
+            name="BrightPath Wireless",
+            industry="Telecom",
+            wealth=74,
+            risk_tolerance=54,
+            prestige_preference=60,
+            performance_preference=44,
+            popularity_preference=82,
+            conduct_preference=50,
+        ),
+        Sponsor(
+            name="Ridgeway Outfitters",
+            industry="Retail",
+            wealth=52,
+            risk_tolerance=46,
+            prestige_preference=50,
+            performance_preference=50,
+            popularity_preference=62,
+            conduct_preference=60,
+        ),
+        Sponsor(
+            name="Helix Electronics",
+            industry="Electronics",
+            wealth=76,
+            risk_tolerance=58,
+            prestige_preference=66,
+            performance_preference=72,
+            popularity_preference=48,
+            conduct_preference=54,
+            manufacturer_affinity="Apex",
+        ),
+        Sponsor(
+            name="Vanguard Motor Oil",
+            industry="Automotive",
+            wealth=68,
+            risk_tolerance=50,
+            prestige_preference=58,
+            performance_preference=70,
+            popularity_preference=40,
+            conduct_preference=62,
+            manufacturer_affinity="Vanguard",
+        ),
+    ]
+
+
 teams = create_initial_teams()
 drivers = create_initial_drivers()
+sponsors = create_initial_sponsors()
 
 
 def create_track_pool():

@@ -24,6 +24,19 @@ TREND_LABELS = {
     -2: "Falling Fast",
 }
 
+SPONSOR_INDUSTRIES = (
+    "Automotive",
+    "Energy",
+    "Finance",
+    "Retail",
+    "Telecom",
+    "Beverage",
+    "Tools",
+    "Insurance",
+    "Electronics",
+    "Logistics",
+)
+
 PERSONALITY_TRAIT_DEFAULTS = {
     "Professional": {
         "temperament": 72,
@@ -157,6 +170,176 @@ class Owner:
         """Return a short owner label for prompts and reports."""
 
         return f"{self.name} ({self.personality}, {self.priority})"
+
+    def __str__(self):
+        return self.name
+
+
+class Sponsor:
+    """A company that might back teams, drivers, or the league."""
+
+    def __init__(
+        self,
+        name,
+        industry,
+        wealth,
+        risk_tolerance,
+        prestige_preference,
+        performance_preference,
+        popularity_preference,
+        conduct_preference,
+        manufacturer_affinity=None,
+        preferred_track_types=None,
+    ):
+        self.name = name
+        self.industry = industry
+        self.wealth = _clamp(wealth)
+        self.risk_tolerance = _clamp(risk_tolerance)
+        self.prestige_preference = _clamp(prestige_preference)
+        self.performance_preference = _clamp(performance_preference)
+        self.popularity_preference = _clamp(popularity_preference)
+        self.conduct_preference = _clamp(conduct_preference)
+        self.manufacturer_affinity = manufacturer_affinity
+        self.preferred_track_types = list(preferred_track_types or [])
+
+    def spending_power(self):
+        """Return a dollar scale derived from wealth."""
+
+        return int(200_000 + self.wealth * 12_000)
+
+    def preference_summary(self):
+        """Return the two strongest tastes plus a risk posture."""
+
+        ranked = sorted(
+            [
+                ("prestige", self.prestige_preference),
+                ("performance", self.performance_preference),
+                ("exposure", self.popularity_preference),
+                ("conduct", self.conduct_preference),
+            ],
+            key=lambda item: item[1],
+            reverse=True,
+        )
+        top = [label for label, value in ranked[:2] if value >= 55]
+
+        if self.risk_tolerance >= 65:
+            posture = "bold"
+        elif self.risk_tolerance <= 40:
+            posture = "cautious"
+        else:
+            posture = "measured"
+
+        tastes = ", ".join(top) if top else "balanced"
+        return f"{tastes}; {posture}"
+
+    def description(self):
+        """Return a short label for reports and the dashboard."""
+
+        affinity = (
+            f", prefers {self.manufacturer_affinity}"
+            if self.manufacturer_affinity
+            else ""
+        )
+        return f"{self.name} ({self.industry}{affinity})"
+
+    def _driver_averages(self, team_drivers):
+        """Return popularity, reputation, credibility, and aggression means."""
+
+        if not team_drivers:
+            return 55, 55, 55, 50
+
+        count = len(team_drivers)
+        popularity = sum(driver.popularity for driver in team_drivers) / count
+        reputation = sum(driver.reputation for driver in team_drivers) / count
+        credibility = sum(driver.credibility for driver in team_drivers) / count
+        aggression = sum(driver.aggression for driver in team_drivers) / count
+        return popularity, reputation, credibility, aggression
+
+    def interest_in_team(self, team, team_drivers=None, season_wins=0):
+        """Return 0-100 interest in a team based on this brand's tastes."""
+
+        popularity, reputation, credibility, aggression = self._driver_averages(
+            list(team_drivers or [])
+        )
+
+        score = 45
+        score += (
+            (self.prestige_preference / 100.0)
+            * (team.prestige - 50)
+            * 0.45
+        )
+
+        performance_signal = _clamp(
+            50
+            + season_wins * 8
+            + team.championships * 6
+            + team.performance_trend * 8
+            + (team.car_rating - 80)
+        )
+        score += (
+            (self.performance_preference / 100.0)
+            * (performance_signal - 50)
+            * 0.40
+        )
+        score += (
+            (self.popularity_preference / 100.0)
+            * (popularity - 55)
+            * 0.35
+        )
+
+        conduct_signal = (reputation + credibility) / 2
+        score += (
+            (self.conduct_preference / 100.0)
+            * (conduct_signal - 55)
+            * 0.40
+        )
+
+        distress = team.financial_distress_level
+
+        if distress >= 2:
+            score -= ((100 - self.risk_tolerance) / 100.0) * 18
+            score -= 4
+        elif distress == 0:
+            score += ((100 - self.risk_tolerance) / 100.0) * 6
+
+        if aggression >= 75:
+            score += (self.risk_tolerance - 50) * 0.12
+            score -= (self.conduct_preference / 100.0) * 6
+
+        if (
+            self.manufacturer_affinity
+            and team.manufacturer == self.manufacturer_affinity
+        ):
+            score += 10
+
+        return round(_clamp(score))
+
+    def interest_in_driver(self, driver):
+        """Return 0-100 interest in a driver (foundation for endorsements)."""
+
+        score = 45
+        score += (
+            (self.popularity_preference / 100.0)
+            * (driver.popularity - 55)
+            * 0.45
+        )
+        conduct = (driver.reputation + driver.credibility) / 2
+        score += (
+            (self.conduct_preference / 100.0)
+            * (conduct - 55)
+            * 0.40
+        )
+
+        if driver.aggression >= 75:
+            score += (self.risk_tolerance - 50) * 0.15
+            score -= (self.conduct_preference / 100.0) * 8
+
+        score += (
+            (self.popularity_preference / 100.0)
+            * (driver.media_skill - 50)
+            * 0.15
+        )
+        return round(_clamp(score))
 
     def __str__(self):
         return self.name

@@ -5,10 +5,12 @@ from pathlib import Path
 
 from data import (
     create_initial_drivers,
+    create_initial_sponsors,
     create_initial_teams,
     create_initial_tracks,
     generate_season_schedule,
     drivers,
+    sponsors,
     teams,
     tracks,
 )
@@ -206,6 +208,9 @@ def reset_career_state():
     tracks.clear()
     tracks.extend(create_initial_tracks())
 
+    sponsors.clear()
+    sponsors.extend(create_initial_sponsors())
+
     league["integrity"] = 70
     league["fan_interest"] = 65
     league["controversy"] = 20
@@ -261,6 +266,13 @@ def apply_loaded_state(restored_state):
         tracks.clear()
         tracks.extend(restored_state["tracks"])
 
+    sponsors.clear()
+
+    if restored_state.get("sponsors"):
+        sponsors.extend(restored_state["sponsors"])
+    else:
+        sponsors.extend(create_initial_sponsors())
+
     league.clear()
     league.update(restored_state["league"])
     league.setdefault("owner_pressure", 25)
@@ -301,6 +313,7 @@ def save_career(save_name=None):
         decision_log=decision_log,
         events_resolved=events_resolved,
         tracks=tracks,
+        sponsors=sponsors,
     )
 
     save_path = save_to_file(save_data, save_name)
@@ -486,6 +499,88 @@ def collect_commissioner_alerts():
     return alerts
 
 
+def ranked_sponsor_interest(team):
+    """Return (score, sponsor) pairs for a team, strongest first."""
+
+    team_drivers = get_team_drivers(team.name)
+    season_wins = get_team_season_wins(team.name)
+
+    ranked = [
+        (
+            sponsor.interest_in_team(team, team_drivers, season_wins),
+            sponsor,
+        )
+        for sponsor in sponsors
+    ]
+    ranked.sort(key=lambda item: (-item[0], item[1].name))
+    return ranked
+
+
+def top_sponsors_for_team(team, count=3):
+    """Return the brands most interested in a team."""
+
+    return ranked_sponsor_interest(team)[:count]
+
+
+def market_interest_multiplier(team):
+    """Scale sponsorship by how well the team matches the market."""
+
+    ranked = ranked_sponsor_interest(team)
+
+    if not ranked:
+        return 1.0
+
+    top_scores = [score for score, _sponsor in ranked[:3]]
+    average = sum(top_scores) / len(top_scores)
+    return 0.72 + (average / 100.0) * 0.56
+
+
+def best_team_for_sponsor(sponsor):
+    """Return (team, score) for the team this brand likes most."""
+
+    if not teams:
+        return None, 0
+
+    scored = [
+        (
+            sponsor.interest_in_team(
+                team,
+                get_team_drivers(team.name),
+                get_team_season_wins(team.name),
+            ),
+            team,
+        )
+        for team in teams
+    ]
+    scored.sort(key=lambda item: (-item[0], item[1].name))
+    score, team = scored[0]
+    return team, score
+
+
+def display_sponsor_market():
+    """Display the named sponsor companies and their current tastes."""
+
+    print("Sponsor market")
+
+    if not sponsors:
+        print("- No sponsor companies on the market")
+        return
+
+    for sponsor in sponsors:
+        favorite, score = best_team_for_sponsor(sponsor)
+        favorite_text = (
+            f"{favorite.name} ({score})"
+            if favorite is not None
+            else "none"
+        )
+        print(
+            f"- {sponsor.description()} | "
+            f"{sponsor.preference_summary()} | "
+            f"${sponsor.spending_power():,} | "
+            f"eyes {favorite_text}"
+        )
+
+
 def display_league_dashboard():
     """Display league health, finances, relationships, and alerts."""
 
@@ -575,6 +670,8 @@ def display_league_dashboard():
             f"Eng {team.engineering} | "
             f"Crew {team.crew_rating}"
         )
+
+    display_sponsor_market()
 
     next_index = len(race_history)
 
@@ -1170,6 +1267,9 @@ def calculate_sponsorship_income(team):
     elif team.financial_status_label() == "Struggling":
         income = int(income * 0.90)
 
+    if sponsors:
+        income = int(income * market_interest_multiplier(team))
+
     return income
 
 
@@ -1332,6 +1432,15 @@ def run_offseason_finances():
         print(f"\n{team.name}")
         print(f"  Salaries paid: ${summary['salaries_paid']:,}")
         print(f"  Sponsorship revenue: ${summary['sponsorship']:,}")
+
+        top_interest = top_sponsors_for_team(team)
+
+        if top_interest:
+            market_text = ", ".join(
+                f"{sponsor.name} {score}"
+                for score, sponsor in top_interest
+            )
+            print(f"  Market interest: {market_text}")
         print(
             f"  Operating expenses: "
             f"${summary['operating_expenses']:,}"
@@ -2245,6 +2354,14 @@ def display_team_finances():
             f"- Crew {team.crew_rating} "
             f"- Rel {team.reliability}"
         )
+        top_interest = top_sponsors_for_team(team)
+
+        if top_interest:
+            market_text = ", ".join(
+                f"{sponsor.name} {score}"
+                for score, sponsor in top_interest
+            )
+            print(f"  Market interest: {market_text}")
 
 
 def record_team_season_trends():
@@ -2738,6 +2855,40 @@ def save_season_report(season_number):
             }
             for position, team in enumerate(get_team_standings(), start=1)
         ],
+        "sponsors": [
+            {
+                "name": sponsor.name,
+                "industry": sponsor.industry,
+                "wealth": sponsor.wealth,
+                "risk_tolerance": sponsor.risk_tolerance,
+                "prestige_preference": sponsor.prestige_preference,
+                "performance_preference": sponsor.performance_preference,
+                "popularity_preference": sponsor.popularity_preference,
+                "conduct_preference": sponsor.conduct_preference,
+                "manufacturer_affinity": sponsor.manufacturer_affinity,
+                "preferred_track_types": list(sponsor.preferred_track_types),
+                "spending_power": sponsor.spending_power(),
+                "preference_summary": sponsor.preference_summary(),
+                "favorite_team": (
+                    best_team_for_sponsor(sponsor)[0].name
+                    if best_team_for_sponsor(sponsor)[0] is not None
+                    else None
+                ),
+                "favorite_team_interest": best_team_for_sponsor(sponsor)[1],
+                "team_interest": [
+                    {
+                        "team": team.name,
+                        "score": sponsor.interest_in_team(
+                            team,
+                            get_team_drivers(team.name),
+                            get_team_season_wins(team.name),
+                        ),
+                    }
+                    for team in teams
+                ],
+            }
+            for sponsor in sponsors
+        ],
         "driver_standings": [],
         "team_finances": [],
         "race_history": list(race_history),
@@ -2809,6 +2960,13 @@ def save_season_report(season_number):
                 "prestige": team.prestige,
                 "attractiveness": team.attractiveness(),
                 "sponsor_appeal": team.sponsor_appeal(),
+                "market_interest": [
+                    {
+                        "sponsor": sponsor.name,
+                        "score": score,
+                    }
+                    for score, sponsor in top_sponsors_for_team(team)
+                ],
                 "performance_trend": team.performance_trend_label(),
                 "engineering": team.engineering,
                 "season_pit_mistakes": team.season_pit_mistakes,

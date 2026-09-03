@@ -97,3 +97,6 @@
 | 95 | Contact model | High | Completed |
 | 96 | Multi-car crashes | High | Completed |
 | 97 | Post-race investigation | High | Completed |
+| 98 | Sponsor entities | High | Completed |
+| 99 | Sponsor industries | Medium | Completed |
+| 100 | Sponsor preference matching | High | Completed |
