@@ -126,3 +126,5 @@
 | 124 | Weekend news narratives | Medium | Completed |
 | 125 | Press conferences | High | Completed |
 | 126 | Commissioner media responses | Medium | Completed |
+| 127 | Media controversies | High | Completed |
+| 128 | Public pressure / scandals | Medium | Completed |

@@ -26,6 +26,7 @@ from game.calendar import (
     REGULAR_SEASON,
 )
 from game.event_catalog import (
+    media_controversy_events,
     offseason_events,
     postseason_events,
     preseason_events,
@@ -193,6 +194,8 @@ league = {
     "last_media_stories": [],
     "season_press_conferences": [],
     "last_press_conference": None,
+    "season_media_controversies": [],
+    "last_media_controversy": None,
 }
 
 race_history = []
@@ -333,6 +336,8 @@ def reset_career_state():
     league["last_media_stories"] = []
     league["season_press_conferences"] = []
     league["last_press_conference"] = None
+    league["season_media_controversies"] = []
+    league["last_media_controversy"] = None
 
     reset_policies()
 
@@ -457,6 +462,9 @@ def apply_loaded_state(restored_state):
     if not isinstance(league.get("season_press_conferences"), list):
         league["season_press_conferences"] = []
     league.setdefault("last_press_conference", None)
+    if not isinstance(league.get("season_media_controversies"), list):
+        league["season_media_controversies"] = []
+    league.setdefault("last_media_controversy", None)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -740,6 +748,9 @@ def collect_commissioner_alerts():
     if league.get("tv_rating_trend", 0) <= -1:
         alerts.append("TV ratings are sliding")
 
+    if league.get("last_media_controversy"):
+        alerts.append("Media scandal is active")
+
     last_fill = league.get("last_gate_fill")
     if last_fill is not None and last_fill < 55:
         alerts.append("The gate is soft")
@@ -1010,7 +1021,7 @@ def get_network(name):
 
 
 def ensure_league_commercial_state():
-    """Make sure league naming-rights, partner, TV, gate, media, and press slots exist."""
+    """Make sure league naming-rights, partner, TV, gate, media, press, and scandal slots exist."""
 
     if not isinstance(league.get("official_partners"), list):
         league["official_partners"] = []
@@ -1052,6 +1063,9 @@ def ensure_league_commercial_state():
     if not isinstance(league.get("season_press_conferences"), list):
         league["season_press_conferences"] = []
     league.setdefault("last_press_conference", None)
+    if not isinstance(league.get("season_media_controversies"), list):
+        league["season_media_controversies"] = []
+    league.setdefault("last_media_controversy", None)
 
 
 def has_naming_rights():
@@ -3618,6 +3632,7 @@ def display_league_dashboard():
         for story in last_stories:
             print(f'- "{story["headline"]}" — {story["outlet"]}')
     print_press_dashboard_line()
+    print_scandal_dashboard_line()
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -3875,6 +3890,100 @@ def print_press_dashboard_line():
     )
 
 
+def apply_scandal_sponsor_shock(amount, reason="media scandal"):
+    """Let signed brands flinch when the commissioner denies a scandal."""
+
+    amount = abs(int(amount))
+    if amount <= 0:
+        return []
+
+    hits = []
+    candidates = []
+
+    for team in teams:
+        if team.has_primary_sponsor():
+            candidates.append(team.primary_sponsor)
+    for driver in drivers:
+        if driver.has_endorsement():
+            candidates.append(driver.endorsement)
+    for _party, deal, _kind in live_league_deals():
+        candidates.append(deal)
+    if has_tv_rights():
+        candidates.append(league["tv_rights"])
+
+    seen = set()
+    for deal in candidates:
+        if not deal or (not deal.get("sponsor") and not deal.get("network")):
+            continue
+        name = deal.get("sponsor") or deal.get("network")
+        key = (name, id(deal))
+        if key in seen:
+            continue
+        seen.add(key)
+        sponsor = get_sponsor(name)
+        network = get_network(name)
+        sensitivity = 0.6
+        if sponsor is not None:
+            sensitivity = sponsor.controversy_sensitivity()
+        elif network is not None:
+            caution = (100 - network.risk_tolerance) / 100.0
+            sensitivity = 0.35 + caution * 0.5
+        shock = max(1, round(amount * sensitivity))
+        previous, current, delta = apply_controversy_shock(deal, shock)
+        hits.append((name, previous, current, delta))
+        print(
+            f"{name} took the {reason} hard: "
+            f"{sponsor_satisfaction_label(previous)} {previous} → "
+            f"{sponsor_satisfaction_label(current)} {current} "
+            f"({delta:+d})."
+        )
+    return hits
+
+
+def record_media_controversy(result, event, stories):
+    """Store the scandal and file it in the season media book."""
+
+    ensure_league_commercial_state()
+    headline = (event or {}).get("scandal_headline") or "Media Controversy"
+    flavor = (event or {}).get("scandal_flavor") or "public-pressure"
+    lead = (stories or [{}])[0] or {}
+    story = build_media_story(
+        "scandal",
+        headline,
+        result.get("outcome") or "The scandal is the lead.",
+        "serious",
+    )
+    league["season_media_stories"].append(story)
+    record = {
+        "season": calendar.current_season,
+        "flavor": flavor,
+        "headline": headline,
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "outlet": lead.get("outlet"),
+        "outcome": result.get("outcome"),
+    }
+    league["last_media_controversy"] = record
+    league["season_media_controversies"].append(record)
+    return record
+
+
+def print_scandal_dashboard_line():
+    """Print the last media-scandal line for the dashboard."""
+
+    ensure_league_commercial_state()
+    scandal = league.get("last_media_controversy")
+    if not scandal:
+        print("Scandal: none this season")
+        return
+    print(
+        'Scandal: last "{0}" — {1}'.format(
+            scandal.get("headline"),
+            scandal.get("choice_label"),
+        )
+    )
+
+
 def present_events(event_list):
     """Present each unresolved event in order."""
 
@@ -3887,6 +3996,14 @@ def present_events(event_list):
                 result,
                 league.get("last_media_stories") or [],
             )
+        if result and result.get("category") == "media-controversy":
+            record_media_controversy(
+                result,
+                event,
+                league.get("last_media_stories") or [],
+            )
+            if result.get("choice_id") == "1":
+                apply_scandal_sponsor_shock(6)
         if result:
             results.append(result)
 
@@ -6161,6 +6278,7 @@ def display_commissioner_report():
         for story in last_stories:
             print(f'- "{story["headline"]}" — {story["outlet"]}')
     print_press_dashboard_line()
+    print_scandal_dashboard_line()
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -6242,6 +6360,14 @@ def save_season_report(season_number):
             "last_press_conference": (
                 dict(league["last_press_conference"])
                 if league.get("last_press_conference")
+                else None
+            ),
+            "season_media_controversies": list(
+                league.get("season_media_controversies") or []
+            ),
+            "last_media_controversy": (
+                dict(league["last_media_controversy"])
+                if league.get("last_media_controversy")
                 else None
             ),
         },
@@ -6526,6 +6652,8 @@ def initialize_season(season_number):
     league["last_media_stories"] = []
     league["season_press_conferences"] = []
     league["last_press_conference"] = None
+    league["season_media_controversies"] = []
+    league["last_media_controversy"] = None
 
     for team in teams:
         team.start_new_season()
@@ -6675,6 +6803,15 @@ def run_regular_season():
                 drivers,
                 events_resolved,
                 media_stories=league.get("last_media_stories"),
+            )
+        )
+        present_events(
+            media_controversy_events(
+                race_number,
+                league.get("last_media_stories"),
+                league.get("last_press_conference"),
+                events_resolved,
+                controversy=league.get("controversy", 0),
             )
         )
 

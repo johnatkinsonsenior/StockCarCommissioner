@@ -1837,6 +1837,156 @@ def press_conference_event(race_number, stories):
     }
 
 
+SCANDAL_HEADLINES = {
+    "cheers-chaos": "League Cheers the Chaos",
+    "stonewall": "League Accused of Stonewalling",
+    "public-pressure": "Public Pressure Mounts on the Series",
+}
+
+
+def media_controversy_flavor(stories, presser, controversy=0):
+    """Return a scandal flavor, or None if the weekend stays contained."""
+
+    stories = list(stories or [])
+    kinds = [story.get("kind") for story in stories]
+    spicy = any(story.get("tone") == "spicy" for story in stories)
+    wreck = "wreck" in kinds or spicy
+    investigation = "investigation" in kinds
+    label = (presser or {}).get("choice_label")
+
+    if label == "Promise a review":
+        return None
+    if label == "Celebrate the show" and wreck:
+        return "cheers-chaos"
+    if label == "Stay on script" and investigation:
+        return "stonewall"
+    if wreck or investigation:
+        if controversy >= 50:
+            return "public-pressure"
+    return None
+
+
+def media_controversy_needed(stories, presser, controversy=0):
+    """Return whether the weekend boiled into a public scandal."""
+
+    return media_controversy_flavor(stories, presser, controversy) is not None
+
+
+def media_controversy_event(race_number, stories, presser, controversy=0):
+    """In-season scandal after a mishandled podium or boiling pressure."""
+
+    flavor = media_controversy_flavor(stories, presser, controversy)
+    flavor = flavor or "public-pressure"
+    headline = SCANDAL_HEADLINES[flavor]
+    lead = (stories or [{}])[0] or {}
+    prior = lead.get("headline") or "the weekend"
+    outlet = lead.get("outlet") or "the wire services"
+    answer = (presser or {}).get("choice_label") or "no comment"
+
+    if flavor == "cheers-chaos":
+        hook = (
+            "Columnists say the league sold wrecks as entertainment "
+            "after you celebrated the show."
+        )
+    elif flavor == "stonewall":
+        hook = (
+            "Columnists say the steward file was buried when you "
+            "stayed on script."
+        )
+    else:
+        hook = "Talk radio and the papers are piling on the series."
+
+    return {
+        "id": "media-controversy-r{0}".format(race_number),
+        "title": "Media Controversy",
+        "category": "media-controversy",
+        "phase": REGULAR_SEASON,
+        "scandal_flavor": flavor,
+        "scandal_headline": headline,
+        "prompt": (
+            '{0} is running "{1}" after "{2}" ({3}). {4} '
+            "Public pressure is on the podium."
+        ).format(outlet, headline, prior, answer, hook),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Deny everything",
+                "effects": [
+                    {"type": "league", "stat": "controversy", "delta": 6},
+                    {"type": "league", "stat": "integrity", "delta": -5},
+                    {"type": "league", "stat": "fan_interest", "delta": -3},
+                    {"type": "league", "stat": "owner_pressure", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "The denial clips. Sponsors flinch. The story grows.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Apologize",
+                "effects": [
+                    {"type": "league", "stat": "controversy", "delta": -4},
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                    {"type": "league", "stat": "fan_interest", "delta": 2},
+                    {"type": "league", "stat": "owner_pressure", "delta": 3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "Fans take the apology. Owners call it a fold.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Launch a public inquiry",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 4},
+                    {"type": "league", "stat": "controversy", "delta": -5},
+                    {"type": "league", "stat": "owner_pressure", "delta": 6},
+                    {"type": "league", "stat": "driver_sentiment", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "The inquiry cools the papers. The board starts calling.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def media_controversy_events(
+    race_number,
+    stories,
+    presser,
+    resolved_ids,
+    controversy=0,
+):
+    """Return a scandal event when the weekend boiled over."""
+
+    event_id = "media-controversy-r{0}".format(race_number)
+    if event_id in (resolved_ids or []):
+        return []
+    if not media_controversy_needed(stories, presser, controversy):
+        return []
+    return [
+        media_controversy_event(
+            race_number,
+            stories,
+            presser,
+            controversy,
+        )
+    ]
+
+
 def preseason_events(policies, season_number):
     """Return the preseason rule-change event for this season."""
 
