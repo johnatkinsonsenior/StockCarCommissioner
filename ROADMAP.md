@@ -100,7 +100,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 57 — Sponsor entities (companies, industries, preferences)
 - [x] Day 58 — Driver sponsors (endorsement deals)
 - [x] Day 59 — Team sponsors (multi-year contracts, revenue)
-- [ ] Day 60 — Sponsor objectives (performance, exposure, conduct)
+- [x] Day 60 — Sponsor objectives (performance, exposure, conduct)
 - [ ] Day 61 — Sponsor conflicts (controversies, withdrawals)
 - [ ] Day 62 — League sponsorship (naming rights, league-wide partners)
 - [ ] Day 63 — Sponsorship market (companies enter/leave over time)
