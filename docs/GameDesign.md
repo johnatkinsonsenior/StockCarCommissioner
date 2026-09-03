@@ -301,7 +301,7 @@ The league also keeps a market of named sponsor companies. Each company has:
 - A risk posture (cautious brands avoid struggling or aggressive teams; bold brands tolerate them)
 - An optional manufacturer affinity
 
-Offseason team revenue now comes from a named main-sponsor contract when one exists. Sponsor objectives, conflicts, and league-wide partners are later days.
+Offseason team revenue now comes from a named main-sponsor contract when one exists. Signed brands score the season they just backed. Conflicts, withdrawals, and league-wide partners are later days.
 
 ### Team Main Sponsors
 
@@ -312,6 +312,16 @@ A team **may run with no main sponsor**. Unsponsored entries collect only a cont
 ### Driver Endorsements
 
 Drivers can hold one personal endorsement at a time. Brands pick drivers using the same preference model (exposure, conduct, performance, risk). A company backs at most one driver. Deal length is one to three years and the annual check is a slice of that brand's spending power. The money goes to the driver, not the team. Signing a deal lifts morale, contract satisfaction, and popularity slightly. Deals are matched when a career starts, paid and renewed in the offseason, and drop when they expire or a driver retires.
+
+### Sponsor Objectives
+
+Every signed title deal and personal endorsement starts content. After each regular season the brand grades delivery against three objectives, weighted by its own tastes:
+
+- Performance: wins, points, and (for teams) organization results
+- Exposure: popularity and media presence
+- Conduct: reputation and credibility, reduced by warnings, suspensions, and wrecks
+
+That score moves a 0–100 satisfaction mood (thrilled, pleased, content, restless, unhappy). Mood scales the next offseason check up or down. Brands do not walk mid-contract. If a deal expires while the brand is unhappy, it will not immediately re-sign the same team or driver; another company may still step in. The dashboard flags restless title sponsors and restless endorsements.
 
 ### Operating Expenses
 
@@ -361,6 +371,7 @@ Saved data includes:
 - Sponsor companies, industries, and preferences
 - Driver endorsement deals and personal-sponsor income
 - Team main-sponsor contracts, including unsponsored entries
+- Sponsor deal satisfaction, last delivery, and objective breakdowns
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 

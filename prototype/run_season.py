@@ -28,7 +28,14 @@ from game.event_catalog import (
     regular_season_events,
 )
 from game.events import resolve_event_choice
-from game.models import Driver, Team
+from game.models import (
+    Driver,
+    Team,
+    SPONSOR_RENEWAL_MIN_SATISFACTION,
+    apply_objective_review,
+    sponsor_pay_multiplier,
+    sponsor_satisfaction_label,
+)
 from game.records import build_record_book
 from game.policies import (
     current_policies,
@@ -483,6 +490,38 @@ def collect_commissioner_alerts():
         names = ", ".join(team.name for team in unsponsored_teams)
         alerts.append(f"No main sponsor: {names}")
 
+    restless_titles = [
+        team
+        for team in teams
+        if (
+            team.has_primary_sponsor()
+            and team.primary_sponsor.get("satisfaction", 55) < 50
+        )
+    ]
+
+    if restless_titles:
+        names = ", ".join(
+            f"{team.primary_sponsor['sponsor']} ({team.name})"
+            for team in restless_titles
+        )
+        alerts.append(f"Restless title sponsors: {names}")
+
+    restless_deals = [
+        driver
+        for driver in drivers
+        if (
+            driver.has_endorsement()
+            and driver.endorsement.get("satisfaction", 55) < 50
+        )
+    ]
+
+    if restless_deals:
+        names = ", ".join(
+            f"{driver.endorsement['sponsor']} ({driver.name})"
+            for driver in restless_deals
+        )
+        alerts.append(f"Restless endorsements: {names}")
+
     unhappy_drivers = [
         driver
         for driver in drivers
@@ -633,11 +672,12 @@ def endorsement_deal_terms(sponsor, driver):
     return interest, value, years
 
 
-def assign_endorsement_deals(season, apply_signing_boost=True):
+def assign_endorsement_deals(season, apply_signing_boost=True, blocked=None):
     """Match free brands to unsigned drivers, stars picking first."""
 
     signed = []
     taken = taken_endorsement_sponsors()
+    blocked = blocked or set()
     available = {
         sponsor.name: sponsor
         for sponsor in sponsors
@@ -660,6 +700,9 @@ def assign_endorsement_deals(season, apply_signing_boost=True):
         best_score = ENDORSEMENT_MIN_INTEREST - 1
 
         for sponsor in available.values():
+            if (sponsor.name, driver.name) in blocked:
+                continue
+
             score = sponsor.interest_in_driver(driver)
 
             if score < ENDORSEMENT_MIN_INTEREST:
@@ -699,6 +742,173 @@ def assign_endorsement_deals(season, apply_signing_boost=True):
         )
 
     return signed
+
+
+def get_sponsor(name):
+    """Return a sponsor company by name, or None."""
+
+    for sponsor in sponsors:
+        if sponsor.name == name:
+            return sponsor
+
+    return None
+
+
+def team_objective_signals(team):
+    """Return performance, exposure, and conduct signals for a team."""
+
+    team_drivers = get_team_drivers(team.name)
+    wins = get_team_season_wins(team.name)
+    org_champ = get_team_champion()
+    champ_bonus = 10 if org_champ is not None and org_champ.name == team.name else 0
+
+    performance = clamp(
+        38
+        + wins * 9
+        + champ_bonus
+        + team.performance_trend * 6
+        + (team.car_rating - 80)
+    )
+
+    if team_drivers:
+        popularity = sum(d.popularity for d in team_drivers) / len(team_drivers)
+        reputation = sum(d.reputation for d in team_drivers) / len(team_drivers)
+        credibility = sum(d.credibility for d in team_drivers) / len(team_drivers)
+        warnings = sum(d.warnings for d in team_drivers)
+        suspensions = sum(d.suspensions for d in team_drivers)
+        dnfs = sum(d.dnfs for d in team_drivers)
+    else:
+        popularity = 55
+        reputation = 55
+        credibility = 55
+        warnings = 0
+        suspensions = 0
+        dnfs = 0
+
+    exposure = clamp(popularity)
+    conduct = clamp(
+        (reputation + credibility) / 2
+        - warnings * 3
+        - suspensions * 8
+        - dnfs * 1.5
+    )
+    return (
+        round(performance),
+        round(exposure),
+        round(conduct),
+    )
+
+
+def driver_objective_signals(driver):
+    """Return performance, exposure, and conduct signals for a driver."""
+
+    performance = clamp(
+        36
+        + driver.wins * 11
+        + min(driver.points // 18, 28)
+    )
+    exposure = clamp(driver.popularity * 0.70 + driver.media_skill * 0.30)
+    conduct = clamp(
+        (driver.reputation + driver.credibility) / 2
+        - driver.warnings * 5
+        - driver.suspensions * 10
+        - (4 if driver.aggression >= 80 else 0)
+    )
+    return round(performance), round(exposure), round(conduct)
+
+
+def review_one_deal(party_name, deal, kind):
+    """Score one signed deal and update satisfaction. Return a report dict."""
+
+    sponsor = get_sponsor(deal["sponsor"])
+
+    if sponsor is None:
+        return None
+
+    if kind == "team":
+        team = get_team(party_name)
+        performance, exposure, conduct = team_objective_signals(team)
+    else:
+        driver = get_driver(party_name)
+        performance, exposure, conduct = driver_objective_signals(driver)
+
+    breakdown = {
+        "performance": performance,
+        "exposure": exposure,
+        "conduct": conduct,
+    }
+    delivery = sponsor.score_objectives(performance, exposure, conduct)
+    previous, current, delta = apply_objective_review(deal, delivery, breakdown)
+    return {
+        "party": party_name,
+        "kind": kind,
+        "sponsor": sponsor,
+        "focus": sponsor.primary_objective(),
+        "delivery": delivery,
+        "previous": previous,
+        "satisfaction": current,
+        "delta": delta,
+        "breakdown": breakdown,
+        "mood": sponsor_satisfaction_label(current),
+        "multiplier": sponsor_pay_multiplier(current),
+    }
+
+
+def review_sponsor_objectives():
+    """Grade signed brands on the season just completed."""
+
+    print("\nSponsor Objectives")
+    print("-" * 90)
+
+    reports = []
+
+    for team in teams:
+        if team.has_primary_sponsor():
+            report = review_one_deal(
+                team.name,
+                team.primary_sponsor,
+                "team",
+            )
+            if report:
+                reports.append(report)
+
+    for driver in drivers:
+        if driver.has_endorsement():
+            report = review_one_deal(
+                driver.name,
+                driver.endorsement,
+                "driver",
+            )
+            if report:
+                reports.append(report)
+
+    if not reports:
+        print("No signed sponsors to review.")
+        return reports
+
+    for report in reports:
+        focus = report["focus"]
+        breakdown = report["breakdown"]
+        delta = report["delta"]
+        sign = f"{delta:+d}" if delta else "0"
+        bonus = int(round((report["multiplier"] - 1.0) * 100))
+        if bonus > 0:
+            pay_text = f"check {bonus:+d}%"
+        elif bonus < 0:
+            pay_text = f"check {bonus}%"
+        else:
+            pay_text = "check unchanged"
+        print(
+            f"- {report['sponsor'].name} / {report['party']}: "
+            f"{report['mood']} ({report['satisfaction']}, {sign}) | "
+            f"wants {focus} | "
+            f"perf {breakdown['performance']}, "
+            f"exposure {breakdown['exposure']}, "
+            f"conduct {breakdown['conduct']} | "
+            f"{pay_text}"
+        )
+
+    return reports
 
 
 def team_titled_by(sponsor):
@@ -764,11 +974,12 @@ def team_sponsor_deal_terms(sponsor, team):
     return interest, value, years
 
 
-def assign_team_sponsor_deals(season, apply_signing_boost=True):
+def assign_team_sponsor_deals(season, apply_signing_boost=True, blocked=None):
     """Match free brands to teams without a main sponsor, prestige first."""
 
     signed = []
     taken = taken_team_sponsors()
+    blocked = blocked or set()
     available = {
         sponsor.name: sponsor
         for sponsor in sponsors
@@ -791,6 +1002,9 @@ def assign_team_sponsor_deals(season, apply_signing_boost=True):
         best_score = TEAM_SPONSOR_MIN_INTEREST - 1
 
         for sponsor in available.values():
+            if (sponsor.name, team.name) in blocked:
+                continue
+
             score = team_sponsor_interest(sponsor, team)
 
             if score < TEAM_SPONSOR_MIN_INTEREST:
@@ -859,6 +1073,7 @@ def display_sponsor_market():
             f"- {sponsor.description()} | "
             f"{sponsor.preference_summary()} | "
             f"${sponsor.spending_power():,} | "
+            f"wants {sponsor.primary_objective()} | "
             f"{title_text}{backer_text}"
             f"eyes {favorite_text}"
         )
@@ -884,6 +1099,14 @@ def display_driver_endorsements():
                 f"    Career personal-sponsor income: "
                 f"${driver.career_endorsement_income:,}"
             )
+        if driver.has_endorsement() and driver.endorsement.get("last_objectives"):
+            obj = driver.endorsement["last_objectives"]
+            print(
+                f"    Last review: perf {obj['performance']}, "
+                f"exposure {obj['exposure']}, "
+                f"conduct {obj['conduct']} "
+                f"(delivery {driver.endorsement.get('last_delivery', 0)})"
+            )
 
 
 def display_team_sponsors():
@@ -901,6 +1124,17 @@ def display_team_sponsors():
             f"{team.name} [{team.manufacturer}] — "
             f"{team.primary_sponsor_label()}"
         )
+        if (
+            team.has_primary_sponsor()
+            and team.primary_sponsor.get("last_objectives")
+        ):
+            obj = team.primary_sponsor["last_objectives"]
+            print(
+                f"    Last review: perf {obj['performance']}, "
+                f"exposure {obj['exposure']}, "
+                f"conduct {obj['conduct']} "
+                f"(delivery {team.primary_sponsor.get('last_delivery', 0)})"
+            )
 
 
 def display_league_dashboard():
@@ -1602,7 +1836,13 @@ def calculate_sponsorship_income(team):
     """Return this offseason's team sponsorship check."""
 
     if team.has_primary_sponsor():
-        return team.primary_sponsor["value"]
+        base = team.primary_sponsor["value"]
+        return int(
+            base
+            * sponsor_pay_multiplier(
+                team.primary_sponsor.get("satisfaction", 55)
+            )
+        )
 
     return unsponsored_stipend(team)
 
@@ -1817,6 +2057,8 @@ def run_offseason_team_sponsors():
     print("-" * 90)
 
     expired = []
+    blocked = set()
+    declined = []
 
     for team in teams:
         previous_sponsor = (
@@ -1824,13 +2066,22 @@ def run_offseason_team_sponsors():
             if team.has_primary_sponsor()
             else None
         )
+        satisfaction = (
+            team.primary_sponsor.get("satisfaction", 55)
+            if team.has_primary_sponsor()
+            else 55
+        )
 
         if team.advance_primary_sponsor():
             expired.append((team, previous_sponsor))
+            if satisfaction < SPONSOR_RENEWAL_MIN_SATISFACTION:
+                blocked.add((previous_sponsor, team.name))
+                declined.append((previous_sponsor, team.name, satisfaction))
 
     signed = assign_team_sponsor_deals(
         season=calendar.current_season,
         apply_signing_boost=False,
+        blocked=blocked,
     )
     signed_by_name = {deal["team"].name: deal for deal in signed}
 
@@ -1842,7 +2093,7 @@ def run_offseason_team_sponsors():
         deal = signed_by_name.get(team.name)
         if deal and deal["sponsor"].name == previous_sponsor:
             renewals.append(deal)
-        else:
+        elif not deal:
             lapsed.append(team)
 
     for deal in signed:
@@ -1858,6 +2109,14 @@ def run_offseason_team_sponsors():
         team.prestige = clamp(team.prestige + 2)
         team.owner.patience = clamp(team.owner.patience + 2)
         team.owner.pressure = clamp(team.owner.pressure - 3)
+
+    if declined:
+        print("Declined renewals")
+        for sponsor_name, team_name, satisfaction in declined:
+            print(
+                f"- {sponsor_name} will not renew with {team_name} "
+                f"({sponsor_satisfaction_label(satisfaction)})"
+            )
 
     if lapsed:
         print("Expired contracts")
@@ -1909,12 +2168,19 @@ def run_offseason_endorsements():
 
     paid = []
     expired = []
+    blocked = set()
+    declined = []
 
     for driver in drivers:
         previous_sponsor = (
             driver.endorsement["sponsor"]
             if driver.has_endorsement()
             else None
+        )
+        satisfaction = (
+            driver.endorsement.get("satisfaction", 55)
+            if driver.has_endorsement()
+            else 55
         )
         amount = driver.collect_endorsement_pay()
 
@@ -1923,6 +2189,9 @@ def run_offseason_endorsements():
 
         if driver.advance_endorsement():
             expired.append((driver, previous_sponsor))
+            if satisfaction < SPONSOR_RENEWAL_MIN_SATISFACTION:
+                blocked.add((previous_sponsor, driver.name))
+                declined.append((previous_sponsor, driver.name, satisfaction))
 
     if paid:
         print("Payouts")
@@ -1934,6 +2203,7 @@ def run_offseason_endorsements():
     signed = assign_endorsement_deals(
         season=calendar.current_season,
         apply_signing_boost=True,
+        blocked=blocked,
     )
     signed_by_name = {
         deal["driver"].name: deal for deal in signed
@@ -1947,12 +2217,20 @@ def run_offseason_endorsements():
         deal = signed_by_name.get(driver.name)
         if deal and deal["sponsor"].name == previous_sponsor:
             renewals.append(deal)
-        else:
+        elif not deal:
             lapsed.append(driver)
 
     for deal in signed:
         if deal not in renewals:
             fresh.append(deal)
+
+    if declined:
+        print("Declined renewals")
+        for sponsor_name, driver_name, satisfaction in declined:
+            print(
+                f"- {sponsor_name} will not re-sign {driver_name} "
+                f"({sponsor_satisfaction_label(satisfaction)})"
+            )
 
     if lapsed:
         print("Expired deals")
@@ -3390,6 +3668,7 @@ def save_season_report(season_number):
                 "preferred_track_types": list(sponsor.preferred_track_types),
                 "spending_power": sponsor.spending_power(),
                 "preference_summary": sponsor.preference_summary(),
+                "primary_objective": sponsor.primary_objective(),
                 "favorite_team": (
                     best_team_for_sponsor(sponsor)[0].name
                     if best_team_for_sponsor(sponsor)[0] is not None
@@ -3731,6 +4010,7 @@ def run_postseason(season_number):
     display_driver_standings()
     display_playoff_results()
     record_team_season_trends()
+    review_sponsor_objectives()
     display_team_finances()
     display_team_sponsors()
     display_driver_endorsements()

@@ -104,3 +104,6 @@
 | 102 | Personal sponsor income | High | Completed |
 | 103 | Team main-sponsor contracts | High | Completed |
 | 104 | Unsponsored team stipend | Medium | Completed |
+| 105 | Sponsor objectives | High | Completed |
+| 106 | Sponsor satisfaction and pay | High | Completed |
+| 107 | Unhappy sponsor renewal refusal | Medium | Completed |

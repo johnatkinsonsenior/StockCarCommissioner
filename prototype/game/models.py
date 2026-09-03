@@ -37,6 +37,57 @@ SPONSOR_INDUSTRIES = (
     "Logistics",
 )
 
+SPONSOR_SATISFACTION_LABELS = (
+    (80, "thrilled"),
+    (65, "pleased"),
+    (50, "content"),
+    (35, "restless"),
+    (0, "unhappy"),
+)
+
+SPONSOR_RENEWAL_MIN_SATISFACTION = 38
+
+
+def sponsor_satisfaction_label(satisfaction):
+    """Return a mood label for a 0-100 sponsor satisfaction score."""
+
+    for threshold, label in SPONSOR_SATISFACTION_LABELS:
+        if satisfaction >= threshold:
+            return label
+
+    return "unhappy"
+
+
+def sponsor_pay_multiplier(satisfaction):
+    """Return this year's check multiplier from sponsor mood."""
+
+    if satisfaction >= 80:
+        return 1.12
+    if satisfaction >= 65:
+        return 1.06
+    if satisfaction >= 50:
+        return 1.00
+    if satisfaction >= 35:
+        return 0.90
+    return 0.78
+
+
+def apply_objective_review(deal, delivery, breakdown):
+    """Update a deal's satisfaction from a 0-100 delivery score."""
+
+    previous = deal.get("satisfaction", 55)
+    delta = round((delivery - 50) / 7)
+
+    if delivery >= 75:
+        delta += 1
+    elif delivery <= 30:
+        delta -= 1
+
+    deal["satisfaction"] = _clamp(previous + delta)
+    deal["last_delivery"] = delivery
+    deal["last_objectives"] = dict(breakdown)
+    return previous, deal["satisfaction"], delta
+
 PERSONALITY_TRAIT_DEFAULTS = {
     "Professional": {
         "temperament": 72,
@@ -231,6 +282,35 @@ class Sponsor:
 
         tastes = ", ".join(top) if top else "balanced"
         return f"{tastes}; {posture}"
+
+    def objective_profile(self):
+        """Return normalized weights for performance, exposure, and conduct."""
+
+        weights = {
+            "performance": self.performance_preference,
+            "exposure": self.popularity_preference,
+            "conduct": self.conduct_preference,
+        }
+        total = sum(weights.values()) or 1
+        return {key: value / total for key, value in weights.items()}
+
+    def primary_objective(self):
+        """Return the brand's strongest season objective."""
+
+        profile = self.objective_profile()
+        return max(profile, key=profile.get)
+
+    def score_objectives(self, performance, exposure, conduct):
+        """Return 0-100 delivery against this brand's season objectives."""
+
+        profile = self.objective_profile()
+        return round(
+            _clamp(
+                performance * profile["performance"]
+                + exposure * profile["exposure"]
+                + conduct * profile["conduct"]
+            )
+        )
 
     def description(self):
         """Return a short label for reports and the dashboard."""
@@ -462,9 +542,11 @@ class Team:
 
         deal = self.primary_sponsor
         year_word = "yr" if deal["years"] == 1 else "yrs"
+        mood = sponsor_satisfaction_label(deal.get("satisfaction", 55))
         return (
             f"{deal['sponsor']} "
-            f"(${deal['value']:,}/yr, {deal['years']} {year_word})"
+            f"(${deal['value']:,}/yr, {deal['years']} {year_word}) "
+            f"— {mood}"
         )
 
     def sign_primary_sponsor(self, sponsor_name, value, years, season):
@@ -475,6 +557,7 @@ class Team:
             "value": int(value),
             "years": int(years),
             "signed_season": season,
+            "satisfaction": 55,
         }
 
     def clear_primary_sponsor(self, penalize=True):
@@ -493,7 +576,12 @@ class Team:
         if not self.has_primary_sponsor():
             return 0
 
-        amount = self.primary_sponsor["value"]
+        amount = int(
+            self.primary_sponsor["value"]
+            * sponsor_pay_multiplier(
+                self.primary_sponsor.get("satisfaction", 55)
+            )
+        )
         self.add_sponsorship(amount)
         return amount
 
@@ -1047,9 +1135,11 @@ class Driver:
 
         deal = self.endorsement
         year_word = "yr" if deal["years"] == 1 else "yrs"
+        mood = sponsor_satisfaction_label(deal.get("satisfaction", 55))
         return (
             f"{deal['sponsor']} "
-            f"(${deal['value']:,}/yr, {deal['years']} {year_word})"
+            f"(${deal['value']:,}/yr, {deal['years']} {year_word}) "
+            f"— {mood}"
         )
 
     def sign_endorsement(self, sponsor_name, value, years, season):
@@ -1060,6 +1150,7 @@ class Driver:
             "value": int(value),
             "years": int(years),
             "signed_season": season,
+            "satisfaction": 55,
         }
 
     def clear_endorsement(self):
@@ -1073,7 +1164,12 @@ class Driver:
         if not self.has_endorsement():
             return 0
 
-        amount = self.endorsement["value"]
+        amount = int(
+            self.endorsement["value"]
+            * sponsor_pay_multiplier(
+                self.endorsement.get("satisfaction", 55)
+            )
+        )
         self.season_endorsement_income += amount
         self.career_endorsement_income += amount
         self.career_earnings += amount
