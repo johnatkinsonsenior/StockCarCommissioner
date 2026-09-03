@@ -109,3 +109,6 @@
 | 107 | Unhappy sponsor renewal refusal | Medium | Completed |
 | 108 | Sponsor conflicts and controversies | High | Completed |
 | 109 | Mid-contract sponsor withdrawals | High | Completed |
+| 110 | League naming rights | High | Completed |
+| 111 | Official series partners | Medium | Completed |
+| 112 | League treasury | Medium | Completed |

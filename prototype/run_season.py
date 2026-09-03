@@ -160,6 +160,11 @@ league = {
     "driver_sentiment": 60,
     "sponsor_conflicts": [],
     "sponsor_walk_blocks": [],
+    "treasury": 0,
+    "naming_rights": None,
+    "official_partners": [],
+    "season_commercial_income": 0,
+    "career_commercial_income": 0,
 }
 
 race_history = []
@@ -181,6 +186,10 @@ PERFORMANCE_INVESTMENT_UNIT = 250_000
 ENDORSEMENT_MIN_INTEREST = 40
 TEAM_SPONSOR_MIN_INTEREST = 48
 UNSPONSORED_STIPEND_FACTOR = 0.35
+LEAGUE_NAMING_MIN_INTEREST = 55
+LEAGUE_PARTNER_MIN_INTEREST = 48
+OFFICIAL_PARTNER_SLOTS = 2
+SERIES_NAME_BASE = "Stock Car Series"
 SPONSOR_CONFLICT_CONDUCT_FLOOR = 40
 SPONSOR_CONFLICT_SATISFACTION_FLOOR = 48
 RULING_SPONSOR_SEVERITY = {
@@ -241,6 +250,11 @@ def reset_career_state():
     league["driver_sentiment"] = 60
     league["sponsor_conflicts"] = []
     league["sponsor_walk_blocks"] = []
+    league["treasury"] = 0
+    league["naming_rights"] = None
+    league["official_partners"] = []
+    league["season_commercial_income"] = 0
+    league["career_commercial_income"] = 0
 
     reset_policies()
 
@@ -254,6 +268,10 @@ def reset_career_state():
         apply_signing_boost=False,
     )
     assign_team_sponsor_deals(
+        season=calendar.current_season,
+        apply_signing_boost=False,
+    )
+    assign_league_deals(
         season=calendar.current_season,
         apply_signing_boost=False,
     )
@@ -311,6 +329,12 @@ def apply_loaded_state(restored_state):
     league.setdefault("driver_sentiment", 60)
     league.setdefault("sponsor_conflicts", [])
     league.setdefault("sponsor_walk_blocks", [])
+    league.setdefault("treasury", 0)
+    league.setdefault("official_partners", [])
+    league.setdefault("season_commercial_income", 0)
+    league.setdefault("career_commercial_income", 0)
+    had_naming = "naming_rights" in restored_state["league"]
+    league.setdefault("naming_rights", None)
 
     load_policies(restored_state.get("policies"))
 
@@ -333,6 +357,12 @@ def apply_loaded_state(restored_state):
 
     if not any(team.has_primary_sponsor() for team in teams):
         assign_team_sponsor_deals(
+            season=calendar.current_season,
+            apply_signing_boost=False,
+        )
+
+    if not had_naming:
+        assign_league_deals(
             season=calendar.current_season,
             apply_signing_boost=False,
         )
@@ -550,6 +580,15 @@ def collect_commissioner_alerts():
             for item in walked
         )
         alerts.append(f"Sponsor walked: {names}")
+
+    if not has_naming_rights():
+        alerts.append("No series sponsor")
+
+    naming = league.get("naming_rights") or {}
+    if naming.get("sponsor") and naming.get("satisfaction", 55) < 50:
+        alerts.append(
+            f"Restless series sponsor: {naming['sponsor']}"
+        )
 
     unhappy_drivers = [
         driver
@@ -783,6 +822,81 @@ def get_sponsor(name):
     return None
 
 
+def ensure_league_commercial_state():
+    """Make sure league naming-rights and partner slots exist."""
+
+    if not isinstance(league.get("official_partners"), list):
+        league["official_partners"] = []
+    if "naming_rights" not in league:
+        league["naming_rights"] = None
+    league.setdefault("treasury", 0)
+    league.setdefault("season_commercial_income", 0)
+    league.setdefault("career_commercial_income", 0)
+
+
+def has_naming_rights():
+    """Return whether the series currently has a naming-rights partner."""
+
+    deal = league.get("naming_rights") or {}
+    return bool(deal.get("sponsor"))
+
+
+def series_name():
+    """Return the series name, including naming rights when signed."""
+
+    if has_naming_rights():
+        return f"{league['naming_rights']['sponsor']} {SERIES_NAME_BASE}"
+
+    return SERIES_NAME_BASE
+
+
+def league_deal_label(deal):
+    """Return a readable naming-rights or official-partner line."""
+
+    if not deal or not deal.get("sponsor"):
+        return "unsponsored"
+
+    year_word = "yr" if deal["years"] == 1 else "yrs"
+    mood = sponsor_satisfaction_label(deal.get("satisfaction", 55))
+    extra = f", {deal['category']}" if deal.get("category") else ""
+    return (
+        f"{deal['sponsor']}{extra} "
+        f"(${deal['value']:,}/yr, {deal['years']} {year_word}) "
+        f"— {mood}"
+    )
+
+
+def live_league_deals():
+    """Return (party, deal, kind) tuples for signed league commercial deals."""
+
+    ensure_league_commercial_state()
+    deals = []
+
+    if has_naming_rights():
+        deals.append(("the series", league["naming_rights"], "league"))
+
+    for partner in league["official_partners"]:
+        if partner and partner.get("sponsor"):
+            category = partner.get("category") or "partner"
+            deals.append(
+                (f"official {category}", partner, "league")
+            )
+
+    return deals
+
+
+def league_objective_signals():
+    """Return performance, exposure, and conduct signals for the series."""
+
+    fan = league.get("fan_interest", 65)
+    integrity = league.get("integrity", 70)
+    controversy = league.get("controversy", 20)
+    performance = clamp(fan)
+    exposure = clamp(fan * 0.70 + (100 - controversy) * 0.30)
+    conduct = clamp((integrity + (100 - controversy)) / 2)
+    return round(performance), round(exposure), round(conduct)
+
+
 def team_objective_signals(team):
     """Return performance, exposure, and conduct signals for a team."""
 
@@ -857,6 +971,8 @@ def review_one_deal(party_name, deal, kind):
     if kind == "team":
         team = get_team(party_name)
         performance, exposure, conduct = team_objective_signals(team)
+    elif kind == "league":
+        performance, exposure, conduct = league_objective_signals()
     else:
         driver = get_driver(party_name)
         performance, exposure, conduct = driver_objective_signals(driver)
@@ -910,6 +1026,11 @@ def review_sponsor_objectives():
             )
             if report:
                 reports.append(report)
+
+    for party_name, deal, kind in live_league_deals():
+        report = review_one_deal(party_name, deal, kind)
+        if report:
+            reports.append(report)
 
     if not reports:
         print("No signed sponsors to review.")
@@ -1232,6 +1353,15 @@ def resolve_sponsor_conflicts():
             if record:
                 withdrawals.append(record)
 
+    for party_name, deal, _kind in live_league_deals():
+        record = maybe_withdraw_league_deal(
+            party_name,
+            deal,
+            "season controversy",
+        )
+        if record:
+            withdrawals.append(record)
+
     if not withdrawals:
         print("No signed sponsors walked away.")
         return withdrawals
@@ -1378,6 +1508,500 @@ def assign_team_sponsor_deals(season, apply_signing_boost=True, blocked=None):
     return signed
 
 
+def taken_league_sponsors():
+    """Return sponsor names already on a league commercial deal."""
+
+    ensure_league_commercial_state()
+    names = set()
+
+    if has_naming_rights():
+        names.add(league["naming_rights"]["sponsor"])
+
+    for partner in league["official_partners"]:
+        if partner and partner.get("sponsor"):
+            names.add(partner["sponsor"])
+
+    return names
+
+
+def league_naming_terms(sponsor):
+    """Return (interest, annual value, years) for series naming rights."""
+
+    interest = sponsor.interest_in_league(league)
+    share = 1.35 + (interest / 100.0) * 0.70
+    value = int(round(sponsor.spending_power() * share / 1_000) * 1_000)
+    value = max(750_000, value)
+
+    if interest >= 75:
+        years = 5
+    elif interest >= 62:
+        years = 4
+    else:
+        years = 3
+
+    return interest, value, years
+
+
+def league_partner_terms(sponsor):
+    """Return (interest, annual value, years) for an official series partner."""
+
+    interest = sponsor.interest_in_league(league)
+    share = 0.22 + (interest / 100.0) * 0.20
+    value = int(round(sponsor.spending_power() * share / 1_000) * 1_000)
+    value = max(150_000, value)
+
+    if interest >= 70:
+        years = 4
+    elif interest >= 58:
+        years = 3
+    else:
+        years = 2
+
+    return interest, value, years
+
+
+def make_league_deal(sponsor, value, years, season, role, category=None):
+    """Build a naming-rights or official-partner contract dict."""
+
+    deal = {
+        "sponsor": sponsor.name,
+        "role": role,
+        "value": int(value),
+        "years": int(years),
+        "signed_season": season,
+        "satisfaction": 55,
+    }
+
+    if category:
+        deal["category"] = category
+
+    return deal
+
+
+def pick_league_sponsor(min_interest, blocked, taken, used_industries=None):
+    """Return the best free brand for a league commercial slot."""
+
+    used_industries = used_industries or set()
+    best_sponsor = None
+    best_score = min_interest - 1
+
+    for sponsor in sponsors:
+        if sponsor.name in taken:
+            continue
+        if (sponsor.name, "the series") in blocked:
+            continue
+        if (sponsor.name, "official partner") in blocked:
+            continue
+        if sponsor.industry in used_industries:
+            continue
+
+        score = sponsor.interest_in_league(league)
+
+        if score < min_interest:
+            continue
+
+        if best_sponsor is None or score > best_score:
+            best_sponsor = sponsor
+            best_score = score
+        elif score == best_score and sponsor.name < best_sponsor.name:
+            best_sponsor = sponsor
+
+    return best_sponsor, best_score
+
+
+def assign_league_deals(season, apply_signing_boost=True, blocked=None):
+    """Fill empty naming-rights and official-partner slots."""
+
+    ensure_league_commercial_state()
+    blocked = blocked or set()
+    signed = []
+    taken = taken_league_sponsors()
+
+    if not has_naming_rights():
+        sponsor, interest = pick_league_sponsor(
+            LEAGUE_NAMING_MIN_INTEREST,
+            blocked,
+            taken,
+        )
+        if sponsor is not None:
+            interest, value, years = league_naming_terms(sponsor)
+            league["naming_rights"] = make_league_deal(
+                sponsor,
+                value,
+                years,
+                season,
+                "naming",
+            )
+            taken.add(sponsor.name)
+            if apply_signing_boost:
+                league["fan_interest"] = clamp(league["fan_interest"] + 3)
+            signed.append(
+                {
+                    "role": "naming",
+                    "sponsor": sponsor,
+                    "interest": interest,
+                    "value": value,
+                    "years": years,
+                }
+            )
+
+    used_industries = {
+        partner.get("category")
+        for partner in league["official_partners"]
+        if partner and partner.get("category")
+    }
+
+    while len(league["official_partners"]) < OFFICIAL_PARTNER_SLOTS:
+        sponsor, interest = pick_league_sponsor(
+            LEAGUE_PARTNER_MIN_INTEREST,
+            blocked,
+            taken,
+            used_industries,
+        )
+        if sponsor is None:
+            sponsor, interest = pick_league_sponsor(
+                LEAGUE_PARTNER_MIN_INTEREST,
+                blocked,
+                taken,
+            )
+        if sponsor is None:
+            break
+
+        interest, value, years = league_partner_terms(sponsor)
+        deal = make_league_deal(
+            sponsor,
+            value,
+            years,
+            season,
+            "official",
+            category=sponsor.industry,
+        )
+        league["official_partners"].append(deal)
+        taken.add(sponsor.name)
+        used_industries.add(sponsor.industry)
+        signed.append(
+            {
+                "role": "official",
+                "sponsor": sponsor,
+                "interest": interest,
+                "value": value,
+                "years": years,
+                "category": sponsor.industry,
+            }
+        )
+
+    return signed
+
+
+def league_deal_signals(deal):
+    """Return satisfaction and scandal extras for a league commercial deal."""
+
+    last = deal.get("last_objectives") or {}
+    conduct = last.get("conduct")
+    if conduct is None:
+        _, _, conduct = league_objective_signals()
+
+    return {
+        "satisfaction": deal.get("satisfaction", 55),
+        "conduct": conduct,
+        "warnings": 0,
+        "suspensions": 0,
+        "distress": 3 if league.get("controversy", 0) >= 55 else 0,
+        "years": deal.get("years", 0),
+        "sponsor_name": deal.get("sponsor"),
+        "value": deal.get("value", 0),
+    }
+
+
+def drop_league_deal(deal):
+    """Remove a naming-rights or official-partner contract."""
+
+    ensure_league_commercial_state()
+
+    if has_naming_rights() and league["naming_rights"] is deal:
+        league["naming_rights"] = None
+        return
+
+    league["official_partners"] = [
+        item
+        for item in league["official_partners"]
+        if item is not deal
+    ]
+
+
+def withdraw_league_deal(party_name, deal, reason, heat, threshold):
+    """Pull a series commercial deal mid-contract and log the walk."""
+
+    sponsor_name = deal["sponsor"]
+    record = {
+        "season": calendar.current_season,
+        "kind": "league",
+        "sponsor": sponsor_name,
+        "party": party_name,
+        "reason": reason,
+        "heat": heat,
+        "threshold": threshold,
+        "years_left": deal.get("years", 0),
+        "satisfaction": deal.get("satisfaction", 55),
+        "value": deal.get("value", 0),
+    }
+    add_walk_block(sponsor_name, "the series")
+    add_walk_block(sponsor_name, "official partner")
+    record_sponsor_conflict(record)
+    drop_league_deal(deal)
+
+    if deal.get("role") == "naming":
+        league["controversy"] = clamp(league["controversy"] + 5)
+        league["fan_interest"] = clamp(league["fan_interest"] - 4)
+    else:
+        league["controversy"] = clamp(league["controversy"] + 2)
+        league["fan_interest"] = clamp(league["fan_interest"] - 1)
+
+    return record
+
+
+def maybe_withdraw_league_deal(party_name, deal, reason, severity=0):
+    """Withdraw a league deal if conflict heat clears the brand's threshold."""
+
+    sponsor = get_sponsor(deal.get("sponsor"))
+
+    if sponsor is None:
+        return None
+
+    signals = league_deal_signals(deal)
+    walks, heat, threshold = should_sponsor_withdraw(
+        sponsor,
+        signals,
+        severity=severity,
+        immediate=False,
+    )
+
+    if not walks:
+        return None
+
+    return withdraw_league_deal(party_name, deal, reason, heat, threshold)
+
+
+def collect_league_deal_pay(deal):
+    """Pay one league commercial check into the treasury."""
+
+    amount = int(
+        deal["value"]
+        * sponsor_pay_multiplier(deal.get("satisfaction", 55))
+    )
+    league["treasury"] += amount
+    league["season_commercial_income"] += amount
+    league["career_commercial_income"] += amount
+    return amount
+
+
+def advance_league_deal_years(deal):
+    """Tick one year off a league deal. Return True if it expired."""
+
+    deal["years"] -= 1
+    return deal["years"] <= 0
+
+
+def series_named_by(sponsor):
+    """Return True if this brand holds series naming rights."""
+
+    return (
+        has_naming_rights()
+        and league["naming_rights"]["sponsor"] == sponsor.name
+    )
+
+
+def official_partner_named(sponsor):
+    """Return the official-partner deal for this brand, if any."""
+
+    ensure_league_commercial_state()
+    for partner in league["official_partners"]:
+        if partner and partner.get("sponsor") == sponsor.name:
+            return partner
+
+    return None
+
+
+def display_league_sponsors():
+    """Display series naming rights and official partners."""
+
+    ensure_league_commercial_state()
+    print("\nLeague Sponsors")
+    print("-" * 90)
+    print(f"Series: {series_name()}")
+    naming = league.get("naming_rights")
+    print(f"Naming rights: {league_deal_label(naming)}")
+    if naming and naming.get("last_objectives"):
+        obj = naming["last_objectives"]
+        print(
+            f"    Last review: perf {obj['performance']}, "
+            f"exposure {obj['exposure']}, "
+            f"conduct {obj['conduct']} "
+            f"(delivery {naming.get('last_delivery', 0)})"
+        )
+
+    if league["official_partners"]:
+        for partner in league["official_partners"]:
+            print(f"Official partner: {league_deal_label(partner)}")
+            if partner.get("last_objectives"):
+                obj = partner["last_objectives"]
+                print(
+                    f"    Last review: perf {obj['performance']}, "
+                    f"exposure {obj['exposure']}, "
+                    f"conduct {obj['conduct']} "
+                    f"(delivery {partner.get('last_delivery', 0)})"
+                )
+    else:
+        print("Official partners: none")
+
+    print(
+        f"Treasury: ${league.get('treasury', 0):,} "
+        f"(season commercial ${league.get('season_commercial_income', 0):,})"
+    )
+
+
+def run_offseason_league_sponsors():
+    """Pay series deals, expire finished years, and fill empty slots."""
+
+    ensure_league_commercial_state()
+    league["season_commercial_income"] = 0
+    print("\nLeague Sponsors")
+    print("-" * 90)
+
+    paid = []
+    expired = []
+    blocked = walk_block_set()
+    declined = []
+
+    deals = []
+    if has_naming_rights():
+        deals.append(("the series", league["naming_rights"]))
+    for partner in list(league["official_partners"]):
+        deals.append(
+            (
+                f"official {partner.get('category') or 'partner'}",
+                partner,
+            )
+        )
+
+    for party_name, deal in deals:
+        amount = collect_league_deal_pay(deal)
+        paid.append((party_name, deal["sponsor"], amount, league_deal_label(deal)))
+        satisfaction = deal.get("satisfaction", 55)
+        sponsor_name = deal["sponsor"]
+        if advance_league_deal_years(deal):
+            expired.append((party_name, sponsor_name, deal))
+            if satisfaction < SPONSOR_RENEWAL_MIN_SATISFACTION:
+                blocked.add((sponsor_name, "the series"))
+                blocked.add((sponsor_name, "official partner"))
+                declined.append((sponsor_name, party_name, satisfaction))
+            drop_league_deal(deal)
+
+    signed = assign_league_deals(
+        season=calendar.current_season,
+        apply_signing_boost=True,
+        blocked=blocked,
+    )
+
+    if paid:
+        print("Payouts")
+        for party_name, sponsor_name, amount, label in paid:
+            print(
+                f"- {sponsor_name} paid the league ${amount:,} "
+                f"({party_name}; {label})"
+            )
+    else:
+        print("No series-sponsor payouts this offseason.")
+
+    if declined:
+        print("Declined renewals")
+        for sponsor_name, party_name, satisfaction in declined:
+            print(
+                f"- {sponsor_name} will not renew {party_name} "
+                f"({sponsor_satisfaction_label(satisfaction)})"
+            )
+
+    if expired:
+        print("Expired contracts")
+        for party_name, sponsor_name, _deal in expired:
+            still = False
+            for item in signed:
+                role_party = (
+                    "the series"
+                    if item["role"] == "naming"
+                    else f"official {item.get('category') or 'partner'}"
+                )
+                if (
+                    item["sponsor"].name == sponsor_name
+                    and role_party == party_name
+                ):
+                    still = True
+            if not still:
+                print(
+                    f"- {sponsor_name} is off {party_name}"
+                )
+
+    renewals = []
+    fresh = []
+    expired_pairs = {
+        (party_name, sponsor_name)
+        for party_name, sponsor_name, _deal in expired
+    }
+
+    for item in signed:
+        role_party = (
+            "the series"
+            if item["role"] == "naming"
+            else f"official {item.get('category') or 'partner'}"
+        )
+        if (role_party, item["sponsor"].name) in expired_pairs:
+            renewals.append(item)
+        else:
+            fresh.append(item)
+
+    if renewals:
+        print("Renewals")
+        for item in renewals:
+            year_word = "year" if item["years"] == 1 else "years"
+            role = (
+                "naming rights"
+                if item["role"] == "naming"
+                else f"official {item.get('category')}"
+            )
+            print(
+                f"- {item['sponsor'].name} renews {role} — "
+                f"${item['value']:,}/yr for {item['years']} {year_word}"
+            )
+
+    if fresh:
+        print("New contracts")
+        for item in fresh:
+            year_word = "year" if item["years"] == 1 else "years"
+            role = (
+                "naming rights"
+                if item["role"] == "naming"
+                else f"official {item.get('category')}"
+            )
+            print(
+                f"- {item['sponsor'].name} signs {role} — "
+                f"${item['value']:,}/yr for {item['years']} {year_word} "
+                f"(interest {item['interest']})"
+            )
+
+    if not has_naming_rights():
+        print("Unsponsored")
+        print(f"- The series has no naming-rights partner ({SERIES_NAME_BASE})")
+
+    if (
+        not paid
+        and not declined
+        and not expired
+        and not signed
+        and has_naming_rights()
+    ):
+        print("All series commercial contracts continue.")
+
+
 def display_sponsor_market():
     """Display the named sponsor companies and their current tastes."""
 
@@ -1396,6 +2020,17 @@ def display_sponsor_market():
         )
         backed = driver_backed_by(sponsor)
         titled = team_titled_by(sponsor)
+        series_text = (
+            "names the series | "
+            if series_named_by(sponsor)
+            else ""
+        )
+        official = official_partner_named(sponsor)
+        official_text = (
+            f"official {official['category']} | "
+            if official is not None
+            else ""
+        )
         backer_text = (
             f"backs {backed.name} | "
             if backed is not None
@@ -1411,7 +2046,7 @@ def display_sponsor_market():
             f"{sponsor.preference_summary()} | "
             f"${sponsor.spending_power():,} | "
             f"wants {sponsor.primary_objective()} | "
-            f"{title_text}{backer_text}"
+            f"{series_text}{official_text}{title_text}{backer_text}"
             f"eyes {favorite_text}"
         )
 
@@ -1492,6 +2127,7 @@ def display_league_dashboard():
     print("\nCommissioner Dashboard")
     print("-" * 90)
     print(calendar.description())
+    print(f"Series: {series_name()}")
     print(
         f"Integrity {league['integrity']}/100 | "
         f"Fan interest {league['fan_interest']}/100 | "
@@ -1502,7 +2138,11 @@ def display_league_dashboard():
         f"Driver sentiment {league['driver_sentiment']}/100 | "
         f"Grade {grade} ({score}/100)"
     )
-    print(f"Fines collected: ${league['fines_collected']:,}")
+    print(
+        f"Treasury: ${league.get('treasury', 0):,} | "
+        f"Fines collected: ${league['fines_collected']:,}"
+    )
+    print(f"Naming rights: {league_deal_label(league.get('naming_rights'))}")
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -2659,6 +3299,7 @@ def run_offseason(completed_season):
     run_offseason_finances()
     run_offseason_team_sponsors()
     run_offseason_endorsements()
+    run_offseason_league_sponsors()
     process_paddock_relationships()
     present_events(
         offseason_events(current_policies, events_resolved)
@@ -3921,9 +4562,12 @@ def display_commissioner_report():
 
     print("\nCommissioner Season Report")
     print("-" * 75)
+    print(f"Series: {series_name()}")
+    print(f"Naming rights: {league_deal_label(league.get('naming_rights'))}")
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
+    print(f"Treasury: ${league.get('treasury', 0):,}")
     print(f"Fines collected: ${league['fines_collected']:,}")
     print(f"Owner pressure: {league['owner_pressure']}/100")
     print(f"Driver sentiment: {league['driver_sentiment']}/100")
@@ -3951,6 +4595,25 @@ def save_season_report(season_number):
             "owner_pressure": league["owner_pressure"],
             "driver_sentiment": league["driver_sentiment"],
             "sponsor_conflicts": current_season_conflicts(),
+            "series_name": series_name(),
+            "treasury": league.get("treasury", 0),
+            "naming_rights": (
+                dict(league["naming_rights"])
+                if has_naming_rights()
+                else None
+            ),
+            "official_partners": [
+                dict(partner)
+                for partner in league.get("official_partners") or []
+            ],
+            "season_commercial_income": league.get(
+                "season_commercial_income",
+                0,
+            ),
+            "career_commercial_income": league.get(
+                "career_commercial_income",
+                0,
+            ),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -4023,6 +4686,12 @@ def save_season_report(season_number):
                 "titled_team": (
                     team_titled_by(sponsor).name
                     if team_titled_by(sponsor) is not None
+                    else None
+                ),
+                "names_series": series_named_by(sponsor),
+                "official_partner": (
+                    official_partner_named(sponsor)["category"]
+                    if official_partner_named(sponsor) is not None
                     else None
                 ),
                 "team_interest": [
@@ -4183,6 +4852,7 @@ def initialize_season(season_number):
     league["controversy"] = 20
     league["fines_collected"] = 0
     league["sponsor_walk_blocks"] = []
+    league["season_commercial_income"] = 0
 
     for team in teams:
         team.start_new_season()
@@ -4196,7 +4866,7 @@ def initialize_season(season_number):
     refresh_all_driver_happiness()
 
     print("\n" + "=" * 90)
-    print(f"STOCK CAR COMMISSIONER — SEASON {season_number}")
+    print(f"STOCK CAR COMMISSIONER — {series_name().upper()} — SEASON {season_number}")
     print("=" * 90)
     display_league_dashboard()
     present_events(
@@ -4356,6 +5026,7 @@ def run_postseason(season_number):
     display_team_finances()
     display_team_sponsors()
     display_driver_endorsements()
+    display_league_sponsors()
     display_team_standings()
     display_manufacturer_standings()
     display_commissioner_report()
@@ -4647,6 +5318,8 @@ def display_main_menu():
     print("\n" + "=" * 75)
     print("STOCK CAR COMMISSIONER")
     print("=" * 75)
+    if drivers:
+        print(series_name())
     print("1. Start new career (3 seasons)")
     print("2. Load saved career")
     print("3. Save current career")
@@ -4706,6 +5379,13 @@ def run_season():
 
     if not any(team.has_primary_sponsor() for team in teams):
         assign_team_sponsor_deals(
+            season=calendar.current_season,
+            apply_signing_boost=False,
+        )
+
+    ensure_league_commercial_state()
+    if not has_naming_rights() and not league["official_partners"]:
+        assign_league_deals(
             season=calendar.current_season,
             apply_signing_boost=False,
         )

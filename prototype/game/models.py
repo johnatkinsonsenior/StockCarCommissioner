@@ -452,6 +452,20 @@ class Sponsor:
         )
         return round(_clamp(score))
 
+    def interest_in_league(self, league_state):
+        """Return 0-100 interest in backing the series itself."""
+
+        score = 42
+        score += (self.prestige_preference / 100.0) * 22
+        score += (self.wealth / 100.0) * 14
+        score += (self.conduct_preference / 100.0) * 10
+        score += (self.popularity_preference / 100.0) * 8
+        score += (league_state.get("integrity", 70) - 50) * 0.12
+        score += (league_state.get("fan_interest", 65) - 50) * 0.10
+        caution = (100 - self.risk_tolerance) / 100.0
+        score -= league_state.get("controversy", 20) * 0.16 * caution
+        return round(_clamp(score))
+
     def __str__(self):
         return self.name
 

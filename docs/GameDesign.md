@@ -301,7 +301,7 @@ The league also keeps a market of named sponsor companies. Each company has:
 - A risk posture (cautious brands avoid struggling or aggressive teams; bold brands tolerate them)
 - An optional manufacturer affinity
 
-Offseason team revenue now comes from a named main-sponsor contract when one exists. Signed brands score the season they just backed. A scandal can pull a live deal. League-wide partners are a later day.
+Offseason team revenue now comes from a named main-sponsor contract when one exists. Signed brands score the season they just backed. A scandal can pull a live deal. The series itself can hold naming rights and official partners.
 
 ### Team Main Sponsors
 
@@ -328,6 +328,14 @@ That score moves a 0–100 satisfaction mood (thrilled, pleased, content, restle
 Cautious and conduct-first brands can pull a live deal when scandal piles up. Conflict heat comes from low satisfaction, poor conduct, warnings, suspensions, insolvent shops, and league controversy. Bold brands tolerate more. A commissioner ruling on a wreck shocks related deals. Personal endorsers can walk immediately after an unpunished incident or a suspension. Title sponsors take the shock and decide after the season, unless they are already unhappy.
 
 Withdrawal cancels the remaining years. The team or driver goes unsponsored, takes a prestige/morale hit, and that brand will not rematch the same party this offseason. The next check is lost. The dashboard flags `Sponsor walked`. Replacements wait until the offseason market.
+
+### League Sponsorship
+
+The series can hold one **naming-rights** partner. That brand's name goes on the series (for example, the Northstar Capital Stock Car Series). The annual check is a large slice of the company's spending power and goes to the **league treasury**, not to a team. Deal length is three to five years. Wealthy, prestige-seeking brands are first in line. The series **may run without a title sponsor**; the dashboard flags `No series sponsor`.
+
+Up to two **official partners** sit alongside naming rights (official insurance, telecom, and so on). Those checks are smaller. A brand can name the series or be an official partner, not both, but it can still title a team or back a driver.
+
+League deals use the same mood, pay, expiry, and withdrawal rules as team and driver contracts. They grade the series on fan interest, integrity, and controversy. Losing naming rights drops fan interest and raises controversy.
 
 ### Operating Expenses
 
@@ -379,6 +387,7 @@ Saved data includes:
 - Team main-sponsor contracts, including unsponsored entries
 - Sponsor deal satisfaction, last delivery, and objective breakdowns
 - Sponsor withdrawals and brands blocked from rematching the same party
+- Series naming rights, official partners, and the league treasury
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -395,7 +404,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, main-sponsor contracts, sponsor withdrawals, the sponsor market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, main-sponsor contracts, sponsor withdrawals, the sponsor market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
 
 ### Decision Events
 
