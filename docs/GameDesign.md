@@ -372,7 +372,7 @@ Struggling teams face reduced morale, performance penalties, and limited investm
 
 ## Television
 
-The league keeps a market of named television networks. Rights contracts, ratings, and media stories attach to them in later days. Each broadcaster has:
+The league keeps a market of named television networks. Named rights deals attach to them. Ratings and media stories follow in later days. Each broadcaster has:
 
 - A kind (national, cable, regional, or motorsport)
 - Audience reach and bid power
@@ -381,6 +381,12 @@ The league keeps a market of named television networks. Rights contracts, rating
 - Optional favorite track types
 
 Horizon Sports is the opening national flagship. Peakline Cable and Coastline Media are sports and entertainment cables. Heartland Broadcast is a cautious regional. Redline TV is a smaller motorsport specialist. Interest in the series rises with fan interest and integrity, and falls with controversy for cautious brands.
+
+### TV Contracts
+
+The series can hold one exclusive **television-rights** contract. Networks bid a multi-year package. The annual bid is a large slice of that broadcaster's rights value, scaled by interest in the league. Deal length is three to six years; wealthier, prestige-seeking networks want longer deals. The highest bid wins. The annual check goes to the **league treasury**.
+
+Horizon Sports wins the opening auction (six years). The series **may run without a TV deal**; the dashboard flags `No TV deal`. Losing coverage without a replacement drops fan interest and raises controversy. If a deal expires while the network is unhappy, it will not immediately re-bid; another broadcaster may still step in.
 
 ## Save and Load
 
@@ -409,6 +415,7 @@ Saved data includes:
 - Sponsor prospect companies waiting to enter the market
 - Sponsor market enter/leave log
 - Television networks, kinds, reach, and broadcast tastes
+- Series television rights, bids, and TV income
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -419,13 +426,13 @@ Each season moves through a fixed league calendar:
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order
 - Postseason: standings, awards, championship, and season records are finalized
-- Offseason: drivers develop or decline, retirements are processed, team finances are settled, the sponsor market churns, and paddock rivalries, feuds, and friendships are updated
+- Offseason: drivers develop or decline, retirements are processed, team finances are settled, the sponsor market churns, television rights are paid, and paddock rivalries, feuds, and friendships are updated
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
 
 ### Decision Events
 

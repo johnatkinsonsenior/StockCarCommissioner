@@ -170,6 +170,9 @@ league = {
     "season_commercial_income": 0,
     "career_commercial_income": 0,
     "sponsor_market_log": [],
+    "tv_rights": None,
+    "season_tv_income": 0,
+    "career_tv_income": 0,
 }
 
 race_history = []
@@ -197,6 +200,7 @@ OFFICIAL_PARTNER_SLOTS = 2
 SERIES_NAME_BASE = "Stock Car Series"
 SPONSOR_MARKET_MIN = 8
 SPONSOR_MARKET_MAX = 14
+TV_RIGHTS_MIN_INTEREST = 55
 SPONSOR_CONFLICT_CONDUCT_FLOOR = 40
 SPONSOR_CONFLICT_SATISFACTION_FLOOR = 48
 RULING_SPONSOR_SEVERITY = {
@@ -269,6 +273,9 @@ def reset_career_state():
     league["season_commercial_income"] = 0
     league["career_commercial_income"] = 0
     league["sponsor_market_log"] = []
+    league["tv_rights"] = None
+    league["season_tv_income"] = 0
+    league["career_tv_income"] = 0
 
     reset_policies()
 
@@ -286,6 +293,10 @@ def reset_career_state():
         apply_signing_boost=False,
     )
     assign_league_deals(
+        season=calendar.current_season,
+        apply_signing_boost=False,
+    )
+    assign_tv_rights(
         season=calendar.current_season,
         apply_signing_boost=False,
     )
@@ -360,8 +371,12 @@ def apply_loaded_state(restored_state):
     league.setdefault("season_commercial_income", 0)
     league.setdefault("career_commercial_income", 0)
     league.setdefault("sponsor_market_log", [])
+    league.setdefault("season_tv_income", 0)
+    league.setdefault("career_tv_income", 0)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
+    had_tv = "tv_rights" in restored_state["league"]
+    league.setdefault("tv_rights", None)
 
     load_policies(restored_state.get("policies"))
 
@@ -390,6 +405,12 @@ def apply_loaded_state(restored_state):
 
     if not had_naming:
         assign_league_deals(
+            season=calendar.current_season,
+            apply_signing_boost=False,
+        )
+
+    if not had_tv:
+        assign_tv_rights(
             season=calendar.current_season,
             apply_signing_boost=False,
         )
@@ -617,6 +638,15 @@ def collect_commissioner_alerts():
     if naming.get("sponsor") and naming.get("satisfaction", 55) < 50:
         alerts.append(
             f"Restless series sponsor: {naming['sponsor']}"
+        )
+
+    if not has_tv_rights():
+        alerts.append("No TV deal")
+
+    tv_deal = league.get("tv_rights") or {}
+    if tv_deal.get("network") and tv_deal.get("satisfaction", 55) < 50:
+        alerts.append(
+            f"Restless TV partner: {tv_deal['network']}"
         )
 
     if len(sponsors) <= SPONSOR_MARKET_MIN:
@@ -882,7 +912,7 @@ def get_network(name):
 
 
 def ensure_league_commercial_state():
-    """Make sure league naming-rights and partner slots exist."""
+    """Make sure league naming-rights, partner, and TV slots exist."""
 
     if not isinstance(league.get("official_partners"), list):
         league["official_partners"] = []
@@ -893,6 +923,10 @@ def ensure_league_commercial_state():
     league.setdefault("career_commercial_income", 0)
     if not isinstance(league.get("sponsor_market_log"), list):
         league["sponsor_market_log"] = []
+    if "tv_rights" not in league:
+        league["tv_rights"] = None
+    league.setdefault("season_tv_income", 0)
+    league.setdefault("career_tv_income", 0)
 
 
 def has_naming_rights():
@@ -2165,17 +2199,21 @@ def display_broadcast_market():
 
     print("Broadcast market")
     print(f"{len(networks)} networks")
+    print(f"TV rights: {tv_deal_label(league.get('tv_rights'))}")
 
     if not networks:
         print("- No television networks on the market")
         return
 
-    leader, leader_score = leading_network()
-    if leader is not None:
-        print(
-            f"Rights favorite: {leader.name} "
-            f"(interest {leader_score}, ${leader.rights_value():,})"
-        )
+    if not has_tv_rights():
+        leader, leader_score = leading_network()
+        if leader is not None:
+            interest, value, years = tv_rights_terms(leader)
+            year_word = "year" if years == 1 else "years"
+            print(
+                f"Leading bid: {leader.name} "
+                f"(interest {leader_score}, ${value:,}/yr, {years} {year_word})"
+            )
 
     for network in networks:
         favorite, score = best_weekend_for_network(network)
@@ -2184,14 +2222,234 @@ def display_broadcast_market():
             if favorite is not None
             else "none"
         )
+        rights_text = (
+            "holds rights | "
+            if series_televised_by(network)
+            else ""
+        )
         print(
             f"- {network.description()} | "
             f"{network.profile_summary()} | "
             f"reach {network.reach} | "
             f"${network.rights_value():,} | "
             f"interest {network.interest_in_league(league)} | "
+            f"{rights_text}"
             f"eyes {favorite_text}"
         )
+
+
+def has_tv_rights():
+    """Return whether the series currently has a television contract."""
+
+    ensure_league_commercial_state()
+    deal = league.get("tv_rights") or {}
+    return bool(deal.get("network"))
+
+
+def series_televised_by(network):
+    """Return True if this network holds series television rights."""
+
+    return has_tv_rights() and league["tv_rights"]["network"] == network.name
+
+
+def tv_deal_label(deal):
+    """Return a readable television-rights line."""
+
+    if not deal or not deal.get("network"):
+        return "unsigned"
+
+    year_word = "yr" if deal["years"] == 1 else "yrs"
+    mood = sponsor_satisfaction_label(deal.get("satisfaction", 55))
+    return (
+        f"{deal['network']} "
+        f"(${deal['value']:,}/yr, {deal['years']} {year_word}) "
+        f"— {mood}"
+    )
+
+
+def tv_rights_terms(network):
+    """Return (interest, annual bid, years) for a television-rights package."""
+
+    interest = network.interest_in_league(league)
+    share = 0.50 + (interest / 200.0)
+    value = int(round(network.rights_value() * share / 1_000) * 1_000)
+    value = max(4_000_000, value)
+
+    years = 3
+    if network.wealth >= 60:
+        years += 1
+    if network.wealth >= 75:
+        years += 1
+    if network.prestige_preference >= 70:
+        years += 1
+
+    return interest, value, years
+
+
+def make_tv_deal(network, value, years, season):
+    """Build a television-rights contract dict."""
+
+    return {
+        "network": network.name,
+        "role": "tv",
+        "value": int(value),
+        "years": int(years),
+        "signed_season": season,
+        "satisfaction": 55,
+    }
+
+
+def collect_tv_bids(blocked=None):
+    """Return rights bids from interested networks, highest first."""
+
+    blocked = blocked or set()
+    bids = []
+
+    for network in networks:
+        if network.name in blocked:
+            continue
+
+        interest, value, years = tv_rights_terms(network)
+        if interest < TV_RIGHTS_MIN_INTEREST:
+            continue
+
+        bids.append(
+            {
+                "network": network,
+                "interest": interest,
+                "value": value,
+                "years": years,
+            }
+        )
+
+    bids.sort(
+        key=lambda item: (
+            -item["value"],
+            -item["interest"],
+            item["network"].name,
+        ),
+    )
+    return bids
+
+
+def assign_tv_rights(season, apply_signing_boost=True, blocked=None, silent=True):
+    """Award empty series television rights to the highest bidder."""
+
+    ensure_league_commercial_state()
+    if has_tv_rights():
+        return None
+
+    bids = collect_tv_bids(blocked)
+    if not bids:
+        return None
+
+    winner = bids[0]
+    network = winner["network"]
+    league["tv_rights"] = make_tv_deal(
+        network,
+        winner["value"],
+        winner["years"],
+        season,
+    )
+
+    if apply_signing_boost:
+        league["fan_interest"] = clamp(league["fan_interest"] + 3)
+
+    if not silent:
+        year_word = "year" if winner["years"] == 1 else "years"
+        print("Bids")
+        for item in bids:
+            print(
+                f"- {item['network'].name} bids ${item['value']:,}/yr "
+                f"for {item['years']} years "
+                f"(interest {item['interest']})"
+            )
+        print(
+            f"{network.name} wins series rights — "
+            f"${winner['value']:,}/yr for {winner['years']} {year_word}"
+        )
+
+    return winner
+
+
+def drop_tv_deal():
+    """Clear the current television-rights contract."""
+
+    ensure_league_commercial_state()
+    league["tv_rights"] = None
+
+
+def collect_tv_deal_pay(deal):
+    """Pay the annual television-rights check into the treasury."""
+
+    amount = int(
+        deal["value"]
+        * sponsor_pay_multiplier(deal.get("satisfaction", 55))
+    )
+    league["treasury"] += amount
+    league["season_tv_income"] += amount
+    league["career_tv_income"] += amount
+    return amount
+
+
+def run_offseason_tv_rights():
+    """Pay the TV deal, expire finished years, and auction an empty slot."""
+
+    ensure_league_commercial_state()
+    league["season_tv_income"] = 0
+    print("\nTelevision Rights")
+    print("-" * 90)
+
+    blocked = set()
+    expired_name = None
+    went_dark = False
+
+    if has_tv_rights():
+        deal = league["tv_rights"]
+        amount = collect_tv_deal_pay(deal)
+        print(
+            f"- {deal['network']} paid the league ${amount:,} "
+            f"in television rights ({tv_deal_label(deal)})"
+        )
+        if advance_league_deal_years(deal):
+            expired_name = deal["network"]
+            if deal.get("satisfaction", 55) < SPONSOR_RENEWAL_MIN_SATISFACTION:
+                blocked.add(expired_name)
+                print(
+                    f"- {expired_name} will not renew "
+                    f"({sponsor_satisfaction_label(deal.get('satisfaction', 55))})"
+                )
+            drop_tv_deal()
+            print(f"- {expired_name} is off series television")
+
+    winner = assign_tv_rights(
+        season=calendar.current_season,
+        apply_signing_boost=True,
+        blocked=blocked,
+        silent=False,
+    )
+
+    if winner is None and not has_tv_rights():
+        print("The series has no television contract.")
+        if expired_name:
+            went_dark = True
+            league["fan_interest"] = clamp(league["fan_interest"] - 5)
+            league["controversy"] = clamp(league["controversy"] + 4)
+            print(
+                "- Going dark costs fan interest and raises controversy"
+            )
+    elif winner is not None and expired_name:
+        if winner["network"].name != expired_name:
+            print(
+                f"- {winner['network'].name} replaces {expired_name} "
+                "on series television"
+            )
+
+    if went_dark:
+        return
+
+    if winner is None and has_tv_rights() and not expired_name:
+        print(f"TV rights: {tv_deal_label(league.get('tv_rights'))}")
 
 
 def sponsor_has_live_deal(sponsor):
@@ -2456,6 +2714,7 @@ def display_league_dashboard():
         f"{len(sponsor_prospects)} waiting"
     )
     print(f"Broadcast market: {len(networks)} networks")
+    print(f"TV rights: {tv_deal_label(league.get('tv_rights'))}")
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -3614,6 +3873,7 @@ def run_offseason(completed_season):
     run_offseason_team_sponsors()
     run_offseason_endorsements()
     run_offseason_league_sponsors()
+    run_offseason_tv_rights()
     run_offseason_sponsor_market()
     process_paddock_relationships()
     present_events(
@@ -4885,6 +5145,7 @@ def display_commissioner_report():
         f"{len(sponsor_prospects)} waiting"
     )
     print(f"Broadcast market: {len(networks)} networks")
+    print(f"TV rights: {tv_deal_label(league.get('tv_rights'))}")
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -4943,6 +5204,13 @@ def save_season_report(season_number):
                 sponsor.name for sponsor in sponsor_prospects
             ],
             "sponsor_market_log": current_season_market_moves(),
+            "tv_rights": (
+                dict(league["tv_rights"])
+                if has_tv_rights()
+                else None
+            ),
+            "season_tv_income": league.get("season_tv_income", 0),
+            "career_tv_income": league.get("career_tv_income", 0),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -5053,6 +5321,9 @@ def save_season_report(season_number):
                 "profile_summary": network.profile_summary(),
                 "risk_posture": network.risk_posture(),
                 "league_interest": network.interest_in_league(league),
+                "holds_rights": series_televised_by(network),
+                "rights_bid": tv_rights_terms(network)[1],
+                "rights_years": tv_rights_terms(network)[2],
                 "favorite_weekend": (
                     best_weekend_for_network(network)[0].name
                     if best_weekend_for_network(network)[0] is not None
@@ -5207,6 +5478,7 @@ def initialize_season(season_number):
     league["fines_collected"] = 0
     league["sponsor_walk_blocks"] = []
     league["season_commercial_income"] = 0
+    league["season_tv_income"] = 0
 
     for team in teams:
         team.start_new_season()
@@ -5740,6 +6012,12 @@ def run_season():
     ensure_league_commercial_state()
     if not has_naming_rights() and not league["official_partners"]:
         assign_league_deals(
+            season=calendar.current_season,
+            apply_signing_boost=False,
+        )
+
+    if not has_tv_rights():
+        assign_tv_rights(
             season=calendar.current_season,
             apply_signing_boost=False,
         )

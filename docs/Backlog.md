@@ -6,7 +6,7 @@
 | 4  | Points Standings       | High     | In Progress |
 | 5  | Commissioner decisions | High     | Completed   |
 | 6  | Penalties              | Medium   | Not Started |
-| 7  | TV Contracts           | Medium   | Not Started |
+| 7  | TV Contracts           | Medium   | Completed   |
 | 8  | Sponsors               | Medium   | Completed   |
 | 9  | Driver Contracts       | Medium   | In Progress |
 | 10 | Hall of Fame           | Low      | Not Started |
@@ -116,3 +116,5 @@
 | 114 | Sponsor prospect companies | Medium | Completed |
 | 115 | Television networks | High | Completed |
 | 116 | Broadcaster profiles | Medium | Completed |
+| 117 | Television rights bids | High | Completed |
+| 118 | Multi-year TV contracts | Medium | Completed |
