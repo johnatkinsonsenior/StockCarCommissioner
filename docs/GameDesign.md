@@ -370,6 +370,18 @@ Team financial health is tracked across four levels on a single money-status tra
 
 Struggling teams face reduced morale, performance penalties, and limited investment options. Insolvent teams suffer severe performance declines and sponsor discounts but remain entered in the series.
 
+## Television
+
+The league keeps a market of named television networks. Rights contracts, ratings, and media stories attach to them in later days. Each broadcaster has:
+
+- A kind (national, cable, regional, or motorsport)
+- Audience reach and bid power
+- Preferences for prestige, on-track excitement, star drivers, and product integrity
+- A risk posture (cautious networks want a clean, respectable series; bold networks tolerate spectacle)
+- Optional favorite track types
+
+Horizon Sports is the opening national flagship. Peakline Cable and Coastline Media are sports and entertainment cables. Heartland Broadcast is a cautious regional. Redline TV is a smaller motorsport specialist. Interest in the series rises with fan interest and integrity, and falls with controversy for cautious brands.
+
 ## Save and Load
 
 Career progress can be saved to JSON files in the local `saves/` folder and loaded later to continue play.
@@ -396,6 +408,7 @@ Saved data includes:
 - Series naming rights, official partners, and the league treasury
 - Sponsor prospect companies waiting to enter the market
 - Sponsor market enter/leave log
+- Television networks, kinds, reach, and broadcast tastes
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -412,7 +425,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
 
 ### Decision Events
 

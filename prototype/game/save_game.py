@@ -4,9 +4,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from game.models import Driver, Owner, Sponsor, Team, Track
+from game.models import Driver, Network, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.16"
+SAVE_VERSION = "0.0.17"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -22,6 +22,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.14",
     "0.0.15",
     "0.0.16",
+    "0.0.17",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -330,6 +331,40 @@ def sponsor_from_dict(data):
     )
 
 
+def network_to_dict(network):
+    """Serialize a television network to a dictionary."""
+
+    return {
+        "name": network.name,
+        "kind": network.kind,
+        "reach": network.reach,
+        "wealth": network.wealth,
+        "risk_tolerance": network.risk_tolerance,
+        "prestige_preference": network.prestige_preference,
+        "excitement_preference": network.excitement_preference,
+        "star_preference": network.star_preference,
+        "integrity_preference": network.integrity_preference,
+        "preferred_track_types": list(network.preferred_track_types),
+    }
+
+
+def network_from_dict(data):
+    """Restore a television network from a saved dictionary."""
+
+    return Network(
+        name=data["name"],
+        kind=data.get("kind", "Cable"),
+        reach=data.get("reach", 50),
+        wealth=data.get("wealth", 50),
+        risk_tolerance=data.get("risk_tolerance", 50),
+        prestige_preference=data.get("prestige_preference", 50),
+        excitement_preference=data.get("excitement_preference", 50),
+        star_preference=data.get("star_preference", 50),
+        integrity_preference=data.get("integrity_preference", 50),
+        preferred_track_types=data.get("preferred_track_types") or [],
+    )
+
+
 def track_to_dict(track):
     """Serialize a track to a dictionary."""
 
@@ -380,6 +415,7 @@ def build_save_data(
     tracks=None,
     sponsors=None,
     sponsor_prospects=None,
+    networks=None,
 ):
     """Build a save file dictionary from live game state."""
 
@@ -418,6 +454,11 @@ def build_save_data(
     if sponsor_prospects is not None:
         save_data["sponsor_prospects"] = [
             sponsor_to_dict(sponsor) for sponsor in sponsor_prospects
+        ]
+
+    if networks is not None:
+        save_data["networks"] = [
+            network_to_dict(network) for network in networks
         ]
 
     return save_data
@@ -480,6 +521,14 @@ def parse_save_data(save_data):
             for sponsor_data in save_data.get("sponsor_prospects") or []
         ]
 
+    restored_networks = None
+
+    if "networks" in save_data:
+        restored_networks = [
+            network_from_dict(network_data)
+            for network_data in save_data.get("networks") or []
+        ]
+
     return {
         "league": dict(save_data["league"]),
         "race_history": list(save_data["race_history"]),
@@ -490,6 +539,7 @@ def parse_save_data(save_data):
         "tracks": restored_tracks,
         "sponsors": restored_sponsors,
         "sponsor_prospects": restored_prospects,
+        "networks": restored_networks,
         "current_season": save_data["current_season"],
         "championship_awarded": save_data["championship_awarded"],
         "career_seasons_total": save_data["career_seasons_total"],

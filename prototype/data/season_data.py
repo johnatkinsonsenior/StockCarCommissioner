@@ -1,4 +1,4 @@
-from game.models import Driver, Owner, Sponsor, Team, Track
+from game.models import Driver, Network, Owner, Sponsor, Team, Track
 
 
 def create_initial_teams():
@@ -453,10 +453,84 @@ def create_sponsor_prospects():
     ]
 
 
+def create_initial_networks():
+    """Return the opening broadcast market for a new career.
+
+    These companies are not yet bound by rights contracts. Each has a
+    footprint, bid power, and tastes that score how interested the
+    network is in the series and in a given race weekend. Named deals
+    and ratings attach to them in later days.
+    """
+
+    return [
+        Network(
+            name="Horizon Sports",
+            kind="National",
+            reach=90,
+            wealth=88,
+            risk_tolerance=32,
+            prestige_preference=86,
+            excitement_preference=48,
+            star_preference=70,
+            integrity_preference=78,
+            preferred_track_types=["Intermediate", "Superspeedway"],
+        ),
+        Network(
+            name="Peakline Cable",
+            kind="Cable",
+            reach=76,
+            wealth=80,
+            risk_tolerance=55,
+            prestige_preference=62,
+            excitement_preference=70,
+            star_preference=74,
+            integrity_preference=50,
+            preferred_track_types=["Superspeedway"],
+        ),
+        Network(
+            name="Heartland Broadcast",
+            kind="Regional",
+            reach=58,
+            wealth=54,
+            risk_tolerance=24,
+            prestige_preference=70,
+            excitement_preference=36,
+            star_preference=44,
+            integrity_preference=88,
+            preferred_track_types=["Short Track"],
+        ),
+        Network(
+            name="Redline TV",
+            kind="Motorsport",
+            reach=48,
+            wealth=50,
+            risk_tolerance=68,
+            prestige_preference=44,
+            excitement_preference=86,
+            star_preference=60,
+            integrity_preference=38,
+            preferred_track_types=["Short Track", "Road Course", "Superspeedway"],
+        ),
+        Network(
+            name="Coastline Media",
+            kind="Cable",
+            reach=64,
+            wealth=66,
+            risk_tolerance=62,
+            prestige_preference=52,
+            excitement_preference=58,
+            star_preference=92,
+            integrity_preference=42,
+            preferred_track_types=["Road Course", "Superspeedway"],
+        ),
+    ]
+
+
 teams = create_initial_teams()
 drivers = create_initial_drivers()
 sponsors = create_initial_sponsors()
 sponsor_prospects = create_sponsor_prospects()
+networks = create_initial_networks()
 
 
 def create_track_pool():

@@ -114,3 +114,5 @@
 | 112 | League treasury | Medium | Completed |
 | 113 | Sponsorship market churn | High | Completed |
 | 114 | Sponsor prospect companies | Medium | Completed |
+| 115 | Television networks | High | Completed |
+| 116 | Broadcaster profiles | Medium | Completed |

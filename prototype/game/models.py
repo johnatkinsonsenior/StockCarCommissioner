@@ -47,6 +47,13 @@ SPONSOR_SATISFACTION_LABELS = (
 
 SPONSOR_RENEWAL_MIN_SATISFACTION = 38
 
+NETWORK_KINDS = (
+    "National",
+    "Cable",
+    "Regional",
+    "Motorsport",
+)
+
 
 def sponsor_satisfaction_label(satisfaction):
     """Return a mood label for a 0-100 sponsor satisfaction score."""
@@ -464,6 +471,111 @@ class Sponsor:
         score += (league_state.get("fan_interest", 65) - 50) * 0.10
         caution = (100 - self.risk_tolerance) / 100.0
         score -= league_state.get("controversy", 20) * 0.16 * caution
+        return round(_clamp(score))
+
+    def __str__(self):
+        return self.name
+
+
+class Network:
+    """A broadcaster that might bid for series television rights."""
+
+    def __init__(
+        self,
+        name,
+        kind,
+        reach,
+        wealth,
+        risk_tolerance,
+        prestige_preference,
+        excitement_preference,
+        star_preference,
+        integrity_preference,
+        preferred_track_types=None,
+    ):
+        self.name = name
+        self.kind = kind
+        self.reach = _clamp(reach)
+        self.wealth = _clamp(wealth)
+        self.risk_tolerance = _clamp(risk_tolerance)
+        self.prestige_preference = _clamp(prestige_preference)
+        self.excitement_preference = _clamp(excitement_preference)
+        self.star_preference = _clamp(star_preference)
+        self.integrity_preference = _clamp(integrity_preference)
+        self.preferred_track_types = list(preferred_track_types or [])
+
+    def rights_value(self):
+        """Return a dollar scale for a full-season rights package."""
+
+        return int(4_000_000 + self.reach * 90_000 + self.wealth * 50_000)
+
+    def profile_summary(self):
+        """Return the two strongest tastes plus a risk posture."""
+
+        ranked = sorted(
+            [
+                ("prestige", self.prestige_preference),
+                ("excitement", self.excitement_preference),
+                ("stars", self.star_preference),
+                ("integrity", self.integrity_preference),
+            ],
+            key=lambda item: item[1],
+            reverse=True,
+        )
+        top = [label for label, value in ranked[:2] if value >= 55]
+        tastes = ", ".join(top) if top else "balanced"
+        return f"{tastes}; {self.risk_posture()}"
+
+    def risk_posture(self):
+        """Return cautious, measured, or bold from risk tolerance."""
+
+        if self.risk_tolerance >= 65:
+            return "bold"
+        if self.risk_tolerance <= 40:
+            return "cautious"
+        return "measured"
+
+    def description(self):
+        """Return a short label for reports and the dashboard."""
+
+        return f"{self.name} ({self.kind})"
+
+    def interest_in_league(self, league_state):
+        """Return 0-100 interest in buying series television rights."""
+
+        fan = league_state.get("fan_interest", 65)
+        integrity = league_state.get("integrity", 70)
+        controversy = league_state.get("controversy", 20)
+        excitement = fan * 0.50 + controversy * 0.50
+        caution = (100 - self.risk_tolerance) / 100.0
+
+        score = 40
+        score += (self.prestige_preference / 100.0) * 18
+        score += (self.reach / 100.0) * 12
+        score += (self.wealth / 100.0) * 10
+        score += (self.integrity_preference / 100.0) * (integrity - 50) * 0.35
+        score += (self.star_preference / 100.0) * (fan - 50) * 0.25
+        score += (self.excitement_preference / 100.0) * (excitement - 45) * 0.20
+        score -= controversy * 0.18 * caution
+        score += controversy * 0.08 * (self.excitement_preference / 100.0)
+        return round(_clamp(score))
+
+    def interest_in_weekend(self, track):
+        """Return 0-100 interest in a specific race weekend."""
+
+        score = 48
+        if track.type in self.preferred_track_types:
+            score += 14
+
+        spectacle = (
+            track.incident_risk * 0.45
+            + (100 - track.passing_difficulty) * 0.30
+            + min(track.purse / 20_000.0, 50) * 0.25
+        )
+        score += (self.excitement_preference / 100.0) * (spectacle - 40) * 0.30
+        score += (self.prestige_preference / 100.0) * (
+            min(track.purse / 15_000.0, 60) - 40
+        ) * 0.12
         return round(_clamp(score))
 
     def __str__(self):

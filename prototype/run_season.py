@@ -5,12 +5,14 @@ from pathlib import Path
 
 from data import (
     create_initial_drivers,
+    create_initial_networks,
     create_initial_sponsors,
     create_sponsor_prospects,
     create_initial_teams,
     create_initial_tracks,
     generate_season_schedule,
     drivers,
+    networks,
     sponsors,
     sponsor_prospects,
     teams,
@@ -250,6 +252,9 @@ def reset_career_state():
     sponsor_prospects.clear()
     sponsor_prospects.extend(create_sponsor_prospects())
 
+    networks.clear()
+    networks.extend(create_initial_networks())
+
     league["integrity"] = 70
     league["fan_interest"] = 65
     league["controversy"] = 20
@@ -338,6 +343,12 @@ def apply_loaded_state(restored_state):
     else:
         sponsor_prospects.extend(create_sponsor_prospects())
 
+    networks.clear()
+    if restored_state.get("networks") is not None:
+        networks.extend(restored_state["networks"])
+    else:
+        networks.extend(create_initial_networks())
+
     league.clear()
     league.update(restored_state["league"])
     league.setdefault("owner_pressure", 25)
@@ -407,6 +418,7 @@ def save_career(save_name=None):
         tracks=tracks,
         sponsors=sponsors,
         sponsor_prospects=sponsor_prospects,
+        networks=networks,
     )
 
     save_path = save_to_file(save_data, save_name)
@@ -855,6 +867,16 @@ def get_sponsor(name):
     for sponsor in sponsors:
         if sponsor.name == name:
             return sponsor
+
+    return None
+
+
+def get_network(name):
+    """Return a television network by name, or None."""
+
+    for network in networks:
+        if network.name == name:
+            return network
 
     return None
 
@@ -2104,6 +2126,74 @@ def display_sponsor_market():
             )
 
 
+def best_weekend_for_network(network):
+    """Return the track this broadcaster most wants, plus the score."""
+
+    if not tracks:
+        return None, 0
+
+    favorite = max(
+        tracks,
+        key=lambda track: (
+            network.interest_in_weekend(track),
+            track.purse,
+            track.name,
+        ),
+    )
+    return favorite, network.interest_in_weekend(favorite)
+
+
+def leading_network():
+    """Return the broadcaster most interested in series rights."""
+
+    if not networks:
+        return None, 0
+
+    leader = max(
+        networks,
+        key=lambda network: (
+            network.interest_in_league(league),
+            network.rights_value(),
+            network.name,
+        ),
+    )
+    return leader, leader.interest_in_league(league)
+
+
+def display_broadcast_market():
+    """Display television networks and their current tastes."""
+
+    print("Broadcast market")
+    print(f"{len(networks)} networks")
+
+    if not networks:
+        print("- No television networks on the market")
+        return
+
+    leader, leader_score = leading_network()
+    if leader is not None:
+        print(
+            f"Rights favorite: {leader.name} "
+            f"(interest {leader_score}, ${leader.rights_value():,})"
+        )
+
+    for network in networks:
+        favorite, score = best_weekend_for_network(network)
+        favorite_text = (
+            f"{favorite.name} ({score})"
+            if favorite is not None
+            else "none"
+        )
+        print(
+            f"- {network.description()} | "
+            f"{network.profile_summary()} | "
+            f"reach {network.reach} | "
+            f"${network.rights_value():,} | "
+            f"interest {network.interest_in_league(league)} | "
+            f"eyes {favorite_text}"
+        )
+
+
 def sponsor_has_live_deal(sponsor):
     """Return whether a brand currently titles, endorses, or backs the series."""
 
@@ -2365,6 +2455,7 @@ def display_league_dashboard():
         f"{len(idle_sponsors())} idle, "
         f"{len(sponsor_prospects)} waiting"
     )
+    print(f"Broadcast market: {len(networks)} networks")
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -2429,6 +2520,7 @@ def display_league_dashboard():
         )
 
     display_sponsor_market()
+    display_broadcast_market()
 
     next_index = len(race_history)
 
@@ -4792,6 +4884,7 @@ def display_commissioner_report():
         f"{len(idle_sponsors())} idle, "
         f"{len(sponsor_prospects)} waiting"
     )
+    print(f"Broadcast market: {len(networks)} networks")
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -4943,6 +5036,31 @@ def save_season_report(season_number):
                 ],
             }
             for sponsor in sponsors
+        ],
+        "networks": [
+            {
+                "name": network.name,
+                "kind": network.kind,
+                "reach": network.reach,
+                "wealth": network.wealth,
+                "risk_tolerance": network.risk_tolerance,
+                "prestige_preference": network.prestige_preference,
+                "excitement_preference": network.excitement_preference,
+                "star_preference": network.star_preference,
+                "integrity_preference": network.integrity_preference,
+                "preferred_track_types": list(network.preferred_track_types),
+                "rights_value": network.rights_value(),
+                "profile_summary": network.profile_summary(),
+                "risk_posture": network.risk_posture(),
+                "league_interest": network.interest_in_league(league),
+                "favorite_weekend": (
+                    best_weekend_for_network(network)[0].name
+                    if best_weekend_for_network(network)[0] is not None
+                    else None
+                ),
+                "favorite_weekend_interest": best_weekend_for_network(network)[1],
+            }
+            for network in networks
         ],
         "driver_standings": [],
         "team_finances": [],
