@@ -168,6 +168,13 @@ def trait_defaults_for(personality):
     )
 
 
+TRACK_TYPE_CAPACITY = {
+    "Superspeedway": 118_000,
+    "Intermediate": 76_000,
+    "Short Track": 36_000,
+    "Road Course": 48_000,
+}
+
 TRACK_TYPE_SKILL_KEYS = {
     "Short Track": "short_track",
     "Road Course": "road_course",
@@ -1009,6 +1016,7 @@ class Track:
         surface,
         tire_wear,
         passing_difficulty,
+        capacity=None,
     ):
         self.name = name
         self.type = track_type
@@ -1019,11 +1027,23 @@ class Track:
         self.surface = surface
         self.tire_wear = _clamp(tire_wear)
         self.passing_difficulty = _clamp(passing_difficulty)
+        self.capacity = capacity
 
     def skill_key(self):
         """Return the driver skill attribute used at this track type."""
 
         return TRACK_TYPE_SKILL_KEYS.get(self.type, "intermediate")
+
+    def seating_capacity(self):
+        """Return grandstand capacity, derived from type and purse when unset."""
+
+        if self.capacity:
+            return int(self.capacity)
+
+        base = TRACK_TYPE_CAPACITY.get(self.type, 70_000)
+        purse_mod = int((self.purse - 600_000) / 20_000)
+        purse_mod = max(-8, min(12, purse_mod))
+        return int(base + purse_mod * 1_000)
 
     def description(self):
         """Return a short physical description."""

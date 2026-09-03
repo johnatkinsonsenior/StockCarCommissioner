@@ -120,3 +120,5 @@
 | 118 | Multi-year TV contracts | Medium | Completed |
 | 119 | Television ratings | High | Completed |
 | 120 | Ratings trends | Medium | Completed |
+| 121 | Race popularity / gate attendance | High | Completed |
+| 122 | Attendance trends | Medium | Completed |

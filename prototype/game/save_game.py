@@ -6,7 +6,7 @@ from pathlib import Path
 
 from game.models import Driver, Network, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.19"
+SAVE_VERSION = "0.0.20"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -25,6 +25,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.17",
     "0.0.18",
     "0.0.19",
+    "0.0.20",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -380,6 +381,7 @@ def track_to_dict(track):
         "surface": track.surface,
         "tire_wear": track.tire_wear,
         "passing_difficulty": track.passing_difficulty,
+        "capacity": track.capacity,
     }
 
 
@@ -396,6 +398,7 @@ def track_from_dict(data):
         surface=data.get("surface", "asphalt"),
         tire_wear=data.get("tire_wear", 55),
         passing_difficulty=data.get("passing_difficulty", 50),
+        capacity=data.get("capacity"),
     )
 
 

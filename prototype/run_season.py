@@ -181,6 +181,14 @@ league = {
     "last_tv_viewers": None,
     "tv_rating_history": [],
     "tv_rating_trend": 0,
+    "season_gate_attendance": [],
+    "season_gate_fill": [],
+    "last_gate_attendance": None,
+    "last_gate_capacity": None,
+    "last_gate_fill": None,
+    "last_gate_draw": None,
+    "gate_history": [],
+    "gate_trend": 0,
 }
 
 race_history = []
@@ -214,6 +222,18 @@ TRACK_TYPE_TV_DRAW = {
     "Short Track": 5,
     "Intermediate": 4,
     "Road Course": 3,
+}
+TRACK_TYPE_GATE_DRAW = {
+    "Superspeedway": 3,
+    "Intermediate": 5,
+    "Short Track": 8,
+    "Road Course": 2,
+}
+TRACK_TYPE_FILL_BIAS = {
+    "Superspeedway": 0.90,
+    "Intermediate": 1.00,
+    "Short Track": 1.14,
+    "Road Course": 0.86,
 }
 SPONSOR_CONFLICT_CONDUCT_FLOOR = 40
 SPONSOR_CONFLICT_SATISFACTION_FLOOR = 48
@@ -296,6 +316,14 @@ def reset_career_state():
     league["last_tv_viewers"] = None
     league["tv_rating_history"] = []
     league["tv_rating_trend"] = 0
+    league["season_gate_attendance"] = []
+    league["season_gate_fill"] = []
+    league["last_gate_attendance"] = None
+    league["last_gate_capacity"] = None
+    league["last_gate_fill"] = None
+    league["last_gate_draw"] = None
+    league["gate_history"] = []
+    league["gate_trend"] = 0
 
     reset_policies()
 
@@ -402,6 +430,17 @@ def apply_loaded_state(restored_state):
     if not isinstance(league.get("tv_rating_history"), list):
         league["tv_rating_history"] = []
     league.setdefault("tv_rating_trend", 0)
+    if not isinstance(league.get("season_gate_attendance"), list):
+        league["season_gate_attendance"] = []
+    if not isinstance(league.get("season_gate_fill"), list):
+        league["season_gate_fill"] = []
+    league.setdefault("last_gate_attendance", None)
+    league.setdefault("last_gate_capacity", None)
+    league.setdefault("last_gate_fill", None)
+    league.setdefault("last_gate_draw", None)
+    if not isinstance(league.get("gate_history"), list):
+        league["gate_history"] = []
+    league.setdefault("gate_trend", 0)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -685,6 +724,13 @@ def collect_commissioner_alerts():
     if league.get("tv_rating_trend", 0) <= -1:
         alerts.append("TV ratings are sliding")
 
+    last_fill = league.get("last_gate_fill")
+    if last_fill is not None and last_fill < 55:
+        alerts.append("The gate is soft")
+
+    if league.get("gate_trend", 0) <= -1:
+        alerts.append("Attendance is sliding")
+
     if len(sponsors) <= SPONSOR_MARKET_MIN:
         alerts.append("Sponsor market is thin")
 
@@ -948,7 +994,7 @@ def get_network(name):
 
 
 def ensure_league_commercial_state():
-    """Make sure league naming-rights, partner, and TV slots exist."""
+    """Make sure league naming-rights, partner, TV, and gate slots exist."""
 
     if not isinstance(league.get("official_partners"), list):
         league["official_partners"] = []
@@ -972,6 +1018,17 @@ def ensure_league_commercial_state():
     if not isinstance(league.get("tv_rating_history"), list):
         league["tv_rating_history"] = []
     league.setdefault("tv_rating_trend", 0)
+    if not isinstance(league.get("season_gate_attendance"), list):
+        league["season_gate_attendance"] = []
+    if not isinstance(league.get("season_gate_fill"), list):
+        league["season_gate_fill"] = []
+    league.setdefault("last_gate_attendance", None)
+    league.setdefault("last_gate_capacity", None)
+    league.setdefault("last_gate_fill", None)
+    league.setdefault("last_gate_draw", None)
+    if not isinstance(league.get("gate_history"), list):
+        league["gate_history"] = []
+    league.setdefault("gate_trend", 0)
 
 
 def has_naming_rights():
@@ -2558,6 +2615,227 @@ def review_tv_ratings():
     return avg
 
 
+def advertised_star_power(results):
+    """Return headliner and field popularity from the advertised entry list."""
+
+    if results:
+        pool = [item["driver"] for item in results]
+    else:
+        pool = list(drivers)
+    if not pool:
+        return 55, 55
+
+    pops = sorted((driver.popularity for driver in pool), reverse=True)
+    headliners = sum(pops[:3]) / min(3, len(pops))
+    field = sum(pops) / len(pops)
+    return headliners, field
+
+
+def compute_gate_draw(track, results, weekend):
+    """Return a 0-100 ticket-demand score set before the race, not by cautions."""
+
+    fan = league.get("fan_interest", 65)
+    headliners, field = advertised_star_power(results)
+    weather = weekend.get("weather") or {}
+    condition = (weather.get("condition") or "clear").lower()
+    controversy = league.get("controversy", 20)
+    integrity = league.get("integrity", 70)
+
+    score = 48
+    score += (fan - 50) * 0.32
+    score += (headliners - 55) * 0.28
+    score += (field - 55) * 0.10
+    score += TRACK_TYPE_GATE_DRAW.get(track.type, 4)
+    score += min(track.purse / 180_000.0, 4)
+    if condition in ("light rain", "rain"):
+        score -= 14
+    elif condition == "hot":
+        score -= 3
+    if controversy >= 55:
+        score -= 6
+    elif controversy >= 40:
+        score -= 2
+    score += (integrity - 70) * 0.08
+    return round(clamp(score))
+
+
+def compute_gate_attendance(track, results, weekend):
+    """Return (attendance, capacity, fill, draw). Never exceeds capacity."""
+
+    draw = compute_gate_draw(track, results, weekend)
+    capacity = track.seating_capacity()
+    bias = TRACK_TYPE_FILL_BIAS.get(track.type, 1.0)
+    fill = round(clamp(draw * bias))
+    attendance = int(round(capacity * fill / 100.0))
+    if fill >= 97:
+        attendance = capacity
+        fill = 100
+    if attendance > capacity:
+        attendance = capacity
+    return attendance, capacity, fill, draw
+
+
+def format_attendance(count):
+    """Return a readable grandstand count."""
+
+    if not count:
+        return "0"
+    return f"{int(count):,}"
+
+
+def gate_is_sold_out(attendance, capacity, fill):
+    """Return whether the house is at or past a sellout."""
+
+    if not capacity:
+        return False
+    return fill >= 97 or attendance >= capacity
+
+
+def format_gate_house(attendance, capacity, fill):
+    """Return '94,200 / 125,000 (75%)' or a sold-out label."""
+
+    if gate_is_sold_out(attendance, capacity, fill):
+        return (
+            f"{format_attendance(attendance)} / "
+            f"{format_attendance(capacity)} (sold out)"
+        )
+    return (
+        f"{format_attendance(attendance)} / "
+        f"{format_attendance(capacity)} ({fill}%)"
+    )
+
+
+def average_gate_fill():
+    """Return this season's mean grandstand fill, or None."""
+
+    ensure_league_commercial_state()
+    fills = league.get("season_gate_fill") or []
+    if not fills:
+        return None
+    return round(sum(fills) / len(fills))
+
+
+def average_gate_attendance():
+    """Return this season's mean attendance, or None."""
+
+    ensure_league_commercial_state()
+    counts = league.get("season_gate_attendance") or []
+    if not counts:
+        return None
+    return int(round(sum(counts) / len(counts)))
+
+
+def gate_trend_label():
+    """Return a readable multi-season attendance trend."""
+
+    ensure_league_commercial_state()
+    return TREND_LABELS.get(league.get("gate_trend", 0), "Stable")
+
+
+def apply_race_gate(race_record, track, results, weekend, silent=False):
+    """Attach gate numbers to a race and update season attendance state."""
+
+    ensure_league_commercial_state()
+    attendance, capacity, fill, draw = compute_gate_attendance(
+        track,
+        results,
+        weekend,
+    )
+    race_record["gate_attendance"] = attendance
+    race_record["gate_capacity"] = capacity
+    race_record["gate_fill"] = fill
+    race_record["gate_draw"] = draw
+
+    league["season_gate_attendance"].append(attendance)
+    league["season_gate_fill"].append(fill)
+    league["last_gate_attendance"] = attendance
+    league["last_gate_capacity"] = capacity
+    league["last_gate_fill"] = fill
+    league["last_gate_draw"] = draw
+
+    if not silent:
+        print(
+            f"Gate: {format_gate_house(attendance, capacity, fill)} "
+            f"— {track.name}"
+        )
+    return attendance, capacity, fill, draw
+
+
+def update_gate_trend():
+    """Store this season's average fill and update multi-season momentum."""
+
+    ensure_league_commercial_state()
+    avg = average_gate_fill()
+    if avg is None:
+        return None
+
+    history = list(league.get("gate_history") or [])
+    history.append(avg)
+    history = history[-TREND_HISTORY_SEASONS:]
+    league["gate_history"] = history
+
+    if len(history) < 2:
+        league["gate_trend"] = 0
+        return avg
+
+    latest = history[-1]
+    previous = sum(history[:-1]) / len(history[:-1])
+    delta = latest - previous
+
+    if delta >= 8:
+        league["gate_trend"] = 2
+    elif delta >= 3:
+        league["gate_trend"] = 1
+    elif delta <= -8:
+        league["gate_trend"] = -2
+    elif delta <= -3:
+        league["gate_trend"] = -1
+    else:
+        league["gate_trend"] = 0
+    return avg
+
+
+def review_race_popularity():
+    """Close the season's attendance book and report the houses."""
+
+    print("\nRace Popularity")
+    print("-" * 90)
+
+    ensure_league_commercial_state()
+    avg = update_gate_trend()
+    last = league.get("last_gate_attendance")
+    last_cap = league.get("last_gate_capacity")
+    last_fill = league.get("last_gate_fill")
+    mean_house = average_gate_attendance()
+
+    if avg is None:
+        print("No race weekends this season.")
+        return None
+
+    print(
+        f"- Last race: {format_gate_house(last, last_cap, last_fill)}"
+    )
+    print(
+        f"- Season average: {avg}% full "
+        f"({format_attendance(mean_house)} per race) "
+        f"— {gate_trend_label()}"
+    )
+
+    best = None
+    for race in race_history:
+        fill = race.get("gate_fill")
+        if fill is None:
+            continue
+        if best is None or fill > best.get("gate_fill", 0):
+            best = race
+    if best is not None:
+        print(
+            f"- Best house: {best['track']} "
+            f"{format_gate_house(best.get('gate_attendance'), best.get('gate_capacity'), best.get('gate_fill'))}"
+        )
+    return avg
+
+
 def tv_rights_terms(network):
     """Return (interest, annual bid, years) for a television-rights package."""
 
@@ -3016,6 +3294,16 @@ def display_league_dashboard():
             f"season avg {avg_rating} | "
             f"{tv_rating_trend_label()}"
         )
+    avg_fill = average_gate_fill()
+    if avg_fill is None:
+        print("Gate: season not started")
+    else:
+        print(
+            "Gate: last "
+            f"{format_gate_house(league.get('last_gate_attendance'), league.get('last_gate_capacity'), league.get('last_gate_fill'))} "
+            f"| season avg {avg_fill}% | "
+            f"{gate_trend_label()}"
+        )
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -3088,7 +3376,8 @@ def display_league_dashboard():
         next_track = tracks[next_index]
         print(
             f"Next weekend: {next_track.name} ({next_track.type}) — "
-            f"{next_track.description()} | purse ${next_track.purse:,}"
+            f"{next_track.description()} | purse ${next_track.purse:,} | "
+            f"{format_attendance(next_track.seating_capacity())} seats"
         )
 
     if race_history:
@@ -3112,6 +3401,11 @@ def display_league_dashboard():
                 f"Last TV rating: {last_race['tv_rating']} "
                 f"({format_viewers(last_race.get('tv_viewers'))} viewers) "
                 f"— {last_race.get('tv_network') or 'syndication'}"
+            )
+        if last_race.get("gate_attendance") is not None:
+            print(
+                f"Last gate: {format_gate_house(last_race.get('gate_attendance'), last_race.get('gate_capacity'), last_race.get('gate_fill'))} "
+                f"— {last_race['track']}"
             )
         wrecks = last_race.get("wrecks") or []
         investigations = last_race.get("investigations") or []
@@ -4323,6 +4617,7 @@ def record_race_history(track, race_number, results, weekend, race_points=None):
     race_record["wrecks"] = list(weekend.get("wrecks") or [])
     race_record["investigations"] = list(weekend.get("investigations") or [])
     apply_race_tv_rating(race_record, track, results, weekend)
+    apply_race_gate(race_record, track, results, weekend)
     race_history.append(race_record)
 
 
@@ -5246,6 +5541,10 @@ def display_race_history():
                 f"({format_viewers(race.get('tv_viewers'))} viewers) "
                 f"— {race.get('tv_network') or 'syndication'}"
             )
+        if race.get("gate_attendance") is not None:
+            print(
+                f"    Gate: {format_gate_house(race.get('gate_attendance'), race.get('gate_capacity'), race.get('gate_fill'))}"
+            )
 
 
 def get_manufacturer_standings():
@@ -5470,6 +5769,16 @@ def display_commissioner_report():
             f"season avg {avg_rating} | "
             f"{tv_rating_trend_label()}"
         )
+    avg_fill = average_gate_fill()
+    if avg_fill is None:
+        print("Gate: season not started")
+    else:
+        print(
+            "Gate: last "
+            f"{format_gate_house(league.get('last_gate_attendance'), league.get('last_gate_capacity'), league.get('last_gate_fill'))} "
+            f"| season avg {avg_fill}% | "
+            f"{gate_trend_label()}"
+        )
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -5539,6 +5848,10 @@ def save_season_report(season_number):
             "season_tv_viewers": average_tv_viewers(),
             "tv_rating_trend": tv_rating_trend_label(),
             "tv_rating_history": list(league.get("tv_rating_history") or []),
+            "season_gate_fill": average_gate_fill(),
+            "season_gate_attendance": average_gate_attendance(),
+            "gate_trend": gate_trend_label(),
+            "gate_history": list(league.get("gate_history") or []),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -5811,6 +6124,12 @@ def initialize_season(season_number):
     league["season_tv_viewers"] = []
     league["last_tv_rating"] = None
     league["last_tv_viewers"] = None
+    league["season_gate_attendance"] = []
+    league["season_gate_fill"] = []
+    league["last_gate_attendance"] = None
+    league["last_gate_capacity"] = None
+    league["last_gate_fill"] = None
+    league["last_gate_draw"] = None
 
     for team in teams:
         team.start_new_season()
@@ -5981,6 +6300,7 @@ def run_postseason(season_number):
     record_team_season_trends()
     review_sponsor_objectives()
     review_tv_ratings()
+    review_race_popularity()
     resolve_sponsor_conflicts()
     display_team_finances()
     display_team_sponsors()
