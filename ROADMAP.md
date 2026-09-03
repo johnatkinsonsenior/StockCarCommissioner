@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–63 complete (Week 9 Business Ecosystem). Next coding day: **Day
-64 — TV networks**.
+**Current position:** Days 1–64 complete (Week 10 underway). Next coding day: **Day
+65 — TV contracts**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -109,7 +109,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 > finances connect to performance and decisions. ✅
 
 ## Week 10 — Television and Media
-- [ ] Day 64 — TV networks (broadcasters and profiles)
+- [x] Day 64 — TV networks (broadcasters and profiles)
 - [ ] Day 65 — TV contracts (rights bids, length, negotiations)
 - [ ] Day 66 — Ratings (audience simulation and trends)
 - [ ] Day 67 — Race popularity (event audience and attendance)
