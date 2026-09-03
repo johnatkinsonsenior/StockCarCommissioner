@@ -102,7 +102,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 59 — Team sponsors (multi-year contracts, revenue)
 - [x] Day 60 — Sponsor objectives (performance, exposure, conduct)
 - [x] Day 61 — Sponsor conflicts (controversies, withdrawals)
-- [ ] Day 62 — League sponsorship (naming rights, league-wide partners)
+- [x] Day 62 — League sponsorship (naming rights, league-wide partners)
 - [ ] Day 63 — Sponsorship market (companies enter/leave over time)
 
 > **Milestone — Day 63 Business Ecosystem:** teams, sponsors, and league
