@@ -372,7 +372,7 @@ Struggling teams face reduced morale, performance penalties, and limited investm
 
 ## Television
 
-The league keeps a market of named television networks. Named rights deals attach to them. Ratings and media stories follow in later days. Each broadcaster has:
+The league keeps a market of named television networks. Named rights deals attach to them. Each race is rated for television audience. Media stories follow in later days. Each broadcaster has:
 
 - A kind (national, cable, regional, or motorsport)
 - Audience reach and bid power
@@ -387,6 +387,12 @@ Horizon Sports is the opening national flagship. Peakline Cable and Coastline Me
 The series can hold one exclusive **television-rights** contract. Networks bid a multi-year package. The annual bid is a large slice of that broadcaster's rights value, scaled by interest in the league. Deal length is three to six years; wealthier, prestige-seeking networks want longer deals. The highest bid wins. The annual check goes to the **league treasury**.
 
 Horizon Sports wins the opening auction (six years). The series **may run without a TV deal**; the dashboard flags `No TV deal`. Losing coverage without a replacement drops fan interest and raises controversy. If a deal expires while the network is unhappy, it will not immediately re-bid; another broadcaster may still step in.
+
+### TV Ratings
+
+Each race produces a television rating (0–100) and an estimated viewer count. The score rises with fan interest, star drivers, cautions, wrecks, and marquee tracks (superspeedways especially). The rights-holder's tastes reshape that number: excitement-first networks lift wreck-filled shows; integrity-first networks prefer a clean, respectable product. Unsigned weekends still get a syndicated estimate.
+
+The dashboard shows the last race, the season average, and a multi-season trend (stable, rising, falling). After the championship the rights holder grades delivery against those ratings. Mood then scales the next offseason TV check. Soft or sliding ratings raise a dashboard alert.
 
 ## Save and Load
 
@@ -416,6 +422,7 @@ Saved data includes:
 - Sponsor market enter/leave log
 - Television networks, kinds, reach, and broadcast tastes
 - Series television rights, bids, and TV income
+- Television ratings, viewer counts, and ratings trend
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -432,7 +439,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, investigation blame, and last TV rating, and key alerts.
 
 ### Decision Events
 

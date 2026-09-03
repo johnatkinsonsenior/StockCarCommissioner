@@ -578,6 +578,36 @@ class Network:
         ) * 0.12
         return round(_clamp(score))
 
+    def score_audience(self, rating, league_state):
+        """Grade a 0-100 TV rating against this network's tastes."""
+
+        fan = league_state.get("fan_interest", 65)
+        integrity = league_state.get("integrity", 70)
+        controversy = league_state.get("controversy", 20)
+        performance = _clamp(rating)
+        exposure = _clamp(rating * 0.55 + fan * 0.45)
+        conduct = _clamp((integrity + (100 - controversy)) / 2)
+        weights = {
+            "performance": self.prestige_preference,
+            "exposure": (
+                self.star_preference + self.excitement_preference
+            ) / 2.0,
+            "conduct": self.integrity_preference,
+        }
+        total = sum(weights.values()) or 1
+        delivery = round(
+            _clamp(
+                performance * weights["performance"] / total
+                + exposure * weights["exposure"] / total
+                + conduct * weights["conduct"] / total
+            )
+        )
+        return delivery, {
+            "performance": round(performance),
+            "exposure": round(exposure),
+            "conduct": round(conduct),
+        }
+
     def __str__(self):
         return self.name
 

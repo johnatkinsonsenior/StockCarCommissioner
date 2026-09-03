@@ -118,3 +118,5 @@
 | 116 | Broadcaster profiles | Medium | Completed |
 | 117 | Television rights bids | High | Completed |
 | 118 | Multi-year TV contracts | Medium | Completed |
+| 119 | Television ratings | High | Completed |
+| 120 | Ratings trends | Medium | Completed |

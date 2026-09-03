@@ -36,6 +36,8 @@ from game.models import (
     Driver,
     Team,
     SPONSOR_RENEWAL_MIN_SATISFACTION,
+    TREND_HISTORY_SEASONS,
+    TREND_LABELS,
     apply_controversy_shock,
     apply_objective_review,
     sponsor_pay_multiplier,
@@ -173,6 +175,12 @@ league = {
     "tv_rights": None,
     "season_tv_income": 0,
     "career_tv_income": 0,
+    "season_tv_ratings": [],
+    "season_tv_viewers": [],
+    "last_tv_rating": None,
+    "last_tv_viewers": None,
+    "tv_rating_history": [],
+    "tv_rating_trend": 0,
 }
 
 race_history = []
@@ -201,6 +209,12 @@ SERIES_NAME_BASE = "Stock Car Series"
 SPONSOR_MARKET_MIN = 8
 SPONSOR_MARKET_MAX = 14
 TV_RIGHTS_MIN_INTEREST = 55
+TRACK_TYPE_TV_DRAW = {
+    "Superspeedway": 8,
+    "Short Track": 5,
+    "Intermediate": 4,
+    "Road Course": 3,
+}
 SPONSOR_CONFLICT_CONDUCT_FLOOR = 40
 SPONSOR_CONFLICT_SATISFACTION_FLOOR = 48
 RULING_SPONSOR_SEVERITY = {
@@ -276,6 +290,12 @@ def reset_career_state():
     league["tv_rights"] = None
     league["season_tv_income"] = 0
     league["career_tv_income"] = 0
+    league["season_tv_ratings"] = []
+    league["season_tv_viewers"] = []
+    league["last_tv_rating"] = None
+    league["last_tv_viewers"] = None
+    league["tv_rating_history"] = []
+    league["tv_rating_trend"] = 0
 
     reset_policies()
 
@@ -373,6 +393,15 @@ def apply_loaded_state(restored_state):
     league.setdefault("sponsor_market_log", [])
     league.setdefault("season_tv_income", 0)
     league.setdefault("career_tv_income", 0)
+    if not isinstance(league.get("season_tv_ratings"), list):
+        league["season_tv_ratings"] = []
+    if not isinstance(league.get("season_tv_viewers"), list):
+        league["season_tv_viewers"] = []
+    league.setdefault("last_tv_rating", None)
+    league.setdefault("last_tv_viewers", None)
+    if not isinstance(league.get("tv_rating_history"), list):
+        league["tv_rating_history"] = []
+    league.setdefault("tv_rating_trend", 0)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -648,6 +677,13 @@ def collect_commissioner_alerts():
         alerts.append(
             f"Restless TV partner: {tv_deal['network']}"
         )
+
+    last_rating = league.get("last_tv_rating")
+    if last_rating is not None and last_rating < 42:
+        alerts.append("TV ratings are soft")
+
+    if league.get("tv_rating_trend", 0) <= -1:
+        alerts.append("TV ratings are sliding")
 
     if len(sponsors) <= SPONSOR_MARKET_MIN:
         alerts.append("Sponsor market is thin")
@@ -927,6 +963,15 @@ def ensure_league_commercial_state():
         league["tv_rights"] = None
     league.setdefault("season_tv_income", 0)
     league.setdefault("career_tv_income", 0)
+    if not isinstance(league.get("season_tv_ratings"), list):
+        league["season_tv_ratings"] = []
+    if not isinstance(league.get("season_tv_viewers"), list):
+        league["season_tv_viewers"] = []
+    league.setdefault("last_tv_rating", None)
+    league.setdefault("last_tv_viewers", None)
+    if not isinstance(league.get("tv_rating_history"), list):
+        league["tv_rating_history"] = []
+    league.setdefault("tv_rating_trend", 0)
 
 
 def has_naming_rights():
@@ -2267,6 +2312,252 @@ def tv_deal_label(deal):
     )
 
 
+def format_viewers(viewers):
+    """Return a compact viewer count for reports."""
+
+    if viewers is None:
+        return "n/a"
+    if viewers >= 1_000_000:
+        return f"{viewers / 1_000_000:.1f}M"
+    return f"{viewers:,}"
+
+
+def tv_rights_network():
+    """Return the network holding series rights, if any."""
+
+    if not has_tv_rights():
+        return None
+    return get_network(league["tv_rights"]["network"])
+
+
+def average_tv_rating():
+    """Return this season's mean TV rating, or None."""
+
+    ensure_league_commercial_state()
+    ratings = league.get("season_tv_ratings") or []
+    if not ratings:
+        return None
+    return round(sum(ratings) / len(ratings))
+
+
+def average_tv_viewers():
+    """Return this season's mean viewer count, or None."""
+
+    ensure_league_commercial_state()
+    counts = league.get("season_tv_viewers") or []
+    if not counts:
+        return None
+    return int(round(sum(counts) / len(counts)))
+
+
+def tv_rating_trend_label():
+    """Return a readable multi-season ratings trend."""
+
+    ensure_league_commercial_state()
+    return TREND_LABELS.get(league.get("tv_rating_trend", 0), "Stable")
+
+
+def race_star_power(results):
+    """Return top-3, winner, and field popularity means."""
+
+    if not results:
+        return 55, 55, 55
+
+    drivers_in_race = [item["driver"] for item in results]
+    field = sum(driver.popularity for driver in drivers_in_race) / len(
+        drivers_in_race
+    )
+    top = drivers_in_race[:3]
+    top_mean = sum(driver.popularity for driver in top) / len(top)
+    winner = drivers_in_race[0].popularity
+    return top_mean, winner, field
+
+
+def compute_race_product(track, results, weekend):
+    """Return a 0-100 score for how watchable the race was."""
+
+    fan = league.get("fan_interest", 65)
+    top_stars, _winner, field = race_star_power(results)
+    cautions = weekend.get("cautions", 0) or 0
+    wrecks = weekend.get("wrecks") or []
+    wreck_size = sum(item.get("size", 1) for item in wrecks)
+    weather = weekend.get("weather") or {}
+    condition = weather.get("condition", "clear")
+
+    score = 38
+    score += (fan - 50) * 0.28
+    score += (top_stars - 55) * 0.22
+    score += (field - 55) * 0.08
+    score += min(cautions, 8) * 1.3
+    score += min(wreck_size, 10) * 0.8
+    score += TRACK_TYPE_TV_DRAW.get(track.type, 4)
+    score += min(track.purse / 150_000.0, 5)
+    if condition in ("light rain", "rain"):
+        score -= 5
+    elif condition == "hot":
+        score += 1
+    return round(clamp(score))
+
+
+def compute_tv_viewers(rating, reach):
+    """Return an estimated audience from rating and network reach."""
+
+    return int(
+        200_000
+        + reach * 28_000
+        + rating * 18_000
+        + league.get("fan_interest", 65) * 6_000
+    )
+
+
+def compute_tv_rating(track, results, weekend, network=None):
+    """Return (rating, viewers, product) for a televised weekend."""
+
+    product = compute_race_product(track, results, weekend)
+    if network is None:
+        rating = product
+        viewers = compute_tv_viewers(rating, 40)
+        return rating, viewers, product
+
+    cautions = weekend.get("cautions", 0) or 0
+    wrecks = weekend.get("wrecks") or []
+    excitement = min(cautions * 6 + len(wrecks) * 8, 70)
+    _top, winner_pop, _field = race_star_power(results)
+    controversy = league.get("controversy", 20)
+    integrity = league.get("integrity", 70)
+
+    rating = product
+    rating += (
+        (network.excitement_preference / 100.0) * (excitement - 35) * 0.18
+    )
+    rating += (network.star_preference / 100.0) * (winner_pop - 55) * 0.16
+    rating += (network.integrity_preference / 100.0) * (
+        ((integrity + (100 - controversy)) / 2) - 55
+    ) * 0.14
+    if track.type in network.preferred_track_types:
+        rating += 3
+    rating = round(clamp(rating))
+    viewers = compute_tv_viewers(rating, network.reach)
+    return rating, viewers, product
+
+
+def apply_race_tv_rating(race_record, track, results, weekend, silent=False):
+    """Attach TV numbers to a race and update season rating state."""
+
+    ensure_league_commercial_state()
+    network = tv_rights_network()
+    rating, viewers, product = compute_tv_rating(
+        track,
+        results,
+        weekend,
+        network,
+    )
+    race_record["tv_network"] = network.name if network is not None else None
+    race_record["tv_rating"] = rating
+    race_record["tv_viewers"] = viewers
+    race_record["tv_product"] = product
+
+    league["season_tv_ratings"].append(rating)
+    league["season_tv_viewers"].append(viewers)
+    league["last_tv_rating"] = rating
+    league["last_tv_viewers"] = viewers
+
+    if not silent:
+        holder = network.name if network is not None else "syndication"
+        print(
+            f"TV rating: {rating} ({format_viewers(viewers)} viewers) "
+            f"— {holder}"
+        )
+    return rating, viewers, product
+
+
+def update_tv_rating_trend():
+    """Store this season's average and update multi-season momentum."""
+
+    ensure_league_commercial_state()
+    avg = average_tv_rating()
+    if avg is None:
+        return None
+
+    history = list(league.get("tv_rating_history") or [])
+    history.append(avg)
+    history = history[-TREND_HISTORY_SEASONS:]
+    league["tv_rating_history"] = history
+
+    if len(history) < 2:
+        league["tv_rating_trend"] = 0
+        return avg
+
+    latest = history[-1]
+    previous = sum(history[:-1]) / len(history[:-1])
+    delta = latest - previous
+
+    if delta >= 8:
+        league["tv_rating_trend"] = 2
+    elif delta >= 3:
+        league["tv_rating_trend"] = 1
+    elif delta <= -8:
+        league["tv_rating_trend"] = -2
+    elif delta <= -3:
+        league["tv_rating_trend"] = -1
+    else:
+        league["tv_rating_trend"] = 0
+    return avg
+
+
+def review_tv_ratings():
+    """Close the season's ratings book and grade the rights holder."""
+
+    print("\nTelevision Ratings")
+    print("-" * 90)
+
+    ensure_league_commercial_state()
+    avg = update_tv_rating_trend()
+    last = league.get("last_tv_rating")
+    last_viewers = league.get("last_tv_viewers")
+    mean_viewers = average_tv_viewers()
+
+    if avg is None:
+        print("No televised races this season.")
+        return None
+
+    print(
+        f"- Last race: {last} ({format_viewers(last_viewers)} viewers)"
+    )
+    print(
+        f"- Season average: {avg} "
+        f"({format_viewers(mean_viewers)} viewers) "
+        f"— {tv_rating_trend_label()}"
+    )
+
+    if not has_tv_rights():
+        print("- No rights holder to review.")
+        return avg
+
+    network = tv_rights_network()
+    deal = league["tv_rights"]
+    if network is None:
+        print("- Rights holder is missing from the broadcast market.")
+        return avg
+
+    delivery, breakdown = network.score_audience(avg, league)
+    previous, current, delta = apply_objective_review(
+        deal,
+        delivery,
+        breakdown,
+    )
+    sign = f"{delta:+d}" if delta else "0"
+    print(
+        f"- {network.name}: {sponsor_satisfaction_label(current)} "
+        f"({current}, {sign}) | "
+        f"delivery {delivery} | "
+        f"perf {breakdown['performance']}, "
+        f"exposure {breakdown['exposure']}, "
+        f"conduct {breakdown['conduct']}"
+    )
+    return avg
+
+
 def tv_rights_terms(network):
     """Return (interest, annual bid, years) for a television-rights package."""
 
@@ -2715,6 +3006,16 @@ def display_league_dashboard():
     )
     print(f"Broadcast market: {len(networks)} networks")
     print(f"TV rights: {tv_deal_label(league.get('tv_rights'))}")
+    avg_rating = average_tv_rating()
+    if avg_rating is None:
+        print("TV ratings: season not started")
+    else:
+        print(
+            f"TV ratings: last {league.get('last_tv_rating')} "
+            f"({format_viewers(league.get('last_tv_viewers'))}) | "
+            f"season avg {avg_rating} | "
+            f"{tv_rating_trend_label()}"
+        )
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -2806,6 +3107,12 @@ def display_league_dashboard():
             f"pole {last_race.get('pole') or 'n/a'} | "
             f"{last_race.get('format', 'single-feature')}"
         )
+        if last_race.get("tv_rating") is not None:
+            print(
+                f"Last TV rating: {last_race['tv_rating']} "
+                f"({format_viewers(last_race.get('tv_viewers'))} viewers) "
+                f"— {last_race.get('tv_network') or 'syndication'}"
+            )
         wrecks = last_race.get("wrecks") or []
         investigations = last_race.get("investigations") or []
         if wrecks:
@@ -4015,6 +4322,7 @@ def record_race_history(track, race_number, results, weekend, race_points=None):
 
     race_record["wrecks"] = list(weekend.get("wrecks") or [])
     race_record["investigations"] = list(weekend.get("investigations") or [])
+    apply_race_tv_rating(race_record, track, results, weekend)
     race_history.append(race_record)
 
 
@@ -4932,6 +5240,12 @@ def display_race_history():
             f"- Pole: {race.get('pole') or 'n/a'} "
             f"- Incidents: {len(incidents)}"
         )
+        if race.get("tv_rating") is not None:
+            print(
+                f"    TV: {race['tv_rating']} "
+                f"({format_viewers(race.get('tv_viewers'))} viewers) "
+                f"— {race.get('tv_network') or 'syndication'}"
+            )
 
 
 def get_manufacturer_standings():
@@ -5146,6 +5460,16 @@ def display_commissioner_report():
     )
     print(f"Broadcast market: {len(networks)} networks")
     print(f"TV rights: {tv_deal_label(league.get('tv_rights'))}")
+    avg_rating = average_tv_rating()
+    if avg_rating is None:
+        print("TV ratings: season not started")
+    else:
+        print(
+            f"TV ratings: last {league.get('last_tv_rating')} "
+            f"({format_viewers(league.get('last_tv_viewers'))}) | "
+            f"season avg {avg_rating} | "
+            f"{tv_rating_trend_label()}"
+        )
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -5211,6 +5535,10 @@ def save_season_report(season_number):
             ),
             "season_tv_income": league.get("season_tv_income", 0),
             "career_tv_income": league.get("career_tv_income", 0),
+            "season_tv_rating": average_tv_rating(),
+            "season_tv_viewers": average_tv_viewers(),
+            "tv_rating_trend": tv_rating_trend_label(),
+            "tv_rating_history": list(league.get("tv_rating_history") or []),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -5479,6 +5807,10 @@ def initialize_season(season_number):
     league["sponsor_walk_blocks"] = []
     league["season_commercial_income"] = 0
     league["season_tv_income"] = 0
+    league["season_tv_ratings"] = []
+    league["season_tv_viewers"] = []
+    league["last_tv_rating"] = None
+    league["last_tv_viewers"] = None
 
     for team in teams:
         team.start_new_season()
@@ -5648,6 +5980,7 @@ def run_postseason(season_number):
     display_playoff_results()
     record_team_season_trends()
     review_sponsor_objectives()
+    review_tv_ratings()
     resolve_sponsor_conflicts()
     display_team_finances()
     display_team_sponsors()
