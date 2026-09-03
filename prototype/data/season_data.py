@@ -229,7 +229,8 @@ def create_initial_sponsors():
 
     These companies are not yet bound by contracts. Each has an industry
     and tastes that score how interested the brand is in a given team or
-    driver. Later days attach deals, objectives, and conflicts to them.
+    driver. Named deals, objectives, conflicts, and market churn attach to
+    them during a career.
     """
 
     return [
@@ -341,9 +342,121 @@ def create_initial_sponsors():
     ]
 
 
+def create_sponsor_prospects():
+    """Return companies waiting to enter the sponsor market."""
+
+    return [
+        Sponsor(
+            name="Skyline Bank",
+            industry="Finance",
+            wealth=84,
+            risk_tolerance=30,
+            prestige_preference=88,
+            performance_preference=50,
+            popularity_preference=40,
+            conduct_preference=80,
+        ),
+        Sponsor(
+            name="Apex Fuel",
+            industry="Energy",
+            wealth=66,
+            risk_tolerance=74,
+            prestige_preference=48,
+            performance_preference=82,
+            popularity_preference=56,
+            conduct_preference=36,
+            preferred_track_types=["Superspeedway"],
+        ),
+        Sponsor(
+            name="Golden Hour Coffee",
+            industry="Beverage",
+            wealth=55,
+            risk_tolerance=62,
+            prestige_preference=46,
+            performance_preference=44,
+            popularity_preference=90,
+            conduct_preference=52,
+        ),
+        Sponsor(
+            name="Sentinel Tires",
+            industry="Automotive",
+            wealth=72,
+            risk_tolerance=50,
+            prestige_preference=58,
+            performance_preference=76,
+            popularity_preference=42,
+            conduct_preference=60,
+            manufacturer_affinity="Vanguard",
+        ),
+        Sponsor(
+            name="Prairie Hardware",
+            industry="Tools",
+            wealth=48,
+            risk_tolerance=58,
+            prestige_preference=40,
+            performance_preference=78,
+            popularity_preference=38,
+            conduct_preference=50,
+            preferred_track_types=["Short Track"],
+        ),
+        Sponsor(
+            name="Lakeview Health",
+            industry="Insurance",
+            wealth=64,
+            risk_tolerance=24,
+            prestige_preference=68,
+            performance_preference=36,
+            popularity_preference=32,
+            conduct_preference=90,
+        ),
+        Sponsor(
+            name="MetroLink Transit",
+            industry="Logistics",
+            wealth=60,
+            risk_tolerance=46,
+            prestige_preference=52,
+            performance_preference=58,
+            popularity_preference=48,
+            conduct_preference=62,
+        ),
+        Sponsor(
+            name="Pulse Mobile",
+            industry="Telecom",
+            wealth=70,
+            risk_tolerance=56,
+            prestige_preference=54,
+            performance_preference=46,
+            popularity_preference=84,
+            conduct_preference=48,
+        ),
+        Sponsor(
+            name="Oak & Iron",
+            industry="Retail",
+            wealth=50,
+            risk_tolerance=44,
+            prestige_preference=48,
+            performance_preference=42,
+            popularity_preference=66,
+            conduct_preference=72,
+        ),
+        Sponsor(
+            name="Nova Semiconductors",
+            industry="Electronics",
+            wealth=82,
+            risk_tolerance=52,
+            prestige_preference=74,
+            performance_preference=80,
+            popularity_preference=50,
+            conduct_preference=58,
+            manufacturer_affinity="Apex",
+        ),
+    ]
+
+
 teams = create_initial_teams()
 drivers = create_initial_drivers()
 sponsors = create_initial_sponsors()
+sponsor_prospects = create_sponsor_prospects()
 
 
 def create_track_pool():

@@ -301,7 +301,7 @@ The league also keeps a market of named sponsor companies. Each company has:
 - A risk posture (cautious brands avoid struggling or aggressive teams; bold brands tolerate them)
 - An optional manufacturer affinity
 
-Offseason team revenue now comes from a named main-sponsor contract when one exists. Signed brands score the season they just backed. A scandal can pull a live deal. The series itself can hold naming rights and official partners.
+Offseason team revenue now comes from a named main-sponsor contract when one exists. Signed brands score the season they just backed. A scandal can pull a live deal. The series itself can hold naming rights and official partners. Companies enter and leave the sponsor market over time.
 
 ### Team Main Sponsors
 
@@ -336,6 +336,12 @@ The series can hold one **naming-rights** partner. That brand's name goes on the
 Up to two **official partners** sit alongside naming rights (official insurance, telecom, and so on). Those checks are smaller. A brand can name the series or be an official partner, not both, but it can still title a team or back a driver.
 
 League deals use the same mood, pay, expiry, and withdrawal rules as team and driver contracts. They grade the series on fan interest, integrity, and controversy. Losing naming rights drops fan interest and raises controversy.
+
+### Sponsorship Market
+
+Named companies sit in an active market of eight to fourteen brands. Ten more companies wait as prospects. Each offseason, after existing deals pay and rematch, the idle brand with the lowest league interest leaves if the market is above the floor, and the waiting prospect with the highest interest enters if the market is below the ceiling.
+
+A brand with a live title deal, endorsement, naming-rights contract, or official-partner slot never leaves. A departed company joins the prospect list and can return later. New arrivals immediately bid on leftover unsigned slots. The dashboard shows active, idle, and waiting counts, and flags a thin market or this season's enter/leave moves.
 
 ### Operating Expenses
 
@@ -388,6 +394,8 @@ Saved data includes:
 - Sponsor deal satisfaction, last delivery, and objective breakdowns
 - Sponsor withdrawals and brands blocked from rematching the same party
 - Series naming rights, official partners, and the league treasury
+- Sponsor prospect companies waiting to enter the market
+- Sponsor market enter/leave log
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -398,13 +406,13 @@ Each season moves through a fixed league calendar:
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order
 - Postseason: standings, awards, championship, and season records are finalized
-- Offseason: drivers develop or decline, retirements are processed, team finances are settled, and paddock rivalries, feuds, and friendships are updated
+- Offseason: drivers develop or decline, retirements are processed, team finances are settled, the sponsor market churns, and paddock rivalries, feuds, and friendships are updated
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, main-sponsor contracts, sponsor withdrawals, the sponsor market, driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), driver-commissioner relationships, active policies, the next race weekend's track, the last weekend's weather, pole, cautions, wrecks, and investigation blame, and key alerts.
 
 ### Decision Events
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from game.models import Driver, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.15"
+SAVE_VERSION = "0.0.16"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -21,6 +21,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.13",
     "0.0.14",
     "0.0.15",
+    "0.0.16",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -378,6 +379,7 @@ def build_save_data(
     events_resolved,
     tracks=None,
     sponsors=None,
+    sponsor_prospects=None,
 ):
     """Build a save file dictionary from live game state."""
 
@@ -411,6 +413,11 @@ def build_save_data(
     if sponsors is not None:
         save_data["sponsors"] = [
             sponsor_to_dict(sponsor) for sponsor in sponsors
+        ]
+
+    if sponsor_prospects is not None:
+        save_data["sponsor_prospects"] = [
+            sponsor_to_dict(sponsor) for sponsor in sponsor_prospects
         ]
 
     return save_data
@@ -465,6 +472,14 @@ def parse_save_data(save_data):
             for sponsor_data in save_data["sponsors"]
         ]
 
+    restored_prospects = None
+
+    if "sponsor_prospects" in save_data:
+        restored_prospects = [
+            sponsor_from_dict(sponsor_data)
+            for sponsor_data in save_data.get("sponsor_prospects") or []
+        ]
+
     return {
         "league": dict(save_data["league"]),
         "race_history": list(save_data["race_history"]),
@@ -474,6 +489,7 @@ def parse_save_data(save_data):
         "retired_drivers": restored_retired,
         "tracks": restored_tracks,
         "sponsors": restored_sponsors,
+        "sponsor_prospects": restored_prospects,
         "current_season": save_data["current_season"],
         "championship_awarded": save_data["championship_awarded"],
         "career_seasons_total": save_data["career_seasons_total"],

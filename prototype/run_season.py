@@ -6,11 +6,13 @@ from pathlib import Path
 from data import (
     create_initial_drivers,
     create_initial_sponsors,
+    create_sponsor_prospects,
     create_initial_teams,
     create_initial_tracks,
     generate_season_schedule,
     drivers,
     sponsors,
+    sponsor_prospects,
     teams,
     tracks,
 )
@@ -165,6 +167,7 @@ league = {
     "official_partners": [],
     "season_commercial_income": 0,
     "career_commercial_income": 0,
+    "sponsor_market_log": [],
 }
 
 race_history = []
@@ -190,6 +193,8 @@ LEAGUE_NAMING_MIN_INTEREST = 55
 LEAGUE_PARTNER_MIN_INTEREST = 48
 OFFICIAL_PARTNER_SLOTS = 2
 SERIES_NAME_BASE = "Stock Car Series"
+SPONSOR_MARKET_MIN = 8
+SPONSOR_MARKET_MAX = 14
 SPONSOR_CONFLICT_CONDUCT_FLOOR = 40
 SPONSOR_CONFLICT_SATISFACTION_FLOOR = 48
 RULING_SPONSOR_SEVERITY = {
@@ -242,6 +247,9 @@ def reset_career_state():
     sponsors.clear()
     sponsors.extend(create_initial_sponsors())
 
+    sponsor_prospects.clear()
+    sponsor_prospects.extend(create_sponsor_prospects())
+
     league["integrity"] = 70
     league["fan_interest"] = 65
     league["controversy"] = 20
@@ -255,6 +263,7 @@ def reset_career_state():
     league["official_partners"] = []
     league["season_commercial_income"] = 0
     league["career_commercial_income"] = 0
+    league["sponsor_market_log"] = []
 
     reset_policies()
 
@@ -323,6 +332,12 @@ def apply_loaded_state(restored_state):
     else:
         sponsors.extend(create_initial_sponsors())
 
+    sponsor_prospects.clear()
+    if restored_state.get("sponsor_prospects") is not None:
+        sponsor_prospects.extend(restored_state["sponsor_prospects"])
+    else:
+        sponsor_prospects.extend(create_sponsor_prospects())
+
     league.clear()
     league.update(restored_state["league"])
     league.setdefault("owner_pressure", 25)
@@ -333,6 +348,7 @@ def apply_loaded_state(restored_state):
     league.setdefault("official_partners", [])
     league.setdefault("season_commercial_income", 0)
     league.setdefault("career_commercial_income", 0)
+    league.setdefault("sponsor_market_log", [])
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
 
@@ -390,6 +406,7 @@ def save_career(save_name=None):
         events_resolved=events_resolved,
         tracks=tracks,
         sponsors=sponsors,
+        sponsor_prospects=sponsor_prospects,
     )
 
     save_path = save_to_file(save_data, save_name)
@@ -589,6 +606,26 @@ def collect_commissioner_alerts():
         alerts.append(
             f"Restless series sponsor: {naming['sponsor']}"
         )
+
+    if len(sponsors) <= SPONSOR_MARKET_MIN:
+        alerts.append("Sponsor market is thin")
+
+    season_moves = [
+        item
+        for item in league.get("sponsor_market_log") or []
+        if item.get("season") == calendar.current_season
+    ]
+    left = [item["name"] for item in season_moves if item.get("action") == "left"]
+    entered = [
+        item["name"] for item in season_moves if item.get("action") == "entered"
+    ]
+    if left or entered:
+        parts = []
+        if left:
+            parts.append("left " + ", ".join(left))
+        if entered:
+            parts.append("entered " + ", ".join(entered))
+        alerts.append("Sponsor market: " + "; ".join(parts))
 
     unhappy_drivers = [
         driver
@@ -832,6 +869,8 @@ def ensure_league_commercial_state():
     league.setdefault("treasury", 0)
     league.setdefault("season_commercial_income", 0)
     league.setdefault("career_commercial_income", 0)
+    if not isinstance(league.get("sponsor_market_log"), list):
+        league["sponsor_market_log"] = []
 
 
 def has_naming_rights():
@@ -2006,6 +2045,11 @@ def display_sponsor_market():
     """Display the named sponsor companies and their current tastes."""
 
     print("Sponsor market")
+    idle_count = len(idle_sponsors())
+    print(
+        f"{len(sponsors)} companies, {idle_count} idle, "
+        f"{len(sponsor_prospects)} waiting to enter"
+    )
 
     if not sponsors:
         print("- No sponsor companies on the market")
@@ -2049,6 +2093,179 @@ def display_sponsor_market():
             f"{series_text}{official_text}{title_text}{backer_text}"
             f"eyes {favorite_text}"
         )
+
+    if sponsor_prospects:
+        print("Waiting to enter")
+        for sponsor in sponsor_prospects:
+            print(
+                f"- {sponsor.description()} | "
+                f"{sponsor.preference_summary()} | "
+                f"${sponsor.spending_power():,}"
+            )
+
+
+def sponsor_has_live_deal(sponsor):
+    """Return whether a brand currently titles, endorses, or backs the series."""
+
+    return bool(
+        team_titled_by(sponsor)
+        or driver_backed_by(sponsor)
+        or series_named_by(sponsor)
+        or official_partner_named(sponsor)
+    )
+
+
+def idle_sponsors():
+    """Return market brands with no live commercial deal."""
+
+    return [
+        sponsor
+        for sponsor in sponsors
+        if not sponsor_has_live_deal(sponsor)
+    ]
+
+
+def record_market_move(action, sponsor, reason):
+    """Append an enter/leave record to the career market log."""
+
+    if not isinstance(league.get("sponsor_market_log"), list):
+        league["sponsor_market_log"] = []
+
+    league["sponsor_market_log"].append(
+        {
+            "season": calendar.current_season,
+            "action": action,
+            "name": sponsor.name,
+            "industry": sponsor.industry,
+            "reason": reason,
+        }
+    )
+
+
+def current_season_market_moves():
+    """Return enter/leave records from the active season."""
+
+    return [
+        item
+        for item in league.get("sponsor_market_log") or []
+        if item.get("season") == calendar.current_season
+    ]
+
+
+def depart_idle_sponsor():
+    """Move the least interested idle brand to the prospect pool. Return it."""
+
+    if len(sponsors) <= SPONSOR_MARKET_MIN:
+        return None
+
+    idle = idle_sponsors()
+    if not idle:
+        return None
+
+    leaving = min(
+        idle,
+        key=lambda sponsor: (
+            sponsor.interest_in_league(league),
+            sponsor.wealth,
+            sponsor.name,
+        ),
+    )
+    sponsors.remove(leaving)
+    sponsor_prospects.append(leaving)
+    record_market_move("left", leaving, "no live deal")
+    return leaving
+
+
+def admit_prospect_sponsor():
+    """Move the most interested waiting brand onto the market. Return it."""
+
+    if len(sponsors) >= SPONSOR_MARKET_MAX:
+        return None
+
+    if not sponsor_prospects:
+        return None
+
+    entering = max(
+        sponsor_prospects,
+        key=lambda sponsor: (
+            sponsor.interest_in_league(league),
+            sponsor.wealth,
+            sponsor.name,
+        ),
+    )
+    sponsor_prospects.remove(entering)
+    sponsors.append(entering)
+    record_market_move("entered", entering, "market opening")
+    return entering
+
+
+def run_offseason_sponsor_market():
+    """Let idle brands leave, admit prospects, and fill leftover deals."""
+
+    print("\nSponsor Market")
+    print("-" * 90)
+
+    left = depart_idle_sponsor()
+    entered = admit_prospect_sponsor()
+
+    if left:
+        print(
+            f"- {left.name} ({left.industry}) left the market "
+            f"— no live deal, interest {left.interest_in_league(league)}"
+        )
+    if entered:
+        print(
+            f"- {entered.name} ({entered.industry}) entered the market "
+            f"— interest {entered.interest_in_league(league)}, "
+            f"${entered.spending_power():,}"
+        )
+    if not left and not entered:
+        print("The sponsor market is unchanged.")
+
+    print(
+        f"Market size: {len(sponsors)} companies, "
+        f"{len(idle_sponsors())} idle, "
+        f"{len(sponsor_prospects)} waiting"
+    )
+
+    new_teams = assign_team_sponsor_deals(
+        season=calendar.current_season,
+        apply_signing_boost=True,
+        blocked=walk_block_set(),
+    )
+    new_drivers = assign_endorsement_deals(
+        season=calendar.current_season,
+        apply_signing_boost=True,
+        blocked=walk_block_set(),
+    )
+    new_league = assign_league_deals(
+        season=calendar.current_season,
+        apply_signing_boost=True,
+        blocked=walk_block_set(),
+    )
+
+    if new_teams or new_drivers or new_league:
+        print("New market deals")
+        for deal in new_teams:
+            print(
+                f"- {deal['team'].name} signs with {deal['sponsor'].name} "
+                f"— ${deal['value']:,}/yr"
+            )
+        for deal in new_drivers:
+            print(
+                f"- {deal['driver'].name} signs with {deal['sponsor'].name} "
+                f"— ${deal['value']:,}/yr"
+            )
+        for deal in new_league:
+            role = (
+                "naming rights"
+                if deal["role"] == "naming"
+                else f"official {deal.get('category')}"
+            )
+            print(
+                f"- {deal['sponsor'].name} signs {role} "
+                f"— ${deal['value']:,}/yr"
+            )
 
 
 def display_driver_endorsements():
@@ -2143,6 +2360,11 @@ def display_league_dashboard():
         f"Fines collected: ${league['fines_collected']:,}"
     )
     print(f"Naming rights: {league_deal_label(league.get('naming_rights'))}")
+    print(
+        f"Sponsor market: {len(sponsors)} active, "
+        f"{len(idle_sponsors())} idle, "
+        f"{len(sponsor_prospects)} waiting"
+    )
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -3300,6 +3522,7 @@ def run_offseason(completed_season):
     run_offseason_team_sponsors()
     run_offseason_endorsements()
     run_offseason_league_sponsors()
+    run_offseason_sponsor_market()
     process_paddock_relationships()
     present_events(
         offseason_events(current_policies, events_resolved)
@@ -4564,6 +4787,11 @@ def display_commissioner_report():
     print("-" * 75)
     print(f"Series: {series_name()}")
     print(f"Naming rights: {league_deal_label(league.get('naming_rights'))}")
+    print(
+        f"Sponsor market: {len(sponsors)} active, "
+        f"{len(idle_sponsors())} idle, "
+        f"{len(sponsor_prospects)} waiting"
+    )
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -4614,6 +4842,14 @@ def save_season_report(season_number):
                 "career_commercial_income",
                 0,
             ),
+            "sponsor_market_size": len(sponsors),
+            "idle_sponsors": [
+                sponsor.name for sponsor in idle_sponsors()
+            ],
+            "waiting_prospects": [
+                sponsor.name for sponsor in sponsor_prospects
+            ],
+            "sponsor_market_log": current_season_market_moves(),
         },
         "policies": dict(current_policies),
         "decisions": [

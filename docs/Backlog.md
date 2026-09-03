@@ -112,3 +112,5 @@
 | 110 | League naming rights | High | Completed |
 | 111 | Official series partners | Medium | Completed |
 | 112 | League treasury | Medium | Completed |
+| 113 | Sponsorship market churn | High | Completed |
+| 114 | Sponsor prospect companies | Medium | Completed |
