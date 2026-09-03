@@ -325,7 +325,7 @@ That score moves a 0–100 satisfaction mood (thrilled, pleased, content, restle
 
 ### Sponsor Conflicts
 
-Cautious and conduct-first brands can pull a live deal when scandal piles up. Conflict heat comes from low satisfaction, poor conduct, warnings, suspensions, insolvent shops, and league controversy. Bold brands tolerate more. A commissioner ruling on a wreck shocks related deals; an unpunished incident or a suspension can trigger an immediate walk.
+Cautious and conduct-first brands can pull a live deal when scandal piles up. Conflict heat comes from low satisfaction, poor conduct, warnings, suspensions, insolvent shops, and league controversy. Bold brands tolerate more. A commissioner ruling on a wreck shocks related deals. Personal endorsers can walk immediately after an unpunished incident or a suspension. Title sponsors take the shock and decide after the season, unless they are already unhappy.
 
 Withdrawal cancels the remaining years. The team or driver goes unsponsored, takes a prestige/morale hit, and that brand will not rematch the same party this offseason. The next check is lost. The dashboard flags `Sponsor walked`. Replacements wait until the offseason market.
 

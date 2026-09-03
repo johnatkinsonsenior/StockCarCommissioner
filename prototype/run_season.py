@@ -1186,6 +1186,8 @@ def apply_ruling_sponsor_fallout(choice, driver, team):
         )
 
         if severity >= 8:
+            if kind == "team" and deal.get("satisfaction", 55) >= 40:
+                continue
             record = maybe_withdraw_deal(
                 kind,
                 party_name,
