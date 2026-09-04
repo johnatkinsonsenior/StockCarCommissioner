@@ -12,6 +12,8 @@ from game.policies import (
     uses_stage_racing,
 )
 
+from game.settings import incident_risk_mod
+
 PRIZE_PERCENTAGES = [0.30, 0.22, 0.17, 0.13, 0.10, 0.08]
 
 WEATHER_CONDITIONS = (
@@ -32,6 +34,12 @@ PART_LABELS = {
 
 def clamp(value, minimum=0, maximum=100):
     return max(minimum, min(value, maximum))
+
+
+def weekend_incident_risk(track):
+    """Return track incident risk after the live difficulty modifier."""
+
+    return clamp(int(track.incident_risk) + int(incident_risk_mod()))
 
 
 def get_team(team_name):
@@ -199,7 +207,7 @@ def calculate_crash_chance(driver, track, weather=None):
     rivalry_heat = getattr(driver, "rivalry_intensity", 0) // 30
 
     crash_chance = (
-        track.incident_risk
+        weekend_incident_risk(track)
         + aggression_effect
         - consistency_effect
         + get_crash_modifier()
@@ -577,7 +585,7 @@ def resolve_contact(driver, track, weather):
 
     if not crashed:
         minor_chance = (
-            track.incident_risk // 4
+            weekend_incident_risk(track) // 4
             + driver.aggression // 20
             + getattr(driver, "rivalry_intensity", 0) // 25
         )
@@ -748,7 +756,7 @@ def get_active_drivers():
 def generate_cautions(track, weather, crash_count, wrecks=None):
     """Return a race-outcome caution count. Not a lap-by-lap wreck chain."""
 
-    base = max(0, track.incident_risk // 10)
+    base = max(0, weekend_incident_risk(track) // 10)
     extra = 1 if weather.get("incident_mod", 0) >= 4 else 0
     major = sum(1 for wreck in (wrecks or []) if wreck.get("major"))
     yellows = base + extra + crash_count + major
@@ -866,7 +874,7 @@ def apply_multi_car_wrecks(results, track):
             distance = abs(other.get("start", 0) - start)
             collect_chance = (
                 16
-                + track.incident_risk // 2
+                + weekend_incident_risk(track) // 2
                 - distance * 7
             )
 
@@ -1034,7 +1042,7 @@ def simulate_race_weekend(track):
     field_size = max(1, len(grid))
     preview_cautions = max(
         0,
-        track.incident_risk // 10
+        weekend_incident_risk(track) // 10
         + (1 if weather.get("incident_mod", 0) >= 4 else 0),
     )
 

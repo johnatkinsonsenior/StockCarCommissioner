@@ -8,8 +8,9 @@ from pathlib import Path
 
 from game.calendar import PHASE_LABELS
 from game.models import Driver, Manufacturer, Network, Owner, Sponsor, Team, Track
+from game.settings import DIFFICULTY_LABELS, settings_from_save
 
-SAVE_VERSION = "0.0.38"
+SAVE_VERSION = "0.0.39"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -47,6 +48,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.36",
     "0.0.37",
     "0.0.38",
+    "0.0.39",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -79,6 +81,7 @@ CAREER_WORLD_KEYS = (
     "sponsor_prospects",
     "networks",
     "manufacturers",
+    "settings",
 )
 
 LEAGUE_DEFAULTS = {
@@ -222,6 +225,8 @@ def career_save_summary(save_data):
         "drivers": len(save_data.get("drivers") or []),
         "dismissed": bool(league.get("dismissed")),
         "series_sponsor": naming.get("sponsor"),
+        "difficulty": (save_data.get("settings") or {}).get("difficulty"),
+        "autosave": (save_data.get("settings") or {}).get("autosave"),
     }
 
 
@@ -262,12 +267,15 @@ def format_save_listing(save_path):
     phase_label = PHASE_LABELS.get(phase, phase or "Unknown")
     teams = summary.get("teams")
     extra = ", dismissed" if summary.get("dismissed") else ""
-    return "%s — Season %s of %s, %s, %s teams%s" % (
+    difficulty = DIFFICULTY_LABELS.get(summary.get("difficulty"), "")
+    difficulty_bit = (", %s" % difficulty) if difficulty else ""
+    return "%s — Season %s of %s, %s, %s teams%s%s" % (
         save_path.name,
         season if season is not None else "?",
         total if total is not None else "?",
         phase_label,
         teams if teams is not None else "?",
+        difficulty_bit,
         extra,
     )
 
@@ -296,6 +304,7 @@ def normalize_save_data(save_data):
     data["calendar"] = calendar_from_save_fields(data)
     if not data.get("calendar_phase"):
         data["calendar_phase"] = data["calendar"].get("phase")
+    data["settings"] = settings_from_save(data)
     data["summary"] = career_save_summary(data)
     return data
 
@@ -736,6 +745,7 @@ def build_save_data(
     development_tracks=None,
     networks=None,
     manufacturers=None,
+    settings=None,
 ):
     """Build a save file dictionary from live game state."""
 
@@ -772,6 +782,7 @@ def build_save_data(
         "sponsor_prospects": _mapped_list(sponsor_prospects, sponsor_to_dict),
         "networks": _mapped_list(networks, network_to_dict),
         "manufacturers": _mapped_list(manufacturers, manufacturer_to_dict),
+        "settings": settings_from_save({"settings": settings}),
     }
     save_data["summary"] = career_save_summary(save_data)
     json_clone(save_data)
@@ -866,6 +877,7 @@ def parse_save_data(save_data):
         "events_resolved": list(save_data.get("events_resolved") or []),
         "had_naming_rights": had_naming_rights,
         "had_tv_rights": had_tv_rights,
+        "settings": dict(save_data.get("settings") or {}),
     }
 
 

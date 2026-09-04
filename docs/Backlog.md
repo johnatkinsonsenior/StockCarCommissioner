@@ -158,3 +158,5 @@
 | 156 | Factory switching | Medium | Completed |
 | 157 | Complete save architecture | High | Completed |
 | 158 | Career world snapshot and load catalog | Medium | Completed |
+| 159 | Game settings | High | Completed |
+| 160 | Difficulty, career length, and autosave | Medium | Completed |

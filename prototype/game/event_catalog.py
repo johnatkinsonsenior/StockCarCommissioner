@@ -7,6 +7,7 @@ from game.calendar import (
     REGULAR_SEASON,
 )
 from game.policies import policy_label
+from game.settings import dismissal_floor, review_floor
 
 
 def _team_by_pressure(teams):
@@ -3225,8 +3226,8 @@ def job_security_ratings(league, teams, drivers):
         "confidence_label": board_confidence_label(confidence),
         "risk": risk,
         "risk_label": dismissal_risk_label(risk),
-        "review": confidence < BOARD_REVIEW_FLOOR,
-        "threatened": confidence < BOARD_DISMISSAL_FLOOR,
+        "review": confidence < review_floor(),
+        "threatened": confidence < dismissal_floor(),
     }
 
 

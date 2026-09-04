@@ -488,8 +488,21 @@ Saved data includes:
 - Prospect call-ups onto open premier seats
 - Manufacturer factory contracts, years remaining, and switch history
 - Nested calendar (season, career length, phase) and a load-menu summary card
+- Game settings: difficulty, career length, and autosave
 
-Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season. Difficulty, season-length settings, and autosave come later.
+Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
+
+## Game Settings
+
+A new career asks for **difficulty**, **career length**, and **autosave**. The same three live on the main-menu settings screen and on the commissioner dashboard.
+
+- Easy: more fan goodwill, a $500,000 league treasury, extra shop budget, quieter race weekends, and a patient board (dismissal floor 27).
+- Normal: the standard opening brief.
+- Hard: hotter politics, thinner wallets, more incident risk, and a restless board (dismissal floor 43).
+- Career length is 3, 5, or 10 seasons. It cannot be shortened below the season already in progress.
+- Autosave can be off, after each offseason, or after each race. The reserved slot is `autosave.json`.
+
+Difficulty and autosave are stored on the career save (0.0.39). Legacy 0.0.38 files load as Normal, three seasons, autosave off.
 
 ## League Calendar
 
@@ -504,7 +517,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, the National Development Series leader or champion, the last prospect call-up, last factory switch and next expiring factory deal, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, the National Development Series leader or champion, the last prospect call-up, last factory switch and next expiring factory deal, difficulty, career length, and autosave, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 

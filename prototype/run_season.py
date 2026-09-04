@@ -36,7 +36,6 @@ from game.calendar import (
 from game.event_catalog import (
     APPROVAL_SLIP_FLOOR,
     BOARD_CONFIDENCE_TILT,
-    BOARD_DISMISSAL_FLOOR,
     DRIVER_COUNCIL_TILT,
     LOBBY_OPPOSITION_TILT,
     LOBBY_SWING_DELTA,
@@ -114,6 +113,26 @@ from game.save_game import (
     load_from_file,
     save_to_file,
 )
+from game.settings import (
+    AUTOSAVE_FILENAME,
+    AUTOSAVE_OFF,
+    AUTOSAVE_OFFSEASON,
+    AUTOSAVE_RACE,
+    DIFFICULTY_EASY,
+    DIFFICULTY_HARD,
+    DIFFICULTY_NORMAL,
+    VALID_CAREER_SEASONS,
+    autosave_label,
+    autosave_on,
+    current_settings,
+    difficulty_label,
+    difficulty_profile,
+    dismissal_floor,
+    load_settings,
+    reset_settings,
+    settings_dashboard_text,
+    settings_to_dict,
+)
 from game.race import (
     PART_LABELS,
     PRIZE_PERCENTAGES,
@@ -126,6 +145,7 @@ from game.race import (
     simulate_race_weekend,
     tire_load,
     weather_label,
+    weekend_incident_risk,
 )
 
 PERSONALITY_REACTIONS = {
@@ -375,10 +395,13 @@ def display_calendar_banner():
     print("-" * 90)
 
 
-def reset_career_state():
+def reset_career_state(keep_settings=False):
     """Restore league data for a brand-new career."""
 
     global championship_awarded
+
+    if not keep_settings:
+        reset_settings()
 
     race_history.clear()
     career_history.clear()
@@ -492,7 +515,7 @@ def reset_career_state():
 
     championship_awarded = False
     calendar.current_season = 1
-    calendar.career_seasons_total = 3
+    calendar.career_seasons_total = current_settings["career_seasons"]
     calendar.enter_preseason()
     sync_calendar_aliases()
     assign_endorsement_deals(
@@ -512,6 +535,7 @@ def reset_career_state():
         apply_signing_boost=False,
     )
     assign_opening_factory_deals(season=calendar.current_season)
+    apply_opening_difficulty()
 
 
 def is_season_mid_progress():
@@ -615,6 +639,7 @@ def apply_loaded_state(restored_state):
         )
 
     load_policies(restored_state.get("policies"))
+    load_settings(restored_state.get("settings"), replace=True)
 
     championship_awarded = restored_state["championship_awarded"]
 
@@ -623,7 +648,11 @@ def apply_loaded_state(restored_state):
         track_count=len(tracks),
     )
     calendar.current_season = restored_calendar.current_season
-    calendar.career_seasons_total = restored_calendar.career_seasons_total
+    calendar.career_seasons_total = max(
+        restored_calendar.current_season,
+        current_settings.get("career_seasons")
+        or restored_calendar.career_seasons_total,
+    )
     calendar.phase = restored_calendar.phase
     sync_calendar_aliases()
 
@@ -683,6 +712,7 @@ def save_career(save_name=None):
         development_tracks=development_tracks,
         networks=networks,
         manufacturers=manufacturers,
+        settings=settings_to_dict(),
     )
 
     save_path = save_to_file(save_data, save_name)
@@ -691,6 +721,194 @@ def save_career(save_name=None):
     print(save_path)
 
     return save_path
+
+
+def apply_season_baseline():
+    """Set the seasonal league health numbers from the live difficulty."""
+
+    profile = difficulty_profile()
+    league["integrity"] = profile["integrity"]
+    league["fan_interest"] = profile["fan_interest"]
+    league["controversy"] = profile["controversy"]
+
+
+def apply_opening_difficulty():
+    """Apply difficulty to a freshly built career world."""
+
+    profile = difficulty_profile()
+    apply_season_baseline()
+    league["owner_pressure"] = profile["owner_pressure"]
+    league["driver_sentiment"] = profile["driver_sentiment"]
+    league["treasury"] = profile["treasury"]
+    bonus = int(profile.get("budget_bonus") or 0)
+    for team in teams:
+        team.budget = max(100_000, team.budget + bonus)
+        team.update_financial_distress()
+
+
+def apply_game_settings(data, restart_opening=False):
+    """Store settings and optionally restat a new career's opening book."""
+
+    load_settings(data)
+    calendar.career_seasons_total = current_settings["career_seasons"]
+    sync_calendar_aliases()
+    if restart_opening:
+        apply_opening_difficulty()
+    return dict(current_settings)
+
+
+def autosave_career():
+    """Write the reserved autosave slot without prompting."""
+
+    path = save_career(save_name="autosave")
+    print("Autosave slot: %s" % AUTOSAVE_FILENAME)
+    return path
+
+
+def maybe_autosave(moment):
+    """Autosave after a race or offseason when that mode is on."""
+
+    if not autosave_on(moment):
+        return None
+    return autosave_career()
+
+
+def prompt_numbered(title, choices):
+    """Ask for a numbered choice. choices is a list of (id, label)."""
+
+    print("\n" + title)
+    valid = []
+    for key, label in choices:
+        print("%s. %s" % (key, label))
+        valid.append(key)
+    while True:
+        choice = input("Choose an option: ").strip()
+        if choice in valid:
+            return choice
+        print("Please enter a valid option.")
+
+
+def prompt_new_career_settings():
+    """Ask difficulty, career length, and autosave before a new career."""
+
+    difficulty_choice = prompt_numbered(
+        "Difficulty",
+        (
+            ("1", "Easy — more fan goodwill, a fatter treasury, a patient board"),
+            ("2", "Normal — the standard commissioner brief"),
+            ("3", "Hard — hotter politics, thinner wallets, a restless board"),
+        ),
+    )
+    difficulty = {
+        "1": DIFFICULTY_EASY,
+        "2": DIFFICULTY_NORMAL,
+        "3": DIFFICULTY_HARD,
+    }[difficulty_choice]
+    length_choice = prompt_numbered(
+        "Career length",
+        (
+            ("1", "3 seasons"),
+            ("2", "5 seasons"),
+            ("3", "10 seasons"),
+        ),
+    )
+    seasons = {"1": 3, "2": 5, "3": 10}[length_choice]
+    autosave_choice = prompt_numbered(
+        "Autosave",
+        (
+            ("1", "Off — save only when asked"),
+            ("2", "After each offseason"),
+            ("3", "After each race"),
+        ),
+    )
+    autosave = {
+        "1": AUTOSAVE_OFF,
+        "2": AUTOSAVE_OFFSEASON,
+        "3": AUTOSAVE_RACE,
+    }[autosave_choice]
+    apply_game_settings(
+        {
+            "difficulty": difficulty,
+            "career_seasons": seasons,
+            "autosave": autosave,
+        }
+    )
+    print("\n" + settings_dashboard_text())
+    return dict(current_settings)
+
+
+def present_settings_menu():
+    """Let the player change difficulty, career length, or autosave."""
+
+    while True:
+        print("\nGame Settings")
+        print("-" * 75)
+        print(settings_dashboard_text())
+        choice = prompt_numbered(
+            "Adjust settings",
+            (
+                ("1", "Change difficulty"),
+                ("2", "Change career length"),
+                ("3", "Change autosave"),
+                ("4", "Back"),
+            ),
+        )
+        if choice == "4":
+            return
+        if choice == "1":
+            picked = prompt_numbered(
+                "Difficulty",
+                (
+                    ("1", "Easy"),
+                    ("2", "Normal"),
+                    ("3", "Hard"),
+                ),
+            )
+            difficulty = {
+                "1": DIFFICULTY_EASY,
+                "2": DIFFICULTY_NORMAL,
+                "3": DIFFICULTY_HARD,
+            }[picked]
+            apply_game_settings({"difficulty": difficulty})
+            print("Difficulty is now %s." % difficulty_label())
+            print("The board and the race weekends feel it immediately.")
+        elif choice == "2":
+            picked = prompt_numbered(
+                "Career length",
+                (
+                    ("1", "3 seasons"),
+                    ("2", "5 seasons"),
+                    ("3", "10 seasons"),
+                ),
+            )
+            seasons = {"1": 3, "2": 5, "3": 10}[picked]
+            if drivers and seasons < calendar.current_season:
+                print(
+                    "Career length cannot be shorter than the current season "
+                    "(%s)." % calendar.current_season
+                )
+                continue
+            apply_game_settings({"career_seasons": seasons})
+            print(
+                "Career length is now %s seasons."
+                % current_settings["career_seasons"]
+            )
+        elif choice == "3":
+            picked = prompt_numbered(
+                "Autosave",
+                (
+                    ("1", "Off"),
+                    ("2", "After each offseason"),
+                    ("3", "After each race"),
+                ),
+            )
+            autosave = {
+                "1": AUTOSAVE_OFF,
+                "2": AUTOSAVE_OFFSEASON,
+                "3": AUTOSAVE_RACE,
+            }[picked]
+            apply_game_settings({"autosave": autosave})
+            print("Autosave is now %s." % autosave_label())
 
 
 def choose_save_file():
@@ -741,12 +959,16 @@ def load_career(save_path=None):
     print("\nCareer loaded:")
     print(save_path)
     print(calendar.description())
+    print(settings_dashboard_text())
 
     return True
 
 
 def prompt_save_career():
     """Offer to save the current career progress."""
+
+    if maybe_autosave(AUTOSAVE_OFFSEASON):
+        return
 
     choice = input("\nSave career progress? (y/n): ").strip().lower()
 
@@ -3757,6 +3979,7 @@ def display_league_dashboard():
     print("\nCommissioner Dashboard")
     print("-" * 90)
     print(calendar.description())
+    print(settings_dashboard_text())
     print(f"Series: {series_name()}")
     print(
         f"Integrity {league['integrity']}/100 | "
@@ -5893,7 +6116,7 @@ def record_board_review(result, event):
     security = refresh_job_security()
     tilt = BOARD_CONFIDENCE_TILT.get(str(result.get("choice_id")), 0)
     standing = max(0, min(100, int(security["confidence"]) + int(tilt)))
-    dismissed = standing < BOARD_DISMISSAL_FLOOR
+    dismissed = standing < dismissal_floor()
     standing_label = board_confidence_label(standing)
     if dismissed:
         verdict = "the board dismisses the commissioner"
@@ -7353,7 +7576,7 @@ def run_race(track, race_number):
     print(f"Race {race_number}: {track.name}")
     print(f"Track type: {track.type}")
     print(f"Layout: {track.description()}")
-    print(f"Incident risk: {track.incident_risk}%")
+    print(f"Incident risk: {weekend_incident_risk(track)}%")
     print(f"Purse: ${track.purse:,}")
     print("=" * 75)
 
@@ -8481,6 +8704,7 @@ def display_commissioner_report():
     print_coalitions_dashboard_line()
     print_lobby_dashboard_line()
     print_rule_vote_dashboard_line()
+    print(settings_dashboard_text())
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -8979,9 +9203,7 @@ def initialize_season(season_number):
     tracks.clear()
     tracks.extend(generate_season_schedule(season_number))
 
-    league["integrity"] = 70
-    league["fan_interest"] = 65
-    league["controversy"] = 20
+    apply_season_baseline()
     league["fines_collected"] = 0
     league["sponsor_walk_blocks"] = []
     league["season_commercial_income"] = 0
@@ -9212,6 +9434,7 @@ def run_regular_season():
                 controversy=league.get("controversy", 0),
             )
         )
+        maybe_autosave(AUTOSAVE_RACE)
 
     calendar.enter_postseason()
     sync_calendar_aliases()
@@ -9588,23 +9811,25 @@ def display_main_menu():
     print("=" * 75)
     if drivers:
         print(series_name())
-    print("1. Start new career (3 seasons)")
+        print(settings_dashboard_text())
+    print("1. Start new career")
     print("2. Load saved career")
     print("3. Save current career")
     print("4. Run one quick season")
-    print("5. Exit")
+    print("5. Game settings")
+    print("6. Exit")
 
 
 def get_main_menu_choice():
     """Return a valid main menu choice."""
 
     while True:
-        choice = input("\nChoose an option (1-5): ").strip()
+        choice = input("\nChoose an option (1-6): ").strip()
 
-        if choice in {"1", "2", "3", "4", "5"}:
+        if choice in {"1", "2", "3", "4", "5", "6"}:
             return choice
 
-        print("Please enter a number from 1 to 5.")
+        print("Please enter a number from 1 to 6.")
 
 
 def main():
@@ -9615,8 +9840,9 @@ def main():
         choice = get_main_menu_choice()
 
         if choice == "1":
-            reset_career_state()
-            run_career(number_of_seasons=3)
+            prompt_new_career_settings()
+            reset_career_state(keep_settings=True)
+            run_career(number_of_seasons=current_settings["career_seasons"])
 
         elif choice == "2":
             if load_career():
@@ -9632,6 +9858,9 @@ def main():
             run_season()
 
         elif choice == "5":
+            present_settings_menu()
+
+        elif choice == "6":
             print("\nGoodbye.")
             break
 
