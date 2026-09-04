@@ -146,3 +146,5 @@
 | 144 | Named drivers outside the premier series | Medium | Completed |
 | 145 | Development series | High | Completed |
 | 146 | Feeder championship races and standings | Medium | Completed |
+| 147 | Prospect progression | High | Completed |
+| 148 | Feeder call-ups to the premier grid | Medium | Completed |

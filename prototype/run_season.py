@@ -249,6 +249,9 @@ league = {
     "dismissal": None,
     "development": None,
     "development_history": [],
+    "last_call_up": None,
+    "season_call_ups": [],
+    "promotion_history": [],
 }
 
 race_history = []
@@ -277,9 +280,17 @@ SERIES_NAME_BASE = "Stock Car Series"
 SPONSOR_MARKET_MIN = 8
 SPONSOR_MARKET_MAX = 14
 PROSPECT_POOL_FLOOR = 6
+PROSPECT_POOL_TARGET = 10
 PROSPECT_READY_FLOOR = 80
 PROSPECT_RADAR_FLOOR = 70
 PROSPECT_DEVELOPING_FLOOR = 60
+PROSPECT_OUTFITS = (
+    ("Heartland Super Lates", "Super Late"),
+    ("Carolina Late Models", "Late Model"),
+    ("Lakeside Modifieds", "Modified"),
+    ("Red Clay Dirt", "Dirt Late Model"),
+    ("Atlantic Touring", "Touring"),
+)
 DEVELOPMENT_SERIES_NAME = "National Development Series"
 DEVELOPMENT_RACE_COUNT = 8
 DEVELOPMENT_POINTS = [20, 18, 16, 15, 14, 13, 12, 11, 10, 9]
@@ -425,6 +436,9 @@ def reset_career_state():
     league["dismissal"] = None
     league["development"] = empty_development_season(1)
     league["development_history"] = []
+    league["last_call_up"] = None
+    league["season_call_ups"] = []
+    league["promotion_history"] = []
 
     reset_policies()
 
@@ -600,6 +614,11 @@ def apply_loaded_state(restored_state):
         league["development"] = empty_development_season(
             restored_state.get("current_season") or 1
         )
+    league.setdefault("last_call_up", None)
+    if not isinstance(league.get("season_call_ups"), list):
+        league["season_call_ups"] = []
+    if not isinstance(league.get("promotion_history"), list):
+        league["promotion_history"] = []
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -928,6 +947,9 @@ def collect_commissioner_alerts():
 
     if not driver_prospects:
         alerts.append("The development series has no field")
+
+    if next_call_up() is not None:
+        alerts.append("A prospect is ready for a call-up")
 
     season_moves = [
         item
@@ -1268,6 +1290,11 @@ def ensure_league_commercial_state():
         league["development"] = empty_development_season(
             calendar.current_season
         )
+    league.setdefault("last_call_up", None)
+    if not isinstance(league.get("season_call_ups"), list):
+        league["season_call_ups"] = []
+    if not isinstance(league.get("promotion_history"), list):
+        league["promotion_history"] = []
 
 
 def has_naming_rights():
@@ -3794,6 +3821,7 @@ def display_league_dashboard():
     print_board_dashboard_line()
     print_prospect_dashboard_line()
     print_development_dashboard_line()
+    print_call_up_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -4937,6 +4965,21 @@ def print_development_dashboard_line():
     print(development_dashboard_text())
 
 
+def call_up_dashboard_text():
+    """Return the compact last-call-up dashboard line."""
+
+    record = league.get("last_call_up")
+    if not record:
+        return "Call-up: none"
+    return "Call-up: {0} → {1}".format(record["name"], record["team"])
+
+
+def print_call_up_dashboard_line():
+    """Print the last premier call-up."""
+
+    print(call_up_dashboard_text())
+
+
 def simulate_development_race(track, field):
     """Run one feeder race among prospects. Does not use the premier sim."""
 
@@ -5128,6 +5171,181 @@ def complete_development_season():
     display_development_standings()
     file_development_season()
     return book
+
+
+def feeder_rank_for(name):
+    """Return (rank, standings row) for a prospect, or (None, None)."""
+
+    for rank, row in enumerate(development_standings(), start=1):
+        if row.get("name") == name:
+            return rank, row
+    return None, None
+
+
+def feeder_progression_for(prospect):
+    """Return readiness/talent ticks from this season's feeder results."""
+
+    rank, _row = feeder_rank_for(prospect.name)
+    if rank is None:
+        return {
+            "delta": 0,
+            "speed": 0,
+            "consistency": 0,
+            "label": "Did not race",
+        }
+    if rank == 1:
+        return {
+            "delta": 8,
+            "speed": 1,
+            "consistency": 1,
+            "label": "Champion",
+        }
+    if rank <= 3:
+        return {
+            "delta": 5,
+            "speed": 1,
+            "consistency": 0,
+            "label": "Podium",
+        }
+    if rank <= 5:
+        return {
+            "delta": 3,
+            "speed": 0,
+            "consistency": 0,
+            "label": "Top five",
+        }
+    return {
+        "delta": 1,
+        "speed": 0,
+        "consistency": 0,
+        "label": "Field",
+    }
+
+
+def progress_prospects():
+    """Age the waiting pool and move readiness from feeder results."""
+
+    print("\nProspect Progression")
+    print("-" * 90)
+
+    if not driver_prospects:
+        print("No prospects waiting outside the premier series.")
+        return []
+
+    changes = []
+    for prospect in list(driver_prospects):
+        prospect.age += 1
+        ticks = feeder_progression_for(prospect)
+        old_readiness = prospect.prospect_readiness()
+        prospect.readiness = clamp(old_readiness + ticks["delta"])
+        prospect.speed = clamp(prospect.speed + ticks["speed"])
+        prospect.consistency = clamp(prospect.consistency + ticks["consistency"])
+        change = {
+            "name": prospect.name,
+            "age": prospect.age,
+            "label": ticks["label"],
+            "old_readiness": old_readiness,
+            "readiness": prospect.readiness,
+            "speed_change": ticks["speed"],
+            "consistency_change": ticks["consistency"],
+        }
+        changes.append(change)
+        print(
+            f"{prospect.name}, age {prospect.age} "
+            f"- {ticks['label']} "
+            f"- Readiness {old_readiness} → {prospect.readiness} "
+            f"- Speed {ticks['speed']:+d} "
+            f"- Consistency {ticks['consistency']:+d}"
+        )
+
+    return changes
+
+
+def next_call_up():
+    """Return the highest-readiness premier-ready prospect, or None."""
+
+    eligible = [
+        prospect
+        for prospect in ranked_prospects()
+        if prospect.prospect_readiness() >= PROSPECT_READY_FLOOR
+    ]
+    if not eligible:
+        return None
+    return eligible[0]
+
+
+def generate_prospect():
+    """Create a new named driver for the waiting pool."""
+
+    outfit, pathway = random.choice(PROSPECT_OUTFITS)
+    prospect = Driver(
+        name=generate_unique_rookie_name(),
+        team_name=outfit,
+        age=random.randint(18, 22),
+        speed=random.randint(60, 72),
+        consistency=random.randint(58, 74),
+        aggression=random.randint(50, 78),
+        personality=random.choice(ROOKIE_PERSONALITIES),
+        rival=None,
+        popularity=random.randint(34, 52),
+        salary=0,
+        contract_years=0,
+        is_rookie=True,
+        pathway=pathway,
+        readiness=random.randint(50, 68),
+    )
+    return prospect
+
+
+def refill_prospect_pool():
+    """Keep the waiting book near the opening size."""
+
+    added = []
+    while len(driver_prospects) < PROSPECT_POOL_TARGET:
+        prospect = generate_prospect()
+        driver_prospects.append(prospect)
+        added.append(prospect)
+    return added
+
+
+def record_call_up(prospect, team_name, replaced_name):
+    """Store a premier call-up on the league book."""
+
+    record = {
+        "season": calendar.current_season,
+        "name": prospect.name,
+        "team": team_name,
+        "replaced": replaced_name,
+        "pathway": prospect.pathway,
+        "age": prospect.age,
+    }
+    league["last_call_up"] = dict(record)
+    if not isinstance(league.get("season_call_ups"), list):
+        league["season_call_ups"] = []
+    league["season_call_ups"].append(dict(record))
+    if not isinstance(league.get("promotion_history"), list):
+        league["promotion_history"] = []
+    league["promotion_history"].append(dict(record))
+    return record
+
+
+def promote_prospect(prospect, team_name, replaced_name=None):
+    """Move a waiting prospect onto a premier seat."""
+
+    if prospect in driver_prospects:
+        driver_prospects.remove(prospect)
+
+    salary = prospect.calculate_market_value()
+    years = random.randint(1, 3)
+    prospect.sign_contract(team_name, salary, years)
+    prospect.is_rookie = True
+    prospect.readiness = None
+    prospect.reset_season()
+    drivers.append(prospect)
+    assign_rookie_rival(prospect)
+    record_call_up(prospect, team_name, replaced_name)
+    refill_prospect_pool()
+    return prospect
 
 
 def record_board_review(result, event):
@@ -5591,28 +5809,41 @@ def retire_driver(driver):
 
 
 def replace_retired_driver(retired_driver):
-    """Create a rookie to fill a retired driver's team seat."""
+    """Fill a retired driver's team seat from the pool, or generate a rookie."""
 
-    rookie = generate_rookie(retired_driver.team_name)
-    drivers.append(rookie)
-    assign_rookie_rival(rookie)
+    team_name = retired_driver.team_name
+    call_up = next_call_up()
+
+    if call_up is not None:
+        incoming = promote_prospect(
+            call_up,
+            team_name,
+            replaced_name=retired_driver.name,
+        )
+        print(
+            f"{incoming.name}, age {incoming.age}, earns a call-up and "
+            f"replaces {retired_driver.name} at {team_name}."
+        )
+    else:
+        incoming = generate_rookie(team_name)
+        drivers.append(incoming)
+        assign_rookie_rival(incoming)
+        print(
+            f"{incoming.name}, age {incoming.age}, replaces "
+            f"{retired_driver.name} at {team_name}."
+        )
 
     print(
-        f"{rookie.name}, age {rookie.age}, joins "
-        f"{rookie.team_name} as a rookie."
+        f"Ratings — Speed: {incoming.speed}, "
+        f"Consistency: {incoming.consistency}, "
+        f"Aggression: {incoming.aggression}, "
+        f"ST {incoming.short_track}/RC {incoming.road_course}/"
+        f"Int {incoming.intermediate}/SS {incoming.superspeedway}, "
+        f"{incoming.personality}, "
+        f"Rival: {incoming.rival or 'none'}"
     )
 
-    print(
-        f"Ratings — Speed: {rookie.speed}, "
-        f"Consistency: {rookie.consistency}, "
-        f"Aggression: {rookie.aggression}, "
-        f"ST {rookie.short_track}/RC {rookie.road_course}/"
-        f"Int {rookie.intermediate}/SS {rookie.superspeedway}, "
-        f"{rookie.personality}, "
-        f"Rival: {rookie.rival or 'none'}"
-    )
-
-    return rookie
+    return incoming
 
 
 def get_team_drivers(team_name):
@@ -6317,6 +6548,8 @@ def run_offseason(completed_season):
         if should_driver_retire(driver):
             retirement_candidates.append(driver)
 
+    progress_prospects()
+
     print("\nRetirement Announcements")
     print("-" * 90)
 
@@ -6324,19 +6557,10 @@ def run_offseason(completed_season):
         print("No drivers retired this offseason.")
     else:
         for retiring_driver in retirement_candidates:
-            team_name = retiring_driver.team_name
-
             retire_driver(retiring_driver)
+            replace_retired_driver(retiring_driver)
 
-            rookie = generate_rookie(team_name)
-            drivers.append(rookie)
-            assign_rookie_rival(rookie)
-
-            print(
-                f"{rookie.name}, age {rookie.age}, replaces "
-                f"{retiring_driver.name} at {team_name}."
-            )
-
+    refill_prospect_pool()
     display_prospect_pool()
 
     run_offseason_finances()
@@ -7689,6 +7913,7 @@ def display_commissioner_report():
     print_board_dashboard_line()
     print_prospect_dashboard_line()
     print_development_dashboard_line()
+    print_call_up_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -7750,6 +7975,13 @@ def save_season_report(season_number):
             "development_races": len(
                 (league.get("development") or {}).get("history") or []
             ),
+            "last_call_up": (
+                dict(league["last_call_up"])
+                if league.get("last_call_up")
+                else None
+            ),
+            "season_call_ups": list(league.get("season_call_ups") or []),
+            "promotion_history": list(league.get("promotion_history") or []),
             "sponsor_market_log": current_season_market_moves(),
             "tv_rights": (
                 dict(league["tv_rights"])
@@ -8152,6 +8384,7 @@ def initialize_season(season_number):
     league["job_security"] = None
 
     reset_development_season(season_number)
+    league["season_call_ups"] = []
 
     for team in teams:
         team.start_new_season()
