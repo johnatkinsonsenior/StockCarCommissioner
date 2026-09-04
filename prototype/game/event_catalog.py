@@ -3300,6 +3300,102 @@ def board_confidence_event(season_number, security):
     }
 
 
+TEAM_FIELD_MAX = 5
+
+
+def team_entry_event(season_number, applicant, field_size):
+    """Offseason charter decision for the next owner in line."""
+
+    applicant = applicant or {}
+    name = applicant.get("owner_name") or "An owner"
+    shop = applicant.get("team_name") or "a new team"
+    priority = applicant.get("priority") or "stability"
+    wealth = applicant.get("wealth", 50)
+    manufacturer = applicant.get("manufacturer") or "Independent"
+
+    return {
+        "id": "team-entry-s{0}".format(season_number),
+        "title": "New Team Applicant: {0}".format(shop),
+        "category": "team-entry",
+        "phase": OFFSEASON,
+        "prompt": (
+            "{0} wants a charter for {1}. Wealth {2}, priority {3}, "
+            "{4} cars. The grid is {5} teams. Grant a charter, defer, "
+            "or deny?"
+        ).format(name, shop, wealth, priority, manufacturer, field_size),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Grant a charter",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": 4},
+                    {"type": "league", "stat": "owner_pressure", "delta": 4},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "{0} is in. Fans like a new shop. "
+                            "Incumbent owners feel the squeeze."
+                        ).format(shop),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Defer the application",
+                "effects": [
+                    {"type": "league", "stat": "owner_pressure", "delta": -1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "{0} stays first in line. "
+                            "Incumbent owners ease slightly."
+                        ).format(name),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Deny the application",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                    {"type": "league", "stat": "fan_interest", "delta": -3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "The book closes on {0}. The series looks "
+                            "disciplined. Fans wanted a new shop."
+                        ).format(shop),
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def team_entry_events(season_number, teams, applicants, resolved_ids):
+    """Return a charter hearing when the field is open and someone is waiting."""
+
+    event_id = "team-entry-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    field = list(teams or [])
+    if len(field) >= TEAM_FIELD_MAX:
+        return []
+    waiting = list(applicants or [])
+    if not waiting:
+        return []
+    return [team_entry_event(season_number, waiting[0], len(field))]
+
+
 def board_confidence_events(season_number, teams, drivers, resolved_ids, league=None):
     """Return a board review when confidence has slipped off Steady."""
 

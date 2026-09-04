@@ -148,3 +148,5 @@
 | 146 | Feeder championship races and standings | Medium | Completed |
 | 147 | Prospect progression | High | Completed |
 | 148 | Feeder call-ups to the premier grid | Medium | Completed |
+| 149 | New team entry | High | Completed |
+| 150 | Named expansion applicants | Medium | Completed |

@@ -289,6 +289,12 @@ The National Development Series is the lower-level championship under the premie
 
 Feeder results write the next offseason's scouting book. The champion jumps the most; a podium, a top-five, and the rest of the field take smaller readiness ticks. The champion also gains a little speed and consistency. When a premier seat opens, the highest-readiness graduate who has crossed the premier-ready floor is called up. The dashboard stores the last call-up. Ready names waiting for a seat raise an alert.
 
+### New Team Entry
+
+Named owners apply for a premier charter. Two shops wait in the opening book: **Ivy Navarro** at **Harbor Racing**, then **Grant Holcomb** at **Ironwood Motorsports**. Both arrive as Independent manufacturers. Offseason, after retirements and call-ups, the commissioner hears the next applicant on the same decision framework: **grant a charter**, **defer the application**, or **deny the application**.
+
+A grant admits the shop, staffs two seats from the prospect pool (or generated rookies), and raises fan interest while incumbent owners feel the squeeze. The owner council gains the new seat automatically. Defer keeps the applicant first in line. Deny drops them from the book. The field caps at five teams; an empty book or a full grid skips the hearing. Legacy saves without an applicant list load an empty book. Failed teams still stay on the grid.
+
 ## Team Finances and Offseason Spending
 
 Teams manage a persistent budget across seasons. Income comes from race prize money and offseason sponsorship deals. Expenses include driver salaries, operating costs, and optional investments.

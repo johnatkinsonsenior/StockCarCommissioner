@@ -59,6 +59,43 @@ def create_initial_teams():
     ]
 
 
+def create_team_applicants():
+    """Return named owners waiting for a premier charter."""
+
+    return [
+        {
+            "owner_name": "Ivy Navarro",
+            "team_name": "Harbor Racing",
+            "personality": "Hands-On",
+            "wealth": 64,
+            "patience": 62,
+            "priority": "prestige",
+            "manufacturer": "Independent",
+            "car_rating": 72,
+            "crew_rating": 70,
+            "reliability": 74,
+            "budget": 3_800_000,
+            "prestige": 48,
+            "engineering": 62,
+        },
+        {
+            "owner_name": "Grant Holcomb",
+            "team_name": "Ironwood Motorsports",
+            "personality": "Hands-On",
+            "wealth": 70,
+            "patience": 58,
+            "priority": "wins",
+            "manufacturer": "Independent",
+            "car_rating": 70,
+            "crew_rating": 68,
+            "reliability": 72,
+            "budget": 4_200_000,
+            "prestige": 44,
+            "engineering": 60,
+        },
+    ]
+
+
 def create_initial_drivers():
     """Return a fresh list of drivers for a new career."""
 
@@ -698,6 +735,7 @@ drivers = create_initial_drivers()
 sponsors = create_initial_sponsors()
 sponsor_prospects = create_sponsor_prospects()
 driver_prospects = create_driver_prospects()
+team_applicants = create_team_applicants()
 networks = create_initial_networks()
 
 

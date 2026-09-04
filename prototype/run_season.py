@@ -6,6 +6,7 @@ from pathlib import Path
 from data import (
     create_initial_drivers,
     create_driver_prospects,
+    create_team_applicants,
     create_initial_networks,
     create_initial_sponsors,
     create_sponsor_prospects,
@@ -16,6 +17,7 @@ from data import (
     development_tracks,
     drivers,
     driver_prospects,
+    team_applicants,
     networks,
     sponsors,
     sponsor_prospects,
@@ -63,10 +65,13 @@ from game.event_catalog import (
     rule_vote_events,
     rule_vote_swing_seat,
     rule_vote_tally,
+    TEAM_FIELD_MAX,
+    team_entry_events,
 )
 from game.events import resolve_event_choice
 from game.models import (
     Driver,
+    Owner,
     Team,
     SPONSOR_RENEWAL_MIN_SATISFACTION,
     TREND_HISTORY_SEASONS,
@@ -252,6 +257,9 @@ league = {
     "last_call_up": None,
     "season_call_ups": [],
     "promotion_history": [],
+    "last_team_entry": None,
+    "season_team_entries": [],
+    "entry_history": [],
 }
 
 race_history = []
@@ -284,6 +292,7 @@ PROSPECT_POOL_TARGET = 10
 PROSPECT_READY_FLOOR = 80
 PROSPECT_RADAR_FLOOR = 70
 PROSPECT_DEVELOPING_FLOOR = 60
+DRIVERS_PER_TEAM = 2
 PROSPECT_OUTFITS = (
     ("Heartland Super Lates", "Super Late"),
     ("Carolina Late Models", "Late Model"),
@@ -359,6 +368,9 @@ def reset_career_state():
 
     driver_prospects.clear()
     driver_prospects.extend(create_driver_prospects())
+
+    team_applicants.clear()
+    team_applicants.extend(create_team_applicants())
 
     teams.clear()
     teams.extend(create_initial_teams())
@@ -439,6 +451,9 @@ def reset_career_state():
     league["last_call_up"] = None
     league["season_call_ups"] = []
     league["promotion_history"] = []
+    league["last_team_entry"] = None
+    league["season_team_entries"] = []
+    league["entry_history"] = []
 
     reset_policies()
 
@@ -490,6 +505,9 @@ def apply_loaded_state(restored_state):
 
     driver_prospects.clear()
     driver_prospects.extend(restored_state.get("driver_prospects") or [])
+
+    team_applicants.clear()
+    team_applicants.extend(restored_state.get("team_applicants") or [])
 
     decision_log.clear()
     decision_log.extend(restored_state.get("decision_log") or [])
@@ -619,6 +637,11 @@ def apply_loaded_state(restored_state):
         league["season_call_ups"] = []
     if not isinstance(league.get("promotion_history"), list):
         league["promotion_history"] = []
+    league.setdefault("last_team_entry", None)
+    if not isinstance(league.get("season_team_entries"), list):
+        league["season_team_entries"] = []
+    if not isinstance(league.get("entry_history"), list):
+        league["entry_history"] = []
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -686,6 +709,7 @@ def save_career(save_name=None):
         sponsors=sponsors,
         sponsor_prospects=sponsor_prospects,
         driver_prospects=driver_prospects,
+        team_applicants=team_applicants,
         development_tracks=development_tracks,
         networks=networks,
     )
@@ -950,6 +974,9 @@ def collect_commissioner_alerts():
 
     if next_call_up() is not None:
         alerts.append("A prospect is ready for a call-up")
+
+    if team_applicants and len(teams) < TEAM_FIELD_MAX:
+        alerts.append("An owner has applied to enter")
 
     season_moves = [
         item
@@ -1295,6 +1322,11 @@ def ensure_league_commercial_state():
         league["season_call_ups"] = []
     if not isinstance(league.get("promotion_history"), list):
         league["promotion_history"] = []
+    league.setdefault("last_team_entry", None)
+    if not isinstance(league.get("season_team_entries"), list):
+        league["season_team_entries"] = []
+    if not isinstance(league.get("entry_history"), list):
+        league["entry_history"] = []
 
 
 def has_naming_rights():
@@ -3822,6 +3854,7 @@ def display_league_dashboard():
     print_prospect_dashboard_line()
     print_development_dashboard_line()
     print_call_up_dashboard_line()
+    print_team_entry_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -4980,6 +5013,32 @@ def print_call_up_dashboard_line():
     print(call_up_dashboard_text())
 
 
+def team_entry_dashboard_text():
+    """Return the compact charter-applicant dashboard line."""
+
+    record = league.get("last_team_entry")
+    if not record:
+        entry_label = "none"
+    else:
+        entry_label = record.get("summary") or "none"
+    if not team_applicants:
+        applicant_label = "none waiting"
+    else:
+        lead = team_applicants[0]
+        applicant_label = "{0} — {1} ({2})".format(
+            len(team_applicants),
+            lead.get("owner_name") or "an owner",
+            lead.get("team_name") or "a new team",
+        )
+    return "Entry: {0} | Applicants: {1}".format(entry_label, applicant_label)
+
+
+def print_team_entry_dashboard_line():
+    """Print the last charter decision and who is waiting."""
+
+    print(team_entry_dashboard_text())
+
+
 def simulate_development_race(track, field):
     """Run one feeder race among prospects. Does not use the premier sim."""
 
@@ -5348,6 +5407,110 @@ def promote_prospect(prospect, team_name, replaced_name=None):
     return prospect
 
 
+def staff_expansion_seat(team_name):
+    """Fill one new-team seat from the pool, or generate a rookie."""
+
+    call_up = next_call_up()
+    if call_up is not None:
+        driver = promote_prospect(call_up, team_name)
+        print(
+            f"{driver.name}, age {driver.age}, earns a call-up and "
+            f"joins {team_name}."
+        )
+        return driver
+    driver = generate_rookie(team_name)
+    drivers.append(driver)
+    assign_rookie_rival(driver)
+    print(
+        f"{driver.name}, age {driver.age}, signs as a rookie with "
+        f"{team_name}."
+    )
+    return driver
+
+
+def admit_expansion_team(applicant):
+    """Add a granted applicant as a premier team with a full driver roster."""
+
+    owner = Owner(
+        name=applicant["owner_name"],
+        personality=applicant.get("personality") or "Hands-On",
+        wealth=applicant.get("wealth", 50),
+        patience=applicant.get("patience", 50),
+        priority=applicant.get("priority") or "stability",
+    )
+    team = Team(
+        name=applicant["team_name"],
+        manufacturer=applicant.get("manufacturer") or "Independent",
+        car_rating=applicant.get("car_rating", 70),
+        crew_rating=applicant.get("crew_rating", 68),
+        reliability=applicant.get("reliability", 72),
+        starting_budget=applicant.get("budget", 3_800_000),
+        owner=owner,
+        prestige=applicant.get("prestige", 48),
+        engineering=applicant.get("engineering", 60),
+    )
+    teams.append(team)
+    print("\nNew Team Entry")
+    print(
+        f"{team.name} is admitted. {owner.name} owns the shop "
+        f"({owner.personality}, {owner.priority}). "
+        f"{team.manufacturer} cars."
+    )
+    for _ in range(DRIVERS_PER_TEAM):
+        staff_expansion_seat(team.name)
+    if applicant in team_applicants:
+        team_applicants.remove(applicant)
+    return team
+
+
+def record_team_entry(result, event):
+    """Apply a charter grant, deferral, or denial."""
+
+    ensure_league_commercial_state()
+    choice_id = str(result.get("choice_id"))
+    applicant = team_applicants[0] if team_applicants else None
+    summary = "none"
+    action = None
+    admitted_team = None
+    owner_name = None
+    if applicant is not None:
+        owner_name = applicant.get("owner_name")
+        shop = applicant.get("team_name") or "a new team"
+        if choice_id == "1":
+            team = admit_expansion_team(applicant)
+            action = "admitted"
+            summary = "%s admitted" % team.name
+            admitted_team = team.name
+            owner_name = team.owner.name
+        elif choice_id == "2":
+            action = "deferred"
+            summary = "%s deferred" % shop
+        elif choice_id == "3":
+            denied = team_applicants.pop(0)
+            action = "denied"
+            summary = "%s denied" % (denied.get("team_name") or shop)
+            owner_name = denied.get("owner_name") or owner_name
+
+    record = {
+        "season": calendar.current_season,
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "outcome": result.get("outcome"),
+        "action": action,
+        "summary": summary,
+        "owner_name": owner_name,
+        "admitted_team": admitted_team,
+    }
+    league["last_team_entry"] = dict(record)
+    if not isinstance(league.get("season_team_entries"), list):
+        league["season_team_entries"] = []
+    league["season_team_entries"].append(dict(record))
+    if not isinstance(league.get("entry_history"), list):
+        league["entry_history"] = []
+    league["entry_history"].append(dict(record))
+    return record
+
+
 def record_board_review(result, event):
     """Apply the board hearing and dismiss the commissioner if they fall."""
 
@@ -5602,6 +5765,8 @@ def present_events(event_list):
             record_rule_vote(result, event)
         if result and result.get("category") == "board-confidence":
             record_board_review(result, event)
+        if result and result.get("category") == "team-entry":
+            record_team_entry(result, event)
         if result:
             results.append(result)
 
@@ -6562,6 +6727,15 @@ def run_offseason(completed_season):
 
     refill_prospect_pool()
     display_prospect_pool()
+
+    present_events(
+        team_entry_events(
+            calendar.current_season,
+            teams,
+            team_applicants,
+            events_resolved,
+        )
+    )
 
     run_offseason_finances()
     run_offseason_team_sponsors()
@@ -7914,6 +8088,7 @@ def display_commissioner_report():
     print_prospect_dashboard_line()
     print_development_dashboard_line()
     print_call_up_dashboard_line()
+    print_team_entry_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -7982,6 +8157,18 @@ def save_season_report(season_number):
             ),
             "season_call_ups": list(league.get("season_call_ups") or []),
             "promotion_history": list(league.get("promotion_history") or []),
+            "last_team_entry": (
+                dict(league["last_team_entry"])
+                if league.get("last_team_entry")
+                else None
+            ),
+            "season_team_entries": list(
+                league.get("season_team_entries") or []
+            ),
+            "entry_history": list(league.get("entry_history") or []),
+            "waiting_team_applicants": [
+                item.get("team_name") for item in team_applicants
+            ],
             "sponsor_market_log": current_season_market_moves(),
             "tv_rights": (
                 dict(league["tv_rights"])
@@ -8385,6 +8572,8 @@ def initialize_season(season_number):
 
     reset_development_season(season_number)
     league["season_call_ups"] = []
+    league["last_team_entry"] = None
+    league["season_team_entries"] = []
 
     for team in teams:
         team.start_new_season()

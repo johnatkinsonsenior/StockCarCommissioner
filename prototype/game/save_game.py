@@ -6,7 +6,7 @@ from pathlib import Path
 
 from game.models import Driver, Network, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.33"
+SAVE_VERSION = "0.0.34"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -39,6 +39,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.31",
     "0.0.32",
     "0.0.33",
+    "0.0.34",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -438,6 +439,7 @@ def build_save_data(
     sponsors=None,
     sponsor_prospects=None,
     driver_prospects=None,
+    team_applicants=None,
     development_tracks=None,
     networks=None,
 ):
@@ -468,6 +470,9 @@ def build_save_data(
         "driver_prospects": [
             driver_to_dict(driver)
             for driver in (driver_prospects or [])
+        ],
+        "team_applicants": [
+            dict(item) for item in (team_applicants or [])
         ],
         "development_tracks": [
             track_to_dict(track)
@@ -537,6 +542,17 @@ def parse_save_data(save_data):
             for driver_data in save_data.get("driver_prospects") or []
         ]
 
+    restored_team_applicants = []
+
+    if "team_applicants" in save_data:
+        for raw in save_data.get("team_applicants") or []:
+            if (
+                isinstance(raw, dict)
+                and raw.get("owner_name")
+                and raw.get("team_name")
+            ):
+                restored_team_applicants.append(dict(raw))
+
     restored_development_tracks = []
 
     if "development_tracks" in save_data:
@@ -585,6 +601,7 @@ def parse_save_data(save_data):
         "teams": restored_teams,
         "retired_drivers": restored_retired,
         "driver_prospects": restored_driver_prospects,
+        "team_applicants": restored_team_applicants,
         "development_tracks": restored_development_tracks,
         "tracks": restored_tracks,
         "sponsors": restored_sponsors,

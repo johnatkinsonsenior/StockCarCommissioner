@@ -3,6 +3,7 @@
 from .season_data import (
     create_initial_drivers,
     create_driver_prospects,
+    create_team_applicants,
     create_initial_networks,
     create_initial_sponsors,
     create_sponsor_prospects,
@@ -14,6 +15,7 @@ from .season_data import (
     development_tracks,
     drivers,
     driver_prospects,
+    team_applicants,
     networks,
     sponsors,
     sponsor_prospects,
@@ -24,6 +26,7 @@ from .season_data import (
 __all__ = [
     "create_initial_drivers",
     "create_driver_prospects",
+    "create_team_applicants",
     "create_initial_networks",
     "create_initial_sponsors",
     "create_sponsor_prospects",
@@ -35,6 +38,7 @@ __all__ = [
     "development_tracks",
     "drivers",
     "driver_prospects",
+    "team_applicants",
     "networks",
     "sponsors",
     "sponsor_prospects",
