@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–72 complete (Week 11 underway). Next coding day: **Day
-73 — Rule proposals**.
+**Current position:** Days 1–73 complete (Week 11 underway). Next coding day: **Day
+74 — Voting system**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -123,7 +123,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 ## Week 11 — League Politics
 - [x] Day 71 — Owner council (representation and voting)
 - [x] Day 72 — Driver council (representation and feedback)
-- [ ] Day 73 — Rule proposals (stakeholder-introduced changes)
+- [x] Day 73 — Rule proposals (stakeholder-introduced changes)
 - [ ] Day 74 — Voting system (approve/reject rules, record votes)
 - [ ] Day 75 — Political influence (lobbying, coalitions)
 - [ ] Day 76 — Approval rating (fans, owners, drivers)
