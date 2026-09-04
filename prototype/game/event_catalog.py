@@ -2370,6 +2370,252 @@ def driver_council_events(season_number, drivers, resolved_ids, league=None):
     return [driver_council_event(season_number, drivers, league)]
 
 
+OWNER_PRIORITY_PROPOSALS = {
+    "wins": (
+        ("points_system", "winner-heavy"),
+        ("championship_format", "playoff"),
+        ("scoring_bonuses", "rich"),
+    ),
+    "stability": (
+        ("points_system", "flattened"),
+        ("championship_format", "season-long"),
+        ("penalty_standard", "balanced"),
+    ),
+    "cost-control": (
+        ("technical_rules", "aero-restrict"),
+        ("safety_standard", "current"),
+        ("penalty_standard", "lenient"),
+    ),
+    "prestige": (
+        ("scoring_bonuses", "rich"),
+        ("race_format", "stage-racing"),
+        ("championship_format", "playoff"),
+    ),
+}
+
+DRIVER_COUNCIL_PROPOSALS = (
+    ("safety_standard", "enhanced"),
+    ("penalty_standard", "strict"),
+    ("technical_rules", "inspection-heavy"),
+)
+
+
+def _first_new_policy(policies, options):
+    """Return the first (key, value) that is not already in force."""
+
+    policies = policies or {}
+    options = list(options or [])
+    for key, value in options:
+        if policies.get(key) != value:
+            return key, value
+    if options:
+        return options[0]
+    return None, None
+
+
+def _owner_by_priority(teams, priority):
+    """Return a team whose owner has this priority, or None."""
+
+    for team in teams or []:
+        if team.owner.priority == priority:
+            return team
+    return None
+
+
+def build_rule_proposal(source, sponsor, body, policy_key, proposed_value, policies):
+    """Return a stakeholder rule-proposal dictionary."""
+
+    policies = policies or {}
+    current_value = policies.get(policy_key)
+    return {
+        "source": source,
+        "sponsor": sponsor,
+        "body": body,
+        "policy_key": policy_key,
+        "current_value": current_value,
+        "proposed_value": proposed_value,
+        "headline": policy_label(policy_key, proposed_value),
+        "current_label": policy_label(policy_key, current_value),
+    }
+
+
+def owner_chair_rule_proposal(teams, policies):
+    """Return a proposal from the owner-council chair's priority."""
+
+    chair = owner_council_chair(teams)
+    if chair is None:
+        return None
+    options = OWNER_PRIORITY_PROPOSALS.get(
+        chair.owner.priority,
+        OWNER_PRIORITY_PROPOSALS["stability"],
+    )
+    key, value = _first_new_policy(policies, options)
+    if key is None:
+        return None
+    return build_rule_proposal(
+        "owner-council",
+        chair.owner.name,
+        "Owner Council",
+        key,
+        value,
+        policies,
+    )
+
+
+def driver_chair_rule_proposal(drivers, policies):
+    """Return a proposal from the driver-council chair."""
+
+    chair = driver_council_chair(drivers)
+    if chair is None:
+        return None
+    key, value = _first_new_policy(policies, DRIVER_COUNCIL_PROPOSALS)
+    if key is None:
+        return None
+    return build_rule_proposal(
+        "driver-council",
+        chair.name,
+        "Driver Council",
+        key,
+        value,
+        policies,
+    )
+
+
+def cost_control_rule_proposal(teams, policies):
+    """Return a cost-control owner's technical proposal."""
+
+    team = _owner_by_priority(teams, "cost-control")
+    if team is None:
+        return owner_chair_rule_proposal(teams, policies)
+    key, value = _first_new_policy(
+        policies,
+        OWNER_PRIORITY_PROPOSALS["cost-control"],
+    )
+    if key is None:
+        return None
+    return build_rule_proposal(
+        "owner",
+        team.owner.name,
+        team.name,
+        key,
+        value,
+        policies,
+    )
+
+
+def select_rule_proposal(teams, drivers, league, policies, season_number=1):
+    """Pick this season's stakeholder proposal."""
+
+    league = league or {}
+    last_garage = league.get("last_driver_council") or {}
+    last_owners = league.get("last_owner_council") or {}
+
+    if last_garage.get("protested"):
+        return driver_chair_rule_proposal(drivers, policies)
+    if last_owners.get("passed"):
+        return owner_chair_rule_proposal(teams, policies)
+
+    cycle = (int(season_number or 1) - 1) % 3
+    if cycle == 1:
+        return driver_chair_rule_proposal(drivers, policies)
+    if cycle == 2:
+        return cost_control_rule_proposal(teams, policies)
+    return owner_chair_rule_proposal(teams, policies)
+
+
+def rule_proposal_event(season_number, proposal):
+    """Postseason stakeholder proposal the commissioner may docket."""
+
+    proposal = proposal or {}
+    headline = proposal.get("headline") or "a rule change"
+    sponsor = proposal.get("sponsor") or "a stakeholder"
+    body = proposal.get("body") or "the paddock"
+    current = proposal.get("current_label") or "the current rule"
+
+    return {
+        "id": "rule-proposal-s{0}".format(season_number),
+        "title": "Rule Proposal",
+        "category": "rule-proposal",
+        "phase": POSTSEASON,
+        "proposal": dict(proposal),
+        "prompt": (
+            "{0} of the {1} introduces a rule proposal: adopt {2} "
+            "(currently {3}). They want it on the next agenda. "
+            "A vote comes later. What do you do with the paper?"
+        ).format(sponsor, body, headline, current),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Docket it for a later vote",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "The paper goes on the docket. Voting comes later.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Table it",
+                "effects": [
+                    {"type": "league", "stat": "controversy", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You table it. The sponsor calls it a stall.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Kill the proposal",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                    {"type": "league", "stat": "controversy", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You kill it. The sponsor leaves angry.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def rule_proposal_events(
+    season_number,
+    teams,
+    drivers,
+    resolved_ids,
+    league=None,
+    policies=None,
+):
+    """Return a stakeholder rule-proposal event when unresolved."""
+
+    event_id = "rule-proposal-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    proposal = select_rule_proposal(
+        teams,
+        drivers,
+        league,
+        policies,
+        season_number,
+    )
+    if not proposal:
+        return []
+    return [rule_proposal_event(season_number, proposal)]
+
+
 def preseason_events(policies, season_number):
     """Return the preseason rule-change event for this season."""
 

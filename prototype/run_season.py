@@ -41,6 +41,7 @@ from game.event_catalog import (
     postseason_events,
     preseason_events,
     regular_season_events,
+    rule_proposal_events,
 )
 from game.events import resolve_event_choice
 from game.models import (
@@ -210,6 +211,9 @@ league = {
     "last_owner_council": None,
     "season_driver_councils": [],
     "last_driver_council": None,
+    "season_rule_proposals": [],
+    "last_rule_proposal": None,
+    "rule_docket": [],
 }
 
 race_history = []
@@ -356,6 +360,9 @@ def reset_career_state():
     league["last_owner_council"] = None
     league["season_driver_councils"] = []
     league["last_driver_council"] = None
+    league["season_rule_proposals"] = []
+    league["last_rule_proposal"] = None
+    league["rule_docket"] = []
 
     reset_policies()
 
@@ -489,6 +496,11 @@ def apply_loaded_state(restored_state):
     if not isinstance(league.get("season_driver_councils"), list):
         league["season_driver_councils"] = []
     league.setdefault("last_driver_council", None)
+    if not isinstance(league.get("season_rule_proposals"), list):
+        league["season_rule_proposals"] = []
+    league.setdefault("last_rule_proposal", None)
+    if not isinstance(league.get("rule_docket"), list):
+        league["rule_docket"] = []
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -786,6 +798,9 @@ def collect_commissioner_alerts():
         alerts.append("Driver council filed a protest")
     elif driver_council_mood(drivers, league.get("driver_sentiment", 60)) == "restless":
         alerts.append("Driver council is restless")
+
+    if league.get("rule_docket"):
+        alerts.append("Rule proposal on the docket")
 
     last_fill = league.get("last_gate_fill")
     if last_fill is not None and last_fill < 55:
@@ -1108,6 +1123,11 @@ def ensure_league_commercial_state():
     if not isinstance(league.get("season_driver_councils"), list):
         league["season_driver_councils"] = []
     league.setdefault("last_driver_council", None)
+    if not isinstance(league.get("season_rule_proposals"), list):
+        league["season_rule_proposals"] = []
+    league.setdefault("last_rule_proposal", None)
+    if not isinstance(league.get("rule_docket"), list):
+        league["rule_docket"] = []
 
 
 def has_naming_rights():
@@ -3677,6 +3697,7 @@ def display_league_dashboard():
     print_scandal_dashboard_line()
     print_council_dashboard_line()
     print_driver_council_dashboard_line()
+    print_proposal_dashboard_line()
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -4232,6 +4253,120 @@ def print_driver_council_dashboard_line():
     )
 
 
+def _proposal_source_is_garage(proposal):
+    """Return whether the sponsor is the driver council."""
+
+    return (proposal or {}).get("source") == "driver-council"
+
+
+def record_rule_proposal(result, event):
+    """Store a stakeholder proposal and update the docket."""
+
+    ensure_league_commercial_state()
+    proposal = dict((event or {}).get("proposal") or {})
+    choice_id = str(result.get("choice_id") or "")
+    if choice_id == "1":
+        status = "docketed"
+    elif choice_id == "2":
+        status = "tabled"
+    else:
+        status = "killed"
+
+    garage = _proposal_source_is_garage(proposal)
+    if status == "docketed":
+        if garage:
+            league["driver_sentiment"] = clamp(
+                league.get("driver_sentiment", 60) + 3
+            )
+        else:
+            league["owner_pressure"] = clamp(
+                league.get("owner_pressure", 0) - 3
+            )
+    elif status == "tabled":
+        if garage:
+            league["driver_sentiment"] = clamp(
+                league.get("driver_sentiment", 60) - 2
+            )
+        else:
+            league["owner_pressure"] = clamp(
+                league.get("owner_pressure", 0) + 2
+            )
+    else:
+        if garage:
+            league["driver_sentiment"] = clamp(
+                league.get("driver_sentiment", 60) - 6
+            )
+        else:
+            league["owner_pressure"] = clamp(
+                league.get("owner_pressure", 0) + 6
+            )
+
+    record = {
+        "season": calendar.current_season,
+        "status": status,
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "outcome": result.get("outcome"),
+        "source": proposal.get("source"),
+        "sponsor": proposal.get("sponsor"),
+        "body": proposal.get("body"),
+        "policy_key": proposal.get("policy_key"),
+        "current_value": proposal.get("current_value"),
+        "proposed_value": proposal.get("proposed_value"),
+        "headline": proposal.get("headline"),
+        "current_label": proposal.get("current_label"),
+    }
+
+    if status == "docketed":
+        league["rule_docket"].append(dict(record))
+
+    print("\nRule Proposal — {0}".format(record.get("headline")))
+    print(
+        "Sponsor: {0} ({1})".format(
+            record.get("sponsor"),
+            record.get("body"),
+        )
+    )
+    print("Current: {0}".format(record.get("current_label")))
+    print("Status: {0}".format(status))
+
+    league["last_rule_proposal"] = record
+    league["season_rule_proposals"].append(record)
+    return record
+
+
+def print_proposal_dashboard_line():
+    """Print the stakeholder-proposal line for the dashboard."""
+
+    ensure_league_commercial_state()
+    docket = league.get("rule_docket") or []
+    if docket:
+        lead = docket[-1]
+        extra = ""
+        if len(docket) > 1:
+            extra = " +{0} more".format(len(docket) - 1)
+        print(
+            "Proposals: {0} docketed — {1} ({2}){3}".format(
+                len(docket),
+                lead.get("headline"),
+                lead.get("body"),
+                extra,
+            )
+        )
+        return
+    last = league.get("last_rule_proposal")
+    if not last:
+        print("Proposals: none on the docket")
+        return
+    print(
+        'Proposals: last {0} "{1}" — {2}'.format(
+            last.get("status"),
+            last.get("headline"),
+            last.get("body"),
+        )
+    )
+
+
 def present_events(event_list):
     """Present each unresolved event in order."""
 
@@ -4256,6 +4391,8 @@ def present_events(event_list):
             record_owner_council(result)
         if result and result.get("category") == "driver-council":
             record_driver_council(result)
+        if result and result.get("category") == "rule-proposal":
+            record_rule_proposal(result, event)
         if result:
             results.append(result)
 
@@ -6533,6 +6670,7 @@ def display_commissioner_report():
     print_scandal_dashboard_line()
     print_council_dashboard_line()
     print_driver_council_dashboard_line()
+    print_proposal_dashboard_line()
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -6640,6 +6778,15 @@ def save_season_report(season_number):
                 if league.get("last_driver_council")
                 else None
             ),
+            "season_rule_proposals": list(
+                league.get("season_rule_proposals") or []
+            ),
+            "last_rule_proposal": (
+                dict(league["last_rule_proposal"])
+                if league.get("last_rule_proposal")
+                else None
+            ),
+            "rule_docket": list(league.get("rule_docket") or []),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -6928,6 +7075,8 @@ def initialize_season(season_number):
     league["last_owner_council"] = None
     league["season_driver_councils"] = []
     league["last_driver_council"] = None
+    league["season_rule_proposals"] = []
+    league["last_rule_proposal"] = None
 
     for team in teams:
         team.start_new_season()
@@ -7140,6 +7289,16 @@ def run_postseason(season_number):
             events_resolved,
             league,
             season_number,
+        )
+    )
+    present_events(
+        rule_proposal_events(
+            season_number,
+            teams,
+            drivers,
+            events_resolved,
+            league,
+            current_policies,
         )
     )
 

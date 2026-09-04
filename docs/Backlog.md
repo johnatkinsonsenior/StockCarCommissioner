@@ -132,3 +132,5 @@
 | 130 | Owner council votes | Medium | Completed |
 | 131 | Driver council | High | Completed |
 | 132 | Driver council feedback | Medium | Completed |
+| 133 | Rule proposals | High | Completed |
+| 134 | Stakeholder-introduced changes | Medium | Completed |

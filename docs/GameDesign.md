@@ -451,6 +451,7 @@ Saved data includes:
 - Media-controversy answers and scandal headlines
 - Owner-council seats, chair, and rebuke votes
 - Driver-council seats, chair, and feedback
+- Stakeholder rule proposals and the docket
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -467,11 +468,11 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 
-Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, and driver-council matters use one shared decision framework:
+Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, driver-council, and rule-proposal matters use one shared decision framework:
 
 - A prompt and numbered choices
 - Immediate consequences
@@ -489,6 +490,14 @@ During preseason the commissioner may set:
 - Technical rules
 
 These policies persist between seasons and affect scoring, incident risk, fines, and operating costs. Stage points, when the format is stage racing, are taken from the same championship points table rather than a separate scoring system.
+
+Owners and drivers can also **introduce** rule proposals after the championship. The commissioner dockets, tables, or kills the paper. A later vote decides whether the policy actually changes.
+
+### Rule Proposals
+
+Postseason, a stakeholder puts a rule change on the table. The owner-council chair files from that owner's priority (wins, stability, cost-control, or prestige). The driver-council chair files garage paper (safety, stricter enforcement, or heavier inspection). A concerned garage protest steers the paper to the drivers; a passed owner rebuke steers it to the owners. Otherwise the sponsor rotates by season.
+
+Three answers sit on the same decision framework: **docket it for a later vote** (the paper waits; the sponsor eases), **table it** (a stall), or **kill the proposal** (integrity up, the sponsor leaves angry). Docketing does not change the rulebook. Voting comes later. The dashboard shows the docket.
 
 ### Safety Mandates
 
