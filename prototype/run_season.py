@@ -8,6 +8,7 @@ from data import (
     create_driver_prospects,
     create_team_applicants,
     create_initial_networks,
+    create_initial_manufacturers,
     create_initial_sponsors,
     create_sponsor_prospects,
     create_initial_teams,
@@ -19,6 +20,7 @@ from data import (
     driver_prospects,
     team_applicants,
     networks,
+    manufacturers,
     sponsors,
     sponsor_prospects,
     teams,
@@ -74,6 +76,7 @@ from game.event_catalog import (
 from game.events import resolve_event_choice
 from game.models import (
     Driver,
+    Manufacturer,
     Owner,
     Team,
     SPONSOR_RENEWAL_MIN_SATISFACTION,
@@ -113,7 +116,10 @@ from game.race import (
     PRIZE_PERCENTAGES,
     clamp,
     get_driver,
+    get_manufacturer,
     get_team,
+    manufacturer_pace_mod,
+    manufacturer_reliability_mod,
     simulate_race_weekend,
     tire_load,
     weather_label,
@@ -397,6 +403,9 @@ def reset_career_state():
     networks.clear()
     networks.extend(create_initial_networks())
 
+    manufacturers.clear()
+    manufacturers.extend(create_initial_manufacturers())
+
     league["integrity"] = 70
     league["fan_interest"] = 65
     league["controversy"] = 20
@@ -565,6 +574,12 @@ def apply_loaded_state(restored_state):
     else:
         networks.extend(create_initial_networks())
 
+    manufacturers.clear()
+    if restored_state.get("manufacturers") is not None:
+        manufacturers.extend(restored_state["manufacturers"])
+    else:
+        manufacturers.extend(create_initial_manufacturers())
+
     league.clear()
     league.update(restored_state["league"])
     league.setdefault("owner_pressure", 25)
@@ -727,6 +742,7 @@ def save_career(save_name=None):
         team_applicants=team_applicants,
         development_tracks=development_tracks,
         networks=networks,
+        manufacturers=manufacturers,
     )
 
     save_path = save_to_file(save_data, save_name)
@@ -995,6 +1011,16 @@ def collect_commissioner_alerts():
 
     if any(team.financial_distress_level >= 3 for team in teams):
         alerts.append("A team is insolvent")
+
+    dark_makers = [
+        maker
+        for maker in manufacturers
+        if maker.name != "Independent"
+        and not any(team.manufacturer == maker.name for team in teams)
+    ]
+    if dark_makers:
+        names = ", ".join(maker.name for maker in dark_makers)
+        alerts.append("%s has no teams on the grid" % names)
 
     season_moves = [
         item
@@ -3879,6 +3905,7 @@ def display_league_dashboard():
     print_call_up_dashboard_line()
     print_team_entry_dashboard_line()
     print_team_closure_dashboard_line()
+    print_manufacturer_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -5082,6 +5109,32 @@ def print_team_closure_dashboard_line():
     """Print the last charter review and the live field size."""
 
     print(team_closure_dashboard_text())
+
+
+def manufacturer_dashboard_text():
+    """Return the compact factory-identity dashboard line."""
+
+    if not manufacturers:
+        return "Makers: none"
+    parts = []
+    for maker in manufacturers:
+        shops = [
+            team.name
+            for team in teams
+            if team.manufacturer == maker.name
+        ]
+        if not shops and maker.name == "Independent":
+            continue
+        parts.append("{0} {1}".format(maker.name, maker.identity))
+    if not parts:
+        return "Makers: none"
+    return "Makers: " + " | ".join(parts)
+
+
+def print_manufacturer_dashboard_line():
+    """Print the live automaker identities."""
+
+    print(manufacturer_dashboard_text())
 
 
 def simulate_development_race(track, field):
@@ -8053,7 +8106,13 @@ def display_manufacturer_standings():
             for team in teams
             if team.manufacturer == manufacturer
         )
-        print(f"{rank}. {manufacturer} — {points} pts ({badged_teams})")
+        maker = get_manufacturer(manufacturer)
+        identity = (
+            " — {0}".format(maker.identity) if maker is not None else ""
+        )
+        print(
+            f"{rank}. {manufacturer} — {points} pts ({badged_teams}){identity}"
+        )
 
 
 def get_team_points(team):
@@ -8262,6 +8321,7 @@ def display_commissioner_report():
     print_call_up_dashboard_line()
     print_team_entry_dashboard_line()
     print_team_closure_dashboard_line()
+    print_manufacturer_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -8351,6 +8411,18 @@ def save_season_report(season_number):
                 league.get("season_team_closures") or []
             ),
             "closure_history": list(league.get("closure_history") or []),
+            "manufacturers": [
+                {
+                    "name": maker.name,
+                    "identity": maker.identity,
+                    "teams": [
+                        team.name
+                        for team in teams
+                        if team.manufacturer == maker.name
+                    ],
+                }
+                for maker in manufacturers
+            ],
             "sponsor_market_log": current_season_market_moves(),
             "tv_rights": (
                 dict(league["tv_rights"])

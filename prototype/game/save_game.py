@@ -4,9 +4,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from game.models import Driver, Network, Owner, Sponsor, Team, Track
+from game.models import Driver, Manufacturer, Network, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.35"
+SAVE_VERSION = "0.0.36"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -41,6 +41,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.33",
     "0.0.34",
     "0.0.35",
+    "0.0.36",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -387,6 +388,34 @@ def network_from_dict(data):
     )
 
 
+def manufacturer_to_dict(manufacturer):
+    """Serialize a manufacturer to a dictionary."""
+
+    return {
+        "name": manufacturer.name,
+        "identity": manufacturer.identity,
+        "speed_bias": manufacturer.speed_bias,
+        "reliability_bias": manufacturer.reliability_bias,
+        "aero_bias": manufacturer.aero_bias,
+        "prestige": manufacturer.prestige,
+        "factory_support": manufacturer.factory_support,
+    }
+
+
+def manufacturer_from_dict(data):
+    """Restore a manufacturer from a saved dictionary."""
+
+    return Manufacturer(
+        name=data["name"],
+        identity=data.get("identity", "Balance"),
+        speed_bias=data.get("speed_bias", 50),
+        reliability_bias=data.get("reliability_bias", 50),
+        aero_bias=data.get("aero_bias", 50),
+        prestige=data.get("prestige", 50),
+        factory_support=data.get("factory_support", 50),
+    )
+
+
 def track_to_dict(track):
     """Serialize a track to a dictionary."""
 
@@ -443,6 +472,7 @@ def build_save_data(
     team_applicants=None,
     development_tracks=None,
     networks=None,
+    manufacturers=None,
 ):
     """Build a save file dictionary from live game state."""
 
@@ -497,6 +527,12 @@ def build_save_data(
     if networks is not None:
         save_data["networks"] = [
             network_to_dict(network) for network in networks
+        ]
+
+    if manufacturers is not None:
+        save_data["manufacturers"] = [
+            manufacturer_to_dict(manufacturer)
+            for manufacturer in manufacturers
         ]
 
     return save_data
@@ -594,6 +630,14 @@ def parse_save_data(save_data):
             for network_data in save_data.get("networks") or []
         ]
 
+    restored_manufacturers = None
+
+    if "manufacturers" in save_data:
+        restored_manufacturers = [
+            manufacturer_from_dict(maker_data)
+            for maker_data in save_data.get("manufacturers") or []
+        ]
+
     return {
         "league": dict(save_data["league"]),
         "race_history": list(save_data["race_history"]),
@@ -608,6 +652,7 @@ def parse_save_data(save_data):
         "sponsors": restored_sponsors,
         "sponsor_prospects": restored_prospects,
         "networks": restored_networks,
+        "manufacturers": restored_manufacturers,
         "current_season": save_data["current_season"],
         "championship_awarded": save_data["championship_awarded"],
         "career_seasons_total": save_data["career_seasons_total"],

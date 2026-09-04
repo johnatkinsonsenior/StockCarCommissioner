@@ -299,6 +299,10 @@ A grant admits the shop, staffs two seats from the prospect pool (or generated r
 
 Insolvent teams face a **charter review** after offseason finances. Three answers sit on the same decision framework: **withdraw the charter** (the shop folds, drivers are released into the prospect pool as Premier-ready names, fan interest falls, remaining owners ease), **extend a bridge loan** (league treasury cash lifts the shop off Insolvent; integrity takes a hit and incumbents resent the rescue), or **defer the hearing** (they stay insolvent another year). The field cannot drop below two teams; at that floor an insolvent shop remains on the grid. The dashboard shows the last review and the live field size. An insolvent shop raises an alert.
 
+### Manufacturers
+
+Named automakers badge the grid. Opening factories are **Vanguard** (Durability), **Apex** (Speed), and **Falcon** (Balance). Expansion shops arrive **Independent** (Unaligned). Each identity slightly shifts race pace and mechanical risk. Teams still store a badge string; factory contracts and switching come later. The dashboard lists the makers. A factory with no remaining shop raises an alert.
+
 ## Team Finances and Offseason Spending
 
 Teams manage a persistent budget across seasons. Income comes from race prize money and offseason sponsorship deals. Expenses include driver salaries, operating costs, and optional investments.

@@ -1,4 +1,4 @@
-from game.models import Driver, Network, Owner, Sponsor, Team, Track
+from game.models import Driver, Manufacturer, Network, Owner, Sponsor, Team, Track
 
 
 def create_initial_teams():
@@ -55,6 +55,49 @@ def create_initial_teams():
             ),
             prestige=64,
             engineering=71,
+        ),
+    ]
+
+
+def create_initial_manufacturers():
+    """Return the opening automakers and the Independent fallback."""
+
+    return [
+        Manufacturer(
+            name="Vanguard",
+            identity="Durability",
+            speed_bias=48,
+            reliability_bias=78,
+            aero_bias=58,
+            prestige=72,
+            factory_support=70,
+        ),
+        Manufacturer(
+            name="Apex",
+            identity="Speed",
+            speed_bias=82,
+            reliability_bias=46,
+            aero_bias=64,
+            prestige=76,
+            factory_support=74,
+        ),
+        Manufacturer(
+            name="Falcon",
+            identity="Balance",
+            speed_bias=56,
+            reliability_bias=70,
+            aero_bias=62,
+            prestige=64,
+            factory_support=58,
+        ),
+        Manufacturer(
+            name="Independent",
+            identity="Unaligned",
+            speed_bias=50,
+            reliability_bias=50,
+            aero_bias=50,
+            prestige=40,
+            factory_support=0,
         ),
     ]
 
@@ -737,6 +780,7 @@ sponsor_prospects = create_sponsor_prospects()
 driver_prospects = create_driver_prospects()
 team_applicants = create_team_applicants()
 networks = create_initial_networks()
+manufacturers = create_initial_manufacturers()
 
 
 def create_track_pool():

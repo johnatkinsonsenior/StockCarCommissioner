@@ -619,6 +619,61 @@ class Network:
         return self.name
 
 
+class Manufacturer:
+    """An automaker with a performance identity on the grid."""
+
+    def __init__(
+        self,
+        name,
+        identity,
+        speed_bias,
+        reliability_bias,
+        aero_bias,
+        prestige,
+        factory_support,
+    ):
+        self.name = name
+        self.identity = identity
+        self.speed_bias = _clamp(speed_bias)
+        self.reliability_bias = _clamp(reliability_bias)
+        self.aero_bias = _clamp(aero_bias)
+        self.prestige = _clamp(prestige)
+        self.factory_support = _clamp(factory_support)
+
+    def pace_bonus(self):
+        """Return a small race-pace tick from the factory identity."""
+
+        return (self.speed_bias - 50) // 10
+
+    def reliability_bonus(self):
+        """Return a small durability tick from the factory identity."""
+
+        return (self.reliability_bias - 50) // 10
+
+    def aero_bonus(self, track_type=None):
+        """Return extra pace at aero-sensitive venues."""
+
+        if track_type not in ("Road Course", "Superspeedway"):
+            return 0
+        return (self.aero_bias - 50) // 12
+
+    def description(self):
+        """Return a short label for prompts and the dashboard."""
+
+        return f"{self.name} ({self.identity})"
+
+    def identity_summary(self):
+        """Return the identity plus the three bias ratings."""
+
+        return (
+            f"{self.identity} — speed {self.speed_bias}, "
+            f"reliability {self.reliability_bias}, aero {self.aero_bias}"
+        )
+
+    def __str__(self):
+        return self.name
+
+
 class Team:
     """Represents a stock car racing team."""
 

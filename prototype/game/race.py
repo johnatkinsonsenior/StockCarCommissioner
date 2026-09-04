@@ -2,7 +2,7 @@
 
 import random
 
-from data import drivers, teams
+from data import drivers, manufacturers, teams
 from game.policies import (
     current_policies,
     get_crash_modifier,
@@ -42,6 +42,44 @@ def get_team(team_name):
             return team
 
     raise ValueError(f"Team not found: {team_name}")
+
+
+def get_manufacturer(name):
+    """Return the automaker matching the supplied name."""
+
+    for maker in manufacturers:
+        if maker.name == name:
+            return maker
+    return None
+
+
+def manufacturer_for_team(team):
+    """Return the automaker badging a team, if any."""
+
+    if team is None:
+        return None
+    return get_manufacturer(getattr(team, "manufacturer", None))
+
+
+def manufacturer_pace_mod(team, track=None):
+    """Return the factory pace tick for a team at this venue."""
+
+    maker = manufacturer_for_team(team)
+    if maker is None:
+        return 0
+    bonus = maker.pace_bonus()
+    if track is not None:
+        bonus += maker.aero_bonus(track.type)
+    return bonus
+
+
+def manufacturer_reliability_mod(team):
+    """Return the factory durability tick for a team."""
+
+    maker = manufacturer_for_team(team)
+    if maker is None:
+        return 0
+    return maker.reliability_bonus()
 
 
 def get_driver(driver_name):
@@ -194,7 +232,14 @@ def check_for_mechanical_failure(team, track=None, weather=None, strategy="two-s
     if weather and weather.get("condition") == "Hot":
         length_tax += 1
 
-    failure_chance = max(2, 100 - team.reliability - engineering_help + length_tax)
+    failure_chance = max(
+        2,
+        100
+        - team.reliability
+        - engineering_help
+        + length_tax
+        - manufacturer_reliability_mod(team),
+    )
 
     if random.randint(1, 100) > failure_chance:
         return None
@@ -418,6 +463,7 @@ def calculate_qualifying_score(driver, team, track, weather):
         + skill // 2
         + team.car_rating // 2
         + engineering // 8
+        + manufacturer_pace_mod(team, track)
         + weather.get("qualifying_mod", 0)
         + random.randint(-12, 12)
     )
@@ -494,6 +540,7 @@ def calculate_race_score(
         + team.crew_rating
         + engineering // 5
         + skill // 3
+        + manufacturer_pace_mod(team, track)
         + grid_bonus
         + weather_mod
         + pit_bonus

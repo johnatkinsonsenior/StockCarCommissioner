@@ -152,3 +152,5 @@
 | 150 | Named expansion applicants | Medium | Completed |
 | 151 | Team closure | High | Completed |
 | 152 | Insolvent charter review | Medium | Completed |
+| 153 | Manufacturers | High | Completed |
+| 154 | Automaker performance identities | Medium | Completed |
