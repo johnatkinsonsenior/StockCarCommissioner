@@ -2172,6 +2172,204 @@ def owner_council_events(season_number, teams, resolved_ids, league=None):
     return [owner_council_event(season_number, teams, league)]
 
 
+DRIVER_COUNCIL_CONCERN_FLOOR = 55
+DRIVER_COUNCIL_TILT = {
+    "1": 0,
+    "2": -16,
+    "3": 14,
+}
+DRIVER_COUNCIL_PERSONALITY_HEAT = {
+    "Temperamental": 12,
+    "Aggressive": 8,
+    "Rookie": 6,
+    "Popular": -8,
+    "Veteran": -4,
+    "Professional": -2,
+}
+
+
+def driver_council_weight(driver):
+    """Return political weight for chair and seating order."""
+
+    return (
+        driver.popularity
+        + driver.reputation
+        + driver.credibility
+        + driver.media_skill // 2
+    )
+
+
+def driver_council_seats(drivers):
+    """Return drivers seated on the driver council, chair first."""
+
+    return sorted(
+        list(drivers or []),
+        key=lambda driver: (
+            -driver_council_weight(driver),
+            -driver.popularity,
+            driver.name,
+        ),
+    )
+
+
+def driver_council_chair(drivers):
+    """Return the driver who chairs the council, or None."""
+
+    seats = driver_council_seats(drivers)
+    if not seats:
+        return None
+    return seats[0]
+
+
+def driver_council_mood(drivers, driver_sentiment=60):
+    """Return settled, watchful, or restless from garage heat."""
+
+    morals = [driver.morale for driver in (drivers or [])]
+    mean_morale = sum(morals) / len(morals) if morals else 70
+    if int(driver_sentiment or 0) < 45 or mean_morale < 50:
+        return "restless"
+    if int(driver_sentiment or 0) < 55 or mean_morale < 62:
+        return "watchful"
+    return "settled"
+
+
+def driver_council_feedback_heat(driver, league, tilt=0):
+    """Return a seat's heat toward concerned feedback."""
+
+    league = league or {}
+    heat = (100 - driver.morale) + (100 - driver.commissioner_trust) // 2
+    heat += DRIVER_COUNCIL_PERSONALITY_HEAT.get(driver.personality, 0)
+    heat += max(0, 60 - int(league.get("driver_sentiment", 60)))
+    heat += max(0, int(league.get("controversy", 0)) - 25)
+    heat += int(tilt or 0)
+    return heat
+
+
+def driver_council_tally(drivers, league, tilt=0):
+    """Return recorded satisfied/concerned feedback from the garage."""
+
+    ballots = []
+    chair = driver_council_chair(drivers)
+    for driver in driver_council_seats(drivers):
+        heat = driver_council_feedback_heat(driver, league, tilt)
+        vote = (
+            "concerned"
+            if heat >= DRIVER_COUNCIL_CONCERN_FLOOR
+            else "satisfied"
+        )
+        ballots.append(
+            {
+                "driver": driver.name,
+                "team": driver.team_name,
+                "vote": vote,
+                "heat": heat,
+                "chair": driver is chair,
+            }
+        )
+    concerned = [item for item in ballots if item["vote"] == "concerned"]
+    satisfied = [item for item in ballots if item["vote"] == "satisfied"]
+    return {
+        "motion": "feedback",
+        "ballots": ballots,
+        "concerned": len(concerned),
+        "satisfied": len(satisfied),
+        "protested": len(concerned) > len(satisfied),
+        "split": len(concerned) == len(satisfied),
+    }
+
+
+def driver_council_event(season_number, drivers, league=None):
+    """Postseason garage session: representation, then feedback."""
+
+    league = league or {}
+    seats = driver_council_seats(drivers)
+    chair = seats[0] if seats else None
+    chair_name = chair.name if chair else "the chair"
+    chair_team = chair.team_name if chair else "the grid"
+    mood = driver_council_mood(
+        drivers,
+        league.get("driver_sentiment", 60),
+    )
+    roster = ", ".join(
+        "{0} ({1})".format(driver.name, driver.team_name)
+        for driver in seats
+    )
+    if not roster:
+        roster = "no seated drivers"
+
+    return {
+        "id": "driver-council-s{0}".format(season_number),
+        "title": "Driver Council",
+        "category": "driver-council",
+        "phase": POSTSEASON,
+        "prompt": (
+            "The driver council is in session. Chair {0} of {1} speaks "
+            "for the garage. Seats: {2}. Mood: {3}. They want a read on "
+            "officiating and safety. How do you take the feedback?"
+        ).format(chair_name, chair_team, roster, mood),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Hear the garage",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                    {"type": "league", "stat": "driver_sentiment", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You let every seat talk. The notes go in the file.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Promise a working group",
+                "effects": [
+                    {"type": "league", "stat": "driver_sentiment", "delta": 4},
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                    {"type": "league", "stat": "owner_pressure", "delta": 3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You promise a working group. The owners roll their eyes.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Dismiss the gripes",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                    {"type": "league", "stat": "driver_sentiment", "delta": -5},
+                    {"type": "league", "stat": "fan_interest", "delta": -1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You tell them to drive. The garage goes cold.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def driver_council_events(season_number, drivers, resolved_ids, league=None):
+    """Return the postseason driver-council session when unresolved."""
+
+    event_id = "driver-council-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    if not drivers:
+        return []
+    return [driver_council_event(season_number, drivers, league)]
+
+
 def preseason_events(policies, season_number):
     """Return the preseason rule-change event for this season."""
 
@@ -2223,7 +2421,7 @@ def postseason_events(
     league=None,
     season_number=1,
 ):
-    """Return postseason owner, council, driver, and feud events."""
+    """Return postseason owner, driver-council, and feud events."""
 
     events = []
 
@@ -2241,6 +2439,15 @@ def postseason_events(
 
     if "driver-grievance" not in resolved_ids:
         events.append(driver_grievance_event(_driver_by_unrest(drivers)))
+
+    events.extend(
+        driver_council_events(
+            season_number,
+            drivers,
+            resolved_ids,
+            league,
+        )
+    )
 
     if "feud-review" not in resolved_ids:
         feud_pair = _hottest_feud_pair(drivers)

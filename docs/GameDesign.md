@@ -450,6 +450,7 @@ Saved data includes:
 - Press-conference answers
 - Media-controversy answers and scandal headlines
 - Owner-council seats, chair, and rebuke votes
+- Driver-council seats, chair, and feedback
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -466,11 +467,11 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 
-Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, and owner-council matters use one shared decision framework:
+Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, and driver-council matters use one shared decision framework:
 
 - A prompt and numbered choices
 - Immediate consequences
@@ -495,13 +496,19 @@ During the offseason the commissioner may require current, enhanced, or maximum 
 
 ### Owner and Driver Complaints
 
-Named owners lobby through their teams for financial relief and looser technical scrutiny. Each owner has a personality, wealth, patience, and a priority (wins, stability, cost-control, or prestige). Owner complaints and postseason lobbying are tied to those people, not anonymous team pressure. After the championship the owners sit as a council and vote. Drivers file grievances about officiating, safety, and trust. Both can appear during the regular season and again after the championship.
+Named owners lobby through their teams for financial relief and looser technical scrutiny. Each owner has a personality, wealth, patience, and a priority (wins, stability, cost-control, or prestige). Owner complaints and postseason lobbying are tied to those people, not anonymous team pressure. After the championship the owners sit as a council and vote. Drivers file grievances about officiating, safety, and trust, and the garage sits as a driver council to file feedback. Both can appear during the regular season and again after the championship.
 
 ### Owner Council
 
 Every team owner holds a seat. The chair is the owner with the most political weight — prestige, personal pressure, impatience, wealth, and financial distress. The council mood is quiet, watchful, or restless from that heat.
 
-Postseason, the chamber gavel a motion to **rebuke the commissioner**. Three answers sit on the same decision framework: **defer to the chamber** (let the votes run), **work the room** (soften ballots, spend integrity), or **stare them down** (integrity up, the room hardens). Each seat then votes aye or nay from patience, pressure, shop health, and league controversy. A passing rebuke raises owner pressure and controversy; a failed rebuke cools the owners. Votes are recorded. The dashboard shows the chair, seat count, and last tally. A driver council comes later.
+Postseason, the chamber gavel a motion to **rebuke the commissioner**. Three answers sit on the same decision framework: **defer to the chamber** (let the votes run), **work the room** (soften ballots, spend integrity), or **stare them down** (integrity up, the room hardens). Each seat then votes aye or nay from patience, pressure, shop health, and league controversy. A passing rebuke raises owner pressure and controversy; a failed rebuke cools the owners. Votes are recorded. The dashboard shows the chair, seat count, and last tally.
+
+### Driver Council
+
+Every driver on the grid holds a seat. The chair is the driver with the most political weight — popularity, reputation, credibility, and media skill. Austin Vale gavels the opening garage. The council mood is settled, watchful, or restless from morale and driver sentiment.
+
+Postseason, after the private grievance, the chamber files **feedback on officiating and safety**. Three answers: **hear the garage** (let every seat talk), **promise a working group** (the garage cools, owners notice), or **dismiss the gripes** (integrity up, the locker room goes cold). Each seat then files satisfied or concerned from morale, trust, and personality. A concerned majority files a protest; a satisfied majority stands down; a tie splits the garage. Feedback is recorded. The dashboard shows the chair, seat count, and last tally.
 
 ## Teams as Organizations
 

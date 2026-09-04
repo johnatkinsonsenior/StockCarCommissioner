@@ -26,9 +26,14 @@ from game.calendar import (
     REGULAR_SEASON,
 )
 from game.event_catalog import (
+    DRIVER_COUNCIL_TILT,
     OWNER_COUNCIL_TILT,
     media_controversy_events,
     offseason_events,
+    driver_council_chair,
+    driver_council_mood,
+    driver_council_seats,
+    driver_council_tally,
     owner_council_chair,
     owner_council_mood,
     owner_council_seats,
@@ -203,6 +208,8 @@ league = {
     "last_media_controversy": None,
     "season_owner_councils": [],
     "last_owner_council": None,
+    "season_driver_councils": [],
+    "last_driver_council": None,
 }
 
 race_history = []
@@ -347,6 +354,8 @@ def reset_career_state():
     league["last_media_controversy"] = None
     league["season_owner_councils"] = []
     league["last_owner_council"] = None
+    league["season_driver_councils"] = []
+    league["last_driver_council"] = None
 
     reset_policies()
 
@@ -477,6 +486,9 @@ def apply_loaded_state(restored_state):
     if not isinstance(league.get("season_owner_councils"), list):
         league["season_owner_councils"] = []
     league.setdefault("last_owner_council", None)
+    if not isinstance(league.get("season_driver_councils"), list):
+        league["season_driver_councils"] = []
+    league.setdefault("last_driver_council", None)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -768,6 +780,12 @@ def collect_commissioner_alerts():
         alerts.append("Owner council issued a rebuke")
     elif owner_council_mood(teams, league.get("owner_pressure", 0)) == "restless":
         alerts.append("Owner council is restless")
+
+    last_garage = league.get("last_driver_council") or {}
+    if last_garage.get("protested"):
+        alerts.append("Driver council filed a protest")
+    elif driver_council_mood(drivers, league.get("driver_sentiment", 60)) == "restless":
+        alerts.append("Driver council is restless")
 
     last_fill = league.get("last_gate_fill")
     if last_fill is not None and last_fill < 55:
@@ -1087,6 +1105,9 @@ def ensure_league_commercial_state():
     if not isinstance(league.get("season_owner_councils"), list):
         league["season_owner_councils"] = []
     league.setdefault("last_owner_council", None)
+    if not isinstance(league.get("season_driver_councils"), list):
+        league["season_driver_councils"] = []
+    league.setdefault("last_driver_council", None)
 
 
 def has_naming_rights():
@@ -3655,6 +3676,7 @@ def display_league_dashboard():
     print_press_dashboard_line()
     print_scandal_dashboard_line()
     print_council_dashboard_line()
+    print_driver_council_dashboard_line()
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -4105,6 +4127,111 @@ def print_council_dashboard_line():
     )
 
 
+def record_driver_council(result):
+    """Tally garage feedback after the commissioner addresses the chamber."""
+
+    ensure_league_commercial_state()
+    tilt = DRIVER_COUNCIL_TILT.get(str(result.get("choice_id")), 0)
+    tally = driver_council_tally(drivers, league, tilt)
+    chair = driver_council_chair(drivers)
+    if tally["protested"]:
+        league["driver_sentiment"] = clamp(
+            league.get("driver_sentiment", 60) - 5
+        )
+        league["controversy"] = clamp(league.get("controversy", 0) + 3)
+        verdict = "the garage files a protest"
+    elif tally["split"]:
+        verdict = "the garage is split"
+    else:
+        league["driver_sentiment"] = clamp(
+            league.get("driver_sentiment", 60) + 2
+        )
+        verdict = "the garage stands down"
+
+    print("\nDriver Council Feedback — officiating and safety")
+    if chair is not None:
+        print("Chair: {0} ({1})".format(chair.name, chair.team_name))
+    for ballot in tally["ballots"]:
+        role = "chair " if ballot.get("chair") else ""
+        print(
+            "- {0}{1} ({2}): {3}".format(
+                role,
+                ballot["driver"],
+                ballot["team"],
+                ballot["vote"],
+            )
+        )
+    print(
+        "Tally: {0} concerned, {1} satisfied — {2}.".format(
+            tally["concerned"],
+            tally["satisfied"],
+            verdict,
+        )
+    )
+
+    if tally["protested"]:
+        result_word = "protest"
+    elif tally["split"]:
+        result_word = "split"
+    else:
+        result_word = "stands down"
+
+    record = {
+        "season": calendar.current_season,
+        "motion": tally["motion"],
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "chair": chair.name if chair else None,
+        "chair_team": chair.team_name if chair else None,
+        "seats": len(tally["ballots"]),
+        "concerned": tally["concerned"],
+        "satisfied": tally["satisfied"],
+        "protested": tally["protested"],
+        "split": tally["split"],
+        "ballots": list(tally["ballots"]),
+        "outcome": result.get("outcome"),
+        "verdict": verdict,
+        "result_word": result_word,
+    }
+    league["last_driver_council"] = record
+    league["season_driver_councils"].append(record)
+    return record
+
+
+def print_driver_council_dashboard_line():
+    """Print the driver-council line for the dashboard."""
+
+    ensure_league_commercial_state()
+    seats = driver_council_seats(drivers)
+    chair = driver_council_chair(drivers)
+    mood = driver_council_mood(drivers, league.get("driver_sentiment", 60))
+    chair_text = (
+        "{0} ({1})".format(chair.name, chair.team_name)
+        if chair is not None
+        else "vacant"
+    )
+    session = league.get("last_driver_council")
+    if not session:
+        print(
+            "Garage: chair {0} | {1} seats | {2}".format(
+                chair_text,
+                len(seats),
+                mood,
+            )
+        )
+        return
+    print(
+        "Garage: chair {0} | {1} seats | last feedback {2} {3}–{4} ({5})".format(
+            chair_text,
+            len(seats),
+            session.get("result_word"),
+            session.get("concerned"),
+            session.get("satisfied"),
+            session.get("choice_label"),
+        )
+    )
+
+
 def present_events(event_list):
     """Present each unresolved event in order."""
 
@@ -4127,6 +4254,8 @@ def present_events(event_list):
                 apply_scandal_sponsor_shock(6)
         if result and result.get("category") == "owner-council":
             record_owner_council(result)
+        if result and result.get("category") == "driver-council":
+            record_driver_council(result)
         if result:
             results.append(result)
 
@@ -6403,6 +6532,7 @@ def display_commissioner_report():
     print_press_dashboard_line()
     print_scandal_dashboard_line()
     print_council_dashboard_line()
+    print_driver_council_dashboard_line()
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -6500,6 +6630,14 @@ def save_season_report(season_number):
             "last_owner_council": (
                 dict(league["last_owner_council"])
                 if league.get("last_owner_council")
+                else None
+            ),
+            "season_driver_councils": list(
+                league.get("season_driver_councils") or []
+            ),
+            "last_driver_council": (
+                dict(league["last_driver_council"])
+                if league.get("last_driver_council")
                 else None
             ),
         },
@@ -6788,6 +6926,8 @@ def initialize_season(season_number):
     league["last_media_controversy"] = None
     league["season_owner_councils"] = []
     league["last_owner_council"] = None
+    league["season_driver_councils"] = []
+    league["last_driver_council"] = None
 
     for team in teams:
         team.start_new_season()
