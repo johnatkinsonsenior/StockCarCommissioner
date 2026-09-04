@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–85 complete. Next coding day: **Day
-86 — Game settings**.
+**Current position:** Days 1–86 complete. Next coding day: **Day
+87 — Balance simulation**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -146,7 +146,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
 ## Final Six Days — Alpha Preparation
 - [x] Day 85 — Complete save architecture (serialize the full career world)
-- [ ] Day 86 — Game settings (difficulty, season length, autosave)
+- [x] Day 86 — Game settings (difficulty, season length, autosave)
 - [ ] Day 87 — Balance simulation (run 50–100 AI seasons)
 - [ ] Day 88 — Bug fixing (rosters, finances, contracts, saves, edge cases)
 - [ ] Day 89 — UI prototype (begin the graphical interface, preferably in Godot)
