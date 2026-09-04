@@ -66,7 +66,10 @@ from game.event_catalog import (
     rule_vote_swing_seat,
     rule_vote_tally,
     TEAM_FIELD_MAX,
+    TEAM_FIELD_MIN,
+    team_closure_events,
     team_entry_events,
+    next_closure_candidate,
 )
 from game.events import resolve_event_choice
 from game.models import (
@@ -260,6 +263,9 @@ league = {
     "last_team_entry": None,
     "season_team_entries": [],
     "entry_history": [],
+    "last_team_closure": None,
+    "season_team_closures": [],
+    "closure_history": [],
 }
 
 race_history = []
@@ -293,6 +299,7 @@ PROSPECT_READY_FLOOR = 80
 PROSPECT_RADAR_FLOOR = 70
 PROSPECT_DEVELOPING_FLOOR = 60
 DRIVERS_PER_TEAM = 2
+BAILOUT_AMOUNT = 800_000
 PROSPECT_OUTFITS = (
     ("Heartland Super Lates", "Super Late"),
     ("Carolina Late Models", "Late Model"),
@@ -454,6 +461,9 @@ def reset_career_state():
     league["last_team_entry"] = None
     league["season_team_entries"] = []
     league["entry_history"] = []
+    league["last_team_closure"] = None
+    league["season_team_closures"] = []
+    league["closure_history"] = []
 
     reset_policies()
 
@@ -642,6 +652,11 @@ def apply_loaded_state(restored_state):
         league["season_team_entries"] = []
     if not isinstance(league.get("entry_history"), list):
         league["entry_history"] = []
+    league.setdefault("last_team_closure", None)
+    if not isinstance(league.get("season_team_closures"), list):
+        league["season_team_closures"] = []
+    if not isinstance(league.get("closure_history"), list):
+        league["closure_history"] = []
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -977,6 +992,9 @@ def collect_commissioner_alerts():
 
     if team_applicants and len(teams) < TEAM_FIELD_MAX:
         alerts.append("An owner has applied to enter")
+
+    if any(team.financial_distress_level >= 3 for team in teams):
+        alerts.append("A team is insolvent")
 
     season_moves = [
         item
@@ -1327,6 +1345,11 @@ def ensure_league_commercial_state():
         league["season_team_entries"] = []
     if not isinstance(league.get("entry_history"), list):
         league["entry_history"] = []
+    league.setdefault("last_team_closure", None)
+    if not isinstance(league.get("season_team_closures"), list):
+        league["season_team_closures"] = []
+    if not isinstance(league.get("closure_history"), list):
+        league["closure_history"] = []
 
 
 def has_naming_rights():
@@ -3855,6 +3878,7 @@ def display_league_dashboard():
     print_development_dashboard_line()
     print_call_up_dashboard_line()
     print_team_entry_dashboard_line()
+    print_team_closure_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -5039,6 +5063,27 @@ def print_team_entry_dashboard_line():
     print(team_entry_dashboard_text())
 
 
+def team_closure_dashboard_text():
+    """Return the compact insolvency-review dashboard line."""
+
+    record = league.get("last_team_closure")
+    if not record:
+        closure_label = "none"
+    else:
+        closure_label = record.get("summary") or "none"
+    return "Closure: {0} | Field: {1} of {2}".format(
+        closure_label,
+        len(teams),
+        TEAM_FIELD_MAX,
+    )
+
+
+def print_team_closure_dashboard_line():
+    """Print the last charter review and the live field size."""
+
+    print(team_closure_dashboard_text())
+
+
 def simulate_development_race(track, field):
     """Run one feeder race among prospects. Does not use the premier sim."""
 
@@ -5511,6 +5556,119 @@ def record_team_entry(result, event):
     return record
 
 
+def release_folded_drivers(team):
+    """Move a folded shop's drivers off the premier grid into the pool."""
+
+    released = []
+    for driver in list(get_team_drivers(team.name)):
+        if driver in drivers:
+            drivers.remove(driver)
+        driver.is_free_agent = True
+        driver.contract_years = 0
+        driver.salary = 0
+        driver.previous_team = team.name
+        driver.pathway = driver.pathway or "Premier"
+        driver.readiness = max(
+            PROSPECT_READY_FLOOR,
+            driver.prospect_readiness(),
+        )
+        driver.is_rookie = False
+        outfit, _pathway = random.choice(PROSPECT_OUTFITS)
+        driver.team_name = outfit
+        driver.reset_season()
+        driver_prospects.append(driver)
+        released.append(driver)
+        print(
+            f"{driver.name} is released and joins the prospect pool "
+            f"— {driver.prospect_summary()}."
+        )
+    return released
+
+
+def close_team(team):
+    """Remove an insolvent shop from the premier field."""
+
+    shop = team.name
+    owner_name = team.owner.name
+    print("\nTeam Closure")
+    print(
+        f"{shop} folds. {owner_name} surrenders the charter. "
+        f"{team.manufacturer} leaves the grid."
+    )
+    if team.has_primary_sponsor():
+        team.clear_primary_sponsor(penalize=False)
+    released = release_folded_drivers(team)
+    if team in teams:
+        teams.remove(team)
+    return released
+
+
+def apply_bridge_loan(team):
+    """Pay an insolvent shop enough cash to leave Insolvent."""
+
+    league["treasury"] = max(
+        0,
+        league.get("treasury", 0) - BAILOUT_AMOUNT,
+    )
+    team.budget += BAILOUT_AMOUNT
+    team.update_financial_distress()
+    print("\nTeam Closure")
+    print(
+        f"The league extends a ${BAILOUT_AMOUNT:,} bridge loan to {team.name}."
+    )
+    print(
+        f"Budget ${team.budget:,} — {team.financial_status_label()}."
+    )
+    return team
+
+
+def record_team_closure(result, event):
+    """Apply a charter withdrawal, bridge loan, or deferred hearing."""
+
+    ensure_league_commercial_state()
+    choice_id = str(result.get("choice_id"))
+    shop = (event or {}).get("subject_team_name")
+    team = get_team(shop) if shop else next_closure_candidate(teams)
+    summary = "none"
+    action = None
+    owner_name = None
+    released = []
+    if team is not None:
+        shop = team.name
+        owner_name = team.owner.name
+        if choice_id == "1":
+            released = [driver.name for driver in close_team(team)]
+            action = "folded"
+            summary = "%s folded" % shop
+        elif choice_id == "2":
+            apply_bridge_loan(team)
+            action = "bailed out"
+            summary = "%s bailed out" % shop
+        elif choice_id == "3":
+            action = "deferred"
+            summary = "%s deferred" % shop
+
+    record = {
+        "season": calendar.current_season,
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "outcome": result.get("outcome"),
+        "action": action,
+        "summary": summary,
+        "owner_name": owner_name,
+        "closed_team": shop if action == "folded" else None,
+        "released_drivers": released,
+    }
+    league["last_team_closure"] = dict(record)
+    if not isinstance(league.get("season_team_closures"), list):
+        league["season_team_closures"] = []
+    league["season_team_closures"].append(dict(record))
+    if not isinstance(league.get("closure_history"), list):
+        league["closure_history"] = []
+    league["closure_history"].append(dict(record))
+    return record
+
+
 def record_board_review(result, event):
     """Apply the board hearing and dismiss the commissioner if they fall."""
 
@@ -5767,6 +5925,8 @@ def present_events(event_list):
             record_board_review(result, event)
         if result and result.get("category") == "team-entry":
             record_team_entry(result, event)
+        if result and result.get("category") == "team-closure":
+            record_team_closure(result, event)
         if result:
             results.append(result)
 
@@ -6459,9 +6619,14 @@ def run_offseason_finances():
             )
 
         if team.financial_distress_level == 3:
-            print(
-                "  Entry status: Insolvent — remains on the grid"
-            )
+            if len(teams) <= TEAM_FIELD_MIN:
+                print(
+                    "  Entry status: Insolvent — remains on the grid"
+                )
+            else:
+                print(
+                    "  Entry status: Insolvent — charter review pending"
+                )
 
 
 def run_offseason_team_sponsors():
@@ -6738,6 +6903,13 @@ def run_offseason(completed_season):
     )
 
     run_offseason_finances()
+    present_events(
+        team_closure_events(
+            calendar.current_season,
+            teams,
+            events_resolved,
+        )
+    )
     run_offseason_team_sponsors()
     run_offseason_endorsements()
     run_offseason_league_sponsors()
@@ -8089,6 +8261,7 @@ def display_commissioner_report():
     print_development_dashboard_line()
     print_call_up_dashboard_line()
     print_team_entry_dashboard_line()
+    print_team_closure_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -8169,6 +8342,15 @@ def save_season_report(season_number):
             "waiting_team_applicants": [
                 item.get("team_name") for item in team_applicants
             ],
+            "last_team_closure": (
+                dict(league["last_team_closure"])
+                if league.get("last_team_closure")
+                else None
+            ),
+            "season_team_closures": list(
+                league.get("season_team_closures") or []
+            ),
+            "closure_history": list(league.get("closure_history") or []),
             "sponsor_market_log": current_season_market_moves(),
             "tv_rights": (
                 dict(league["tv_rights"])
@@ -8574,6 +8756,8 @@ def initialize_season(season_number):
     league["season_call_ups"] = []
     league["last_team_entry"] = None
     league["season_team_entries"] = []
+    league["last_team_closure"] = None
+    league["season_team_closures"] = []
 
     for team in teams:
         team.start_new_season()

@@ -3301,6 +3301,7 @@ def board_confidence_event(season_number, security):
 
 
 TEAM_FIELD_MAX = 5
+TEAM_FIELD_MIN = 2
 
 
 def team_entry_event(season_number, applicant, field_size):
@@ -3394,6 +3395,128 @@ def team_entry_events(season_number, teams, applicants, resolved_ids):
     if not waiting:
         return []
     return [team_entry_event(season_number, waiting[0], len(field))]
+
+
+def insolvent_teams(teams):
+    """Return shops whose money track has reached Insolvent."""
+
+    return [
+        team
+        for team in (teams or [])
+        if team.financial_distress_level >= 3
+    ]
+
+
+def next_closure_candidate(teams):
+    """Return the weakest insolvent shop, or None."""
+
+    failing = insolvent_teams(teams)
+    if not failing:
+        return None
+    return min(
+        failing,
+        key=lambda team: (team.budget, team.prestige, team.name),
+    )
+
+
+def team_closure_event(season_number, team, field_size):
+    """Offseason charter review for an insolvent shop."""
+
+    owner = team.owner
+    shop = team.name
+    return {
+        "id": "team-closure-s{0}".format(season_number),
+        "title": "Charter Review: {0}".format(shop),
+        "category": "team-closure",
+        "phase": OFFSEASON,
+        "subject_team_name": shop,
+        "prompt": (
+            "{0} is insolvent. Owner {1} ({2}, {3}) is out of cash. "
+            "Budget ${4:,}. The grid is {5} teams. Withdraw the charter, "
+            "extend a bridge loan, or defer?"
+        ).format(
+            shop,
+            owner.name,
+            owner.personality,
+            owner.priority,
+            team.budget,
+            field_size,
+        ),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Withdraw the charter",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": -4},
+                    {"type": "league", "stat": "owner_pressure", "delta": -3},
+                    {"type": "league", "stat": "controversy", "delta": 3},
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "{0} is gone. The series looks disciplined. "
+                            "Fans lose a shop, and two drivers need a ride."
+                        ).format(shop),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Extend a bridge loan",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": -2},
+                    {"type": "league", "stat": "owner_pressure", "delta": 3},
+                    {"type": "league", "stat": "fan_interest", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "The sanctioning body writes {0} a check. "
+                            "Incumbent owners resent the rescue."
+                        ).format(shop),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Defer the hearing",
+                "effects": [
+                    {"type": "league", "stat": "owner_pressure", "delta": 1},
+                    {"type": "league", "stat": "fan_interest", "delta": -1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "{0} stays insolvent for another year. "
+                            "The paddock notices the delay."
+                        ).format(shop),
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def team_closure_events(season_number, teams, resolved_ids):
+    """Return a charter review when an insolvent shop can still leave."""
+
+    event_id = "team-closure-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    field = list(teams or [])
+    if len(field) <= TEAM_FIELD_MIN:
+        return []
+    candidate = next_closure_candidate(field)
+    if candidate is None:
+        return []
+    return [team_closure_event(season_number, candidate, len(field))]
 
 
 def board_confidence_events(season_number, teams, drivers, resolved_ids, league=None):

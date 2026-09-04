@@ -293,7 +293,11 @@ Feeder results write the next offseason's scouting book. The champion jumps the 
 
 Named owners apply for a premier charter. Two shops wait in the opening book: **Ivy Navarro** at **Harbor Racing**, then **Grant Holcomb** at **Ironwood Motorsports**. Both arrive as Independent manufacturers. Offseason, after retirements and call-ups, the commissioner hears the next applicant on the same decision framework: **grant a charter**, **defer the application**, or **deny the application**.
 
-A grant admits the shop, staffs two seats from the prospect pool (or generated rookies), and raises fan interest while incumbent owners feel the squeeze. The owner council gains the new seat automatically. Defer keeps the applicant first in line. Deny drops them from the book. The field caps at five teams; an empty book or a full grid skips the hearing. Legacy saves without an applicant list load an empty book. Failed teams still stay on the grid.
+A grant admits the shop, staffs two seats from the prospect pool (or generated rookies), and raises fan interest while incumbent owners feel the squeeze. The owner council gains the new seat automatically. Defer keeps the applicant first in line. Deny drops them from the book. The field caps at five teams; an empty book or a full grid skips the hearing. Legacy saves without an applicant list load an empty book. An insolvent shop can lose its charter in the offseason.
+
+### Team Closure
+
+Insolvent teams face a **charter review** after offseason finances. Three answers sit on the same decision framework: **withdraw the charter** (the shop folds, drivers are released into the prospect pool as Premier-ready names, fan interest falls, remaining owners ease), **extend a bridge loan** (league treasury cash lifts the shop off Insolvent; integrity takes a hit and incumbents resent the rescue), or **defer the hearing** (they stay insolvent another year). The field cannot drop below two teams; at that floor an insolvent shop remains on the grid. The dashboard shows the last review and the live field size. An insolvent shop raises an alert.
 
 ## Team Finances and Offseason Spending
 
@@ -605,7 +609,7 @@ Pit-crew skill uses the existing crew rating. Weaker crews can lose time with in
 
 ### Financial Health
 
-The four-level money track is labeled Profitable, Stable, Struggling, and Insolvent. Insolvent teams stay on the grid.
+The four-level money track is labeled Profitable, Stable, Struggling, and Insolvent. Insolvent teams face a charter review and can leave the grid.
 
 ## Race Simulation
 

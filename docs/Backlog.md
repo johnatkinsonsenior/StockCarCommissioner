@@ -150,3 +150,5 @@
 | 148 | Feeder call-ups to the premier grid | Medium | Completed |
 | 149 | New team entry | High | Completed |
 | 150 | Named expansion applicants | Medium | Completed |
+| 151 | Team closure | High | Completed |
+| 152 | Insolvent charter review | Medium | Completed |
