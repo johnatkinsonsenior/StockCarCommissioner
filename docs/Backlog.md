@@ -136,3 +136,5 @@
 | 134 | Stakeholder-introduced changes | Medium | Completed |
 | 135 | Voting system | High | Completed |
 | 136 | Recorded rule votes | Medium | Completed |
+| 137 | Political influence | High | Completed |
+| 138 | Lobbying coalitions | Medium | Completed |

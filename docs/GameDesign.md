@@ -453,6 +453,7 @@ Saved data includes:
 - Driver-council seats, chair, and feedback
 - Stakeholder rule proposals and the docket
 - Owner-council rule votes and applied policy changes
+- Owner coalitions and paddock lobbying
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -469,11 +470,11 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, the last owner-council rule vote, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 
-Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, driver-council, rule-proposal, and rule-vote matters use one shared decision framework:
+Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, driver-council, rule-proposal, lobbying, and rule-vote matters use one shared decision framework:
 
 - A prompt and numbered choices
 - Immediate consequences
@@ -505,6 +506,12 @@ Three answers sit on the same decision framework: **docket it for a later vote**
 Preseason, before the commissioner's own rule-change filing, the owner council votes the **oldest** paper on the docket. An empty docket skips the session.
 
 Three answers sit on the same decision framework: **let the chamber vote** (integrity up, no whip), **whip for passage** (owners notice, integrity down), or **whip against**. Each seat then votes aye or nay from that owner's priority, patience, and personal pressure. Passing applies the policy and lifts the paper; failing rejects it and also clears it from the docket. Votes are recorded. The dashboard shows the last tally. A remaining docket still raises an alert.
+
+### Political Influence
+
+Owners sit in **coalitions** by priority — wins, stability, cost-control, or prestige. When a paper is on the docket the blocs line up for or against it. Preseason, before the floor vote, the paddock lobbies the commissioner.
+
+Three answers sit on the same decision framework: **take every meeting** (even-handed, no extra heat), **cultivate the backing bloc** (they peel the closest swing vote), or **cultivate the opposition** (the paper cools across the chamber). Lobbying does not change the rulebook. It stacks with the later whip. The dashboard shows the coalitions and the last meetings.
 
 ### Safety Mandates
 

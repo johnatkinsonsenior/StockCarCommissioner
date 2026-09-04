@@ -2622,13 +2622,69 @@ RULE_VOTE_TILT = {
     "2": 18,
     "3": -18,
 }
+COALITION_LABELS = {
+    "wins": "Wins",
+    "stability": "Stability",
+    "cost-control": "Cost-control",
+    "prestige": "Prestige",
+}
+COALITION_ORDER = (
+    "wins",
+    "stability",
+    "cost-control",
+    "prestige",
+)
+LOBBY_SWING_DELTA = 12
+LOBBY_OPPOSITION_TILT = -12
 
 
-def rule_vote_heat(team, proposal, tilt=0):
+def coalition_label(priority):
+    """Return the display name for an owner-priority bloc."""
+
+    return COALITION_LABELS.get(priority, priority or "Independent")
+
+
+def owner_coalitions(teams):
+    """Return owner blocs grouped by priority, largest first."""
+
+    blocs = {}
+    for team in owner_council_seats(teams):
+        key = team.owner.priority
+        blocs.setdefault(key, []).append(team)
+    return sorted(
+        blocs.items(),
+        key=lambda item: (
+            -len(item[1]),
+            COALITION_ORDER.index(item[0])
+            if item[0] in COALITION_ORDER
+            else 99,
+            coalition_label(item[0]),
+        ),
+    )
+
+
+def proposal_coalitions(teams, proposal):
+    """Return backing and opposing seats for a docketed paper."""
+
+    proposal = proposal or {}
+    pair = (proposal.get("policy_key"), proposal.get("proposed_value"))
+    backing = []
+    opposition = []
+    for team in owner_council_seats(teams):
+        options = OWNER_PRIORITY_PROPOSALS.get(team.owner.priority) or ()
+        if pair in options:
+            backing.append(team)
+        else:
+            opposition.append(team)
+    return backing, opposition
+
+
+def rule_vote_heat(team, proposal, tilt=0, lobbying=None):
     """Return a seat's heat toward adopting the docketed paper."""
 
     owner = team.owner
     proposal = proposal or {}
+    lobbying = lobbying or {}
     heat = 40
     pair = (proposal.get("policy_key"), proposal.get("proposed_value"))
     options = OWNER_PRIORITY_PROPOSALS.get(owner.priority) or ()
@@ -2637,17 +2693,38 @@ def rule_vote_heat(team, proposal, tilt=0):
     heat += (100 - owner.patience) // 4
     heat += owner.pressure // 5
     heat += int(tilt or 0)
+    heat += int(lobbying.get("lobby_tilt") or 0)
+    if owner.name == lobbying.get("swing_owner"):
+        heat += int(lobbying.get("swing_delta") or 0)
     return heat
 
 
-def rule_vote_tally(teams, proposal, tilt=0):
+def rule_vote_swing_seat(teams, proposal, side="backing"):
+    """Return the seat closest to the aye floor on this side of the paper."""
+
+    backing, opposition = proposal_coalitions(teams, proposal)
+    pool = opposition if side == "backing" else backing
+    candidates = []
+    for team in pool:
+        heat = rule_vote_heat(team, proposal, tilt=0)
+        if side == "backing" and heat < RULE_VOTE_AYE_FLOOR:
+            candidates.append((RULE_VOTE_AYE_FLOOR - heat, team.name, team))
+        elif side == "opposition" and heat >= RULE_VOTE_AYE_FLOOR:
+            candidates.append((heat - RULE_VOTE_AYE_FLOOR, team.name, team))
+    if not candidates:
+        return None
+    candidates.sort()
+    return candidates[0][2]
+
+
+def rule_vote_tally(teams, proposal, tilt=0, lobbying=None):
     """Return recorded aye/nay ballots on the oldest docketed paper."""
 
     ballots = []
     chair_team = owner_council_chair(teams)
     proposal = proposal or {}
     for team in owner_council_seats(teams):
-        heat = rule_vote_heat(team, proposal, tilt)
+        heat = rule_vote_heat(team, proposal, tilt, lobbying)
         vote = "aye" if heat >= RULE_VOTE_AYE_FLOOR else "nay"
         ballots.append(
             {
@@ -2768,6 +2845,124 @@ def rule_vote_events(season_number, teams, resolved_ids, league=None):
     if not teams:
         return []
     return [rule_vote_event(season_number, docket[0], teams, league)]
+
+
+def _coalition_names(teams):
+    """Return owner names for a coalition, comma-separated."""
+
+    return ", ".join(team.owner.name for team in teams) or "nobody"
+
+
+def _coalition_priorities(teams):
+    """Return unique priority labels for a coalition."""
+
+    labels = []
+    seen = set()
+    for team in teams:
+        label = coalition_label(team.owner.priority)
+        if label not in seen:
+            seen.add(label)
+            labels.append(label)
+    return ", ".join(labels) or "Independent"
+
+
+def lobbying_event(season_number, proposal, teams, league=None):
+    """Preseason lobbying: pick a coalition before the floor vote."""
+
+    proposal = proposal or {}
+    backing, opposition = proposal_coalitions(teams, proposal)
+    headline = proposal.get("headline") or "a rule change"
+    sponsor = proposal.get("sponsor") or "a stakeholder"
+    body = proposal.get("body") or "the paddock"
+    for_names = _coalition_names(backing)
+    against_names = _coalition_names(opposition)
+    for_blocs = _coalition_priorities(backing)
+    against_blocs = _coalition_priorities(opposition)
+    swing = rule_vote_swing_seat(teams, proposal, "backing")
+    swing_name = swing.owner.name if swing is not None else "a swing seat"
+
+    return {
+        "id": "lobbying-s{0}".format(season_number),
+        "title": "Paddock Lobbying",
+        "category": "lobbying",
+        "phase": PRESEASON,
+        "proposal": dict(proposal),
+        "prompt": (
+            "Coalitions are working the docket before the vote. "
+            "{0} of the {1} wants {2}. The {3} bloc ({4}) is lining "
+            "up for it. The {5} owners ({6}) are lining up against. "
+            "{7} is the swing. Who do you take meetings with?"
+        ).format(
+            sponsor,
+            body,
+            headline,
+            for_blocs,
+            for_names,
+            against_blocs,
+            against_names,
+            swing_name,
+        ),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Take every meeting",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You hear both blocs. Nobody leaves with a promise.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Cultivate the backing bloc",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": -1},
+                    {"type": "league", "stat": "owner_pressure", "delta": -2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You work the backing coalition. They peel a swing vote.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Cultivate the opposition",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": -1},
+                    {"type": "league", "stat": "owner_pressure", "delta": -2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You take the opposing coalition's meetings. The paper cools.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def lobbying_events(season_number, teams, resolved_ids, league=None):
+    """Return a preseason lobbying session when a paper is on the docket."""
+
+    event_id = "lobbying-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    docket = (league or {}).get("rule_docket") or []
+    if not docket:
+        return []
+    if not teams:
+        return []
+    return [lobbying_event(season_number, docket[0], teams, league)]
 
 
 def preseason_events(policies, season_number):

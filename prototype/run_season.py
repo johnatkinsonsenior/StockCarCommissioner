@@ -27,6 +27,8 @@ from game.calendar import (
 )
 from game.event_catalog import (
     DRIVER_COUNCIL_TILT,
+    LOBBY_OPPOSITION_TILT,
+    LOBBY_SWING_DELTA,
     OWNER_COUNCIL_TILT,
     RULE_VOTE_TILT,
     media_controversy_events,
@@ -35,15 +37,20 @@ from game.event_catalog import (
     driver_council_mood,
     driver_council_seats,
     driver_council_tally,
+    lobbying_events,
+    owner_coalitions,
     owner_council_chair,
     owner_council_mood,
     owner_council_seats,
     owner_council_tally,
+    coalition_label,
     postseason_events,
     preseason_events,
+    proposal_coalitions,
     regular_season_events,
     rule_proposal_events,
     rule_vote_events,
+    rule_vote_swing_seat,
     rule_vote_tally,
 )
 from game.events import resolve_event_choice
@@ -219,6 +226,8 @@ league = {
     "rule_docket": [],
     "season_rule_votes": [],
     "last_rule_vote": None,
+    "season_lobbying": [],
+    "last_lobbying": None,
 }
 
 race_history = []
@@ -370,6 +379,8 @@ def reset_career_state():
     league["rule_docket"] = []
     league["season_rule_votes"] = []
     league["last_rule_vote"] = None
+    league["season_lobbying"] = []
+    league["last_lobbying"] = None
 
     reset_policies()
 
@@ -511,6 +522,9 @@ def apply_loaded_state(restored_state):
     if not isinstance(league.get("season_rule_votes"), list):
         league["season_rule_votes"] = []
     league.setdefault("last_rule_vote", None)
+    if not isinstance(league.get("season_lobbying"), list):
+        league["season_lobbying"] = []
+    league.setdefault("last_lobbying", None)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -1141,6 +1155,9 @@ def ensure_league_commercial_state():
     if not isinstance(league.get("season_rule_votes"), list):
         league["season_rule_votes"] = []
     league.setdefault("last_rule_vote", None)
+    if not isinstance(league.get("season_lobbying"), list):
+        league["season_lobbying"] = []
+    league.setdefault("last_lobbying", None)
 
 
 def has_naming_rights():
@@ -3711,6 +3728,8 @@ def display_league_dashboard():
     print_council_dashboard_line()
     print_driver_council_dashboard_line()
     print_proposal_dashboard_line()
+    print_coalitions_dashboard_line()
+    print_lobby_dashboard_line()
     print_rule_vote_dashboard_line()
     print(
         "Policies — "
@@ -4381,13 +4400,149 @@ def print_proposal_dashboard_line():
     )
 
 
+def record_lobbying(result, event):
+    """Store which coalition the commissioner hosted before the vote."""
+
+    ensure_league_commercial_state()
+    proposal = dict((event or {}).get("proposal") or {})
+    backing, opposition = proposal_coalitions(teams, proposal)
+    choice_id = str(result.get("choice_id") or "")
+    lobby_tilt = 0
+    swing_delta = 0
+    swing_owner = None
+    if choice_id == "2":
+        swing = rule_vote_swing_seat(teams, proposal, "backing")
+        swing_owner = swing.owner.name if swing is not None else None
+        swing_delta = LOBBY_SWING_DELTA
+        hosted = "backing"
+    elif choice_id == "3":
+        lobby_tilt = LOBBY_OPPOSITION_TILT
+        hosted = "opposition"
+    else:
+        hosted = "open"
+
+    print("\nPaddock Lobbying — {0}".format(proposal.get("headline") or "the docket"))
+    print(
+        "For: {0} ({1})".format(
+            ", ".join(coalition_label(team.owner.priority) for team in backing) or "none",
+            ", ".join(team.owner.name for team in backing) or "nobody",
+        )
+    )
+    print(
+        "Against: {0} ({1})".format(
+            ", ".join(coalition_label(team.owner.priority) for team in opposition) or "none",
+            ", ".join(team.owner.name for team in opposition) or "nobody",
+        )
+    )
+    if hosted == "backing" and swing_owner:
+        print("Hosted: backing bloc — peeled {0}.".format(swing_owner))
+    elif hosted == "opposition":
+        print("Hosted: opposition — the paper cools.")
+    else:
+        print("Hosted: every meeting — no promises.")
+
+    record = {
+        "season": calendar.current_season,
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "outcome": result.get("outcome"),
+        "hosted": hosted,
+        "lobby_tilt": lobby_tilt,
+        "swing_owner": swing_owner,
+        "swing_delta": swing_delta,
+        "backing": [team.owner.name for team in backing],
+        "opposition": [team.owner.name for team in opposition],
+        "source": proposal.get("source"),
+        "sponsor": proposal.get("sponsor"),
+        "body": proposal.get("body"),
+        "policy_key": proposal.get("policy_key"),
+        "proposed_value": proposal.get("proposed_value"),
+        "headline": proposal.get("headline"),
+    }
+    league["last_lobbying"] = record
+    league["season_lobbying"].append(record)
+    return record
+
+
+def print_coalitions_dashboard_line():
+    """Print owner blocs, or for/against when a paper is on the docket."""
+
+    ensure_league_commercial_state()
+    docket = league.get("rule_docket") or []
+    if docket:
+        backing, opposition = proposal_coalitions(teams, docket[0])
+        for_text = ", ".join(
+            "{0} ({1})".format(
+                coalition_label(team.owner.priority),
+                team.owner.name,
+            )
+            for team in backing
+        ) or "none"
+        against_text = ", ".join(
+            "{0} ({1})".format(
+                coalition_label(team.owner.priority),
+                team.owner.name,
+            )
+            for team in opposition
+        ) or "none"
+        print(
+            "Coalitions: for {0} | against {1}".format(
+                for_text,
+                against_text,
+            )
+        )
+        return
+    parts = []
+    for priority, bloc in owner_coalitions(teams):
+        names = ", ".join(team.owner.name for team in bloc)
+        parts.append(
+            "{0} {1} ({2})".format(
+                coalition_label(priority),
+                len(bloc),
+                names,
+            )
+        )
+    print(
+        "Coalitions: {0}".format(
+            " | ".join(parts) if parts else "none seated"
+        )
+    )
+
+
+def print_lobby_dashboard_line():
+    """Print the last paddock-lobbying line for the dashboard."""
+
+    ensure_league_commercial_state()
+    lobby = league.get("last_lobbying")
+    if not lobby:
+        print("Lobby: none this season")
+        return
+    hosted = lobby.get("hosted")
+    if hosted == "backing":
+        peeled = lobby.get("swing_owner")
+        extra = " (peeled {0})".format(peeled) if peeled else ""
+        print(
+            "Lobby: last hosted the backing bloc{0}".format(extra)
+        )
+        return
+    if hosted == "opposition":
+        print("Lobby: last hosted the opposition")
+        return
+    print("Lobby: last took every meeting")
+
+
 def record_rule_vote(result, event):
     """Tally the docket vote and apply the policy if it passes."""
 
     ensure_league_commercial_state()
     proposal = dict((event or {}).get("proposal") or {})
     tilt = RULE_VOTE_TILT.get(str(result.get("choice_id")), 0)
-    tally = rule_vote_tally(teams, proposal, tilt)
+    tally = rule_vote_tally(
+        teams,
+        proposal,
+        tilt,
+        league.get("last_lobbying"),
+    )
     chair_team = owner_council_chair(teams)
     passed = tally["passed"]
     if passed:
@@ -4530,6 +4685,8 @@ def present_events(event_list):
             record_driver_council(result)
         if result and result.get("category") == "rule-proposal":
             record_rule_proposal(result, event)
+        if result and result.get("category") == "lobbying":
+            record_lobbying(result, event)
         if result and result.get("category") == "rule-vote":
             record_rule_vote(result, event)
         if result:
@@ -6810,6 +6967,8 @@ def display_commissioner_report():
     print_council_dashboard_line()
     print_driver_council_dashboard_line()
     print_proposal_dashboard_line()
+    print_coalitions_dashboard_line()
+    print_lobby_dashboard_line()
     print_rule_vote_dashboard_line()
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
@@ -6933,6 +7092,14 @@ def save_season_report(season_number):
             "last_rule_vote": (
                 dict(league["last_rule_vote"])
                 if league.get("last_rule_vote")
+                else None
+            ),
+            "season_lobbying": list(
+                league.get("season_lobbying") or []
+            ),
+            "last_lobbying": (
+                dict(league["last_lobbying"])
+                if league.get("last_lobbying")
                 else None
             ),
         },
@@ -7227,6 +7394,8 @@ def initialize_season(season_number):
     league["last_rule_proposal"] = None
     league["season_rule_votes"] = []
     league["last_rule_vote"] = None
+    league["season_lobbying"] = []
+    league["last_lobbying"] = None
 
     for team in teams:
         team.start_new_season()
@@ -7242,6 +7411,14 @@ def initialize_season(season_number):
     print("\n" + "=" * 90)
     print(f"STOCK CAR COMMISSIONER — {series_name().upper()} — SEASON {season_number}")
     print("=" * 90)
+    present_events(
+        lobbying_events(
+            season_number,
+            teams,
+            events_resolved,
+            league,
+        )
+    )
     present_events(
         rule_vote_events(
             season_number,
