@@ -128,3 +128,5 @@
 | 126 | Commissioner media responses | Medium | Completed |
 | 127 | Media controversies | High | Completed |
 | 128 | Public pressure / scandals | Medium | Completed |
+| 129 | Owner council | High | Completed |
+| 130 | Owner council votes | Medium | Completed |

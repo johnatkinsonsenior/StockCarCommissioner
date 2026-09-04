@@ -1987,6 +1987,191 @@ def media_controversy_events(
     ]
 
 
+OWNER_COUNCIL_AYE_FLOOR = 55
+OWNER_COUNCIL_TILT = {
+    "1": 0,
+    "2": -18,
+    "3": 12,
+}
+
+
+def owner_council_weight(team):
+    """Return political weight for chair and seating order."""
+
+    owner = team.owner
+    return (
+        team.prestige
+        + owner.pressure
+        + (100 - owner.patience)
+        + owner.wealth // 2
+        + team.financial_distress_level * 8
+    )
+
+
+def owner_council_seats(teams):
+    """Return teams seated on the owner council, chair first."""
+
+    return sorted(
+        list(teams or []),
+        key=lambda team: (
+            -owner_council_weight(team),
+            -team.prestige,
+            team.name,
+        ),
+    )
+
+
+def owner_council_chair(teams):
+    """Return the team whose owner chairs the council, or None."""
+
+    seats = owner_council_seats(teams)
+    if not seats:
+        return None
+    return seats[0]
+
+
+def owner_council_mood(teams, owner_pressure=0):
+    """Return quiet, watchful, or restless from owner heat."""
+
+    pressures = [team.owner.pressure for team in (teams or [])]
+    mean = sum(pressures) / len(pressures) if pressures else 0
+    heat = max(int(owner_pressure or 0), mean)
+    if heat >= 45:
+        return "restless"
+    if heat >= 30:
+        return "watchful"
+    return "quiet"
+
+
+def owner_council_vote_heat(team, league, tilt=0):
+    """Return a seat's heat toward rebuking the commissioner."""
+
+    owner = team.owner
+    league = league or {}
+    heat = owner.pressure + (100 - owner.patience) // 2
+    heat += team.financial_distress_level * 10
+    heat += max(0, int(league.get("owner_pressure", 0)) - 25)
+    heat += max(0, int(league.get("controversy", 0)) - 25)
+    heat += int(tilt or 0)
+    return heat
+
+
+def owner_council_tally(teams, league, tilt=0):
+    """Return recorded aye/nay ballots on a rebuke motion."""
+
+    ballots = []
+    chair_team = owner_council_chair(teams)
+    for team in owner_council_seats(teams):
+        heat = owner_council_vote_heat(team, league, tilt)
+        vote = "aye" if heat >= OWNER_COUNCIL_AYE_FLOOR else "nay"
+        ballots.append(
+            {
+                "owner": team.owner.name,
+                "team": team.name,
+                "vote": vote,
+                "heat": heat,
+                "chair": team is chair_team,
+            }
+        )
+    ayes = [item for item in ballots if item["vote"] == "aye"]
+    nays = [item for item in ballots if item["vote"] == "nay"]
+    return {
+        "motion": "rebuke",
+        "ballots": ballots,
+        "ayes": len(ayes),
+        "nays": len(nays),
+        "passed": len(ayes) > len(nays),
+    }
+
+
+def owner_council_event(season_number, teams, league=None):
+    """Postseason chamber session: representation, then a rebuke vote."""
+
+    league = league or {}
+    seats = owner_council_seats(teams)
+    chair_team = seats[0] if seats else None
+    chair_name = chair_team.owner.name if chair_team else "the chair"
+    chair_team_name = chair_team.name if chair_team else "the grid"
+    mood = owner_council_mood(teams, league.get("owner_pressure", 0))
+    roster = ", ".join(
+        "{0} ({1})".format(team.owner.name, team.name)
+        for team in seats
+    )
+    if not roster:
+        roster = "no seated owners"
+
+    return {
+        "id": "owner-council-s{0}".format(season_number),
+        "title": "Owner Council",
+        "category": "owner-council",
+        "phase": POSTSEASON,
+        "prompt": (
+            "The owner council is in session. Chair {0} of {1} gavels "
+            "the room. Seats: {2}. Mood: {3}. The motion is to rebuke "
+            "the commissioner. How do you handle the chamber?"
+        ).format(chair_name, chair_team_name, roster, mood),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Defer to the chamber",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You let the owners vote the room they brought.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Work the room",
+                "effects": [
+                    {"type": "league", "stat": "owner_pressure", "delta": -4},
+                    {"type": "league", "stat": "integrity", "delta": -2},
+                    {"type": "league", "stat": "fan_interest", "delta": -1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You work the haulers. A few votes soften.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Stare them down",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 3},
+                    {"type": "league", "stat": "owner_pressure", "delta": 5},
+                    {"type": "league", "stat": "controversy", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You tell the room the league is not a committee.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def owner_council_events(season_number, teams, resolved_ids, league=None):
+    """Return the postseason owner-council session when unresolved."""
+
+    event_id = "owner-council-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    if not teams:
+        return []
+    return [owner_council_event(season_number, teams, league)]
+
+
 def preseason_events(policies, season_number):
     """Return the preseason rule-change event for this season."""
 
@@ -2031,13 +2216,28 @@ def regular_season_events(
     return events
 
 
-def postseason_events(teams, drivers, resolved_ids):
-    """Return postseason owner, driver, and feud events."""
+def postseason_events(
+    teams,
+    drivers,
+    resolved_ids,
+    league=None,
+    season_number=1,
+):
+    """Return postseason owner, council, driver, and feud events."""
 
     events = []
 
     if "owner-lobbying" not in resolved_ids:
         events.append(owner_lobbying_event(_team_by_pressure(teams)))
+
+    events.extend(
+        owner_council_events(
+            season_number,
+            teams,
+            resolved_ids,
+            league,
+        )
+    )
 
     if "driver-grievance" not in resolved_ids:
         events.append(driver_grievance_event(_driver_by_unrest(drivers)))

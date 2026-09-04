@@ -26,8 +26,13 @@ from game.calendar import (
     REGULAR_SEASON,
 )
 from game.event_catalog import (
+    OWNER_COUNCIL_TILT,
     media_controversy_events,
     offseason_events,
+    owner_council_chair,
+    owner_council_mood,
+    owner_council_seats,
+    owner_council_tally,
     postseason_events,
     preseason_events,
     regular_season_events,
@@ -196,6 +201,8 @@ league = {
     "last_press_conference": None,
     "season_media_controversies": [],
     "last_media_controversy": None,
+    "season_owner_councils": [],
+    "last_owner_council": None,
 }
 
 race_history = []
@@ -338,6 +345,8 @@ def reset_career_state():
     league["last_press_conference"] = None
     league["season_media_controversies"] = []
     league["last_media_controversy"] = None
+    league["season_owner_councils"] = []
+    league["last_owner_council"] = None
 
     reset_policies()
 
@@ -465,6 +474,9 @@ def apply_loaded_state(restored_state):
     if not isinstance(league.get("season_media_controversies"), list):
         league["season_media_controversies"] = []
     league.setdefault("last_media_controversy", None)
+    if not isinstance(league.get("season_owner_councils"), list):
+        league["season_owner_councils"] = []
+    league.setdefault("last_owner_council", None)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -751,6 +763,12 @@ def collect_commissioner_alerts():
     if league.get("last_media_controversy"):
         alerts.append("Media scandal is active")
 
+    last_council = league.get("last_owner_council") or {}
+    if last_council.get("passed"):
+        alerts.append("Owner council issued a rebuke")
+    elif owner_council_mood(teams, league.get("owner_pressure", 0)) == "restless":
+        alerts.append("Owner council is restless")
+
     last_fill = league.get("last_gate_fill")
     if last_fill is not None and last_fill < 55:
         alerts.append("The gate is soft")
@@ -1021,7 +1039,7 @@ def get_network(name):
 
 
 def ensure_league_commercial_state():
-    """Make sure league naming-rights, partner, TV, gate, media, press, and scandal slots exist."""
+    """Make sure league naming-rights, partner, TV, gate, media, press, scandal, and council slots exist."""
 
     if not isinstance(league.get("official_partners"), list):
         league["official_partners"] = []
@@ -1066,6 +1084,9 @@ def ensure_league_commercial_state():
     if not isinstance(league.get("season_media_controversies"), list):
         league["season_media_controversies"] = []
     league.setdefault("last_media_controversy", None)
+    if not isinstance(league.get("season_owner_councils"), list):
+        league["season_owner_councils"] = []
+    league.setdefault("last_owner_council", None)
 
 
 def has_naming_rights():
@@ -3633,6 +3654,7 @@ def display_league_dashboard():
             print(f'- "{story["headline"]}" — {story["outlet"]}')
     print_press_dashboard_line()
     print_scandal_dashboard_line()
+    print_council_dashboard_line()
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -3984,6 +4006,105 @@ def print_scandal_dashboard_line():
     )
 
 
+def record_owner_council(result):
+    """Tally the rebuke vote after the commissioner addresses the chamber."""
+
+    ensure_league_commercial_state()
+    tilt = OWNER_COUNCIL_TILT.get(str(result.get("choice_id")), 0)
+    tally = owner_council_tally(teams, league, tilt)
+    chair_team = owner_council_chair(teams)
+    passed = tally["passed"]
+    if passed:
+        league["owner_pressure"] = clamp(league.get("owner_pressure", 0) + 6)
+        league["integrity"] = clamp(league.get("integrity", 0) - 3)
+        league["controversy"] = clamp(league.get("controversy", 0) + 4)
+        verdict = "the rebuke passes"
+    else:
+        league["owner_pressure"] = clamp(league.get("owner_pressure", 0) - 3)
+        league["integrity"] = clamp(league.get("integrity", 0) + 1)
+        verdict = "the rebuke fails"
+
+    print("\nOwner Council Vote — rebuke the commissioner")
+    if chair_team is not None:
+        print(
+            "Chair: {0} ({1})".format(
+                chair_team.owner.name,
+                chair_team.name,
+            )
+        )
+    for ballot in tally["ballots"]:
+        role = "chair " if ballot.get("chair") else ""
+        print(
+            "- {0}{1} ({2}): {3}".format(
+                role,
+                ballot["owner"],
+                ballot["team"],
+                ballot["vote"],
+            )
+        )
+    print(
+        "Tally: {0} aye, {1} nay — {2}.".format(
+            tally["ayes"],
+            tally["nays"],
+            verdict,
+        )
+    )
+
+    record = {
+        "season": calendar.current_season,
+        "motion": tally["motion"],
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "chair": chair_team.owner.name if chair_team else None,
+        "chair_team": chair_team.name if chair_team else None,
+        "seats": len(tally["ballots"]),
+        "ayes": tally["ayes"],
+        "nays": tally["nays"],
+        "passed": passed,
+        "ballots": list(tally["ballots"]),
+        "outcome": result.get("outcome"),
+        "verdict": verdict,
+    }
+    league["last_owner_council"] = record
+    league["season_owner_councils"].append(record)
+    return record
+
+
+def print_council_dashboard_line():
+    """Print the owner-council line for the dashboard."""
+
+    ensure_league_commercial_state()
+    seats = owner_council_seats(teams)
+    chair_team = owner_council_chair(teams)
+    mood = owner_council_mood(teams, league.get("owner_pressure", 0))
+    chair_text = (
+        "{0} ({1})".format(chair_team.owner.name, chair_team.name)
+        if chair_team is not None
+        else "vacant"
+    )
+    session = league.get("last_owner_council")
+    if not session:
+        print(
+            "Council: chair {0} | {1} seats | {2}".format(
+                chair_text,
+                len(seats),
+                mood,
+            )
+        )
+        return
+    result_word = "passes" if session.get("passed") else "fails"
+    print(
+        "Council: chair {0} | {1} seats | last rebuke {2} {3}–{4} ({5})".format(
+            chair_text,
+            len(seats),
+            result_word,
+            session.get("ayes"),
+            session.get("nays"),
+            session.get("choice_label"),
+        )
+    )
+
+
 def present_events(event_list):
     """Present each unresolved event in order."""
 
@@ -4004,6 +4125,8 @@ def present_events(event_list):
             )
             if result.get("choice_id") == "1":
                 apply_scandal_sponsor_shock(6)
+        if result and result.get("category") == "owner-council":
+            record_owner_council(result)
         if result:
             results.append(result)
 
@@ -6279,6 +6402,7 @@ def display_commissioner_report():
             print(f'- "{story["headline"]}" — {story["outlet"]}')
     print_press_dashboard_line()
     print_scandal_dashboard_line()
+    print_council_dashboard_line()
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -6368,6 +6492,14 @@ def save_season_report(season_number):
             "last_media_controversy": (
                 dict(league["last_media_controversy"])
                 if league.get("last_media_controversy")
+                else None
+            ),
+            "season_owner_councils": list(
+                league.get("season_owner_councils") or []
+            ),
+            "last_owner_council": (
+                dict(league["last_owner_council"])
+                if league.get("last_owner_council")
                 else None
             ),
         },
@@ -6654,6 +6786,8 @@ def initialize_season(season_number):
     league["last_press_conference"] = None
     league["season_media_controversies"] = []
     league["last_media_controversy"] = None
+    league["season_owner_councils"] = []
+    league["last_owner_council"] = None
 
     for team in teams:
         team.start_new_season()
@@ -6860,7 +6994,13 @@ def run_postseason(season_number):
 
     championship_awarded = False
     present_events(
-        postseason_events(teams, drivers, events_resolved)
+        postseason_events(
+            teams,
+            drivers,
+            events_resolved,
+            league,
+            season_number,
+        )
     )
 
 
