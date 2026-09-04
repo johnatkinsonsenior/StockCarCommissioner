@@ -154,3 +154,5 @@
 | 152 | Insolvent charter review | Medium | Completed |
 | 153 | Manufacturers | High | Completed |
 | 154 | Automaker performance identities | Medium | Completed |
+| 155 | Manufacturer contracts | High | Completed |
+| 156 | Factory switching | Medium | Completed |

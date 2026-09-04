@@ -670,6 +670,31 @@ class Manufacturer:
             f"reliability {self.reliability_bias}, aero {self.aero_bias}"
         )
 
+    def interest_in_team(self, team):
+        """Return 0-100 interest in supplying a team."""
+
+        if self.name == "Independent" or team is None:
+            return 0
+
+        score = 40
+        score += (self.prestige - 50) * 0.20
+        score += (self.factory_support / 100.0) * 20
+        score += (team.prestige - 50) * 0.25
+        priority = team.owner.priority
+        if priority == "wins" and self.identity == "Speed":
+            score += 18
+        elif priority == "stability" and self.identity == "Durability":
+            score += 18
+        elif priority == "cost-control" and self.identity == "Balance":
+            score += 14
+        elif priority == "prestige" and self.prestige >= 70:
+            score += 12
+        if team.financial_distress_level >= 2:
+            score -= 10
+        if team.manufacturer == self.name:
+            score += 8
+        return _clamp(score)
+
     def __str__(self):
         return self.name
 
@@ -729,6 +754,7 @@ class Team:
         self.performance_trend = 0
         self.season_pit_mistakes = 0
         self.primary_sponsor = None
+        self.manufacturer_deal = None
 
     def start_new_season(self):
         """Reset values that apply only to the upcoming season."""
@@ -839,6 +865,52 @@ class Team:
             return True
 
         return False
+
+    def has_factory_deal(self):
+        """Return whether the team has a live factory contract."""
+
+        deal = self.manufacturer_deal or {}
+        maker = deal.get("manufacturer")
+        return bool(maker and maker != "Independent")
+
+    def factory_deal_label(self):
+        """Return the factory-contract line, or Independent."""
+
+        if not self.has_factory_deal():
+            return "Independent"
+        deal = self.manufacturer_deal
+        years = int(deal.get("years", 0))
+        year_word = "yr" if years == 1 else "yrs"
+        return "%s (%s %s)" % (deal["manufacturer"], years, year_word)
+
+    def sign_factory_deal(self, manufacturer_name, years, season):
+        """Sign or clear a multi-year factory contract."""
+
+        maker = manufacturer_name or "Independent"
+        self.manufacturer = maker
+        if maker == "Independent":
+            self.manufacturer_deal = None
+            return
+        self.manufacturer_deal = {
+            "manufacturer": maker,
+            "years": int(years),
+            "signed_season": season,
+        }
+
+    def clear_factory_deal(self):
+        """Drop the factory contract and run Independent."""
+
+        self.manufacturer_deal = None
+        self.manufacturer = "Independent"
+
+    def advance_factory_deal(self):
+        """Tick one year off the factory deal. Return True if it expired."""
+
+        if not self.has_factory_deal():
+            return False
+
+        self.manufacturer_deal["years"] -= 1
+        return self.manufacturer_deal["years"] <= 0
 
     def pay_operating_expense(self, amount):
         """Pay a seasonal operating expense."""

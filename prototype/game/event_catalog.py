@@ -3519,6 +3519,99 @@ def team_closure_events(season_number, teams, resolved_ids):
     return [team_closure_event(season_number, candidate, len(field))]
 
 
+def manufacturer_switch_event(season_number, proposal):
+    """Offseason hearing when a shop wants to change factories."""
+
+    proposal = proposal or {}
+    shop = proposal.get("team") or "A team"
+    current = proposal.get("from") or "Independent"
+    target = proposal.get("to") or "Independent"
+    owner = proposal.get("owner") or "The owner"
+    return {
+        "id": "manufacturer-switch-s{0}".format(season_number),
+        "title": "Factory Switch: {0}".format(shop),
+        "category": "manufacturer-switch",
+        "phase": OFFSEASON,
+        "subject_team_name": shop,
+        "from_manufacturer": current,
+        "to_manufacturer": target,
+        "prompt": (
+            "{0}'s factory situation is open. {1} wants to leave {2} "
+            "iron for {3}. Approve the move, hold the current badge, "
+            "or cut them loose as Independent?"
+        ).format(shop, owner, current, target),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Approve the switch",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": 2},
+                    {"type": "league", "stat": "owner_pressure", "delta": -2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "{0} retools for {1}. Fans like the new iron. "
+                            "The owner got the factory they wanted."
+                        ).format(shop, target),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Hold the current badge",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                    {"type": "league", "stat": "owner_pressure", "delta": 3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "{0} stays on {1} cars. The owner wanted a "
+                            "different factory."
+                        ).format(shop, current),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Force Independent",
+                "effects": [
+                    {"type": "league", "stat": "fan_interest", "delta": -2},
+                    {"type": "league", "stat": "owner_pressure", "delta": 2},
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "{0} runs unaligned. No factory writes the "
+                            "checks. The paddock calls it a freeze-out."
+                        ).format(shop),
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def manufacturer_switch_events(season_number, resolved_ids, league=None):
+    """Return a factory-switch hearing when a move is pending."""
+
+    event_id = "manufacturer-switch-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    proposal = (league or {}).get("pending_factory_switch")
+    if not proposal or not proposal.get("team") or not proposal.get("to"):
+        return []
+    return [manufacturer_switch_event(season_number, proposal)]
+
+
 def board_confidence_events(season_number, teams, drivers, resolved_ids, league=None):
     """Return a board review when confidence has slipped off Steady."""
 

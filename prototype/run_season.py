@@ -71,6 +71,7 @@ from game.event_catalog import (
     TEAM_FIELD_MIN,
     team_closure_events,
     team_entry_events,
+    manufacturer_switch_events,
     next_closure_candidate,
 )
 from game.events import resolve_event_choice
@@ -272,6 +273,10 @@ league = {
     "last_team_closure": None,
     "season_team_closures": [],
     "closure_history": [],
+    "last_factory_switch": None,
+    "season_factory_switches": [],
+    "factory_history": [],
+    "pending_factory_switch": None,
 }
 
 race_history = []
@@ -306,6 +311,9 @@ PROSPECT_RADAR_FLOOR = 70
 PROSPECT_DEVELOPING_FLOOR = 60
 DRIVERS_PER_TEAM = 2
 BAILOUT_AMOUNT = 800_000
+FACTORY_MIN_INTEREST = 52
+FACTORY_SWITCH_GAP = 8
+FACTORY_SWITCH_COST = 250_000
 PROSPECT_OUTFITS = (
     ("Heartland Super Lates", "Super Late"),
     ("Carolina Late Models", "Late Model"),
@@ -473,6 +481,10 @@ def reset_career_state():
     league["last_team_closure"] = None
     league["season_team_closures"] = []
     league["closure_history"] = []
+    league["last_factory_switch"] = None
+    league["season_factory_switches"] = []
+    league["factory_history"] = []
+    league["pending_factory_switch"] = None
 
     reset_policies()
 
@@ -497,6 +509,7 @@ def reset_career_state():
         season=calendar.current_season,
         apply_signing_boost=False,
     )
+    assign_opening_factory_deals(season=calendar.current_season)
 
 
 def is_season_mid_progress():
@@ -672,6 +685,12 @@ def apply_loaded_state(restored_state):
         league["season_team_closures"] = []
     if not isinstance(league.get("closure_history"), list):
         league["closure_history"] = []
+    league.setdefault("last_factory_switch", None)
+    if not isinstance(league.get("season_factory_switches"), list):
+        league["season_factory_switches"] = []
+    if not isinstance(league.get("factory_history"), list):
+        league["factory_history"] = []
+    league.setdefault("pending_factory_switch", None)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -713,6 +732,9 @@ def apply_loaded_state(restored_state):
             season=calendar.current_season,
             apply_signing_boost=False,
         )
+
+    if not any(team.has_factory_deal() for team in teams):
+        assign_opening_factory_deals(season=calendar.current_season)
 
 
 def save_career(save_name=None):
@@ -1021,6 +1043,23 @@ def collect_commissioner_alerts():
     if dark_makers:
         names = ", ".join(maker.name for maker in dark_makers)
         alerts.append("%s has no teams on the grid" % names)
+
+    if any(
+        team.has_factory_deal()
+        and team.manufacturer_deal.get("years", 0) <= 1
+        for team in teams
+    ):
+        alerts.append("A factory deal is expiring")
+
+    unsigned_factories = [
+        team.name for team in teams if not team.has_factory_deal()
+    ]
+    if unsigned_factories:
+        alerts.append(
+            "%s has no factory deal" % unsigned_factories[0]
+            if len(unsigned_factories) == 1
+            else "Teams have no factory deal"
+        )
 
     season_moves = [
         item
@@ -1376,6 +1415,12 @@ def ensure_league_commercial_state():
         league["season_team_closures"] = []
     if not isinstance(league.get("closure_history"), list):
         league["closure_history"] = []
+    league.setdefault("last_factory_switch", None)
+    if not isinstance(league.get("season_factory_switches"), list):
+        league["season_factory_switches"] = []
+    if not isinstance(league.get("factory_history"), list):
+        league["factory_history"] = []
+    league.setdefault("pending_factory_switch", None)
 
 
 def has_naming_rights():
@@ -3906,6 +3951,7 @@ def display_league_dashboard():
     print_team_entry_dashboard_line()
     print_team_closure_dashboard_line()
     print_manufacturer_dashboard_line()
+    print_factory_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -5137,6 +5183,46 @@ def print_manufacturer_dashboard_line():
     print(manufacturer_dashboard_text())
 
 
+def factory_dashboard_text():
+    """Return the compact factory-contract dashboard line."""
+
+    record = league.get("last_factory_switch")
+    if not record:
+        last_label = "none"
+    else:
+        last_label = record.get("summary") or "none"
+    unsigned = [team for team in teams if not team.has_factory_deal()]
+    if unsigned:
+        next_label = "%s unsigned" % unsigned[0].name
+    elif teams:
+        soonest = min(
+            teams,
+            key=lambda team: (
+                team.manufacturer_deal.get("years", 99)
+                if team.has_factory_deal()
+                else 99,
+                team.name,
+            ),
+        )
+        years = soonest.manufacturer_deal.get("years", 0)
+        year_word = "yr" if years == 1 else "yrs"
+        next_label = "%s %s %s %s" % (
+            soonest.name,
+            soonest.manufacturer,
+            years,
+            year_word,
+        )
+    else:
+        next_label = "none"
+    return "Factory: last %s | next %s" % (last_label, next_label)
+
+
+def print_factory_dashboard_line():
+    """Print the last factory move and the next expiring deal."""
+
+    print(factory_dashboard_text())
+
+
 def simulate_development_race(track, field):
     """Run one feeder race among prospects. Does not use the premier sim."""
 
@@ -5722,6 +5808,259 @@ def record_team_closure(result, event):
     return record
 
 
+def factory_deal_terms(maker, team):
+    """Return (interest, years) for a factory contract."""
+
+    interest = maker.interest_in_team(team) if maker is not None else 0
+    if interest >= 72:
+        years = 4
+    elif interest >= 60:
+        years = 3
+    else:
+        years = 2
+    return interest, years
+
+
+def assign_opening_factory_deals(season=1):
+    """Sign the opening shops to the factories they already badge."""
+
+    for team in teams:
+        if team.has_factory_deal():
+            continue
+        if not team.manufacturer or team.manufacturer == "Independent":
+            continue
+        years = 2 if team.manufacturer == "Falcon" else 3
+        team.sign_factory_deal(team.manufacturer, years, season)
+    return [team for team in teams if team.has_factory_deal()]
+
+
+def best_factory_for(team):
+    """Return (maker, interest) for the strongest factory suitor."""
+
+    best = None
+    best_score = -1
+    for maker in manufacturers:
+        if maker.name == "Independent":
+            continue
+        score = maker.interest_in_team(team)
+        if best is None or score > best_score:
+            best = maker
+            best_score = score
+        elif score == best_score and maker.name < best.name:
+            best = maker
+    return best, best_score
+
+
+def proposed_factory_switch(team):
+    """Return a switch proposal dict, or None to renew/stay."""
+
+    best, best_score = best_factory_for(team)
+    current = team.manufacturer or "Independent"
+    if best is None or best_score < FACTORY_MIN_INTEREST:
+        return None
+    if current == "Independent":
+        return {
+            "team": team.name,
+            "owner": team.owner.name,
+            "from": "Independent",
+            "to": best.name,
+            "interest": best_score,
+        }
+    if best.name == current:
+        return None
+    incumbent = get_manufacturer(current)
+    inc_score = incumbent.interest_in_team(team) if incumbent is not None else 0
+    if best_score >= inc_score + FACTORY_SWITCH_GAP:
+        return {
+            "team": team.name,
+            "owner": team.owner.name,
+            "from": current,
+            "to": best.name,
+            "interest": best_score,
+        }
+    return None
+
+
+def pick_factory_switch():
+    """Return the highest-interest pending switch among open deals."""
+
+    candidates = []
+    for team in teams:
+        expired = (
+            team.has_factory_deal()
+            and team.manufacturer_deal.get("years", 0) <= 0
+        )
+        unsigned = not team.has_factory_deal()
+        if not expired and not unsigned:
+            continue
+        proposal = proposed_factory_switch(team)
+        if proposal:
+            candidates.append(proposal)
+    if not candidates:
+        return None
+    candidates.sort(
+        key=lambda item: (-item.get("interest", 0), item.get("team") or "")
+    )
+    return candidates[0]
+
+
+def apply_factory_switch(team, manufacturer_name):
+    """Retool a shop onto a new factory and sign a deal."""
+
+    previous = team.manufacturer or "Independent"
+    maker = get_manufacturer(manufacturer_name)
+    if maker is None or manufacturer_name == "Independent":
+        team.clear_factory_deal()
+        print("\nFactory Deals")
+        print("%s now runs Independent." % team.name)
+        return previous, "Independent"
+    interest, years = factory_deal_terms(maker, team)
+    if (
+        previous != manufacturer_name
+        and previous != "Independent"
+        and team.can_afford(FACTORY_SWITCH_COST)
+    ):
+        team.budget -= FACTORY_SWITCH_COST
+        print("\nFactory Deals")
+        print(
+            "%s pays $%s to retool from %s to %s."
+            % (
+                team.name,
+                "{:,}".format(FACTORY_SWITCH_COST),
+                previous,
+                manufacturer_name,
+            )
+        )
+    else:
+        print("\nFactory Deals")
+        print(
+            "%s signs with %s for %s years."
+            % (team.name, manufacturer_name, years)
+        )
+    team.sign_factory_deal(manufacturer_name, years, calendar.current_season)
+    return previous, manufacturer_name
+
+
+def renew_factory_deal(team):
+    """Resign the current factory, or leave Independent unsigned."""
+
+    current = team.manufacturer or "Independent"
+    maker = get_manufacturer(current)
+    if maker is None or current == "Independent":
+        team.clear_factory_deal()
+        print("%s remains Independent." % team.name)
+        return
+    interest, years = factory_deal_terms(maker, team)
+    team.sign_factory_deal(current, years, calendar.current_season)
+    print(
+        "%s renews with %s for %s years (interest %s)."
+        % (team.name, current, years, interest)
+    )
+
+
+def run_offseason_factory_deals():
+    """Tick factory years, auto-renew, and queue one switch hearing."""
+
+    print("\nFactory Deals")
+    print("-" * 90)
+    league["pending_factory_switch"] = None
+
+    expired = []
+    for team in teams:
+        if team.advance_factory_deal():
+            expired.append(team)
+            print(
+                "%s — %s deal expired."
+                % (team.name, team.manufacturer)
+            )
+        elif not team.has_factory_deal():
+            expired.append(team)
+            print("%s — no factory deal." % team.name)
+        else:
+            print(
+                "%s — %s."
+                % (team.name, team.factory_deal_label())
+            )
+
+    pending = pick_factory_switch()
+    league["pending_factory_switch"] = pending
+    if pending:
+        print(
+            "%s wants to leave %s for %s."
+            % (pending["team"], pending["from"], pending["to"])
+        )
+
+    for team in expired:
+        if pending and pending.get("team") == team.name:
+            continue
+        renew_factory_deal(team)
+
+    if not expired and pending is None:
+        print("No factory contracts moved this offseason.")
+
+
+def record_manufacturer_switch(result, event):
+    """Apply an approved switch, a held badge, or Independent."""
+
+    ensure_league_commercial_state()
+    choice_id = str(result.get("choice_id"))
+    proposal = league.get("pending_factory_switch") or {}
+    shop = (event or {}).get("subject_team_name") or proposal.get("team")
+    try:
+        team = get_team(shop) if shop else None
+    except ValueError:
+        team = None
+    current = (event or {}).get("from_manufacturer") or proposal.get("from") or "Independent"
+    target = (event or {}).get("to_manufacturer") or proposal.get("to") or "Independent"
+    summary = "none"
+    action = None
+    if team is not None:
+        current = team.manufacturer or current
+        if choice_id == "1":
+            previous, new = apply_factory_switch(team, target)
+            action = "switched"
+            summary = "%s → %s" % (previous, new)
+        elif choice_id == "2":
+            if current == "Independent":
+                team.clear_factory_deal()
+                print("\nFactory Deals")
+                print("%s stays Independent." % team.name)
+                action = "held"
+                summary = "%s held Independent" % team.name
+            else:
+                team.manufacturer = current
+                renew_factory_deal(team)
+                action = "held"
+                summary = "%s held %s" % (team.name, current)
+        elif choice_id == "3":
+            team.clear_factory_deal()
+            print("\nFactory Deals")
+            print("%s is forced Independent." % team.name)
+            action = "independent"
+            summary = "%s Independent" % team.name
+
+    record = {
+        "season": calendar.current_season,
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "outcome": result.get("outcome"),
+        "action": action,
+        "summary": summary,
+        "team": shop,
+        "from_manufacturer": current,
+        "to_manufacturer": target if action == "switched" else team.manufacturer if team else None,
+    }
+    league["last_factory_switch"] = dict(record)
+    if not isinstance(league.get("season_factory_switches"), list):
+        league["season_factory_switches"] = []
+    league["season_factory_switches"].append(dict(record))
+    if not isinstance(league.get("factory_history"), list):
+        league["factory_history"] = []
+    league["factory_history"].append(dict(record))
+    league["pending_factory_switch"] = None
+    return record
+
+
 def record_board_review(result, event):
     """Apply the board hearing and dismiss the commissioner if they fall."""
 
@@ -5980,6 +6319,8 @@ def present_events(event_list):
             record_team_entry(result, event)
         if result and result.get("category") == "team-closure":
             record_team_closure(result, event)
+        if result and result.get("category") == "manufacturer-switch":
+            record_manufacturer_switch(result, event)
         if result:
             results.append(result)
 
@@ -6964,6 +7305,14 @@ def run_offseason(completed_season):
         )
     )
     run_offseason_team_sponsors()
+    run_offseason_factory_deals()
+    present_events(
+        manufacturer_switch_events(
+            calendar.current_season,
+            events_resolved,
+            league,
+        )
+    )
     run_offseason_endorsements()
     run_offseason_league_sponsors()
     run_offseason_tv_rights()
@@ -8322,6 +8671,7 @@ def display_commissioner_report():
     print_team_entry_dashboard_line()
     print_team_closure_dashboard_line()
     print_manufacturer_dashboard_line()
+    print_factory_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -8411,6 +8761,23 @@ def save_season_report(season_number):
                 league.get("season_team_closures") or []
             ),
             "closure_history": list(league.get("closure_history") or []),
+            "last_factory_switch": (
+                dict(league["last_factory_switch"])
+                if league.get("last_factory_switch")
+                else None
+            ),
+            "season_factory_switches": list(
+                league.get("season_factory_switches") or []
+            ),
+            "factory_history": list(league.get("factory_history") or []),
+            "factory_deals": [
+                {
+                    "team": team.name,
+                    "manufacturer": team.manufacturer,
+                    "deal": team.factory_deal_label(),
+                }
+                for team in teams
+            ],
             "manufacturers": [
                 {
                     "name": maker.name,
@@ -8830,6 +9197,9 @@ def initialize_season(season_number):
     league["season_team_entries"] = []
     league["last_team_closure"] = None
     league["season_team_closures"] = []
+    league["last_factory_switch"] = None
+    league["season_factory_switches"] = []
+    league["pending_factory_switch"] = None
 
     for team in teams:
         team.start_new_season()
@@ -9468,6 +9838,9 @@ def run_season():
             season=calendar.current_season,
             apply_signing_boost=False,
         )
+
+    if not any(team.has_factory_deal() for team in teams):
+        assign_opening_factory_deals(season=calendar.current_season)
 
     run_single_season(calendar.current_season)
     calendar.advance_to_next_season()

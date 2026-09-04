@@ -301,7 +301,7 @@ Insolvent teams face a **charter review** after offseason finances. Three answer
 
 ### Manufacturers
 
-Named automakers badge the grid. Opening factories are **Vanguard** (Durability), **Apex** (Speed), and **Falcon** (Balance). Expansion shops arrive **Independent** (Unaligned). Each identity slightly shifts race pace and mechanical risk. Teams still store a badge string; factory contracts and switching come later. The dashboard lists the makers. A factory with no remaining shop raises an alert.
+Named automakers badge the grid. Opening factories are **Vanguard** (Durability), **Apex** (Speed), and **Falcon** (Balance). Expansion shops arrive **Independent** (Unaligned). Each identity slightly shifts race pace and mechanical risk. Teams hold a **factory contract** with years remaining. Offseason, expired or unsigned shops may renew, court a new factory, or stay Independent. A proposed switch goes to the commissioner: **approve the switch**, **hold the current badge**, or **force Independent**. Retooling a live factory costs shop budget. The dashboard shows the last move and the next expiring deal. A last-year contract or an unsigned shop raises an alert.
 
 ## Team Finances and Offseason Spending
 
@@ -486,6 +486,7 @@ Saved data includes:
 - Prospect-pool drivers waiting outside the premier series
 - Development-series calendar, standings, and champion
 - Prospect call-ups onto open premier seats
+- Manufacturer factory contracts, years remaining, and switch history
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -496,17 +497,17 @@ Each season moves through a fixed league calendar:
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order; the development series races its own calendar alongside the first eight weekends
 - Postseason: standings, awards, championship, feeder champion, and season records are finalized
-- Offseason: drivers develop or decline, prospects progress from feeder results, retirements are processed and may call up a premier-ready prospect, team finances are settled, the sponsor market churns, television rights are paid, the prospect pool and development book remain on file, and paddock rivalries, feuds, and friendships are updated
+- Offseason: drivers develop or decline, prospects progress from feeder results, retirements are processed and may call up a premier-ready prospect, team finances are settled, factory contracts tick and may switch, the sponsor market churns, television rights are paid, the prospect pool and development book remain on file, and paddock rivalries, feuds, and friendships are updated
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, the National Development Series leader or champion, the last prospect call-up, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, the National Development Series leader or champion, the last prospect call-up, last factory switch and next expiring factory deal, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 
-Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, driver-council, rule-proposal, lobbying, rule-vote, and board-confidence matters use one shared decision framework:
+Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, driver-council, rule-proposal, lobbying, rule-vote, board-confidence, team-entry, team-closure, and manufacturer-switch matters use one shared decision framework:
 
 - A prompt and numbered choices
 - Immediate consequences
