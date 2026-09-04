@@ -156,3 +156,5 @@
 | 154 | Automaker performance identities | Medium | Completed |
 | 155 | Manufacturer contracts | High | Completed |
 | 156 | Factory switching | Medium | Completed |
+| 157 | Complete save architecture | High | Completed |
+| 158 | Career world snapshot and load catalog | Medium | Completed |

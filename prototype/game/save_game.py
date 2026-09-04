@@ -1,12 +1,15 @@
 """Save and load career progress for the commissioner sim."""
 
+import copy
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 
+from game.calendar import PHASE_LABELS
 from game.models import Driver, Manufacturer, Network, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.37"
+SAVE_VERSION = "0.0.38"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -43,8 +46,114 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.35",
     "0.0.36",
     "0.0.37",
+    "0.0.38",
 }
 GAME_NAME = "Stock Car Commissioner"
+
+CAREER_WORLD_KEYS = (
+    "game",
+    "version",
+    "save_type",
+    "created_at",
+    "summary",
+    "calendar",
+    "current_season",
+    "championship_awarded",
+    "career_seasons_total",
+    "season_in_progress",
+    "calendar_phase",
+    "policies",
+    "decision_log",
+    "events_resolved",
+    "league",
+    "race_history",
+    "career_history",
+    "drivers",
+    "teams",
+    "retired_drivers",
+    "driver_prospects",
+    "team_applicants",
+    "development_tracks",
+    "tracks",
+    "sponsors",
+    "sponsor_prospects",
+    "networks",
+    "manufacturers",
+)
+
+LEAGUE_DEFAULTS = {
+    "integrity": 70,
+    "fan_interest": 65,
+    "controversy": 20,
+    "fines_collected": 0,
+    "owner_pressure": 25,
+    "driver_sentiment": 60,
+    "sponsor_conflicts": [],
+    "sponsor_walk_blocks": [],
+    "treasury": 0,
+    "naming_rights": None,
+    "official_partners": [],
+    "season_commercial_income": 0,
+    "career_commercial_income": 0,
+    "sponsor_market_log": [],
+    "tv_rights": None,
+    "season_tv_income": 0,
+    "career_tv_income": 0,
+    "season_tv_ratings": [],
+    "season_tv_viewers": [],
+    "last_tv_rating": None,
+    "last_tv_viewers": None,
+    "tv_rating_history": [],
+    "tv_rating_trend": 0,
+    "season_gate_attendance": [],
+    "season_gate_fill": [],
+    "last_gate_attendance": None,
+    "last_gate_capacity": None,
+    "last_gate_fill": None,
+    "last_gate_draw": None,
+    "gate_history": [],
+    "gate_trend": 0,
+    "season_media_stories": [],
+    "last_media_stories": [],
+    "season_press_conferences": [],
+    "last_press_conference": None,
+    "season_media_controversies": [],
+    "last_media_controversy": None,
+    "season_owner_councils": [],
+    "last_owner_council": None,
+    "season_driver_councils": [],
+    "last_driver_council": None,
+    "season_rule_proposals": [],
+    "last_rule_proposal": None,
+    "rule_docket": [],
+    "season_rule_votes": [],
+    "last_rule_vote": None,
+    "season_lobbying": [],
+    "last_lobbying": None,
+    "approval": None,
+    "approval_history": [],
+    "job_security": None,
+    "season_board_reviews": [],
+    "last_board_review": None,
+    "board_history": [],
+    "dismissed": False,
+    "dismissal": None,
+    "development": None,
+    "development_history": [],
+    "last_call_up": None,
+    "season_call_ups": [],
+    "promotion_history": [],
+    "last_team_entry": None,
+    "season_team_entries": [],
+    "entry_history": [],
+    "last_team_closure": None,
+    "season_team_closures": [],
+    "closure_history": [],
+    "last_factory_switch": None,
+    "season_factory_switches": [],
+    "factory_history": [],
+    "pending_factory_switch": None,
+}
 
 
 def get_saves_folder():
@@ -55,6 +164,140 @@ def get_saves_folder():
     saves_folder.mkdir(exist_ok=True)
 
     return saves_folder
+
+
+def json_clone(value):
+    """Return a JSON-safe deep copy, or raise TypeError if it cannot serialize."""
+
+    return json.loads(json.dumps(value))
+
+
+def fill_league_defaults(league):
+    """Return a league book with every current slot filled."""
+
+    filled = dict(league or {})
+    for key, default in LEAGUE_DEFAULTS.items():
+        if key not in filled:
+            filled[key] = copy.deepcopy(default)
+        elif isinstance(default, list) and not isinstance(filled.get(key), list):
+            filled[key] = []
+        elif key == "dismissed" and not isinstance(filled.get(key), bool):
+            filled[key] = bool(filled.get(key))
+    return filled
+
+
+def calendar_from_save_fields(save_data):
+    """Return the nested calendar dict stored on a save."""
+
+    nested = save_data.get("calendar")
+    if isinstance(nested, dict) and nested:
+        return {
+            "current_season": nested.get(
+                "current_season", save_data.get("current_season")
+            ),
+            "career_seasons_total": nested.get(
+                "career_seasons_total",
+                save_data.get("career_seasons_total"),
+            ),
+            "phase": nested.get("phase", save_data.get("calendar_phase")),
+        }
+    return {
+        "current_season": save_data.get("current_season"),
+        "career_seasons_total": save_data.get("career_seasons_total"),
+        "phase": save_data.get("calendar_phase"),
+    }
+
+
+def career_save_summary(save_data):
+    """Return a compact catalog card for the load menu."""
+
+    calendar = calendar_from_save_fields(save_data)
+    league = save_data.get("league") or {}
+    naming = league.get("naming_rights") or {}
+    return {
+        "season": calendar.get("current_season"),
+        "career_seasons_total": calendar.get("career_seasons_total"),
+        "phase": calendar.get("phase"),
+        "teams": len(save_data.get("teams") or []),
+        "drivers": len(save_data.get("drivers") or []),
+        "dismissed": bool(league.get("dismissed")),
+        "series_sponsor": naming.get("sponsor"),
+    }
+
+
+def comparable_save(save_data):
+    """Return save data that can be compared across write timestamps."""
+
+    data = copy.deepcopy(save_data)
+    data.pop("created_at", None)
+    return data
+
+
+def peek_save_summary(save_path):
+    """Read a save file's catalog card, or None if the file is unreadable."""
+
+    try:
+        with Path(save_path).open("r", encoding="utf-8") as save_file:
+            save_data = json.load(save_file)
+    except (OSError, json.JSONDecodeError, TypeError):
+        return None
+    if not isinstance(save_data, dict):
+        return None
+    summary = save_data.get("summary")
+    if isinstance(summary, dict) and summary:
+        return summary
+    return career_save_summary(save_data)
+
+
+def format_save_listing(save_path):
+    """Return the load-menu line for one save file."""
+
+    save_path = Path(save_path)
+    summary = peek_save_summary(save_path)
+    if not summary:
+        return save_path.name
+    season = summary.get("season")
+    total = summary.get("career_seasons_total")
+    phase = summary.get("phase")
+    phase_label = PHASE_LABELS.get(phase, phase or "Unknown")
+    teams = summary.get("teams")
+    extra = ", dismissed" if summary.get("dismissed") else ""
+    return "%s — Season %s of %s, %s, %s teams%s" % (
+        save_path.name,
+        season if season is not None else "?",
+        total if total is not None else "?",
+        phase_label,
+        teams if teams is not None else "?",
+        extra,
+    )
+
+
+def _mapped_list(items, mapper):
+    """Serialize a collection, treating missing as an empty world slot."""
+
+    return [mapper(item) for item in (items or [])]
+
+
+def normalize_save_data(save_data):
+    """Fill missing career-world slots on a loaded save dictionary."""
+
+    data = copy.deepcopy(save_data)
+    data["league"] = fill_league_defaults(data.get("league"))
+    if not isinstance(data.get("policies"), dict):
+        data["policies"] = {}
+    if not isinstance(data.get("decision_log"), list):
+        data["decision_log"] = []
+    if not isinstance(data.get("events_resolved"), list):
+        data["events_resolved"] = []
+    if not isinstance(data.get("race_history"), list):
+        data["race_history"] = []
+    if not isinstance(data.get("career_history"), list):
+        data["career_history"] = []
+    data["calendar"] = calendar_from_save_fields(data)
+    if not data.get("calendar_phase"):
+        data["calendar_phase"] = data["calendar"].get("phase")
+    data["summary"] = career_save_summary(data)
+    return data
 
 
 def driver_to_dict(driver):
@@ -496,65 +739,42 @@ def build_save_data(
 ):
     """Build a save file dictionary from live game state."""
 
+    calendar = {
+        "current_season": current_season,
+        "career_seasons_total": career_seasons_total,
+        "phase": calendar_phase,
+    }
     save_data = {
         "game": GAME_NAME,
         "version": SAVE_VERSION,
         "save_type": "career",
         "created_at": datetime.now().isoformat(timespec="seconds"),
+        "calendar": dict(calendar),
         "current_season": current_season,
         "championship_awarded": championship_awarded,
         "career_seasons_total": career_seasons_total,
         "season_in_progress": season_in_progress,
         "calendar_phase": calendar_phase,
-        "policies": dict(policies),
-        "decision_log": list(decision_log),
-        "events_resolved": list(events_resolved),
-        "league": dict(league),
-        "race_history": list(race_history),
-        "career_history": list(career_history),
-        "drivers": [driver_to_dict(driver) for driver in drivers],
-        "teams": [team_to_dict(team) for team in teams],
-        "retired_drivers": [
-            driver_to_dict(driver)
-            for driver in retired_drivers
-        ],
-        "driver_prospects": [
-            driver_to_dict(driver)
-            for driver in (driver_prospects or [])
-        ],
-        "team_applicants": [
-            dict(item) for item in (team_applicants or [])
-        ],
-        "development_tracks": [
-            track_to_dict(track)
-            for track in (development_tracks or [])
-        ],
+        "policies": json_clone(dict(policies or {})),
+        "decision_log": json_clone(list(decision_log or [])),
+        "events_resolved": json_clone(list(events_resolved or [])),
+        "league": json_clone(fill_league_defaults(league)),
+        "race_history": json_clone(list(race_history or [])),
+        "career_history": json_clone(list(career_history or [])),
+        "drivers": _mapped_list(drivers, driver_to_dict),
+        "teams": _mapped_list(teams, team_to_dict),
+        "retired_drivers": _mapped_list(retired_drivers, driver_to_dict),
+        "driver_prospects": _mapped_list(driver_prospects, driver_to_dict),
+        "team_applicants": json_clone(list(team_applicants or [])),
+        "development_tracks": _mapped_list(development_tracks, track_to_dict),
+        "tracks": _mapped_list(tracks, track_to_dict),
+        "sponsors": _mapped_list(sponsors, sponsor_to_dict),
+        "sponsor_prospects": _mapped_list(sponsor_prospects, sponsor_to_dict),
+        "networks": _mapped_list(networks, network_to_dict),
+        "manufacturers": _mapped_list(manufacturers, manufacturer_to_dict),
     }
-
-    if tracks is not None:
-        save_data["tracks"] = [track_to_dict(track) for track in tracks]
-
-    if sponsors is not None:
-        save_data["sponsors"] = [
-            sponsor_to_dict(sponsor) for sponsor in sponsors
-        ]
-
-    if sponsor_prospects is not None:
-        save_data["sponsor_prospects"] = [
-            sponsor_to_dict(sponsor) for sponsor in sponsor_prospects
-        ]
-
-    if networks is not None:
-        save_data["networks"] = [
-            network_to_dict(network) for network in networks
-        ]
-
-    if manufacturers is not None:
-        save_data["manufacturers"] = [
-            manufacturer_to_dict(manufacturer)
-            for manufacturer in manufacturers
-        ]
-
+    save_data["summary"] = career_save_summary(save_data)
+    json_clone(save_data)
     return save_data
 
 
@@ -575,6 +795,11 @@ def parse_save_data(save_data):
     """Convert a save dictionary into restored game objects."""
 
     validate_save_data(save_data)
+    raw_league = save_data.get("league") or {}
+    had_naming_rights = "naming_rights" in raw_league
+    had_tv_rights = "tv_rights" in raw_league
+    present_keys = set(save_data.keys())
+    save_data = normalize_save_data(save_data)
 
     restored_drivers = [
         driver_from_dict(driver_data)
@@ -591,17 +816,13 @@ def parse_save_data(save_data):
         for driver_data in save_data["retired_drivers"]
     ]
 
-    restored_driver_prospects = []
-
-    if "driver_prospects" in save_data:
-        restored_driver_prospects = [
-            driver_from_dict(driver_data)
-            for driver_data in save_data.get("driver_prospects") or []
-        ]
+    def restore_if_present(key, from_dict):
+        if key not in present_keys:
+            return None
+        return [from_dict(item) for item in (save_data.get(key) or [])]
 
     restored_team_applicants = []
-
-    if "team_applicants" in save_data:
+    if "team_applicants" in present_keys:
         for raw in save_data.get("team_applicants") or []:
             if (
                 isinstance(raw, dict)
@@ -610,54 +831,6 @@ def parse_save_data(save_data):
             ):
                 restored_team_applicants.append(dict(raw))
 
-    restored_development_tracks = []
-
-    if "development_tracks" in save_data:
-        restored_development_tracks = [
-            track_from_dict(track_data)
-            for track_data in save_data.get("development_tracks") or []
-        ]
-
-    restored_tracks = None
-
-    if save_data.get("tracks"):
-        restored_tracks = [
-            track_from_dict(track_data)
-            for track_data in save_data["tracks"]
-        ]
-
-    restored_sponsors = None
-
-    if save_data.get("sponsors"):
-        restored_sponsors = [
-            sponsor_from_dict(sponsor_data)
-            for sponsor_data in save_data["sponsors"]
-        ]
-
-    restored_prospects = None
-
-    if "sponsor_prospects" in save_data:
-        restored_prospects = [
-            sponsor_from_dict(sponsor_data)
-            for sponsor_data in save_data.get("sponsor_prospects") or []
-        ]
-
-    restored_networks = None
-
-    if "networks" in save_data:
-        restored_networks = [
-            network_from_dict(network_data)
-            for network_data in save_data.get("networks") or []
-        ]
-
-    restored_manufacturers = None
-
-    if "manufacturers" in save_data:
-        restored_manufacturers = [
-            manufacturer_from_dict(maker_data)
-            for maker_data in save_data.get("manufacturers") or []
-        ]
-
     return {
         "league": dict(save_data["league"]),
         "race_history": list(save_data["race_history"]),
@@ -665,22 +838,34 @@ def parse_save_data(save_data):
         "drivers": restored_drivers,
         "teams": restored_teams,
         "retired_drivers": restored_retired,
-        "driver_prospects": restored_driver_prospects,
+        "driver_prospects": restore_if_present(
+            "driver_prospects", driver_from_dict
+        ),
         "team_applicants": restored_team_applicants,
-        "development_tracks": restored_development_tracks,
-        "tracks": restored_tracks,
-        "sponsors": restored_sponsors,
-        "sponsor_prospects": restored_prospects,
-        "networks": restored_networks,
-        "manufacturers": restored_manufacturers,
+        "development_tracks": restore_if_present(
+            "development_tracks", track_from_dict
+        ),
+        "tracks": restore_if_present("tracks", track_from_dict),
+        "sponsors": restore_if_present("sponsors", sponsor_from_dict),
+        "sponsor_prospects": restore_if_present(
+            "sponsor_prospects", sponsor_from_dict
+        ),
+        "networks": restore_if_present("networks", network_from_dict),
+        "manufacturers": restore_if_present(
+            "manufacturers", manufacturer_from_dict
+        ),
         "current_season": save_data["current_season"],
         "championship_awarded": save_data["championship_awarded"],
         "career_seasons_total": save_data["career_seasons_total"],
         "season_in_progress": save_data["season_in_progress"],
         "calendar_phase": save_data.get("calendar_phase"),
+        "calendar": dict(save_data.get("calendar") or {}),
+        "summary": dict(save_data.get("summary") or {}),
         "policies": dict(save_data.get("policies") or {}),
         "decision_log": list(save_data.get("decision_log") or []),
         "events_resolved": list(save_data.get("events_resolved") or []),
+        "had_naming_rights": had_naming_rights,
+        "had_tv_rights": had_tv_rights,
     }
 
 
@@ -698,9 +883,15 @@ def save_to_file(save_data, save_name=None):
         filename = f"career_save_{timestamp}.json"
 
     save_path = saves_folder / filename
-
-    with save_path.open("w", encoding="utf-8") as save_file:
-        json.dump(save_data, save_file, indent=4)
+    payload = json.dumps(save_data, indent=4)
+    tmp_path = save_path.with_name(save_path.name + ".tmp")
+    try:
+        tmp_path.write_text(payload, encoding="utf-8")
+        os.replace(str(tmp_path), str(save_path))
+    except Exception:
+        if tmp_path.exists():
+            tmp_path.unlink()
+        raise
 
     return save_path
 

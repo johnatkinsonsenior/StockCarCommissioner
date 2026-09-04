@@ -107,6 +107,8 @@ from game.policies import (
 )
 from game.save_game import (
     build_save_data,
+    fill_league_defaults,
+    format_save_listing,
     get_saves_folder,
     list_save_files,
     load_from_file,
@@ -536,10 +538,14 @@ def apply_loaded_state(restored_state):
     retired_drivers.extend(restored_state["retired_drivers"])
 
     driver_prospects.clear()
-    driver_prospects.extend(restored_state.get("driver_prospects") or [])
+    if restored_state.get("driver_prospects") is not None:
+        driver_prospects.extend(restored_state["driver_prospects"])
+    else:
+        driver_prospects.extend(create_driver_prospects())
 
     team_applicants.clear()
-    team_applicants.extend(restored_state.get("team_applicants") or [])
+    if restored_state.get("team_applicants") is not None:
+        team_applicants.extend(restored_state["team_applicants"])
 
     decision_log.clear()
     decision_log.extend(restored_state.get("decision_log") or [])
@@ -553,14 +559,15 @@ def apply_loaded_state(restored_state):
     teams.clear()
     teams.extend(restored_state["teams"])
 
-    if restored_state.get("tracks"):
-        tracks.clear()
+    tracks.clear()
+    if restored_state.get("tracks") is not None:
         tracks.extend(restored_state["tracks"])
+    else:
+        tracks.extend(create_initial_tracks())
 
     development_tracks.clear()
-    restored_feeder = restored_state.get("development_tracks") or []
-    if restored_feeder:
-        development_tracks.extend(restored_feeder)
+    if restored_state.get("development_tracks") is not None:
+        development_tracks.extend(restored_state["development_tracks"])
     else:
         development_tracks.extend(
             generate_development_schedule(
@@ -569,8 +576,7 @@ def apply_loaded_state(restored_state):
         )
 
     sponsors.clear()
-
-    if restored_state.get("sponsors"):
+    if restored_state.get("sponsors") is not None:
         sponsors.extend(restored_state["sponsors"])
     else:
         sponsors.extend(create_initial_sponsors())
@@ -593,108 +599,20 @@ def apply_loaded_state(restored_state):
     else:
         manufacturers.extend(create_initial_manufacturers())
 
+    raw_league = restored_state["league"]
+    had_naming = restored_state.get("had_naming_rights")
+    if had_naming is None:
+        had_naming = "naming_rights" in raw_league
+    had_tv = restored_state.get("had_tv_rights")
+    if had_tv is None:
+        had_tv = "tv_rights" in raw_league
+
     league.clear()
-    league.update(restored_state["league"])
-    league.setdefault("owner_pressure", 25)
-    league.setdefault("driver_sentiment", 60)
-    league.setdefault("sponsor_conflicts", [])
-    league.setdefault("sponsor_walk_blocks", [])
-    league.setdefault("treasury", 0)
-    league.setdefault("official_partners", [])
-    league.setdefault("season_commercial_income", 0)
-    league.setdefault("career_commercial_income", 0)
-    league.setdefault("sponsor_market_log", [])
-    league.setdefault("season_tv_income", 0)
-    league.setdefault("career_tv_income", 0)
-    if not isinstance(league.get("season_tv_ratings"), list):
-        league["season_tv_ratings"] = []
-    if not isinstance(league.get("season_tv_viewers"), list):
-        league["season_tv_viewers"] = []
-    league.setdefault("last_tv_rating", None)
-    league.setdefault("last_tv_viewers", None)
-    if not isinstance(league.get("tv_rating_history"), list):
-        league["tv_rating_history"] = []
-    league.setdefault("tv_rating_trend", 0)
-    if not isinstance(league.get("season_gate_attendance"), list):
-        league["season_gate_attendance"] = []
-    if not isinstance(league.get("season_gate_fill"), list):
-        league["season_gate_fill"] = []
-    league.setdefault("last_gate_attendance", None)
-    league.setdefault("last_gate_capacity", None)
-    league.setdefault("last_gate_fill", None)
-    league.setdefault("last_gate_draw", None)
-    if not isinstance(league.get("gate_history"), list):
-        league["gate_history"] = []
-    league.setdefault("gate_trend", 0)
-    if not isinstance(league.get("season_media_stories"), list):
-        league["season_media_stories"] = []
-    if not isinstance(league.get("last_media_stories"), list):
-        league["last_media_stories"] = []
-    if not isinstance(league.get("season_press_conferences"), list):
-        league["season_press_conferences"] = []
-    league.setdefault("last_press_conference", None)
-    if not isinstance(league.get("season_media_controversies"), list):
-        league["season_media_controversies"] = []
-    league.setdefault("last_media_controversy", None)
-    if not isinstance(league.get("season_owner_councils"), list):
-        league["season_owner_councils"] = []
-    league.setdefault("last_owner_council", None)
-    if not isinstance(league.get("season_driver_councils"), list):
-        league["season_driver_councils"] = []
-    league.setdefault("last_driver_council", None)
-    if not isinstance(league.get("season_rule_proposals"), list):
-        league["season_rule_proposals"] = []
-    league.setdefault("last_rule_proposal", None)
-    if not isinstance(league.get("rule_docket"), list):
-        league["rule_docket"] = []
-    if not isinstance(league.get("season_rule_votes"), list):
-        league["season_rule_votes"] = []
-    league.setdefault("last_rule_vote", None)
-    if not isinstance(league.get("season_lobbying"), list):
-        league["season_lobbying"] = []
-    league.setdefault("last_lobbying", None)
-    league.setdefault("approval", None)
-    if not isinstance(league.get("approval_history"), list):
-        league["approval_history"] = []
-    league.setdefault("job_security", None)
-    if not isinstance(league.get("season_board_reviews"), list):
-        league["season_board_reviews"] = []
-    league.setdefault("last_board_review", None)
-    if not isinstance(league.get("board_history"), list):
-        league["board_history"] = []
-    league.setdefault("dismissed", False)
-    league.setdefault("dismissal", None)
-    if not isinstance(league.get("development_history"), list):
-        league["development_history"] = []
+    league.update(fill_league_defaults(raw_league))
     if not isinstance(league.get("development"), dict):
         league["development"] = empty_development_season(
             restored_state.get("current_season") or 1
         )
-    league.setdefault("last_call_up", None)
-    if not isinstance(league.get("season_call_ups"), list):
-        league["season_call_ups"] = []
-    if not isinstance(league.get("promotion_history"), list):
-        league["promotion_history"] = []
-    league.setdefault("last_team_entry", None)
-    if not isinstance(league.get("season_team_entries"), list):
-        league["season_team_entries"] = []
-    if not isinstance(league.get("entry_history"), list):
-        league["entry_history"] = []
-    league.setdefault("last_team_closure", None)
-    if not isinstance(league.get("season_team_closures"), list):
-        league["season_team_closures"] = []
-    if not isinstance(league.get("closure_history"), list):
-        league["closure_history"] = []
-    league.setdefault("last_factory_switch", None)
-    if not isinstance(league.get("season_factory_switches"), list):
-        league["season_factory_switches"] = []
-    if not isinstance(league.get("factory_history"), list):
-        league["factory_history"] = []
-    league.setdefault("pending_factory_switch", None)
-    had_naming = "naming_rights" in restored_state["league"]
-    league.setdefault("naming_rights", None)
-    had_tv = "tv_rights" in restored_state["league"]
-    league.setdefault("tv_rights", None)
 
     load_policies(restored_state.get("policies"))
 
@@ -789,7 +707,7 @@ def choose_save_file():
     print("-" * 75)
 
     for index, save_path in enumerate(save_files, start=1):
-        print(f"{index}. {save_path.name}")
+        print(f"{index}. {format_save_listing(save_path)}")
 
     while True:
         choice = input(
@@ -1323,104 +1241,11 @@ def get_network(name):
 def ensure_league_commercial_state():
     """Make sure league naming-rights, partner, TV, gate, media, press, scandal, and council slots exist."""
 
-    if not isinstance(league.get("official_partners"), list):
-        league["official_partners"] = []
-    if "naming_rights" not in league:
-        league["naming_rights"] = None
-    league.setdefault("treasury", 0)
-    league.setdefault("season_commercial_income", 0)
-    league.setdefault("career_commercial_income", 0)
-    if not isinstance(league.get("sponsor_market_log"), list):
-        league["sponsor_market_log"] = []
-    if "tv_rights" not in league:
-        league["tv_rights"] = None
-    league.setdefault("season_tv_income", 0)
-    league.setdefault("career_tv_income", 0)
-    if not isinstance(league.get("season_tv_ratings"), list):
-        league["season_tv_ratings"] = []
-    if not isinstance(league.get("season_tv_viewers"), list):
-        league["season_tv_viewers"] = []
-    league.setdefault("last_tv_rating", None)
-    league.setdefault("last_tv_viewers", None)
-    if not isinstance(league.get("tv_rating_history"), list):
-        league["tv_rating_history"] = []
-    league.setdefault("tv_rating_trend", 0)
-    if not isinstance(league.get("season_gate_attendance"), list):
-        league["season_gate_attendance"] = []
-    if not isinstance(league.get("season_gate_fill"), list):
-        league["season_gate_fill"] = []
-    league.setdefault("last_gate_attendance", None)
-    league.setdefault("last_gate_capacity", None)
-    league.setdefault("last_gate_fill", None)
-    league.setdefault("last_gate_draw", None)
-    if not isinstance(league.get("gate_history"), list):
-        league["gate_history"] = []
-    league.setdefault("gate_trend", 0)
-    if not isinstance(league.get("season_media_stories"), list):
-        league["season_media_stories"] = []
-    if not isinstance(league.get("last_media_stories"), list):
-        league["last_media_stories"] = []
-    if not isinstance(league.get("season_press_conferences"), list):
-        league["season_press_conferences"] = []
-    league.setdefault("last_press_conference", None)
-    if not isinstance(league.get("season_media_controversies"), list):
-        league["season_media_controversies"] = []
-    league.setdefault("last_media_controversy", None)
-    if not isinstance(league.get("season_owner_councils"), list):
-        league["season_owner_councils"] = []
-    league.setdefault("last_owner_council", None)
-    if not isinstance(league.get("season_driver_councils"), list):
-        league["season_driver_councils"] = []
-    league.setdefault("last_driver_council", None)
-    if not isinstance(league.get("season_rule_proposals"), list):
-        league["season_rule_proposals"] = []
-    league.setdefault("last_rule_proposal", None)
-    if not isinstance(league.get("rule_docket"), list):
-        league["rule_docket"] = []
-    if not isinstance(league.get("season_rule_votes"), list):
-        league["season_rule_votes"] = []
-    league.setdefault("last_rule_vote", None)
-    if not isinstance(league.get("season_lobbying"), list):
-        league["season_lobbying"] = []
-    league.setdefault("last_lobbying", None)
-    league.setdefault("approval", None)
-    if not isinstance(league.get("approval_history"), list):
-        league["approval_history"] = []
-    league.setdefault("job_security", None)
-    if not isinstance(league.get("season_board_reviews"), list):
-        league["season_board_reviews"] = []
-    league.setdefault("last_board_review", None)
-    if not isinstance(league.get("board_history"), list):
-        league["board_history"] = []
-    league.setdefault("dismissed", False)
-    league.setdefault("dismissal", None)
-    if not isinstance(league.get("development_history"), list):
-        league["development_history"] = []
+    league.update(fill_league_defaults(league))
     if not isinstance(league.get("development"), dict):
         league["development"] = empty_development_season(
             calendar.current_season
         )
-    league.setdefault("last_call_up", None)
-    if not isinstance(league.get("season_call_ups"), list):
-        league["season_call_ups"] = []
-    if not isinstance(league.get("promotion_history"), list):
-        league["promotion_history"] = []
-    league.setdefault("last_team_entry", None)
-    if not isinstance(league.get("season_team_entries"), list):
-        league["season_team_entries"] = []
-    if not isinstance(league.get("entry_history"), list):
-        league["entry_history"] = []
-    league.setdefault("last_team_closure", None)
-    if not isinstance(league.get("season_team_closures"), list):
-        league["season_team_closures"] = []
-    if not isinstance(league.get("closure_history"), list):
-        league["closure_history"] = []
-    league.setdefault("last_factory_switch", None)
-    if not isinstance(league.get("season_factory_switches"), list):
-        league["season_factory_switches"] = []
-    if not isinstance(league.get("factory_history"), list):
-        league["factory_history"] = []
-    league.setdefault("pending_factory_switch", None)
 
 
 def has_naming_rights():

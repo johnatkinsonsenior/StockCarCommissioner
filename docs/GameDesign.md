@@ -445,7 +445,7 @@ Three responses: **deny everything** (the story grows and signed brands flinch),
 
 ## Save and Load
 
-Career progress can be saved to JSON files in the local `saves/` folder and loaded later to continue play.
+Career progress is a **complete world snapshot**. One JSON file in `saves/` stores every live collection, the league book, the calendar, and the policies. Writes go to a temp file and replace the destination so a crash cannot leave a half-written career. The load menu lists each file with season, phase, and field size. Legacy 0.0.37 files still load; missing collections fill from the opening book, while an empty list stays empty.
 
 Saved data includes:
 
@@ -487,8 +487,9 @@ Saved data includes:
 - Development-series calendar, standings, and champion
 - Prospect call-ups onto open premier seats
 - Manufacturer factory contracts, years remaining, and switch history
+- Nested calendar (season, career length, phase) and a load-menu summary card
 
-Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
+Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season. Difficulty, season-length settings, and autosave come later.
 
 ## League Calendar
 
