@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–75 complete (Week 11 underway). Next coding day: **Day
-76 — Approval rating**.
+**Current position:** Days 1–76 complete (Week 11 underway). Next coding day: **Day
+77 — Job security**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -126,7 +126,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 73 — Rule proposals (stakeholder-introduced changes)
 - [x] Day 74 — Voting system (approve/reject rules, record votes)
 - [x] Day 75 — Political influence (lobbying, coalitions)
-- [ ] Day 76 — Approval rating (fans, owners, drivers)
+- [x] Day 76 — Approval rating (fans, owners, drivers)
 - [ ] Day 77 — Job security (board confidence, dismissal risk)
 
 > **Milestone — Day 77 Political Career:** the commissioner has approval
