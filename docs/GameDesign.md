@@ -279,7 +279,11 @@ Retired drivers remain in career history and retain their final statistics.
 
 ### Prospect Pool
 
-Named drivers exist **off the premier grid**. They race Super Lates, Late Models, Modifieds, dirt late models, or touring series and wait in a talent book with a scouting **readiness** grade. The commissioner can read the pool — count, headliner, readiness, pathway, and current outfit — but the book does not run a feeder championship and does not promote anyone into a premier seat. Generated premier rookies still fill retirements. A thin pool raises a dashboard alert. The book persists across seasons and saves.
+Named drivers exist **off the premier grid**. They race Super Lates, Late Models, Modifieds, dirt late models, or touring series and wait in a talent book with a scouting **readiness** grade. Those names fill the **National Development Series**, an eight-race feeder championship with its own calendar, points, and champion. The commissioner can read the pool and the feeder standings, but a development title does not promote anyone into a premier seat. Generated premier rookies still fill retirements. A thin pool raises a dashboard alert. An empty pool leaves the feeder with no field. The book persists across seasons and saves.
+
+### Development Series
+
+The National Development Series is the lower-level championship under the premier grid. Prospects race eight feeder venues (short tracks and modest intermediates) on the same weekends as the first eight premier races. Scoring is a fixed ten-place table, independent of the premier points policy. Crashes still finish the race on half points. The dashboard shows the leader or champion and how many of eight are complete. Postseason reprints the feeder table and files it in career history. This is not a second television product and does not change the premier roster.
 
 ## Team Finances and Offseason Spending
 
@@ -462,6 +466,7 @@ Saved data includes:
 - Commissioner approval with fans, owners, and drivers
 - Board confidence, dismissal risk, and career-ending dismissals
 - Prospect-pool drivers waiting outside the premier series
+- Development-series calendar, standings, and champion
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -470,15 +475,15 @@ Players may save between seasons or from the main menu. Loaded careers resume mi
 Each season moves through a fixed league calendar:
 
 - Preseason: the series prepares teams and drivers for the new year
-- Regular Season: championship races are run in order
-- Postseason: standings, awards, championship, and season records are finalized
-- Offseason: drivers develop or decline, retirements are processed, team finances are settled, the sponsor market churns, television rights are paid, the prospect pool remains on the books, and paddock rivalries, feuds, and friendships are updated
+- Regular Season: championship races are run in order; the development series races its own calendar alongside the first eight weekends
+- Postseason: standings, awards, championship, feeder champion, and season records are finalized
+- Offseason: drivers develop or decline, retirements are processed, team finances are settled, the sponsor market churns, television rights are paid, the prospect pool and development book remain on file, and paddock rivalries, feuds, and friendships are updated
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, the National Development Series leader or champion, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 

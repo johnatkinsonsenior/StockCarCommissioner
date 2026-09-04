@@ -11,7 +11,9 @@ from data import (
     create_sponsor_prospects,
     create_initial_teams,
     create_initial_tracks,
+    generate_development_schedule,
     generate_season_schedule,
+    development_tracks,
     drivers,
     driver_prospects,
     networks,
@@ -245,6 +247,8 @@ league = {
     "board_history": [],
     "dismissed": False,
     "dismissal": None,
+    "development": None,
+    "development_history": [],
 }
 
 race_history = []
@@ -276,6 +280,9 @@ PROSPECT_POOL_FLOOR = 6
 PROSPECT_READY_FLOOR = 80
 PROSPECT_RADAR_FLOOR = 70
 PROSPECT_DEVELOPING_FLOOR = 60
+DEVELOPMENT_SERIES_NAME = "National Development Series"
+DEVELOPMENT_RACE_COUNT = 8
+DEVELOPMENT_POINTS = [20, 18, 16, 15, 14, 13, 12, 11, 10, 9]
 TV_RIGHTS_MIN_INTEREST = 55
 TRACK_TYPE_TV_DRAW = {
     "Superspeedway": 8,
@@ -348,6 +355,9 @@ def reset_career_state():
     tracks.clear()
     tracks.extend(create_initial_tracks())
 
+    development_tracks.clear()
+    development_tracks.extend(generate_development_schedule(1))
+
     sponsors.clear()
     sponsors.extend(create_initial_sponsors())
 
@@ -413,6 +423,8 @@ def reset_career_state():
     league["board_history"] = []
     league["dismissed"] = False
     league["dismissal"] = None
+    league["development"] = empty_development_season(1)
+    league["development_history"] = []
 
     reset_policies()
 
@@ -480,6 +492,17 @@ def apply_loaded_state(restored_state):
     if restored_state.get("tracks"):
         tracks.clear()
         tracks.extend(restored_state["tracks"])
+
+    development_tracks.clear()
+    restored_feeder = restored_state.get("development_tracks") or []
+    if restored_feeder:
+        development_tracks.extend(restored_feeder)
+    else:
+        development_tracks.extend(
+            generate_development_schedule(
+                restored_state.get("current_season") or 1
+            )
+        )
 
     sponsors.clear()
 
@@ -571,6 +594,12 @@ def apply_loaded_state(restored_state):
         league["board_history"] = []
     league.setdefault("dismissed", False)
     league.setdefault("dismissal", None)
+    if not isinstance(league.get("development_history"), list):
+        league["development_history"] = []
+    if not isinstance(league.get("development"), dict):
+        league["development"] = empty_development_season(
+            restored_state.get("current_season") or 1
+        )
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -638,6 +667,7 @@ def save_career(save_name=None):
         sponsors=sponsors,
         sponsor_prospects=sponsor_prospects,
         driver_prospects=driver_prospects,
+        development_tracks=development_tracks,
         networks=networks,
     )
 
@@ -895,6 +925,9 @@ def collect_commissioner_alerts():
 
     if len(driver_prospects) < PROSPECT_POOL_FLOOR:
         alerts.append("The prospect pool is thin")
+
+    if not driver_prospects:
+        alerts.append("The development series has no field")
 
     season_moves = [
         item
@@ -1229,6 +1262,12 @@ def ensure_league_commercial_state():
         league["board_history"] = []
     league.setdefault("dismissed", False)
     league.setdefault("dismissal", None)
+    if not isinstance(league.get("development_history"), list):
+        league["development_history"] = []
+    if not isinstance(league.get("development"), dict):
+        league["development"] = empty_development_season(
+            calendar.current_season
+        )
 
 
 def has_naming_rights():
@@ -3754,6 +3793,7 @@ def display_league_dashboard():
     print_approval_dashboard_line()
     print_board_dashboard_line()
     print_prospect_dashboard_line()
+    print_development_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -4747,15 +4787,347 @@ def display_prospect_pool():
         return
 
     print(f"{len(driver_prospects)} drivers waiting outside the premier series")
+    standings_by_name = {
+        row["name"]: row
+        for row in development_standings()
+    }
     for prospect in ranked_prospects():
+        row = standings_by_name.get(prospect.name) or {}
+        pts = row.get("points", 0)
+        wins = row.get("wins", 0)
         print(
             f"- {prospect.prospect_summary()} | "
             f"{prospect_readiness_label(prospect.prospect_readiness())} | "
             f"age {prospect.age} | "
             f"{prospect.personality} | "
             f"overall {prospect.overall_rating()} | "
+            f"{pts} pts, {wins} wins | "
             f"{prospect.team_name}"
         )
+
+
+def empty_development_season(season_number):
+    """Return a fresh feeder-championship book for one season."""
+
+    return {
+        "season": season_number,
+        "name": DEVELOPMENT_SERIES_NAME,
+        "standings": {},
+        "history": [],
+        "last_race": None,
+        "champion": None,
+        "complete": False,
+        "filed": False,
+    }
+
+
+def ensure_development_state():
+    """Make sure the feeder championship book exists."""
+
+    if not isinstance(league.get("development_history"), list):
+        league["development_history"] = []
+    if not isinstance(league.get("development"), dict):
+        league["development"] = empty_development_season(
+            calendar.current_season
+        )
+    book = league["development"]
+    book.setdefault("season", calendar.current_season)
+    book.setdefault("name", DEVELOPMENT_SERIES_NAME)
+    if not isinstance(book.get("standings"), dict):
+        book["standings"] = {}
+    if not isinstance(book.get("history"), list):
+        book["history"] = []
+    book.setdefault("last_race", None)
+    book.setdefault("champion", None)
+    book.setdefault("complete", False)
+    book.setdefault("filed", False)
+    return book
+
+
+def reset_development_season(season_number):
+    """Open a new feeder calendar without wiping career history."""
+
+    development_tracks.clear()
+    development_tracks.extend(generate_development_schedule(season_number))
+    league["development"] = empty_development_season(season_number)
+    if not isinstance(league.get("development_history"), list):
+        league["development_history"] = []
+    return league["development"]
+
+
+def development_points_for(position, field_size):
+    """Return feeder points for a finishing position."""
+
+    table = list(DEVELOPMENT_POINTS)
+    next_pts = 8
+    while len(table) < max(int(field_size), 1):
+        table.append(max(1, next_pts))
+        next_pts -= 1
+    index = min(max(int(position), 1), len(table)) - 1
+    return table[index]
+
+
+def development_entry(driver):
+    """Return or create a feeder standings row for a prospect."""
+
+    book = ensure_development_state()
+    row = book["standings"].get(driver.name)
+    if row is None:
+        row = {
+            "name": driver.name,
+            "team": driver.team_name,
+            "pathway": driver.pathway,
+            "points": 0,
+            "wins": 0,
+            "starts": 0,
+            "dnfs": 0,
+        }
+        book["standings"][driver.name] = row
+    return row
+
+
+def development_standings():
+    """Return feeder standings, points then wins then name."""
+
+    ensure_development_state()
+    rows = list(league["development"]["standings"].values())
+    return sorted(
+        rows,
+        key=lambda row: (
+            -row.get("points", 0),
+            -row.get("wins", 0),
+            row.get("name") or "",
+        ),
+    )
+
+
+def development_leader():
+    """Return the feeder points leader, or None."""
+
+    standings = development_standings()
+    if not standings:
+        return None
+    return standings[0]
+
+
+def development_dashboard_text():
+    """Return the compact feeder-championship dashboard line."""
+
+    ensure_development_state()
+    book = league["development"]
+    raced = len(book.get("history") or [])
+    total = len(development_tracks) or DEVELOPMENT_RACE_COUNT
+    if not driver_prospects:
+        return "Development: no field"
+    champion = book.get("champion")
+    if champion:
+        return f"Development: {champion} champion | {raced} of {total}"
+    leader = development_leader()
+    if not raced or leader is None:
+        return f"Development: {DEVELOPMENT_SERIES_NAME} | {raced} of {total}"
+    return (
+        f"Development: {leader['name']} leads {leader['points']} pts | "
+        f"{raced} of {total}"
+    )
+
+
+def print_development_dashboard_line():
+    """Print the compact feeder-championship line."""
+
+    print(development_dashboard_text())
+
+
+def simulate_development_race(track, field):
+    """Run one feeder race among prospects. Does not use the premier sim."""
+
+    scored = []
+    for driver in field:
+        skill = driver.track_skill_for(track.type)
+        pace = (
+            driver.speed * 0.40
+            + driver.consistency * 0.25
+            + skill * 0.15
+            + driver.prospect_readiness() * 0.20
+            + random.randint(-8, 8)
+        )
+        crash_chance = min(18, max(3, (driver.aggression - 45) // 6))
+        crashed = random.randint(1, 100) <= crash_chance
+        scored.append((pace, crashed, driver))
+
+    running = sorted(
+        [row for row in scored if not row[1]],
+        key=lambda row: (-row[0], row[2].name),
+    )
+    crashed = sorted(
+        [row for row in scored if row[1]],
+        key=lambda row: (-row[0], row[2].name),
+    )
+    order = running + crashed
+    field_size = len(order)
+    results = []
+
+    for position, (pace, crashed, driver) in enumerate(order, start=1):
+        points = development_points_for(position, field_size)
+        if crashed:
+            points = max(1, points // 2)
+        results.append(
+            {
+                "position": position,
+                "driver": driver.name,
+                "team": driver.team_name,
+                "pathway": driver.pathway,
+                "status": "Crash" if crashed else "Running",
+                "points": points,
+            }
+        )
+
+    return results
+
+
+def run_next_development_race():
+    """Run the next feeder race if the calendar and field allow it."""
+
+    book = ensure_development_state()
+    if not driver_prospects:
+        return None
+    raced = len(book.get("history") or [])
+    if raced >= len(development_tracks):
+        return None
+
+    track = development_tracks[raced]
+    race_number = raced + 1
+    results = simulate_development_race(track, list(driver_prospects))
+
+    print("\n" + "=" * 75)
+    print(
+        f"{DEVELOPMENT_SERIES_NAME.upper()} — Race {race_number}: {track.name}"
+    )
+    print(f"Track type: {track.type}")
+    print("=" * 75)
+    print("\nDevelopment Results")
+    print("-" * 75)
+
+    winner = None
+    for row in results:
+        driver = next(
+            (
+                prospect
+                for prospect in driver_prospects
+                if prospect.name == row["driver"]
+            ),
+            None,
+        )
+        if driver is None:
+            continue
+        entry = development_entry(driver)
+        entry["points"] += row["points"]
+        entry["starts"] += 1
+        entry["team"] = driver.team_name
+        entry["pathway"] = driver.pathway
+        if row["status"] != "Running":
+            entry["dnfs"] += 1
+        elif row["position"] == 1:
+            entry["wins"] += 1
+            winner = driver.name
+        status = row["status"]
+        print(
+            f"{row['position']}. {row['driver']} "
+            f"({row['team']}) "
+            f"- {status} "
+            f"- {row['points']} pts"
+        )
+
+    record = {
+        "season": calendar.current_season,
+        "race": race_number,
+        "track": track.name,
+        "track_type": track.type,
+        "winner": winner or (results[0]["driver"] if results else None),
+        "results": results,
+    }
+    book["history"].append(record)
+    book["last_race"] = record
+
+    if len(book["history"]) >= len(development_tracks):
+        book["complete"] = True
+        crown_development_champion()
+
+    return record
+
+
+def crown_development_champion():
+    """Name the feeder champion from the current standings."""
+
+    book = ensure_development_state()
+    if book.get("champion"):
+        return book["champion"]
+    leader = development_leader()
+    if leader is None:
+        return None
+    book["champion"] = leader["name"]
+    book["complete"] = True
+    print(
+        f"\n{DEVELOPMENT_SERIES_NAME} champion: {leader['name']} "
+        f"({leader['team']}) — {leader['points']} pts"
+    )
+    return leader["name"]
+
+
+def display_development_standings():
+    """Print the feeder championship table."""
+
+    ensure_development_state()
+    print(f"\n{DEVELOPMENT_SERIES_NAME} Standings")
+    print("-" * 90)
+    standings = development_standings()
+    if not standings:
+        print("No development races have been run.")
+        return
+    champion = league["development"].get("champion")
+    for position, row in enumerate(standings, start=1):
+        marker = "  <-- Champion" if row["name"] == champion else ""
+        print(
+            f"{position}. {row['name']} "
+            f"({row.get('team') or 'unsigned'}) "
+            f"- {row.get('points', 0)} pts "
+            f"- {row.get('wins', 0)} wins "
+            f"- {row.get('dnfs', 0)} DNFs"
+            f"{marker}"
+        )
+
+
+def file_development_season():
+    """Store this season's feeder recap in career history once."""
+
+    book = ensure_development_state()
+    if book.get("filed"):
+        return None
+    if not book.get("history"):
+        return None
+    snapshot = {
+        "season": book.get("season") or calendar.current_season,
+        "champion": book.get("champion"),
+        "races": len(book.get("history") or []),
+        "standings": list(development_standings()),
+    }
+    league["development_history"].append(snapshot)
+    book["filed"] = True
+    return snapshot
+
+
+def complete_development_season():
+    """Finish leftover feeder races, crown a champion, and print the table."""
+
+    book = ensure_development_state()
+    if driver_prospects:
+        while len(book.get("history") or []) < len(development_tracks):
+            run_next_development_race()
+            book = ensure_development_state()
+        if book.get("history") and not book.get("champion"):
+            crown_development_champion()
+    display_development_standings()
+    file_development_season()
+    return book
 
 
 def record_board_review(result, event):
@@ -6332,6 +6704,7 @@ def run_race(track, race_number):
     update_paddock_after_race(results)
     record_race_history(track, race_number, results, weekend, race_points)
     serve_suspensions()
+    run_next_development_race()
     display_league_dashboard()
 
 
@@ -7245,6 +7618,11 @@ def display_season_awards():
         f"Commissioner Grade: {commissioner_grade} "
         f"({commissioner_score}/100)"
     )
+    feeder_champ = (league.get("development") or {}).get("champion")
+    if feeder_champ:
+        print(
+            f"{DEVELOPMENT_SERIES_NAME} Champion: {feeder_champ}"
+        )
 
 
 def display_commissioner_report():
@@ -7310,6 +7688,7 @@ def display_commissioner_report():
     print_approval_dashboard_line()
     print_board_dashboard_line()
     print_prospect_dashboard_line()
+    print_development_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -7363,6 +7742,14 @@ def save_season_report(season_number):
             "waiting_driver_prospects": [
                 driver.name for driver in driver_prospects
             ],
+            "development_series": DEVELOPMENT_SERIES_NAME,
+            "development_champion": (
+                (league.get("development") or {}).get("champion")
+            ),
+            "development_standings": list(development_standings()),
+            "development_races": len(
+                (league.get("development") or {}).get("history") or []
+            ),
             "sponsor_market_log": current_season_market_moves(),
             "tv_rights": (
                 dict(league["tv_rights"])
@@ -7764,6 +8151,8 @@ def initialize_season(season_number):
     league["last_board_review"] = None
     league["job_security"] = None
 
+    reset_development_season(season_number)
+
     for team in teams:
         team.start_new_season()
 
@@ -7980,6 +8369,7 @@ def run_postseason(season_number):
     display_league_sponsors()
     display_team_standings()
     display_manufacturer_standings()
+    complete_development_season()
     display_commissioner_report()
     display_driver_relationship_report()
     display_race_history()

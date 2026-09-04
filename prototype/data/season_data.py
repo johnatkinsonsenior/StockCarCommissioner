@@ -1198,4 +1198,116 @@ def create_initial_tracks():
     return generate_season_schedule(season_number=1)
 
 
+def create_development_track_pool():
+    """Return the feeder-series venues the prospects race."""
+
+    return [
+        Track(
+            name="Heartland Oval",
+            track_type="Short Track",
+            purse=90_000,
+            incident_risk=16,
+            length=0.5,
+            banking=14,
+            surface="asphalt",
+            tire_wear=70,
+            passing_difficulty=62,
+            capacity=12_000,
+        ),
+        Track(
+            name="Carolina County Park",
+            track_type="Intermediate",
+            purse=100_000,
+            incident_risk=12,
+            length=1.0,
+            banking=18,
+            surface="asphalt",
+            tire_wear=58,
+            passing_difficulty=50,
+            capacity=18_000,
+        ),
+        Track(
+            name="Lakeside Fairgrounds",
+            track_type="Short Track",
+            purse=85_000,
+            incident_risk=18,
+            length=0.4,
+            banking=12,
+            surface="asphalt",
+            tire_wear=74,
+            passing_difficulty=66,
+            capacity=9_000,
+        ),
+        Track(
+            name="Red Clay Speedway",
+            track_type="Short Track",
+            purse=80_000,
+            incident_risk=20,
+            length=0.375,
+            banking=10,
+            surface="asphalt",
+            tire_wear=78,
+            passing_difficulty=70,
+            capacity=8_000,
+        ),
+        Track(
+            name="Atlantic Marine Park",
+            track_type="Intermediate",
+            purse=105_000,
+            incident_risk=11,
+            length=1.25,
+            banking=20,
+            surface="asphalt",
+            tire_wear=55,
+            passing_difficulty=48,
+            capacity=22_000,
+        ),
+        Track(
+            name="Pine Hollow Speedway",
+            track_type="Short Track",
+            purse=88_000,
+            incident_risk=17,
+            length=0.5,
+            banking=15,
+            surface="asphalt",
+            tire_wear=72,
+            passing_difficulty=64,
+            capacity=11_000,
+        ),
+        Track(
+            name="Midland Motor Park",
+            track_type="Intermediate",
+            purse=98_000,
+            incident_risk=13,
+            length=1.0,
+            banking=16,
+            surface="asphalt",
+            tire_wear=60,
+            passing_difficulty=52,
+            capacity=16_000,
+        ),
+        Track(
+            name="Capital Fairgrounds",
+            track_type="Short Track",
+            purse=110_000,
+            incident_risk=15,
+            length=0.5,
+            banking=14,
+            surface="asphalt",
+            tire_wear=68,
+            passing_difficulty=60,
+            capacity=20_000,
+        ),
+    ]
+
+
+def generate_development_schedule(season_number=1):
+    """Return this season's feeder calendar, rotating the opener."""
+
+    pool = create_development_track_pool()
+    offset = (max(int(season_number), 1) - 1) % len(pool)
+    return pool[offset:] + pool[:offset]
+
+
 tracks = create_initial_tracks()
+development_tracks = generate_development_schedule(1)

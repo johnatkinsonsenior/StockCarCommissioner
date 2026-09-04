@@ -6,7 +6,7 @@ from pathlib import Path
 
 from game.models import Driver, Network, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.31"
+SAVE_VERSION = "0.0.32"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -37,6 +37,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.29",
     "0.0.30",
     "0.0.31",
+    "0.0.32",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -436,6 +437,7 @@ def build_save_data(
     sponsors=None,
     sponsor_prospects=None,
     driver_prospects=None,
+    development_tracks=None,
     networks=None,
 ):
     """Build a save file dictionary from live game state."""
@@ -465,6 +467,10 @@ def build_save_data(
         "driver_prospects": [
             driver_to_dict(driver)
             for driver in (driver_prospects or [])
+        ],
+        "development_tracks": [
+            track_to_dict(track)
+            for track in (development_tracks or [])
         ],
     }
 
@@ -530,6 +536,14 @@ def parse_save_data(save_data):
             for driver_data in save_data.get("driver_prospects") or []
         ]
 
+    restored_development_tracks = []
+
+    if "development_tracks" in save_data:
+        restored_development_tracks = [
+            track_from_dict(track_data)
+            for track_data in save_data.get("development_tracks") or []
+        ]
+
     restored_tracks = None
 
     if save_data.get("tracks"):
@@ -570,6 +584,7 @@ def parse_save_data(save_data):
         "teams": restored_teams,
         "retired_drivers": restored_retired,
         "driver_prospects": restored_driver_prospects,
+        "development_tracks": restored_development_tracks,
         "tracks": restored_tracks,
         "sponsors": restored_sponsors,
         "sponsor_prospects": restored_prospects,

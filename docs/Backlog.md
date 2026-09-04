@@ -144,3 +144,5 @@
 | 142 | Board confidence / dismissal | Medium | Completed |
 | 143 | Prospect pool | High | Completed |
 | 144 | Named drivers outside the premier series | Medium | Completed |
+| 145 | Development series | High | Completed |
+| 146 | Feeder championship races and standings | Medium | Completed |
