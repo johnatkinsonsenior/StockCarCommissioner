@@ -138,3 +138,5 @@
 | 136 | Recorded rule votes | Medium | Completed |
 | 137 | Political influence | High | Completed |
 | 138 | Lobbying coalitions | Medium | Completed |
+| 139 | Approval rating | High | Completed |
+| 140 | Fan / owner / driver approval | Medium | Completed |

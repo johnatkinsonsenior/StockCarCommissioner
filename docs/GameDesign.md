@@ -454,6 +454,7 @@ Saved data includes:
 - Stakeholder rule proposals and the docket
 - Owner-council rule votes and applied policy changes
 - Owner coalitions and paddock lobbying
+- Commissioner approval with fans, owners, and drivers
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -470,7 +471,7 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 
@@ -512,6 +513,10 @@ Three answers sit on the same decision framework: **let the chamber vote** (inte
 Owners sit in **coalitions** by priority — wins, stability, cost-control, or prestige. When a paper is on the docket the blocs line up for or against it. Preseason, before the floor vote, the paddock lobbies the commissioner.
 
 Three answers sit on the same decision framework: **take every meeting** (even-handed, no extra heat), **cultivate the backing bloc** (they peel the closest swing vote), or **cultivate the opposition** (the paper cools across the chamber). Lobbying does not change the rulebook. It stacks with the later whip. The dashboard shows the coalitions and the last meetings.
+
+### Approval Rating
+
+The commissioner carries a live **approval rating** with three constituencies: fans (from fan interest), owners (from owner pressure, eased by patience), and drivers (from garage sentiment, trust, and morale). Overall approval is the mean of those three. Labels run Popular, Accepted, Mixed, Unpopular, and Hostile. The performance grade stays a separate integrity / fan-interest / controversy score. Approval is political standing, not job security. Slipping approval raises a dashboard alert. Postseason files the reading in career history.
 
 ### Safety Mandates
 

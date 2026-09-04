@@ -3062,3 +3062,82 @@ def offseason_events(policies, resolved_ids):
         return []
 
     return [safety_mandate_event(policies)]
+
+
+APPROVAL_SLIP_FLOOR = 50
+
+
+def _approval_clamp(value):
+    """Clamp a rating to 0–100."""
+
+    return max(0, min(100, int(round(value))))
+
+
+def approval_label(score):
+    """Return Popular, Accepted, Mixed, Unpopular, or Hostile."""
+
+    score = _approval_clamp(score)
+    if score >= 80:
+        return "Popular"
+    if score >= 65:
+        return "Accepted"
+    if score >= 50:
+        return "Mixed"
+    if score >= 35:
+        return "Unpopular"
+    return "Hostile"
+
+
+def fan_approval_score(league):
+    """Return fan approval from league fan interest."""
+
+    return _approval_clamp((league or {}).get("fan_interest", 65))
+
+
+def owner_approval_score(league, teams):
+    """Return owner approval from pressure, eased by patience."""
+
+    league = league or {}
+    pressure = int(league.get("owner_pressure", 25))
+    score = 100 - pressure
+    owners = [team.owner for team in (teams or [])]
+    if owners:
+        patience = sum(owner.patience for owner in owners) / float(len(owners))
+        score = score * 0.7 + patience * 0.3
+    return _approval_clamp(score)
+
+
+def driver_approval_score(league, drivers):
+    """Return driver approval from sentiment, trust, and morale."""
+
+    league = league or {}
+    sentiment = int(league.get("driver_sentiment", 60))
+    roster = list(drivers or [])
+    if roster:
+        trust = sum(driver.commissioner_trust for driver in roster) / float(
+            len(roster)
+        )
+        morale = sum(driver.morale for driver in roster) / float(len(roster))
+        score = sentiment * 0.5 + trust * 0.3 + morale * 0.2
+    else:
+        score = sentiment
+    return _approval_clamp(score)
+
+
+def approval_ratings(league, teams, drivers):
+    """Return overall and constituency approval ratings."""
+
+    fans = fan_approval_score(league)
+    owners = owner_approval_score(league, teams)
+    garage = driver_approval_score(league, drivers)
+    overall = _approval_clamp((fans + owners + garage) / 3.0)
+    return {
+        "overall": overall,
+        "label": approval_label(overall),
+        "fans": fans,
+        "fans_label": approval_label(fans),
+        "owners": owners,
+        "owners_label": approval_label(owners),
+        "drivers": garage,
+        "drivers_label": approval_label(garage),
+    }

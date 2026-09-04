@@ -26,11 +26,13 @@ from game.calendar import (
     REGULAR_SEASON,
 )
 from game.event_catalog import (
+    APPROVAL_SLIP_FLOOR,
     DRIVER_COUNCIL_TILT,
     LOBBY_OPPOSITION_TILT,
     LOBBY_SWING_DELTA,
     OWNER_COUNCIL_TILT,
     RULE_VOTE_TILT,
+    approval_ratings,
     media_controversy_events,
     offseason_events,
     driver_council_chair,
@@ -228,6 +230,8 @@ league = {
     "last_rule_vote": None,
     "season_lobbying": [],
     "last_lobbying": None,
+    "approval": None,
+    "approval_history": [],
 }
 
 race_history = []
@@ -381,6 +385,8 @@ def reset_career_state():
     league["last_rule_vote"] = None
     league["season_lobbying"] = []
     league["last_lobbying"] = None
+    league["approval"] = None
+    league["approval_history"] = []
 
     reset_policies()
 
@@ -525,6 +531,9 @@ def apply_loaded_state(restored_state):
     if not isinstance(league.get("season_lobbying"), list):
         league["season_lobbying"] = []
     league.setdefault("last_lobbying", None)
+    league.setdefault("approval", None)
+    if not isinstance(league.get("approval_history"), list):
+        league["approval_history"] = []
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -716,6 +725,10 @@ def collect_commissioner_alerts():
 
     if league["driver_sentiment"] < 45:
         alerts.append("Driver sentiment is poor.")
+
+    approval = refresh_approval_ratings()
+    if approval["overall"] < APPROVAL_SLIP_FLOOR:
+        alerts.append("Approval is slipping")
 
     struggling_teams = [
         team
@@ -1158,6 +1171,9 @@ def ensure_league_commercial_state():
     if not isinstance(league.get("season_lobbying"), list):
         league["season_lobbying"] = []
     league.setdefault("last_lobbying", None)
+    league.setdefault("approval", None)
+    if not isinstance(league.get("approval_history"), list):
+        league["approval_history"] = []
 
 
 def has_naming_rights():
@@ -3680,6 +3696,7 @@ def display_league_dashboard():
         f"Driver sentiment {league['driver_sentiment']}/100 | "
         f"Grade {grade} ({score}/100)"
     )
+    print_approval_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -4529,6 +4546,61 @@ def print_lobby_dashboard_line():
         print("Lobby: last hosted the opposition")
         return
     print("Lobby: last took every meeting")
+
+
+def refresh_approval_ratings():
+    """Recompute and store live approval from fans, owners, and drivers."""
+
+    ensure_league_commercial_state()
+    record = approval_ratings(league, teams, drivers)
+    league["approval"] = dict(record)
+    return record
+
+
+def print_approval_dashboard_line():
+    """Print the three-constituency approval line."""
+
+    record = refresh_approval_ratings()
+    print(
+        "Approval: {0} {1} | Fans {2} {3} | Owners {4} {5} | Drivers {6} {7}".format(
+            record["overall"],
+            record["label"],
+            record["fans"],
+            record["fans_label"],
+            record["owners"],
+            record["owners_label"],
+            record["drivers"],
+            record["drivers_label"],
+        )
+    )
+
+
+def review_approval_ratings():
+    """Print the season's approval book and file it in career history."""
+
+    print("\nCommissioner Approval")
+    print("-" * 90)
+    record = refresh_approval_ratings()
+    snapshot = dict(record)
+    snapshot["season"] = calendar.current_season
+    league["approval_history"].append(snapshot)
+    print(
+        "Fans {0} {1} | Owners {2} {3} | Drivers {4} {5}".format(
+            record["fans"],
+            record["fans_label"],
+            record["owners"],
+            record["owners_label"],
+            record["drivers"],
+            record["drivers_label"],
+        )
+    )
+    print(
+        "Overall: {0} {1}".format(
+            record["overall"],
+            record["label"],
+        )
+    )
+    return record
 
 
 def record_rule_vote(result, event):
@@ -6977,6 +7049,7 @@ def display_commissioner_report():
     print(f"Fines collected: ${league['fines_collected']:,}")
     print(f"Owner pressure: {league['owner_pressure']}/100")
     print(f"Driver sentiment: {league['driver_sentiment']}/100")
+    print_approval_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -7101,6 +7174,14 @@ def save_season_report(season_number):
                 dict(league["last_lobbying"])
                 if league.get("last_lobbying")
                 else None
+            ),
+            "approval": (
+                dict(league["approval"])
+                if league.get("approval")
+                else None
+            ),
+            "approval_history": list(
+                league.get("approval_history") or []
             ),
         },
         "policies": dict(current_policies),
@@ -7491,6 +7572,11 @@ def record_completed_season(season_number, champion):
         "champion_wins": champion.wins,
         "commissioner_score": commissioner_score,
         "commissioner_grade": commissioner_grade,
+        "approval": (
+            dict(league["approval"])
+            if league.get("approval")
+            else None
+        ),
         "league_integrity": league["integrity"],
         "fan_interest": league["fan_interest"],
         "controversy": league["controversy"],
@@ -7594,6 +7680,7 @@ def run_postseason(season_number):
     review_tv_ratings()
     review_race_popularity()
     review_media_stories()
+    review_approval_ratings()
     resolve_sponsor_conflicts()
     display_team_finances()
     display_team_sponsors()
