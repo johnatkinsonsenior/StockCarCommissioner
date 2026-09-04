@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–82 complete. Next coding day: **Day
-83 — Manufacturers**.
+**Current position:** Days 1–83 complete. Next coding day: **Day
+84 — Manufacturer contracts**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -138,7 +138,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 80 — Prospect progression (young drivers earn promotion)
 - [x] Day 81 — New team entry (owners apply to enter)
 - [x] Day 82 — Team closure (failed teams leave the sport)
-- [ ] Day 83 — Manufacturers (automakers with performance identities)
+- [x] Day 83 — Manufacturers (automakers with performance identities)
 - [ ] Day 84 — Manufacturer contracts (team deals and switching)
 
 > **Milestone — Day 84 Living Racing World:** prospects, new teams, failed
