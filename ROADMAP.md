@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–73 complete (Week 11 underway). Next coding day: **Day
-74 — Voting system**.
+**Current position:** Days 1–74 complete (Week 11 underway). Next coding day: **Day
+75 — Political influence**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -124,7 +124,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 71 — Owner council (representation and voting)
 - [x] Day 72 — Driver council (representation and feedback)
 - [x] Day 73 — Rule proposals (stakeholder-introduced changes)
-- [ ] Day 74 — Voting system (approve/reject rules, record votes)
+- [x] Day 74 — Voting system (approve/reject rules, record votes)
 - [ ] Day 75 — Political influence (lobbying, coalitions)
 - [ ] Day 76 — Approval rating (fans, owners, drivers)
 - [ ] Day 77 — Job security (board confidence, dismissal risk)
