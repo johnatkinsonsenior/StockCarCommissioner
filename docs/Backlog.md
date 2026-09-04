@@ -140,3 +140,5 @@
 | 138 | Lobbying coalitions | Medium | Completed |
 | 139 | Approval rating | High | Completed |
 | 140 | Fan / owner / driver approval | Medium | Completed |
+| 141 | Job security | High | Completed |
+| 142 | Board confidence / dismissal | Medium | Completed |

@@ -27,12 +27,17 @@ from game.calendar import (
 )
 from game.event_catalog import (
     APPROVAL_SLIP_FLOOR,
+    BOARD_CONFIDENCE_TILT,
+    BOARD_DISMISSAL_FLOOR,
     DRIVER_COUNCIL_TILT,
     LOBBY_OPPOSITION_TILT,
     LOBBY_SWING_DELTA,
     OWNER_COUNCIL_TILT,
     RULE_VOTE_TILT,
     approval_ratings,
+    board_confidence_events,
+    board_confidence_label,
+    job_security_ratings,
     media_controversy_events,
     offseason_events,
     driver_council_chair,
@@ -232,6 +237,12 @@ league = {
     "last_lobbying": None,
     "approval": None,
     "approval_history": [],
+    "job_security": None,
+    "season_board_reviews": [],
+    "last_board_review": None,
+    "board_history": [],
+    "dismissed": False,
+    "dismissal": None,
 }
 
 race_history = []
@@ -387,6 +398,12 @@ def reset_career_state():
     league["last_lobbying"] = None
     league["approval"] = None
     league["approval_history"] = []
+    league["job_security"] = None
+    league["season_board_reviews"] = []
+    league["last_board_review"] = None
+    league["board_history"] = []
+    league["dismissed"] = False
+    league["dismissal"] = None
 
     reset_policies()
 
@@ -534,6 +551,14 @@ def apply_loaded_state(restored_state):
     league.setdefault("approval", None)
     if not isinstance(league.get("approval_history"), list):
         league["approval_history"] = []
+    league.setdefault("job_security", None)
+    if not isinstance(league.get("season_board_reviews"), list):
+        league["season_board_reviews"] = []
+    league.setdefault("last_board_review", None)
+    if not isinstance(league.get("board_history"), list):
+        league["board_history"] = []
+    league.setdefault("dismissed", False)
+    league.setdefault("dismissal", None)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -729,6 +754,12 @@ def collect_commissioner_alerts():
     approval = refresh_approval_ratings()
     if approval["overall"] < APPROVAL_SLIP_FLOOR:
         alerts.append("Approval is slipping")
+
+    security = refresh_job_security()
+    if security["threatened"]:
+        alerts.append("Dismissal risk is high")
+    elif security["review"]:
+        alerts.append("The board is watching")
 
     struggling_teams = [
         team
@@ -1174,6 +1205,14 @@ def ensure_league_commercial_state():
     league.setdefault("approval", None)
     if not isinstance(league.get("approval_history"), list):
         league["approval_history"] = []
+    league.setdefault("job_security", None)
+    if not isinstance(league.get("season_board_reviews"), list):
+        league["season_board_reviews"] = []
+    league.setdefault("last_board_review", None)
+    if not isinstance(league.get("board_history"), list):
+        league["board_history"] = []
+    league.setdefault("dismissed", False)
+    league.setdefault("dismissal", None)
 
 
 def has_naming_rights():
@@ -3697,6 +3736,7 @@ def display_league_dashboard():
         f"Grade {grade} ({score}/100)"
     )
     print_approval_dashboard_line()
+    print_board_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -4603,6 +4643,123 @@ def review_approval_ratings():
     return record
 
 
+def refresh_job_security():
+    """Recompute and store live board confidence and dismissal risk."""
+
+    ensure_league_commercial_state()
+    record = job_security_ratings(league, teams, drivers)
+    league["job_security"] = dict(record)
+    return record
+
+
+def print_board_dashboard_line():
+    """Print the board-confidence and dismissal-risk line."""
+
+    record = refresh_job_security()
+    print(
+        "Board: {0} {1} | Risk {2} {3}".format(
+            record["confidence"],
+            record["confidence_label"],
+            record["risk"],
+            record["risk_label"],
+        )
+    )
+
+
+def record_board_review(result, event):
+    """Apply the board hearing and dismiss the commissioner if they fall."""
+
+    ensure_league_commercial_state()
+    security = refresh_job_security()
+    tilt = BOARD_CONFIDENCE_TILT.get(str(result.get("choice_id")), 0)
+    standing = max(0, min(100, int(security["confidence"]) + int(tilt)))
+    dismissed = standing < BOARD_DISMISSAL_FLOOR
+    standing_label = board_confidence_label(standing)
+    if dismissed:
+        verdict = "the board dismisses the commissioner"
+    else:
+        verdict = "the board keeps the commissioner"
+
+    print("\nBoard of Directors — confidence review")
+    print(
+        "Standing: {0} {1} (hearing {2}{3})".format(
+            standing,
+            standing_label,
+            "+" if tilt >= 0 else "",
+            tilt,
+        )
+    )
+    print("Verdict: {0}.".format(verdict))
+    if dismissed:
+        print("The board has dismissed the commissioner.")
+
+    record = {
+        "season": calendar.current_season,
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "outcome": result.get("outcome"),
+        "confidence": security["confidence"],
+        "confidence_label": security["confidence_label"],
+        "risk": security["risk"],
+        "risk_label": security["risk_label"],
+        "tilt": tilt,
+        "standing": standing,
+        "standing_label": standing_label,
+        "dismissed": dismissed,
+        "verdict": verdict,
+    }
+    league["last_board_review"] = record
+    league["season_board_reviews"].append(record)
+    league["board_history"].append(dict(record))
+    if dismissed:
+        league["dismissed"] = True
+        league["dismissal"] = dict(record)
+    return record
+
+
+def review_job_security():
+    """Print the season's board book and file it when no hearing was held."""
+
+    print("\nJob Security")
+    print("-" * 90)
+    record = refresh_job_security()
+    hearing = league.get("last_board_review")
+    if hearing and hearing.get("season") == calendar.current_season:
+        print(
+            "Board {0} {1} | Risk {2} {3}".format(
+                hearing.get("standing", record["confidence"]),
+                hearing.get("standing_label")
+                or hearing.get("confidence_label")
+                or record["confidence_label"],
+                record["risk"],
+                record["risk_label"],
+            )
+        )
+        print("Hearing: {0} — {1}.".format(
+            hearing.get("choice_label") or "review",
+            hearing.get("verdict"),
+        ))
+        return hearing
+    snapshot = dict(record)
+    snapshot["season"] = calendar.current_season
+    snapshot["standing"] = record["confidence"]
+    snapshot["dismissed"] = False
+    snapshot["verdict"] = "no hearing — the chair is steady"
+    league["last_board_review"] = snapshot
+    league["season_board_reviews"].append(snapshot)
+    league["board_history"].append(dict(snapshot))
+    print(
+        "Board {0} {1} | Risk {2} {3}".format(
+            record["confidence"],
+            record["confidence_label"],
+            record["risk"],
+            record["risk_label"],
+        )
+    )
+    print("The board does not call a hearing.")
+    return snapshot
+
+
 def record_rule_vote(result, event):
     """Tally the docket vote and apply the policy if it passes."""
 
@@ -4761,6 +4918,8 @@ def present_events(event_list):
             record_lobbying(result, event)
         if result and result.get("category") == "rule-vote":
             record_rule_vote(result, event)
+        if result and result.get("category") == "board-confidence":
+            record_board_review(result, event)
         if result:
             results.append(result)
 
@@ -7050,6 +7209,7 @@ def display_commissioner_report():
     print(f"Owner pressure: {league['owner_pressure']}/100")
     print(f"Driver sentiment: {league['driver_sentiment']}/100")
     print_approval_dashboard_line()
+    print_board_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -7182,6 +7342,26 @@ def save_season_report(season_number):
             ),
             "approval_history": list(
                 league.get("approval_history") or []
+            ),
+            "job_security": (
+                dict(league["job_security"])
+                if league.get("job_security")
+                else None
+            ),
+            "season_board_reviews": list(
+                league.get("season_board_reviews") or []
+            ),
+            "last_board_review": (
+                dict(league["last_board_review"])
+                if league.get("last_board_review")
+                else None
+            ),
+            "board_history": list(league.get("board_history") or []),
+            "dismissed": bool(league.get("dismissed")),
+            "dismissal": (
+                dict(league["dismissal"])
+                if league.get("dismissal")
+                else None
             ),
         },
         "policies": dict(current_policies),
@@ -7477,6 +7657,9 @@ def initialize_season(season_number):
     league["last_rule_vote"] = None
     league["season_lobbying"] = []
     league["last_lobbying"] = None
+    league["season_board_reviews"] = []
+    league["last_board_review"] = None
+    league["job_security"] = None
 
     for team in teams:
         team.start_new_season()
@@ -7577,6 +7760,12 @@ def record_completed_season(season_number, champion):
             if league.get("approval")
             else None
         ),
+        "job_security": (
+            dict(league["job_security"])
+            if league.get("job_security")
+            else None
+        ),
+        "dismissed": bool(league.get("dismissed")),
         "league_integrity": league["integrity"],
         "fan_interest": league["fan_interest"],
         "controversy": league["controversy"],
@@ -7723,6 +7912,16 @@ def run_postseason(season_number):
             current_policies,
         )
     )
+    present_events(
+        board_confidence_events(
+            season_number,
+            teams,
+            drivers,
+            events_resolved,
+            league,
+        )
+    )
+    review_job_security()
 
 
 def run_single_season(season_number, resume=False):
@@ -7746,6 +7945,17 @@ def display_career_report():
     print("\n" + "=" * 100)
     print("CAREER REPORT")
     print("=" * 100)
+    if league.get("dismissed"):
+        dismissal = league.get("dismissal") or {}
+        print(
+            "Career ended: dismissed after season {0} ({1} {2}).".format(
+                dismissal.get("season") or "?",
+                dismissal.get("standing", "?"),
+                dismissal.get("standing_label") or "Collapsing",
+            )
+        )
+    else:
+        print("Career completed: the commissioner finished the contract.")
 
     print("\nChampionship History")
     print("-" * 100)
@@ -7944,6 +8154,8 @@ def run_career(number_of_seasons=3, start_season=1, resume=False):
     sync_calendar_aliases()
 
     while calendar.current_season <= calendar.career_seasons_total:
+        if league.get("dismissed"):
+            break
         if calendar.phase == OFFSEASON:
             if calendar.has_more_seasons():
                 display_calendar_banner()
@@ -7967,6 +8179,20 @@ def run_career(number_of_seasons=3, start_season=1, resume=False):
             calendar.current_season,
             resume=resume_season,
         )
+
+        if league.get("dismissed"):
+            dismissal = league.get("dismissal") or {}
+            print("\n" + "=" * 90)
+            print("CAREER ENDED — DISMISSED BY THE BOARD")
+            print("=" * 90)
+            print(
+                "The board dismissed the commissioner after season {0} "
+                "({1}).".format(
+                    dismissal.get("season") or calendar.current_season,
+                    dismissal.get("verdict") or "confidence failed",
+                )
+            )
+            break
 
         if calendar.has_more_seasons():
             process_offseason_and_advance()

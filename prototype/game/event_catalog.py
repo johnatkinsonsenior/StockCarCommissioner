@@ -3141,3 +3141,172 @@ def approval_ratings(league, teams, drivers):
         "drivers": garage,
         "drivers_label": approval_label(garage),
     }
+
+
+BOARD_REVIEW_FLOOR = 65
+BOARD_DISMISSAL_FLOOR = 35
+BOARD_REBUKE_PENALTY = 12
+BOARD_PROTEST_PENALTY = 8
+BOARD_SCANDAL_PENALTY = 5
+BOARD_CONFIDENCE_TILT = {
+    "1": 8,
+    "2": 4,
+    "3": -14,
+}
+
+
+def board_confidence_label(score):
+    """Return Secure, Steady, Watched, Precarious, or Collapsing."""
+
+    score = _approval_clamp(score)
+    if score >= 80:
+        return "Secure"
+    if score >= 65:
+        return "Steady"
+    if score >= 50:
+        return "Watched"
+    if score >= 35:
+        return "Precarious"
+    return "Collapsing"
+
+
+def dismissal_risk_score(confidence):
+    """Return dismissal risk as the inverse of board confidence."""
+
+    return _approval_clamp(100 - confidence)
+
+
+def dismissal_risk_label(risk):
+    """Return Low, Moderate, Elevated, High, or Critical."""
+
+    risk = _approval_clamp(risk)
+    if risk < 20:
+        return "Low"
+    if risk < 35:
+        return "Moderate"
+    if risk < 50:
+        return "Elevated"
+    if risk < 65:
+        return "High"
+    return "Critical"
+
+
+def board_confidence_score(league, teams, drivers):
+    """Return board confidence from approval, integrity, and political hits."""
+
+    league = league or {}
+    approval = approval_ratings(league, teams, drivers)
+    integrity = int(league.get("integrity", 70))
+    controversy = int(league.get("controversy", 20))
+    score = (
+        approval["overall"] * 0.45
+        + integrity * 0.25
+        + (100 - controversy) * 0.20
+        + approval["owners"] * 0.10
+    )
+    last_owners = league.get("last_owner_council") or {}
+    last_garage = league.get("last_driver_council") or {}
+    if last_owners.get("passed"):
+        score -= BOARD_REBUKE_PENALTY
+    if last_garage.get("protested"):
+        score -= BOARD_PROTEST_PENALTY
+    if league.get("last_media_controversy"):
+        score -= BOARD_SCANDAL_PENALTY
+    return _approval_clamp(score)
+
+
+def job_security_ratings(league, teams, drivers):
+    """Return board confidence and dismissal risk."""
+
+    confidence = board_confidence_score(league, teams, drivers)
+    risk = dismissal_risk_score(confidence)
+    return {
+        "confidence": confidence,
+        "confidence_label": board_confidence_label(confidence),
+        "risk": risk,
+        "risk_label": dismissal_risk_label(risk),
+        "review": confidence < BOARD_REVIEW_FLOOR,
+        "threatened": confidence < BOARD_DISMISSAL_FLOOR,
+    }
+
+
+def board_confidence_event(season_number, security):
+    """Postseason board review when confidence is no longer steady."""
+
+    security = security or {}
+    confidence = security.get("confidence", 0)
+    risk = security.get("risk", 0)
+    conf_label = security.get("confidence_label") or board_confidence_label(
+        confidence
+    )
+    risk_label = security.get("risk_label") or dismissal_risk_label(risk)
+
+    return {
+        "id": "board-confidence-s{0}".format(season_number),
+        "title": "Board of Directors",
+        "category": "board-confidence",
+        "phase": POSTSEASON,
+        "prompt": (
+            "The board of directors has called a confidence review. "
+            "Board confidence is {0} {1}. Dismissal risk is {2} {3}. "
+            "A poor hearing can end the career. How do you face them?"
+        ).format(confidence, conf_label, risk, risk_label),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Present the season",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You walk them through the year. A few chairs nod.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Promise reforms",
+                "effects": [
+                    {"type": "league", "stat": "owner_pressure", "delta": -4},
+                    {"type": "league", "stat": "integrity", "delta": -1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You promise a quieter paddock. They want to see it.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Defy the board",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 3},
+                    {"type": "league", "stat": "controversy", "delta": 5},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You tell the board the league is not a committee.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def board_confidence_events(season_number, teams, drivers, resolved_ids, league=None):
+    """Return a board review when confidence has slipped off Steady."""
+
+    event_id = "board-confidence-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    security = job_security_ratings(league, teams, drivers)
+    if not security["review"]:
+        return []
+    return [board_confidence_event(season_number, security)]

@@ -455,6 +455,7 @@ Saved data includes:
 - Owner-council rule votes and applied policy changes
 - Owner coalitions and paddock lobbying
 - Commissioner approval with fans, owners, and drivers
+- Board confidence, dismissal risk, and career-ending dismissals
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -471,11 +472,11 @@ The calendar phase is saved with career progress. A loaded career resumes in the
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 
-Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, driver-council, rule-proposal, lobbying, and rule-vote matters use one shared decision framework:
+Rule, safety, owner, driver, rivalry, feud, press-conference, media-controversy, owner-council, driver-council, rule-proposal, lobbying, rule-vote, and board-confidence matters use one shared decision framework:
 
 - A prompt and numbered choices
 - Immediate consequences
@@ -516,7 +517,13 @@ Three answers sit on the same decision framework: **take every meeting** (even-h
 
 ### Approval Rating
 
-The commissioner carries a live **approval rating** with three constituencies: fans (from fan interest), owners (from owner pressure, eased by patience), and drivers (from garage sentiment, trust, and morale). Overall approval is the mean of those three. Labels run Popular, Accepted, Mixed, Unpopular, and Hostile. The performance grade stays a separate integrity / fan-interest / controversy score. Approval is political standing, not job security. Slipping approval raises a dashboard alert. Postseason files the reading in career history.
+The commissioner carries a live **approval rating** with three constituencies: fans (from fan interest), owners (from owner pressure, eased by patience), and drivers (from garage sentiment, trust, and morale). Overall approval is the mean of those three. Labels run Popular, Accepted, Mixed, Unpopular, and Hostile. The performance grade stays a separate integrity / fan-interest / controversy score. Slipping approval raises a dashboard alert. Postseason files the reading in career history.
+
+### Job Security
+
+The **board of directors** keeps a confidence score from overall approval, integrity, controversy, and owner approval. A passed owner rebuke, a garage protest, or an active scandal each ding the chair. Dismissal risk is the inverse. Labels run Secure, Steady, Watched, Precarious, and Collapsing.
+
+When confidence leaves Steady, postseason calls a hearing on the same decision framework: **present the season**, **promise reforms**, or **defy the board**. A hearing that leaves confidence Collapsing **dismisses the commissioner** and ends the career. The dashboard shows board confidence and risk. A watching or high-risk board raises an alert.
 
 ### Safety Mandates
 
