@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–83 complete. Next coding day: **Day
-84 — Manufacturer contracts**.
+**Current position:** Days 1–84 complete. Next coding day: **Day
+85 — Complete save architecture**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -139,10 +139,10 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 81 — New team entry (owners apply to enter)
 - [x] Day 82 — Team closure (failed teams leave the sport)
 - [x] Day 83 — Manufacturers (automakers with performance identities)
-- [ ] Day 84 — Manufacturer contracts (team deals and switching)
+- [x] Day 84 — Manufacturer contracts (team deals and switching)
 
 > **Milestone — Day 84 Living Racing World:** prospects, new teams, failed
-> teams, and manufacturers evolve independently.
+> teams, and manufacturers evolve independently. ✅
 
 ## Final Six Days — Alpha Preparation
 - [ ] Day 85 — Complete save architecture (serialize the full career world)
@@ -165,5 +165,5 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 63 | Business Ecosystem | ✅ Done |
 | 70 | Television and Media | ✅ Done |
 | 77 | Political Career | ⬜ Pending |
-| 84 | Living Racing World | ⬜ Pending |
+| 84 | Living Racing World | ✅ Done |
 | 90 | Playable Alpha | ⬜ Pending |
