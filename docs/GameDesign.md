@@ -195,6 +195,7 @@ The following information continues between seasons:
 - Rival name and rivalry intensity
 - Feuds
 - Allies, friendships, and teammate bonds
+- Prospect-pool names, pathways, and readiness
 
 ### Persistent Team Information
 
@@ -275,6 +276,10 @@ Generated rookies receive:
 - A possible initial rivalry with intensity
 
 Retired drivers remain in career history and retain their final statistics.
+
+### Prospect Pool
+
+Named drivers exist **off the premier grid**. They race Super Lates, Late Models, Modifieds, dirt late models, or touring series and wait in a talent book with a scouting **readiness** grade. The commissioner can read the pool — count, headliner, readiness, pathway, and current outfit — but the book does not run a feeder championship and does not promote anyone into a premier seat. Generated premier rookies still fill retirements. A thin pool raises a dashboard alert. The book persists across seasons and saves.
 
 ## Team Finances and Offseason Spending
 
@@ -456,6 +461,7 @@ Saved data includes:
 - Owner coalitions and paddock lobbying
 - Commissioner approval with fans, owners, and drivers
 - Board confidence, dismissal risk, and career-ending dismissals
+- Prospect-pool drivers waiting outside the premier series
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
@@ -466,13 +472,13 @@ Each season moves through a fixed league calendar:
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order
 - Postseason: standings, awards, championship, and season records are finalized
-- Offseason: drivers develop or decline, retirements are processed, team finances are settled, the sponsor market churns, television rights are paid, and paddock rivalries, feuds, and friendships are updated
+- Offseason: drivers develop or decline, retirements are processed, team finances are settled, the sponsor market churns, television rights are paid, the prospect pool remains on the books, and paddock rivalries, feuds, and friendships are updated
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 

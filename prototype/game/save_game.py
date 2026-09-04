@@ -6,7 +6,7 @@ from pathlib import Path
 
 from game.models import Driver, Network, Owner, Sponsor, Team, Track
 
-SAVE_VERSION = "0.0.30"
+SAVE_VERSION = "0.0.31"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -36,6 +36,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.28",
     "0.0.29",
     "0.0.30",
+    "0.0.31",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -72,6 +73,8 @@ def driver_to_dict(driver):
         "road_course": driver.road_course,
         "intermediate": driver.intermediate,
         "superspeedway": driver.superspeedway,
+        "pathway": driver.pathway,
+        "readiness": driver.readiness,
         "temperament": driver.temperament,
         "loyalty": driver.loyalty,
         "ambition": driver.ambition,
@@ -154,6 +157,8 @@ def driver_from_dict(data):
         road_course=data.get("road_course"),
         intermediate=data.get("intermediate"),
         superspeedway=data.get("superspeedway"),
+        pathway=data.get("pathway"),
+        readiness=data.get("readiness"),
     )
 
     driver.previous_team = data.get("previous_team")
@@ -430,6 +435,7 @@ def build_save_data(
     tracks=None,
     sponsors=None,
     sponsor_prospects=None,
+    driver_prospects=None,
     networks=None,
 ):
     """Build a save file dictionary from live game state."""
@@ -455,6 +461,10 @@ def build_save_data(
         "retired_drivers": [
             driver_to_dict(driver)
             for driver in retired_drivers
+        ],
+        "driver_prospects": [
+            driver_to_dict(driver)
+            for driver in (driver_prospects or [])
         ],
     }
 
@@ -512,6 +522,14 @@ def parse_save_data(save_data):
         for driver_data in save_data["retired_drivers"]
     ]
 
+    restored_driver_prospects = []
+
+    if "driver_prospects" in save_data:
+        restored_driver_prospects = [
+            driver_from_dict(driver_data)
+            for driver_data in save_data.get("driver_prospects") or []
+        ]
+
     restored_tracks = None
 
     if save_data.get("tracks"):
@@ -551,6 +569,7 @@ def parse_save_data(save_data):
         "drivers": restored_drivers,
         "teams": restored_teams,
         "retired_drivers": restored_retired,
+        "driver_prospects": restored_driver_prospects,
         "tracks": restored_tracks,
         "sponsors": restored_sponsors,
         "sponsor_prospects": restored_prospects,

@@ -1094,6 +1094,8 @@ class Driver:
         road_course=None,
         intermediate=None,
         superspeedway=None,
+        pathway=None,
+        readiness=None,
     ):
         self.name = name
         self.team_name = team_name
@@ -1187,6 +1189,10 @@ class Driver:
             0,
             99,
         )
+        self.pathway = pathway
+        self.readiness = (
+            _clamp(readiness) if readiness is not None else None
+        )
 
         # Career statistics
         self.career_starts = 0
@@ -1260,6 +1266,20 @@ class Driver:
             + self.consistency * 0.40
             + (100 - self.aggression) * 0.15
         )
+
+    def prospect_readiness(self):
+        """Return scouting readiness, falling back to overall talent."""
+
+        if self.readiness is not None:
+            return self.readiness
+
+        return self.overall_rating()
+
+    def prospect_summary(self):
+        """Return a short scouting line for the prospect pool."""
+
+        pathway = self.pathway or "Unsigned"
+        return f"{self.name} ({self.prospect_readiness()} {pathway})"
 
     def calculate_market_value(self):
         """Calculate the driver's estimated annual salary value."""

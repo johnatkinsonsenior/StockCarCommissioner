@@ -142,3 +142,5 @@
 | 140 | Fan / owner / driver approval | Medium | Completed |
 | 141 | Job security | High | Completed |
 | 142 | Board confidence / dismissal | Medium | Completed |
+| 143 | Prospect pool | High | Completed |
+| 144 | Named drivers outside the premier series | Medium | Completed |

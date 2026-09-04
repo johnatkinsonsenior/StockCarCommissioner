@@ -2,6 +2,7 @@
 
 from .season_data import (
     create_initial_drivers,
+    create_driver_prospects,
     create_initial_networks,
     create_initial_sponsors,
     create_sponsor_prospects,
@@ -10,6 +11,7 @@ from .season_data import (
     create_track_pool,
     generate_season_schedule,
     drivers,
+    driver_prospects,
     networks,
     sponsors,
     sponsor_prospects,
@@ -19,6 +21,7 @@ from .season_data import (
 
 __all__ = [
     "create_initial_drivers",
+    "create_driver_prospects",
     "create_initial_networks",
     "create_initial_sponsors",
     "create_sponsor_prospects",
@@ -27,6 +30,7 @@ __all__ = [
     "create_track_pool",
     "generate_season_schedule",
     "drivers",
+    "driver_prospects",
     "networks",
     "sponsors",
     "sponsor_prospects",

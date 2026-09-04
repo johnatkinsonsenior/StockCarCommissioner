@@ -5,6 +5,7 @@ from pathlib import Path
 
 from data import (
     create_initial_drivers,
+    create_driver_prospects,
     create_initial_networks,
     create_initial_sponsors,
     create_sponsor_prospects,
@@ -12,6 +13,7 @@ from data import (
     create_initial_tracks,
     generate_season_schedule,
     drivers,
+    driver_prospects,
     networks,
     sponsors,
     sponsor_prospects,
@@ -270,6 +272,10 @@ OFFICIAL_PARTNER_SLOTS = 2
 SERIES_NAME_BASE = "Stock Car Series"
 SPONSOR_MARKET_MIN = 8
 SPONSOR_MARKET_MAX = 14
+PROSPECT_POOL_FLOOR = 6
+PROSPECT_READY_FLOOR = 80
+PROSPECT_RADAR_FLOOR = 70
+PROSPECT_DEVELOPING_FLOOR = 60
 TV_RIGHTS_MIN_INTEREST = 55
 TRACK_TYPE_TV_DRAW = {
     "Superspeedway": 8,
@@ -332,6 +338,9 @@ def reset_career_state():
 
     drivers.clear()
     drivers.extend(create_initial_drivers())
+
+    driver_prospects.clear()
+    driver_prospects.extend(create_driver_prospects())
 
     teams.clear()
     teams.extend(create_initial_teams())
@@ -452,6 +461,9 @@ def apply_loaded_state(restored_state):
 
     retired_drivers.clear()
     retired_drivers.extend(restored_state["retired_drivers"])
+
+    driver_prospects.clear()
+    driver_prospects.extend(restored_state.get("driver_prospects") or [])
 
     decision_log.clear()
     decision_log.extend(restored_state.get("decision_log") or [])
@@ -625,6 +637,7 @@ def save_career(save_name=None):
         tracks=tracks,
         sponsors=sponsors,
         sponsor_prospects=sponsor_prospects,
+        driver_prospects=driver_prospects,
         networks=networks,
     )
 
@@ -879,6 +892,9 @@ def collect_commissioner_alerts():
 
     if len(sponsors) <= SPONSOR_MARKET_MIN:
         alerts.append("Sponsor market is thin")
+
+    if len(driver_prospects) < PROSPECT_POOL_FLOOR:
+        alerts.append("The prospect pool is thin")
 
     season_moves = [
         item
@@ -3737,6 +3753,7 @@ def display_league_dashboard():
     )
     print_approval_dashboard_line()
     print_board_dashboard_line()
+    print_prospect_dashboard_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -3853,6 +3870,7 @@ def display_league_dashboard():
 
     display_sponsor_market()
     display_broadcast_market()
+    display_prospect_pool()
 
     next_index = len(race_history)
 
@@ -4666,6 +4684,80 @@ def print_board_dashboard_line():
     )
 
 
+def prospect_readiness_label(readiness):
+    """Return a scouting label for a readiness score."""
+
+    if readiness >= PROSPECT_READY_FLOOR:
+        return "Premier-ready"
+    if readiness >= PROSPECT_RADAR_FLOOR:
+        return "On the radar"
+    if readiness >= PROSPECT_DEVELOPING_FLOOR:
+        return "Developing"
+    return "Raw"
+
+
+def ranked_prospects():
+    """Return waiting prospects, strongest readiness first."""
+
+    return sorted(
+        driver_prospects,
+        key=lambda driver: (
+            driver.prospect_readiness(),
+            driver.overall_rating(),
+            driver.name,
+        ),
+        reverse=True,
+    )
+
+
+def headliner_prospect():
+    """Return the highest-readiness prospect, or None."""
+
+    ranked = ranked_prospects()
+    if not ranked:
+        return None
+    return ranked[0]
+
+
+def prospect_dashboard_text():
+    """Return the compact prospect-pool dashboard line."""
+
+    if not driver_prospects:
+        return "Prospects: none waiting"
+
+    headliner = headliner_prospect()
+    return (
+        f"Prospects: {len(driver_prospects)} waiting | "
+        f"Headliner: {headliner.prospect_summary()}"
+    )
+
+
+def print_prospect_dashboard_line():
+    """Print the compact prospect-pool line."""
+
+    print(prospect_dashboard_text())
+
+
+def display_prospect_pool():
+    """Display named drivers waiting outside the premier series."""
+
+    print("Prospect pool")
+    if not driver_prospects:
+        print("- No prospects waiting outside the premier series")
+        return
+
+    print(f"{len(driver_prospects)} drivers waiting outside the premier series")
+    for prospect in ranked_prospects():
+        print(
+            f"- {prospect.prospect_summary()} | "
+            f"{prospect_readiness_label(prospect.prospect_readiness())} | "
+            f"age {prospect.age} | "
+            f"{prospect.personality} | "
+            f"overall {prospect.overall_rating()} | "
+            f"{prospect.team_name}"
+        )
+
+
 def record_board_review(result, event):
     """Apply the board hearing and dismiss the commissioner if they fall."""
 
@@ -4937,6 +5029,11 @@ def generate_unique_rookie_name():
     existing_names.update(
         driver.name
         for driver in retired_drivers
+    )
+
+    existing_names.update(
+        driver.name
+        for driver in driver_prospects
     )
 
     for _ in range(100):
@@ -5867,6 +5964,8 @@ def run_offseason(completed_season):
                 f"{rookie.name}, age {rookie.age}, replaces "
                 f"{retiring_driver.name} at {team_name}."
             )
+
+    display_prospect_pool()
 
     run_offseason_finances()
     run_offseason_team_sponsors()
@@ -7210,6 +7309,7 @@ def display_commissioner_report():
     print(f"Driver sentiment: {league['driver_sentiment']}/100")
     print_approval_dashboard_line()
     print_board_dashboard_line()
+    print_prospect_dashboard_line()
 
 
 def save_season_report(season_number):
@@ -7259,6 +7359,9 @@ def save_season_report(season_number):
             ],
             "waiting_prospects": [
                 sponsor.name for sponsor in sponsor_prospects
+            ],
+            "waiting_driver_prospects": [
+                driver.name for driver in driver_prospects
             ],
             "sponsor_market_log": current_season_market_moves(),
             "tv_rights": (
@@ -8029,6 +8132,7 @@ def display_career_report():
             f"- Status: {team.financial_status_label()}"
         )
 
+    display_prospect_pool()
     display_record_book()
 
 
