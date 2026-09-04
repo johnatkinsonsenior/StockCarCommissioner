@@ -4446,6 +4446,16 @@ def record_rule_vote(result, event):
     else:
         print("Policy: the rulebook is unchanged.")
 
+    last_proposal = league.get("last_rule_proposal")
+    if isinstance(last_proposal, dict):
+        same_paper = (
+            last_proposal.get("policy_key") == proposal.get("policy_key")
+            and last_proposal.get("proposed_value")
+            == proposal.get("proposed_value")
+        )
+        if same_paper:
+            last_proposal["status"] = "passed" if passed else "rejected"
+
     record = {
         "season": calendar.current_season,
         "motion": tally["motion"],
