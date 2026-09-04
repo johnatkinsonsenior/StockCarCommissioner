@@ -2616,6 +2616,160 @@ def rule_proposal_events(
     return [rule_proposal_event(season_number, proposal)]
 
 
+RULE_VOTE_AYE_FLOOR = 60
+RULE_VOTE_TILT = {
+    "1": 0,
+    "2": 18,
+    "3": -18,
+}
+
+
+def rule_vote_heat(team, proposal, tilt=0):
+    """Return a seat's heat toward adopting the docketed paper."""
+
+    owner = team.owner
+    proposal = proposal or {}
+    heat = 40
+    pair = (proposal.get("policy_key"), proposal.get("proposed_value"))
+    options = OWNER_PRIORITY_PROPOSALS.get(owner.priority) or ()
+    if pair in options:
+        heat += 25
+    heat += (100 - owner.patience) // 4
+    heat += owner.pressure // 5
+    heat += int(tilt or 0)
+    return heat
+
+
+def rule_vote_tally(teams, proposal, tilt=0):
+    """Return recorded aye/nay ballots on the oldest docketed paper."""
+
+    ballots = []
+    chair_team = owner_council_chair(teams)
+    proposal = proposal or {}
+    for team in owner_council_seats(teams):
+        heat = rule_vote_heat(team, proposal, tilt)
+        vote = "aye" if heat >= RULE_VOTE_AYE_FLOOR else "nay"
+        ballots.append(
+            {
+                "owner": team.owner.name,
+                "team": team.name,
+                "vote": vote,
+                "heat": heat,
+                "chair": team is chair_team,
+            }
+        )
+    ayes = [item for item in ballots if item["vote"] == "aye"]
+    nays = [item for item in ballots if item["vote"] == "nay"]
+    return {
+        "motion": "rule-change",
+        "proposal": dict(proposal),
+        "ballots": ballots,
+        "ayes": len(ayes),
+        "nays": len(nays),
+        "passed": len(ayes) > len(nays),
+    }
+
+
+def rule_vote_event(season_number, proposal, teams, league=None):
+    """Preseason chamber session: vote the oldest docketed paper."""
+
+    league = league or {}
+    proposal = proposal or {}
+    seats = owner_council_seats(teams)
+    chair_team = seats[0] if seats else None
+    chair_name = chair_team.owner.name if chair_team else "the chair"
+    chair_team_name = chair_team.name if chair_team else "the grid"
+    headline = proposal.get("headline") or "a rule change"
+    current = proposal.get("current_label") or "the current rule"
+    sponsor = proposal.get("sponsor") or "a stakeholder"
+    body = proposal.get("body") or "the paddock"
+    roster = ", ".join(
+        "{0} ({1})".format(team.owner.name, team.name)
+        for team in seats
+    )
+    if not roster:
+        roster = "no seated owners"
+
+    return {
+        "id": "rule-vote-s{0}".format(season_number),
+        "title": "Rule Vote",
+        "category": "rule-vote",
+        "phase": PRESEASON,
+        "proposal": dict(proposal),
+        "prompt": (
+            "The owner council reconvenes to vote the oldest paper on "
+            "the docket. Chair {0} of {1} gavels the roll. Seats: {2}. "
+            "{3} of the {4} asks the chamber to adopt {5} (currently "
+            "{6}). How do you handle the vote?"
+        ).format(
+            chair_name,
+            chair_team_name,
+            roster,
+            sponsor,
+            body,
+            headline,
+            current,
+        ),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Let the chamber vote",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You let the owners vote the paper they brought.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Whip for passage",
+                "effects": [
+                    {"type": "league", "stat": "owner_pressure", "delta": 3},
+                    {"type": "league", "stat": "integrity", "delta": -2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You spend capital to line up the ayes.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Whip against",
+                "effects": [],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "You signal the chair to kill the paper.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def rule_vote_events(season_number, teams, resolved_ids, league=None):
+    """Return a preseason rule vote when a paper is on the docket."""
+
+    event_id = "rule-vote-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    docket = (league or {}).get("rule_docket") or []
+    if not docket:
+        return []
+    if not teams:
+        return []
+    return [rule_vote_event(season_number, docket[0], teams, league)]
+
+
 def preseason_events(policies, season_number):
     """Return the preseason rule-change event for this season."""
 

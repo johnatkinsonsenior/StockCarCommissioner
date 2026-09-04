@@ -28,6 +28,7 @@ from game.calendar import (
 from game.event_catalog import (
     DRIVER_COUNCIL_TILT,
     OWNER_COUNCIL_TILT,
+    RULE_VOTE_TILT,
     media_controversy_events,
     offseason_events,
     driver_council_chair,
@@ -42,6 +43,8 @@ from game.event_catalog import (
     preseason_events,
     regular_season_events,
     rule_proposal_events,
+    rule_vote_events,
+    rule_vote_tally,
 )
 from game.events import resolve_event_choice
 from game.models import (
@@ -214,6 +217,8 @@ league = {
     "season_rule_proposals": [],
     "last_rule_proposal": None,
     "rule_docket": [],
+    "season_rule_votes": [],
+    "last_rule_vote": None,
 }
 
 race_history = []
@@ -363,6 +368,8 @@ def reset_career_state():
     league["season_rule_proposals"] = []
     league["last_rule_proposal"] = None
     league["rule_docket"] = []
+    league["season_rule_votes"] = []
+    league["last_rule_vote"] = None
 
     reset_policies()
 
@@ -501,6 +508,9 @@ def apply_loaded_state(restored_state):
     league.setdefault("last_rule_proposal", None)
     if not isinstance(league.get("rule_docket"), list):
         league["rule_docket"] = []
+    if not isinstance(league.get("season_rule_votes"), list):
+        league["season_rule_votes"] = []
+    league.setdefault("last_rule_vote", None)
     had_naming = "naming_rights" in restored_state["league"]
     league.setdefault("naming_rights", None)
     had_tv = "tv_rights" in restored_state["league"]
@@ -1128,6 +1138,9 @@ def ensure_league_commercial_state():
     league.setdefault("last_rule_proposal", None)
     if not isinstance(league.get("rule_docket"), list):
         league["rule_docket"] = []
+    if not isinstance(league.get("season_rule_votes"), list):
+        league["season_rule_votes"] = []
+    league.setdefault("last_rule_vote", None)
 
 
 def has_naming_rights():
@@ -3698,6 +3711,7 @@ def display_league_dashboard():
     print_council_dashboard_line()
     print_driver_council_dashboard_line()
     print_proposal_dashboard_line()
+    print_rule_vote_dashboard_line()
     print(
         "Policies — "
         f"{policy_label('points_system')}; "
@@ -4367,6 +4381,119 @@ def print_proposal_dashboard_line():
     )
 
 
+def record_rule_vote(result, event):
+    """Tally the docket vote and apply the policy if it passes."""
+
+    ensure_league_commercial_state()
+    proposal = dict((event or {}).get("proposal") or {})
+    tilt = RULE_VOTE_TILT.get(str(result.get("choice_id")), 0)
+    tally = rule_vote_tally(teams, proposal, tilt)
+    chair_team = owner_council_chair(teams)
+    passed = tally["passed"]
+    if passed:
+        key = proposal.get("policy_key")
+        value = proposal.get("proposed_value")
+        if key:
+            current_policies[key] = value
+        league["integrity"] = clamp(league.get("integrity", 0) + 1)
+        league["controversy"] = clamp(league.get("controversy", 0) + 2)
+        verdict = "the motion passes"
+    else:
+        verdict = "the motion fails"
+
+    docket = list(league.get("rule_docket") or [])
+    if docket:
+        league["rule_docket"] = docket[1:]
+
+    headline = proposal.get("headline") or "a rule change"
+    print("\nRule Vote — {0}".format(headline))
+    if chair_team is not None:
+        print(
+            "Chair: {0} ({1})".format(
+                chair_team.owner.name,
+                chair_team.name,
+            )
+        )
+    print(
+        "Sponsor: {0} ({1})".format(
+            proposal.get("sponsor") or "a stakeholder",
+            proposal.get("body") or "the paddock",
+        )
+    )
+    for ballot in tally["ballots"]:
+        role = "chair " if ballot.get("chair") else ""
+        print(
+            "- {0}{1} ({2}): {3}".format(
+                role,
+                ballot["owner"],
+                ballot["team"],
+                ballot["vote"],
+            )
+        )
+    print(
+        "Tally: {0} aye, {1} nay — {2}.".format(
+            tally["ayes"],
+            tally["nays"],
+            verdict,
+        )
+    )
+    if passed:
+        print(
+            "Policy: {0} is now in force.".format(
+                proposal.get("headline") or proposal.get("proposed_value")
+            )
+        )
+    else:
+        print("Policy: the rulebook is unchanged.")
+
+    record = {
+        "season": calendar.current_season,
+        "motion": tally["motion"],
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "chair": chair_team.owner.name if chair_team else None,
+        "chair_team": chair_team.name if chair_team else None,
+        "seats": len(tally["ballots"]),
+        "ayes": tally["ayes"],
+        "nays": tally["nays"],
+        "passed": passed,
+        "ballots": list(tally["ballots"]),
+        "outcome": result.get("outcome"),
+        "verdict": verdict,
+        "source": proposal.get("source"),
+        "sponsor": proposal.get("sponsor"),
+        "body": proposal.get("body"),
+        "policy_key": proposal.get("policy_key"),
+        "current_value": proposal.get("current_value"),
+        "proposed_value": proposal.get("proposed_value"),
+        "headline": proposal.get("headline"),
+        "current_label": proposal.get("current_label"),
+    }
+    league["last_rule_vote"] = record
+    league["season_rule_votes"].append(record)
+    return record
+
+
+def print_rule_vote_dashboard_line():
+    """Print the last rule-vote line for the dashboard."""
+
+    ensure_league_commercial_state()
+    vote = league.get("last_rule_vote")
+    if not vote:
+        print("Vote: none this season")
+        return
+    verb = "passes" if vote.get("passed") else "fails"
+    print(
+        "Vote: last {0} {1} {2}–{3} ({4})".format(
+            vote.get("headline") or "proposal",
+            verb,
+            vote.get("ayes"),
+            vote.get("nays"),
+            vote.get("choice_label") or "vote",
+        )
+    )
+
+
 def present_events(event_list):
     """Present each unresolved event in order."""
 
@@ -4393,6 +4520,8 @@ def present_events(event_list):
             record_driver_council(result)
         if result and result.get("category") == "rule-proposal":
             record_rule_proposal(result, event)
+        if result and result.get("category") == "rule-vote":
+            record_rule_vote(result, event)
         if result:
             results.append(result)
 
@@ -6671,6 +6800,7 @@ def display_commissioner_report():
     print_council_dashboard_line()
     print_driver_council_dashboard_line()
     print_proposal_dashboard_line()
+    print_rule_vote_dashboard_line()
     print(f"League integrity: {league['integrity']}/100")
     print(f"Fan interest: {league['fan_interest']}/100")
     print(f"Controversy: {league['controversy']}/100")
@@ -6787,6 +6917,14 @@ def save_season_report(season_number):
                 else None
             ),
             "rule_docket": list(league.get("rule_docket") or []),
+            "season_rule_votes": list(
+                league.get("season_rule_votes") or []
+            ),
+            "last_rule_vote": (
+                dict(league["last_rule_vote"])
+                if league.get("last_rule_vote")
+                else None
+            ),
         },
         "policies": dict(current_policies),
         "decisions": [
@@ -7077,6 +7215,8 @@ def initialize_season(season_number):
     league["last_driver_council"] = None
     league["season_rule_proposals"] = []
     league["last_rule_proposal"] = None
+    league["season_rule_votes"] = []
+    league["last_rule_vote"] = None
 
     for team in teams:
         team.start_new_season()
@@ -7092,6 +7232,14 @@ def initialize_season(season_number):
     print("\n" + "=" * 90)
     print(f"STOCK CAR COMMISSIONER — {series_name().upper()} — SEASON {season_number}")
     print("=" * 90)
+    present_events(
+        rule_vote_events(
+            season_number,
+            teams,
+            events_resolved,
+            league,
+        )
+    )
     display_league_dashboard()
     present_events(
         preseason_events(current_policies, season_number)

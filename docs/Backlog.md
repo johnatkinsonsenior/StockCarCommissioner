@@ -134,3 +134,5 @@
 | 132 | Driver council feedback | Medium | Completed |
 | 133 | Rule proposals | High | Completed |
 | 134 | Stakeholder-introduced changes | Medium | Completed |
+| 135 | Voting system | High | Completed |
+| 136 | Recorded rule votes | Medium | Completed |
