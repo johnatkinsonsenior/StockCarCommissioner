@@ -10,8 +10,8 @@ sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–77 complete (Week 11 complete). Next coding day: **Day
-78 — Prospect pool**.
+**Current position:** Days 1–78 complete. Next coding day: **Day
+79 — Development series**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -133,7 +133,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 > ratings, political pressure, and job-security risk. ✅
 
 ## Week 12 — World Expansion
-- [ ] Day 78 — Prospect pool (drivers outside the premier series)
+- [x] Day 78 — Prospect pool (drivers outside the premier series)
 - [ ] Day 79 — Development series (lower-level feeder championship)
 - [ ] Day 80 — Prospect progression (young drivers earn promotion)
 - [ ] Day 81 — New team entry (owners apply to enter)
