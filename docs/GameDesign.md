@@ -520,11 +520,11 @@ Main menu item 6 runs a batch of AI careers so the opening book can be measured 
 
 Loaded careers and a new season keep the same league-health numbers. Expired driver contracts re-sign with the incumbent shop. The treasury funds purses after TV and commercial checks.
 
-## Godot UI Prototype
+## Commissioner Office
 
-`godot/` is a Godot 4.4 project that reads a live career snapshot from the Python sim. Main menu item 7 (or `python3 prototype/run_ui.py`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH.
+`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH.
 
-The prototype has four screens: main menu, commissioner dashboard (league meters, treasury, TV and naming rights, grid, alerts), settings (difficulty, career length, autosave), and a sample numbered hearing from the preseason rule book. This is the start of the graphical interface, not a packaged playable build.
+The office opens on series mail. Visiting Dashboard, Standings, Teams, Television, Drivers, Rulebook, Board, and Mail fills the checklist. Advance stays locked until that tour is done, then it shows the queued preseason hearing. Weekends do not sim from Advance until a later day. This is the start of the desk, not a full OOTP-style career UI.
 
 ## League Calendar
 

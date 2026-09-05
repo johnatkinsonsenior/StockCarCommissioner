@@ -55,4 +55,4 @@ A shorter smoke path: **Run one quick season** from the main menu.
 
 - Game version `0.1.0-alpha`. Save files are schema `0.0.39`.
 - Balance simulation (main menu item 6) is for developers, not required play.
-- Item 7 launches the Godot prototype; item 8 exits.
+- Item 7 launches the Godot commissioner office; item 8 exits.

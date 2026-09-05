@@ -31,8 +31,8 @@ The optional Godot desk:
 
     ./play_ui.sh
 
-Godot is a UI prototype. The Python career is the playable game. Export
-templates are not required.
+Godot is the commissioner office (sidebar, mail, checklist, Advance). Export
+templates are not required. The Python career still simulates the season.
 
 ## Package a playtest build
 

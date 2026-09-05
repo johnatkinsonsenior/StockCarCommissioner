@@ -1,17 +1,17 @@
-# Stock Car Commissioner — 90-Day Development Roadmap
+# Stock Car Commissioner — Development Roadmap
 
-Version-controlled progress tracker for the path from Python prototype to a
-playable commissioner-management alpha. Mirrors the 90-day plan and stays in
-sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
+Version-controlled progress tracker. Mirrors feature status in
+[`docs/Backlog.md`](docs/Backlog.md).
 
 - **Primary goal:** a deep, replayable stock car racing *commissioner*
   simulation (the player runs the sanctioning body, not a race team).
-- **Foundation:** prove the Python simulation first; serious UI work comes late.
+- **Reference desk:** Football Commissioner — left nav, status bar, Advance,
+  mail, and a gated checklist. Godot is the office; Python simulates.
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–86 complete. Next coding day: **Day
-87 — Balance simulation**.
+**Current position:** Days 1–90 complete (playable alpha). Next coding day:
+**Day 91 — Commissioner office shell**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -167,3 +167,47 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 77 | Political Career | ✅ Done |
 | 84 | Living Racing World | ✅ Done |
 | 90 | Playable Alpha | ✅ Done |
+| 97 | Commissioner Office | ⬜ Pending |
+
+## Post-Alpha — Commissioner Office
+
+The 90-day plan proved the sim. This era turns it into a desk you sit at,
+in the same flow as Football Commissioner / Out of the Park: browse screens,
+handle mail, then Advance time. The player stays the commissioner. A
+team-owner career is a later era, not this one.
+
+### Era 1 — The Desk
+- [ ] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
+- [ ] Day 92 — Live mail inbox (hearings and league letters in the center pane)
+- [ ] Day 93 — Advance one weekend from the office
+- [ ] Day 94 — Standings, schedule, and race recap screens
+- [ ] Day 95 — Teams, drivers, and prospect pages
+- [ ] Day 96 — Business screens (treasury, TV, sponsors)
+- [ ] Day 97 — Rulebook, councils, and board on the desk
+
+> **Milestone — Day 97 Commissioner Office:** the player sits in an office and
+> Advances time; they do not scroll a season log.
+
+### Era 2 — Player-paced career
+- [ ] Day 98 — Hearing choices in the office write back to the sim
+- [ ] Day 99 — Save and load from the office
+- [ ] Day 100 — New career and continue from the office
+- [ ] Day 101 — Offseason as desk weeks, not a print dump
+- [ ] Day 102 — Race-weekend recap card (qualifying, cautions, investigation)
+- [ ] Day 103 — Alerts arrive as mail
+- [ ] Day 104 — Windows play path (no Git required for testers)
+
+> **Milestone — Day 104 Playable Office Career:** a commissioner career can be
+> started, advanced, saved, and resumed from the Godot desk.
+
+### Era 3 — Full paddock
+- [ ] Day 105 — Full premier grid (more teams and a Cup-sized field)
+- [ ] Day 106 — Clickable driver and team profiles
+- [ ] Day 107 — Historical season database you can reopen
+- [ ] Day 108 — Hall of Fame
+- [ ] Day 109 — News ticker and beat-writer headlines on the desk
+- [ ] Day 110 — Balance pass so meters hold for a decade
+- [ ] Day 111 — Packaged office build for playtesters
+
+> **Milestone — Day 111 Living Office:** the desk sits on a full-sized paddock
+> with history you can inspect.
