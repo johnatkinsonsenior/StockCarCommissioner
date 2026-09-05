@@ -114,10 +114,12 @@ func _build_office() -> void:
 
 	sidebar = VBoxContainer.new()
 	sidebar.custom_minimum_size = Vector2(220, 0)
+	sidebar.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sidebar.add_theme_constant_override("separation", 6)
 	var side_panel := PanelContainer.new()
 	side_panel.add_theme_stylebox_override("panel", _panel(COL_SIDE, COL_LINE))
 	side_panel.custom_minimum_size = Vector2(220, 0)
+	side_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var side_margin := _padded(sidebar, 12, 12)
 	side_panel.add_child(side_margin)
 	root.add_child(side_panel)
@@ -141,22 +143,43 @@ func _build_sidebar() -> void:
 	sidebar.add_child(title)
 	sidebar.add_child(_muted(str(snapshot.get("series", ""))))
 
+	var nav_list := VBoxContainer.new()
+	nav_list.add_theme_constant_override("separation", 6)
 	var last_group := "___"
 	for item in _nav():
 		var row: Dictionary = item
+		var section_id := str(row.get("id", ""))
+		if section_id in ["settings", "quit"]:
+			continue
 		var group := str(row.get("group", ""))
 		if group != last_group:
 			last_group = group
 			if group != "":
-				sidebar.add_child(_group_label(group))
-		var button := Button.new()
-		button.text = str(row.get("label", ""))
-		button.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_style_nav(button, false)
-		var section_id := str(row.get("id", ""))
-		button.pressed.connect(_on_nav.bind(section_id))
-		sidebar.add_child(button)
-		nav_buttons[section_id] = button
+				nav_list.add_child(_group_label(group))
+		nav_list.add_child(_make_nav_button(row))
+
+	var scroller := ScrollContainer.new()
+	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroller.add_child(nav_list)
+	nav_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sidebar.add_child(scroller)
+
+	for item in _nav():
+		var row: Dictionary = item
+		if str(row.get("id", "")) in ["settings", "quit"]:
+			sidebar.add_child(_make_nav_button(row))
+
+
+func _make_nav_button(row: Dictionary) -> Button:
+	var button := Button.new()
+	button.text = str(row.get("label", ""))
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_style_nav(button, false)
+	var section_id := str(row.get("id", ""))
+	button.pressed.connect(_on_nav.bind(section_id))
+	nav_buttons[section_id] = button
+	return button
 
 
 func _build_header() -> Control:

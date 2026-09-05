@@ -1,8 +1,9 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.1",
+    "ui_version": "0.2",
     "engine": "godot-4",
-    "screen": "menu",
+    "layout": "commissioner-desk",
+    "screen": "mail",
     "series": "Northstar Capital Stock Car Series",
     "settings_line": "Settings: Normal | 3 seasons | Autosave Off",
     "calendar": "Season 1 of 3 \u2014 Preseason",
@@ -93,6 +94,15 @@
                 "owner": "Ruth Calder",
                 "factory": "Falcon (2 yrs)"
             }
+        ],
+        "policies": [
+            "Standard points",
+            "Single-feature race",
+            "Balanced enforcement",
+            "Open technical package",
+            "Current safety standard",
+            "Standard bonus points",
+            "Season-long championship"
         ]
     },
     "decision": {
@@ -112,6 +122,297 @@
             {
                 "id": "3",
                 "label": "Flatten the points so more finishers stay alive"
+            }
+        ]
+    },
+    "drivers": [
+        {
+            "name": "Cole Baker",
+            "team": "Liberty Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional"
+        },
+        {
+            "name": "Ryan Holt",
+            "team": "Liberty Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Veteran"
+        },
+        {
+            "name": "Mason Reed",
+            "team": "Pioneer Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Temperamental"
+        },
+        {
+            "name": "Tyler Knox",
+            "team": "Pioneer Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Rookie"
+        },
+        {
+            "name": "Derek Lane",
+            "team": "Summit Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Aggressive"
+        },
+        {
+            "name": "Austin Vale",
+            "team": "Summit Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Popular"
+        }
+    ],
+    "schedule": [
+        {
+            "race": 1,
+            "name": "Atlantic Speedway",
+            "type": "Superspeedway"
+        },
+        {
+            "race": 2,
+            "name": "Carolina Motor Speedway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 3,
+            "name": "Granite Hills Speedway",
+            "type": "Short Track"
+        },
+        {
+            "race": 4,
+            "name": "Meridian Motor Speedway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 5,
+            "name": "Pine Ridge Raceway",
+            "type": "Short Track"
+        },
+        {
+            "race": 6,
+            "name": "Ironwood Speedway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 7,
+            "name": "Cypress Point",
+            "type": "Road Course"
+        },
+        {
+            "race": 8,
+            "name": "Delta Downs Speedway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 9,
+            "name": "Liberty Bowl Speedway",
+            "type": "Short Track"
+        },
+        {
+            "race": 10,
+            "name": "Copper Canyon Speedway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 11,
+            "name": "Sierra Raceway",
+            "type": "Road Course"
+        },
+        {
+            "race": 12,
+            "name": "Heartland Motor Speedway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 13,
+            "name": "Thunder Valley",
+            "type": "Superspeedway"
+        },
+        {
+            "race": 14,
+            "name": "Horizon Raceway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 15,
+            "name": "Maple Grove Speedway",
+            "type": "Short Track"
+        },
+        {
+            "race": 16,
+            "name": "Falls City Speedway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 17,
+            "name": "Lone Star Circuit",
+            "type": "Road Course"
+        },
+        {
+            "race": 18,
+            "name": "Bayside Speedway",
+            "type": "Superspeedway"
+        },
+        {
+            "race": 19,
+            "name": "Emerald Coast Speedway",
+            "type": "Intermediate"
+        },
+        {
+            "race": 20,
+            "name": "Kingsport Speedway",
+            "type": "Short Track"
+        },
+        {
+            "race": 21,
+            "name": "Summit Point Circuit",
+            "type": "Road Course"
+        },
+        {
+            "race": 22,
+            "name": "Grand National Speedway",
+            "type": "Superspeedway"
+        }
+    ],
+    "office": {
+        "layout": "commissioner-desk",
+        "advance_label": "Advance",
+        "advance_hint": "Visit each section to unlock the first weekend.",
+        "header": {
+            "calendar": "Season 1 of 3 \u2014 Preseason",
+            "treasury": 0,
+            "fans": 65,
+            "status_line": "Season 1 of 3 \u2014 Preseason \u2014 $0 \u2014 65 fans"
+        },
+        "mail": {
+            "title": "Welcome to Northstar Capital Stock Car Series",
+            "from": "Series Office \u2014 Preseason",
+            "body": "Commissioner,\n\nYou run Northstar Capital Stock Car Series. You do not drive.\n\nTelevision and naming rights pay the bills. Owners want wins. Drivers want a fair garage. The board wants a league that still exists next year.\n\nOpen every section on the left. Mail is your inbox. When the checklist is done, Advance unlocks the first weekend.\n\nPython still simulates the races. This office is where you sit."
+        },
+        "checklist": [
+            {
+                "id": "dashboard",
+                "label": "Review the dashboard",
+                "section": "dashboard"
+            },
+            {
+                "id": "standings",
+                "label": "View standings",
+                "section": "standings"
+            },
+            {
+                "id": "teams",
+                "label": "Review teams",
+                "section": "teams"
+            },
+            {
+                "id": "television",
+                "label": "Check television and naming rights",
+                "section": "television"
+            },
+            {
+                "id": "drivers",
+                "label": "Review the grid",
+                "section": "drivers"
+            },
+            {
+                "id": "rulebook",
+                "label": "Open the rulebook",
+                "section": "rulebook"
+            },
+            {
+                "id": "board",
+                "label": "Check the board",
+                "section": "board"
+            },
+            {
+                "id": "mail",
+                "label": "Read series mail",
+                "section": "mail"
+            }
+        ],
+        "nav": [
+            {
+                "id": "dashboard",
+                "label": "Dashboard",
+                "group": ""
+            },
+            {
+                "id": "mail",
+                "label": "Mail",
+                "group": ""
+            },
+            {
+                "id": "standings",
+                "label": "Standings",
+                "group": "Competition"
+            },
+            {
+                "id": "schedule",
+                "label": "Schedule",
+                "group": "Competition"
+            },
+            {
+                "id": "hearings",
+                "label": "Hearings",
+                "group": "Competition"
+            },
+            {
+                "id": "teams",
+                "label": "Teams",
+                "group": "Paddock"
+            },
+            {
+                "id": "drivers",
+                "label": "Drivers",
+                "group": "Paddock"
+            },
+            {
+                "id": "prospects",
+                "label": "Prospects",
+                "group": "Paddock"
+            },
+            {
+                "id": "treasury",
+                "label": "Treasury",
+                "group": "Business"
+            },
+            {
+                "id": "television",
+                "label": "Television",
+                "group": "Business"
+            },
+            {
+                "id": "sponsors",
+                "label": "Sponsors",
+                "group": "Business"
+            },
+            {
+                "id": "rulebook",
+                "label": "Rulebook",
+                "group": "League"
+            },
+            {
+                "id": "board",
+                "label": "Board",
+                "group": "League"
+            },
+            {
+                "id": "settings",
+                "label": "Settings",
+                "group": ""
+            },
+            {
+                "id": "quit",
+                "label": "Quit",
+                "group": ""
             }
         ]
     }

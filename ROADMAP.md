@@ -10,8 +10,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–90 complete (playable alpha). Next coding day:
-**Day 91 — Commissioner office shell**.
+**Current position:** Days 1–91 complete. Next coding day:
+**Day 92 — Live mail inbox**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
