@@ -698,6 +698,8 @@ def apply_loaded_state(restored_state):
     if not any(team.has_factory_deal() for team in teams):
         assign_opening_factory_deals(season=calendar.current_season)
 
+    repair_career_world()
+
 
 def capture_live_save():
     """Build an in-memory snapshot of the live career world."""
@@ -750,7 +752,7 @@ def save_career(save_name=None):
 
 
 def apply_season_baseline():
-    """Set the seasonal league health numbers from the live difficulty."""
+    """Set opening league health from the live difficulty. Do not call mid-career."""
 
     profile = difficulty_profile()
     league["integrity"] = profile["integrity"]
@@ -3796,6 +3798,31 @@ def run_offseason_tv_rights():
         print(f"TV rights: {tv_deal_label(league.get('tv_rights'))}")
 
 
+def settle_league_purses():
+    """Fund the completed season's purses from the league treasury."""
+
+    ensure_league_commercial_state()
+    purse_total = sum(int(track.purse or 0) for track in tracks)
+    available = max(0, int(league.get("treasury") or 0))
+    paid = min(available, purse_total)
+    league["treasury"] = available - paid
+    shortfall = purse_total - paid
+
+    print("\nSeries Operations")
+    print("-" * 90)
+    print(f"Season purses: ${purse_total:,}")
+    print(f"Paid from treasury: ${paid:,}")
+    if shortfall:
+        print(f"Unfunded shortfall: ${shortfall:,}")
+    print(f"Treasury: ${league['treasury']:,}")
+    return {
+        "purse_total": purse_total,
+        "paid": paid,
+        "shortfall": shortfall,
+        "treasury": league["treasury"],
+    }
+
+
 def sponsor_has_live_deal(sponsor):
     """Return whether a brand currently titles, endorses, or backs the series."""
 
@@ -5805,27 +5832,36 @@ def record_team_entry(result, event):
     return record
 
 
+def release_driver_to_pool(driver, previous_team_name=None):
+    """Move one premier driver into the prospect pool as a free agent."""
+
+    if driver in drivers:
+        drivers.remove(driver)
+    shop = previous_team_name or driver.previous_team or driver.team_name
+    driver.is_free_agent = True
+    driver.contract_years = 0
+    driver.salary = 0
+    driver.previous_team = shop
+    driver.pathway = driver.pathway or "Premier"
+    driver.readiness = max(
+        PROSPECT_READY_FLOOR,
+        driver.prospect_readiness(),
+    )
+    driver.is_rookie = False
+    outfit, _pathway = random.choice(PROSPECT_OUTFITS)
+    driver.team_name = outfit
+    driver.reset_season()
+    if driver not in driver_prospects:
+        driver_prospects.append(driver)
+    return driver
+
+
 def release_folded_drivers(team):
     """Move a folded shop's drivers off the premier grid into the pool."""
 
     released = []
     for driver in list(get_team_drivers(team.name)):
-        if driver in drivers:
-            drivers.remove(driver)
-        driver.is_free_agent = True
-        driver.contract_years = 0
-        driver.salary = 0
-        driver.previous_team = team.name
-        driver.pathway = driver.pathway or "Premier"
-        driver.readiness = max(
-            PROSPECT_READY_FLOOR,
-            driver.prospect_readiness(),
-        )
-        driver.is_rookie = False
-        outfit, _pathway = random.choice(PROSPECT_OUTFITS)
-        driver.team_name = outfit
-        driver.reset_season()
-        driver_prospects.append(driver)
+        release_driver_to_pool(driver, team.name)
         released.append(driver)
         print(
             f"{driver.name} is released and joins the prospect pool "
@@ -5853,17 +5889,24 @@ def close_team(team):
 
 
 def apply_bridge_loan(team):
-    """Pay an insolvent shop enough cash to leave Insolvent."""
+    """Pay an insolvent shop from the league treasury. Do not print money."""
 
-    league["treasury"] = max(
-        0,
-        league.get("treasury", 0) - BAILOUT_AMOUNT,
-    )
-    team.budget += BAILOUT_AMOUNT
+    available = max(0, int(league.get("treasury") or 0))
+    amount = min(BAILOUT_AMOUNT, available)
+    if amount <= 0:
+        print("\nTeam Closure")
+        print(
+            f"The league cannot fund a bridge loan for {team.name}. "
+            "The treasury is empty."
+        )
+        return None
+
+    league["treasury"] = available - amount
+    team.budget += amount
     team.update_financial_distress()
     print("\nTeam Closure")
     print(
-        f"The league extends a ${BAILOUT_AMOUNT:,} bridge loan to {team.name}."
+        f"The league extends a ${amount:,} bridge loan to {team.name}."
     )
     print(
         f"Budget ${team.budget:,} — {team.financial_status_label()}."
@@ -5890,9 +5933,13 @@ def record_team_closure(result, event):
             action = "folded"
             summary = "%s folded" % shop
         elif choice_id == "2":
-            apply_bridge_loan(team)
-            action = "bailed out"
-            summary = "%s bailed out" % shop
+            loaned = apply_bridge_loan(team)
+            if loaned is None:
+                action = "unfunded"
+                summary = "%s unfunded" % shop
+            else:
+                action = "bailed out"
+                summary = "%s bailed out" % shop
         elif choice_id == "3":
             action = "deferred"
             summary = "%s deferred" % shop
@@ -6685,6 +6732,93 @@ def get_team_drivers(team_name):
     ]
 
 
+def normalize_driver_contract(driver):
+    """Keep contract years and free-agent status in agreement."""
+
+    years = int(getattr(driver, "contract_years", 0) or 0)
+    if years < 0:
+        years = 0
+    driver.contract_years = years
+    if years <= 0:
+        driver.is_free_agent = True
+        driver.contract_years = 0
+    return driver
+
+
+def resign_incumbent_driver(driver, team):
+    """Sign a free agent still sitting in a premier seat."""
+
+    years = random.randint(1, 3)
+    salary = max(50_000, driver.calculate_market_value())
+    driver.sign_contract(team.name, salary, years)
+    return {
+        "driver": driver.name,
+        "team": team.name,
+        "salary": salary,
+        "years": years,
+    }
+
+
+def repair_premier_rosters():
+    """Keep every live shop at two premier drivers and drop orphans."""
+
+    team_names = {team.name for team in teams}
+    repaired = []
+
+    for driver in list(drivers):
+        normalize_driver_contract(driver)
+        if driver.team_name not in team_names:
+            release_driver_to_pool(driver, driver.team_name)
+            repaired.append("released %s" % driver.name)
+
+    for team in list(teams):
+        roster = get_team_drivers(team.name)
+        roster.sort(key=lambda driver: (-driver.points, driver.name))
+        while len(roster) > DRIVERS_PER_TEAM:
+            extra = roster.pop()
+            release_driver_to_pool(extra, team.name)
+            repaired.append("released extra %s" % extra.name)
+        while len(roster) < DRIVERS_PER_TEAM:
+            incoming = None
+            call_up = next_call_up()
+            if call_up is not None:
+                incoming = promote_prospect(call_up, team.name)
+            else:
+                incoming = generate_rookie(team.name)
+                drivers.append(incoming)
+                assign_rookie_rival(incoming)
+            roster.append(incoming)
+            repaired.append("filled %s with %s" % (team.name, incoming.name))
+
+    return repaired
+
+
+def repair_career_world():
+    """Fix roster holes, expired contracts, and out-of-range league stats."""
+
+    for stat in (
+        "integrity",
+        "fan_interest",
+        "controversy",
+        "owner_pressure",
+        "driver_sentiment",
+    ):
+        league[stat] = clamp(league.get(stat, 0))
+
+    for team in teams:
+        deal = team.manufacturer_deal or {}
+        if deal.get("years") is not None:
+            deal["years"] = max(0, int(deal.get("years") or 0))
+        team.budget = int(team.budget)
+        team.update_financial_distress()
+
+    for driver in list(drivers) + list(driver_prospects) + list(retired_drivers):
+        normalize_driver_contract(driver)
+
+    league["treasury"] = max(0, int(league.get("treasury") or 0))
+    return repair_premier_rosters()
+
+
 def get_team_season_wins(team_name):
     """Return the number of race wins earned by a team this season."""
 
@@ -6941,19 +7075,22 @@ def calculate_operating_expenses(team):
 
 
 def pay_team_driver_salaries(team):
-    """Pay annual salaries for every driver on the team."""
+    """Pay annual salaries and re-sign drivers whose deals just expired."""
 
     total_paid = 0
+    renewals = []
 
     for driver in get_team_drivers(team.name):
-        if driver.is_free_agent:
-            continue
+        normalize_driver_contract(driver)
+        if not driver.is_free_agent and driver.contract_years > 0:
+            team.pay_driver_salary(driver.salary)
+            total_paid += driver.salary
+            driver.advance_contract()
+            normalize_driver_contract(driver)
+        if driver.is_free_agent or driver.contract_years <= 0:
+            renewals.append(resign_incumbent_driver(driver, team))
 
-        team.pay_driver_salary(driver.salary)
-        total_paid += driver.salary
-        driver.advance_contract()
-
-    return total_paid
+    return total_paid, renewals
 
 
 def apply_financial_distress_effects(team):
@@ -7049,7 +7186,7 @@ def process_team_offseason_finances(team):
 
     team.update_financial_distress()
 
-    salaries_paid = pay_team_driver_salaries(team)
+    salaries_paid, renewals = pay_team_driver_salaries(team)
     sponsorship = calculate_sponsorship_income(team)
     team.add_sponsorship(sponsorship)
 
@@ -7065,6 +7202,7 @@ def process_team_offseason_finances(team):
 
     return {
         "salaries_paid": salaries_paid,
+        "renewals": renewals,
         "sponsorship": sponsorship,
         "operating_expenses": operating_expenses,
         "investment_actions": investment_actions,
@@ -7083,6 +7221,18 @@ def run_offseason_finances():
 
         print(f"\n{team.name}")
         print(f"  Salaries paid: ${summary['salaries_paid']:,}")
+        if summary.get("renewals"):
+            for renewal in summary["renewals"]:
+                year_word = "year" if renewal["years"] == 1 else "years"
+                print(
+                    "  Contract: %s re-signs — $%s, %s %s"
+                    % (
+                        renewal["driver"],
+                        format(renewal["salary"], ","),
+                        renewal["years"],
+                        year_word,
+                    )
+                )
         print(f"  Main sponsor: {team.primary_sponsor_label()}")
         print(f"  Sponsorship revenue: ${summary['sponsorship']:,}")
 
@@ -7394,6 +7544,7 @@ def run_offseason(completed_season):
             retire_driver(retiring_driver)
             replace_retired_driver(retiring_driver)
 
+    repair_premier_rosters()
     refill_prospect_pool()
     display_prospect_pool()
 
@@ -7414,6 +7565,7 @@ def run_offseason(completed_season):
             events_resolved,
         )
     )
+    repair_premier_rosters()
     run_offseason_team_sponsors()
     run_offseason_factory_deals()
     present_events(
@@ -7426,6 +7578,7 @@ def run_offseason(completed_season):
     run_offseason_endorsements()
     run_offseason_league_sponsors()
     run_offseason_tv_rights()
+    settle_league_purses()
     run_offseason_sponsor_market()
     process_paddock_relationships()
     present_events(
@@ -8165,6 +8318,7 @@ def apply_commissioner_ruling(choice, driver, team):
 
         team.pay_fine(fine_amount)
         league["fines_collected"] += fine_amount
+        league["treasury"] = max(0, int(league.get("treasury") or 0)) + fine_amount
         league["integrity"] += 3
         league["controversy"] += 1
         driver.fines += fine_amount
@@ -9274,7 +9428,6 @@ def initialize_season(season_number):
     tracks.clear()
     tracks.extend(generate_season_schedule(season_number))
 
-    apply_season_baseline()
     league["fines_collected"] = 0
     league["sponsor_walk_blocks"] = []
     league["season_commercial_income"] = 0

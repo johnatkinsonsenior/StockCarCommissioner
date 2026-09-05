@@ -196,6 +196,8 @@ The following information continues between seasons:
 - Feuds
 - Allies, friendships, and teammate bonds
 - Prospect-pool names, pathways, and readiness
+- League integrity, fan interest, controversy, owner pressure, and driver sentiment
+- League treasury
 
 ### Persistent Team Information
 
@@ -226,6 +228,8 @@ At the start of each new season, these values reset:
 - Fines
 - Points penalties
 - Suspensions
+
+League integrity, fan interest, controversy, owner pressure, driver sentiment, and the treasury do **not** reset. Difficulty sets those numbers when a career opens, not at the start of every season.
 
 ### Championship History
 
@@ -305,7 +309,9 @@ Named automakers badge the grid. Opening factories are **Vanguard** (Durability)
 
 ## Team Finances and Offseason Spending
 
-Teams manage a persistent budget across seasons. Income comes from race prize money and offseason sponsorship deals. Expenses include driver salaries, operating costs, and optional investments.
+Teams manage a persistent budget across seasons. Income comes from race prize money and offseason sponsorship deals. Expenses include driver salaries, operating costs, and optional investments. Driver deals that expire are re-signed with the same shop at market value so seats stay paid.
+
+The league treasury collects television rights, naming rights, official-partner checks, and disciplinary fines. After those checks land, the series funds that season's race purses from the treasury. A bridge loan spends real treasury cash; an empty treasury cannot print a rescue.
 
 ### Sponsorship Revenue
 
@@ -411,7 +417,7 @@ Horizon Sports is the opening national flagship. Peakline Cable and Coastline Me
 
 ### TV Contracts
 
-The series can hold one exclusive **television-rights** contract. Networks bid a multi-year package. The annual bid is a large slice of that broadcaster's rights value, scaled by interest in the league. Deal length is three to six years; wealthier, prestige-seeking networks want longer deals. The highest bid wins. The annual check goes to the **league treasury**.
+The series can hold one exclusive **television-rights** contract. Networks bid a multi-year package. The annual bid is a large slice of that broadcaster's rights value, scaled by interest in the league. Deal length is three to six years; wealthier, prestige-seeking networks want longer deals. The highest bid wins. The annual check goes to the **league treasury**. After commercial and TV checks, the treasury funds that season's purses so broadcast money pays for the racing product.
 
 Horizon Sports wins the opening auction (six years). The series **may run without a TV deal**; the dashboard flags `No TV deal`. Losing coverage without a replacement drops fan interest and raises controversy. If a deal expires while the network is unhappy, it will not immediately re-bid; another broadcaster may still step in.
 
@@ -512,6 +518,8 @@ Main menu item 6 runs a batch of AI careers so the opening book can be measured 
 - A 50-season batch is 10 careers of 5 seasons. A 100-season batch is 20 careers of 5. Difficulty stays Normal and autosave stays off for the run, then the live career is restored.
 - The JSON report lands in `season_reports/` with champions, commissioner grades, league health, closures, entries, factory switches, call-ups, retirements, and budgets. It is not written into the career save.
 
+Loaded careers and a new season keep the same league-health numbers. Expired driver contracts re-sign with the incumbent shop. The treasury funds purses after TV and commercial checks.
+
 ## League Calendar
 
 Each season moves through a fixed league calendar:
@@ -519,7 +527,7 @@ Each season moves through a fixed league calendar:
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order; the development series races its own calendar alongside the first eight weekends
 - Postseason: standings, awards, championship, feeder champion, and season records are finalized
-- Offseason: drivers develop or decline, prospects progress from feeder results, retirements are processed and may call up a premier-ready prospect, team finances are settled, factory contracts tick and may switch, the sponsor market churns, television rights are paid, the prospect pool and development book remain on file, and paddock rivalries, feuds, and friendships are updated
+- Offseason: drivers develop or decline, prospects progress from feeder results, retirements are processed and may call up a premier-ready prospect, team finances are settled and expired driver contracts re-sign, factory contracts tick and may switch, the sponsor market churns, television rights are paid, the treasury funds that season's purses, the prospect pool and development book remain on file, and paddock rivalries, feuds, and friendships are updated
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 

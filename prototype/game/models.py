@@ -909,8 +909,9 @@ class Team:
         if not self.has_factory_deal():
             return False
 
-        self.manufacturer_deal["years"] -= 1
-        return self.manufacturer_deal["years"] <= 0
+        years = max(0, int(self.manufacturer_deal.get("years") or 0) - 1)
+        self.manufacturer_deal["years"] = years
+        return years <= 0
 
     def pay_operating_expense(self, amount):
         """Pay a seasonal operating expense."""
@@ -1426,7 +1427,7 @@ class Driver:
         elif self.age >= 38:
             value *= 0.90
 
-        return int(round(value / 25_000) * 25_000        )
+        return int(round(value / 25_000) * 25_000)
 
     def track_skill_for(self, track_type):
         """Return the driver's rating for a track type."""

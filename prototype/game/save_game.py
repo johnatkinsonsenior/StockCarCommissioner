@@ -420,7 +420,10 @@ def driver_from_dict(data):
     )
 
     driver.previous_team = data.get("previous_team")
-    driver.is_free_agent = data.get("is_free_agent", False)
+    driver.is_free_agent = bool(data.get("is_free_agent", False))
+    if driver.contract_years <= 0:
+        driver.contract_years = 0
+        driver.is_free_agent = True
     driver.morale = data["morale"]
     driver.commissioner_trust = data["commissioner_trust"]
     driver.is_retired = data.get("is_retired", False)

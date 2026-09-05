@@ -162,3 +162,5 @@
 | 160 | Difficulty, career length, and autosave | Medium | Completed |
 | 161 | Balance simulation | High | Completed |
 | 162 | AI auto-commissioner season batch | Medium | Completed |
+| 163 | Alpha bug fixing | High | Completed |
+| 164 | Roster, contract, treasury, and save edge cases | Medium | Completed |
