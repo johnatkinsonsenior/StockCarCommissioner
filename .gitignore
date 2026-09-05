@@ -9,3 +9,4 @@ __pycache__/
 saves/
 season_reports/*.json
 godot/.godot/
+dist/

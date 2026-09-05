@@ -125,6 +125,10 @@ from game.ui_bridge import (
     launch_godot_process,
     write_ui_snapshot_file,
 )
+from game.packaging import (
+    GAME_VERSION,
+    package_playable_alpha,
+)
 from game.save_game import (
     build_save_data,
     fill_league_defaults,
@@ -10377,7 +10381,7 @@ def display_main_menu():
     """Display the main menu."""
 
     print("\n" + "=" * 75)
-    print("STOCK CAR COMMISSIONER")
+    print("STOCK CAR COMMISSIONER  %s" % GAME_VERSION)
     print("=" * 75)
     if drivers:
         print(series_name())

@@ -166,3 +166,5 @@
 | 164 | Roster, contract, treasury, and save edge cases | Medium | Completed |
 | 165 | Godot UI prototype | High | Completed |
 | 166 | Commissioner dashboard and decision screens | Medium | Completed |
+| 167 | Playable alpha package | High | Completed |
+| 168 | Career-mode playtest zip and launchers | Medium | Completed |
