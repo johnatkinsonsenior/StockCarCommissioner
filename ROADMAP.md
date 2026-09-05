@@ -177,7 +177,7 @@ handle mail, then Advance time. The player stays the commissioner. A
 team-owner career is a later era, not this one.
 
 ### Era 1 — The Desk
-- [ ] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
+- [x] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
 - [ ] Day 92 — Live mail inbox (hearings and league letters in the center pane)
 - [ ] Day 93 — Advance one weekend from the office
 - [ ] Day 94 — Standings, schedule, and race recap screens
