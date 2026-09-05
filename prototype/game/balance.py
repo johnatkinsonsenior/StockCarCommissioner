@@ -185,6 +185,15 @@ def collect_career_metrics(
             1 for row in closures if row.get("action") == "deferred"
         ),
         "entries": len(entries),
+        "admitted": sum(
+            1 for row in entries if row.get("action") == "admitted"
+        ),
+        "entry_deferred": sum(
+            1 for row in entries if row.get("action") == "deferred"
+        ),
+        "entry_denied": sum(
+            1 for row in entries if row.get("action") == "denied"
+        ),
         "factory_switches": len(switches),
         "call_ups": len(call_ups),
         "retirements": len(list(retired_drivers or [])),
@@ -258,6 +267,11 @@ def summarize_report(careers, target_seasons, seasons_per_career, difficulty):
         "bailed": sum(row.get("bailed") or 0 for row in careers),
         "deferred": sum(row.get("deferred") or 0 for row in careers),
         "entries": sum(row.get("entries") or 0 for row in careers),
+        "admitted": sum(row.get("admitted") or 0 for row in careers),
+        "entry_deferred": sum(
+            row.get("entry_deferred") or 0 for row in careers
+        ),
+        "entry_denied": sum(row.get("entry_denied") or 0 for row in careers),
         "factory_switches": sum(
             row.get("factory_switches") or 0 for row in careers
         ),

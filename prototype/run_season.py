@@ -10014,13 +10014,17 @@ def display_balance_summary(report):
     )
     print(
         "Closures %s (folded %s / bailed %s / deferred %s) | "
-        "Entries %s | Factory switches %s | Call-ups %s | Retirements %s"
+        "Entries %s (admitted %s / deferred %s / denied %s) | "
+        "Factory switches %s | Call-ups %s | Retirements %s"
         % (
             report.get("closures"),
             report.get("folded"),
             report.get("bailed"),
             report.get("deferred"),
             report.get("entries"),
+            report.get("admitted"),
+            report.get("entry_deferred"),
+            report.get("entry_denied"),
             report.get("factory_switches"),
             report.get("call_ups"),
             report.get("retirements"),
