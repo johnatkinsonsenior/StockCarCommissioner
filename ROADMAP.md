@@ -150,10 +150,10 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 87 — Balance simulation (run 50–100 AI seasons)
 - [x] Day 88 — Bug fixing (rosters, finances, contracts, saves, edge cases)
 - [x] Day 89 — UI prototype (begin the graphical interface, preferably in Godot)
-- [ ] Day 90 — Playable alpha (packaged career-mode build for playtesting)
+- [x] Day 90 — Playable alpha (packaged career-mode build for playtesting)
 
 > **Milestone — Day 90 Playable Alpha:** the complete career loop can be played
-> repeatedly and evaluated for balance and fun.
+> repeatedly and evaluated for balance and fun. ✅
 
 ## Milestone Summary
 | Day | Name | Status |
@@ -164,6 +164,6 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 49 | Race Simulation Depth | ✅ Done |
 | 63 | Business Ecosystem | ✅ Done |
 | 70 | Television and Media | ✅ Done |
-| 77 | Political Career | ⬜ Pending |
+| 77 | Political Career | ✅ Done |
 | 84 | Living Racing World | ✅ Done |
-| 90 | Playable Alpha | ⬜ Pending |
+| 90 | Playable Alpha | ✅ Done |
