@@ -1,0 +1,118 @@
+{
+    "game": "Stock Car Commissioner",
+    "ui_version": "0.1",
+    "engine": "godot-4",
+    "screen": "menu",
+    "series": "Northstar Capital Stock Car Series",
+    "settings_line": "Settings: Normal | 3 seasons | Autosave Off",
+    "calendar": "Season 1 of 3 \u2014 Preseason",
+    "menu_items": [
+        {
+            "id": "1",
+            "label": "Start new career"
+        },
+        {
+            "id": "2",
+            "label": "Load saved career"
+        },
+        {
+            "id": "3",
+            "label": "Save current career"
+        },
+        {
+            "id": "4",
+            "label": "Run one quick season"
+        },
+        {
+            "id": "5",
+            "label": "Game settings"
+        },
+        {
+            "id": "6",
+            "label": "Balance simulation (AI)"
+        },
+        {
+            "id": "7",
+            "label": "Exit"
+        }
+    ],
+    "settings": {
+        "difficulty": "normal",
+        "difficulty_label": "Normal",
+        "career_seasons": 3,
+        "autosave": "off",
+        "autosave_label": "Off"
+    },
+    "dashboard": {
+        "calendar": "Season 1 of 3 \u2014 Preseason",
+        "integrity": 70,
+        "fan_interest": 65,
+        "controversy": 20,
+        "owner_pressure": 25,
+        "driver_sentiment": 60,
+        "grade": "B",
+        "score": 70.2,
+        "approval": "Approval: 66 Accepted | Fans 65 | Owners 70 | Drivers 62",
+        "board": "Board: 70 Steady | Risk 30 Moderate",
+        "treasury": 0,
+        "naming_rights": "Northstar Capital ($2,461,000/yr, 5 yrs) \u2014 content",
+        "tv_rights": "Horizon Sports ($14,932,000/yr, 6 yrs) \u2014 content",
+        "prospects": "Prospects: 10 waiting | Headliner: Tessa Quinn (82 Super Late)",
+        "development": "Development: National Development Series | 0 of 8",
+        "factory": "Factory: last none | next Summit Racing Falcon 2 yrs",
+        "makers": "Makers: Vanguard Durability | Apex Speed | Falcon Balance",
+        "alerts": [
+            "A prospect is ready for a call-up",
+            "An owner has applied to enter"
+        ],
+        "teams": [
+            {
+                "name": "Liberty Racing",
+                "manufacturer": "Vanguard",
+                "budget": 5000000,
+                "prestige": 70,
+                "sponsor": "Vanguard Motor Oil ($1,159,000/yr, 4 yrs) \u2014 content",
+                "owner": "Helen Voss",
+                "factory": "Vanguard (3 yrs)"
+            },
+            {
+                "name": "Pioneer Motorsports",
+                "manufacturer": "Apex",
+                "budget": 5500000,
+                "prestige": 76,
+                "sponsor": "Helix Electronics ($1,244,000/yr, 3 yrs) \u2014 content",
+                "owner": "Marcus Hale",
+                "factory": "Apex (3 yrs)"
+            },
+            {
+                "name": "Summit Racing",
+                "manufacturer": "Falcon",
+                "budget": 4800000,
+                "prestige": 64,
+                "sponsor": "Copperline Logistics ($1,012,000/yr, 3 yrs) \u2014 content",
+                "owner": "Ruth Calder",
+                "factory": "Falcon (2 yrs)"
+            }
+        ]
+    },
+    "decision": {
+        "id": "rule-points-system",
+        "title": "Championship Points Structure",
+        "category": "rule-change",
+        "prompt": "Competition committee asks whether the championship should keep rewarding consistent finishers or swing more toward race winners. Current policy: Standard points.",
+        "choices": [
+            {
+                "id": "1",
+                "label": "Keep the standard points table"
+            },
+            {
+                "id": "2",
+                "label": "Adopt winner-heavy scoring"
+            },
+            {
+                "id": "3",
+                "label": "Flatten the points so more finishers stay alive"
+            }
+        ]
+    }
+}

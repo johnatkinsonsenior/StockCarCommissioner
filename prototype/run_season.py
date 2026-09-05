@@ -117,6 +117,14 @@ from game.balance import (
     summarize_report,
     write_balance_report,
 )
+from game.ui_bridge import (
+    compose_ui_snapshot,
+    default_snapshot_path,
+    find_godot_binary,
+    godot_project_dir,
+    launch_godot_process,
+    write_ui_snapshot_file,
+)
 from game.save_game import (
     build_save_data,
     fill_league_defaults,
@@ -10237,6 +10245,134 @@ def present_balance_menu():
     return report
 
 
+def build_ui_snapshot():
+    """Export the live career as a Godot UI snapshot."""
+
+    score, grade = calculate_commissioner_grade()
+    approval_line = ""
+    board_line = ""
+    alerts = []
+    team_rows = []
+    if drivers and teams:
+        approval = refresh_approval_ratings()
+        approval_line = (
+            "Approval: {0} {1} | Fans {2} | Owners {3} | Drivers {4}".format(
+                approval.get("overall"),
+                approval.get("label"),
+                approval.get("fans"),
+                approval.get("owners"),
+                approval.get("drivers"),
+            )
+        )
+        security = refresh_job_security()
+        board_line = "Board: {0} {1} | Risk {2} {3}".format(
+            security.get("confidence"),
+            security.get("confidence_label"),
+            security.get("risk"),
+            security.get("risk_label"),
+        )
+        alerts = list(collect_commissioner_alerts())
+        for team in teams:
+            team_rows.append(
+                {
+                    "name": team.name,
+                    "manufacturer": team.manufacturer,
+                    "budget": int(team.budget),
+                    "prestige": team.prestige,
+                    "sponsor": team.primary_sponsor_label(),
+                    "owner": team.owner.name,
+                    "factory": team.factory_deal_label(),
+                }
+            )
+    decision = None
+    events = preseason_events(current_policies, calendar.current_season)
+    if events:
+        event = events[0]
+        decision = {
+            "id": event.get("id"),
+            "title": event.get("title"),
+            "category": event.get("category"),
+            "prompt": event.get("prompt"),
+            "choices": [
+                {"id": choice["id"], "label": choice["label"]}
+                for choice in event.get("choices") or []
+            ],
+        }
+    return compose_ui_snapshot(
+        {
+            "screen": "menu",
+            "series": series_name(),
+            "settings_line": settings_dashboard_text(),
+            "calendar": calendar.description(),
+            "menu_items": [
+                {"id": "1", "label": "Start new career"},
+                {"id": "2", "label": "Load saved career"},
+                {"id": "3", "label": "Save current career"},
+                {"id": "4", "label": "Run one quick season"},
+                {"id": "5", "label": "Game settings"},
+                {"id": "6", "label": "Balance simulation (AI)"},
+                {"id": "7", "label": "Exit"},
+            ],
+            "settings": {
+                "difficulty": current_settings.get("difficulty"),
+                "difficulty_label": difficulty_label(),
+                "career_seasons": current_settings.get("career_seasons"),
+                "autosave": current_settings.get("autosave"),
+                "autosave_label": autosave_label(),
+            },
+            "dashboard": {
+                "calendar": calendar.description(),
+                "integrity": league.get("integrity", 0),
+                "fan_interest": league.get("fan_interest", 0),
+                "controversy": league.get("controversy", 0),
+                "owner_pressure": league.get("owner_pressure", 0),
+                "driver_sentiment": league.get("driver_sentiment", 0),
+                "grade": grade,
+                "score": score,
+                "approval": approval_line,
+                "board": board_line,
+                "treasury": league.get("treasury", 0),
+                "naming_rights": league_deal_label(league.get("naming_rights")),
+                "tv_rights": tv_deal_label(league.get("tv_rights")),
+                "prospects": prospect_dashboard_text() if drivers else "",
+                "development": (
+                    development_dashboard_text() if drivers else ""
+                ),
+                "factory": factory_dashboard_text() if teams else "",
+                "makers": manufacturer_dashboard_text() if teams else "",
+                "alerts": alerts,
+                "teams": team_rows,
+            },
+            "decision": decision,
+        }
+    )
+
+
+def write_ui_snapshot(path=None):
+    """Write the live career snapshot for the Godot prototype."""
+
+    snapshot = build_ui_snapshot()
+    return write_ui_snapshot_file(snapshot, path or default_snapshot_path())
+
+
+def launch_godot_ui(headless=None):
+    """Write a snapshot and open the Godot 4 UI prototype."""
+
+    path = write_ui_snapshot()
+    print("\nGodot UI snapshot:")
+    print(path)
+    print("Project:")
+    print(godot_project_dir())
+    result = launch_godot_process(path, headless=headless)
+    if not result.get("binary"):
+        print(result.get("output"))
+    elif result.get("returncode") not in (0, None):
+        print("Godot exited with code %s." % result.get("returncode"))
+        if result.get("output"):
+            print(result.get("output")[-2000:])
+    return result
+
+
 def display_main_menu():
     """Display the main menu."""
 
@@ -10252,19 +10388,20 @@ def display_main_menu():
     print("4. Run one quick season")
     print("5. Game settings")
     print("6. Balance simulation (AI)")
-    print("7. Exit")
+    print("7. Graphical UI (Godot)")
+    print("8. Exit")
 
 
 def get_main_menu_choice():
     """Return a valid main menu choice."""
 
     while True:
-        choice = input("\nChoose an option (1-7): ").strip()
+        choice = input("\nChoose an option (1-8): ").strip()
 
-        if choice in {"1", "2", "3", "4", "5", "6", "7"}:
+        if choice in {"1", "2", "3", "4", "5", "6", "7", "8"}:
             return choice
 
-        print("Please enter a number from 1 to 7.")
+        print("Please enter a number from 1 to 8.")
 
 
 def main():
@@ -10299,6 +10436,9 @@ def main():
             present_balance_menu()
 
         elif choice == "7":
+            launch_godot_ui()
+
+        elif choice == "8":
             print("\nGoodbye.")
             break
 

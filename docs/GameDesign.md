@@ -520,6 +520,12 @@ Main menu item 6 runs a batch of AI careers so the opening book can be measured 
 
 Loaded careers and a new season keep the same league-health numbers. Expired driver contracts re-sign with the incumbent shop. The treasury funds purses after TV and commercial checks.
 
+## Godot UI Prototype
+
+`godot/` is a Godot 4.4 project that reads a live career snapshot from the Python sim. Main menu item 7 (or `python3 prototype/run_ui.py`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH.
+
+The prototype has four screens: main menu, commissioner dashboard (league meters, treasury, TV and naming rights, grid, alerts), settings (difficulty, career length, autosave), and a sample numbered hearing from the preseason rule book. This is the start of the graphical interface, not a packaged playable build.
+
 ## League Calendar
 
 Each season moves through a fixed league calendar:

@@ -164,3 +164,5 @@
 | 162 | AI auto-commissioner season batch | Medium | Completed |
 | 163 | Alpha bug fixing | High | Completed |
 | 164 | Roster, contract, treasury, and save edge cases | Medium | Completed |
+| 165 | Godot UI prototype | High | Completed |
+| 166 | Commissioner dashboard and decision screens | Medium | Completed |

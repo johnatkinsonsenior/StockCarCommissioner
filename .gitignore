@@ -8,3 +8,4 @@ __pycache__/
 .idea/
 saves/
 season_reports/*.json
+godot/.godot/
