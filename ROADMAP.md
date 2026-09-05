@@ -149,7 +149,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 - [x] Day 86 — Game settings (difficulty, season length, autosave)
 - [x] Day 87 — Balance simulation (run 50–100 AI seasons)
 - [x] Day 88 — Bug fixing (rosters, finances, contracts, saves, edge cases)
-- [ ] Day 89 — UI prototype (begin the graphical interface, preferably in Godot)
+- [x] Day 89 — UI prototype (begin the graphical interface, preferably in Godot)
 - [ ] Day 90 — Playable alpha (packaged career-mode build for playtesting)
 
 > **Milestone — Day 90 Playable Alpha:** the complete career loop can be played
