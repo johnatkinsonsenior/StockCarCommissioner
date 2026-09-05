@@ -147,7 +147,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 ## Final Six Days — Alpha Preparation
 - [x] Day 85 — Complete save architecture (serialize the full career world)
 - [x] Day 86 — Game settings (difficulty, season length, autosave)
-- [ ] Day 87 — Balance simulation (run 50–100 AI seasons)
+- [x] Day 87 — Balance simulation (run 50–100 AI seasons)
 - [ ] Day 88 — Bug fixing (rosters, finances, contracts, saves, edge cases)
 - [ ] Day 89 — UI prototype (begin the graphical interface, preferably in Godot)
 - [ ] Day 90 — Playable alpha (packaged career-mode build for playtesting)
