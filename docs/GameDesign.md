@@ -504,6 +504,14 @@ A new career asks for **difficulty**, **career length**, and **autosave**. The s
 
 Difficulty and autosave are stored on the career save (0.0.39). Legacy 0.0.38 files load as Normal, three seasons, autosave off.
 
+## Balance Simulation
+
+Main menu item 6 runs a batch of AI careers so the opening book can be measured before playtesting. The auto-commissioner answers every numbered hearing and post-race ruling, skips save prompts, and silences the season printout.
+
+- Board hearings present the season. Charter reviews extend a bridge loan. Factory hearings hold the current badge. New-team hearings defer. Other events take the middle option. Discipline follows the investigation packet (warning when confidence is low, a fine in ordinary cases, points when the file is severe and controversy is already high).
+- A 50-season batch is 10 careers of 5 seasons. A 100-season batch is 20 careers of 5. Difficulty stays Normal and autosave stays off for the run, then the live career is restored.
+- The JSON report lands in `season_reports/` with champions, commissioner grades, league health, closures, entries, factory switches, call-ups, retirements, and budgets. It is not written into the career save.
+
 ## League Calendar
 
 Each season moves through a fixed league calendar:

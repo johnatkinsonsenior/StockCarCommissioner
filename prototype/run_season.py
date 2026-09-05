@@ -1,5 +1,8 @@
+import io
 import json
 import random
+import sys
+from contextlib import redirect_stdout
 from datetime import datetime
 from pathlib import Path
 
@@ -104,6 +107,16 @@ from game.policies import (
     reset_policies,
     uses_playoff,
 )
+from game.balance import (
+    DEFAULT_SEASONS_PER_CAREER,
+    DEFAULT_TARGET_SEASONS,
+    LONG_TARGET_SEASONS,
+    ai_pick_discipline,
+    ai_pick_numbered,
+    collect_career_metrics,
+    summarize_report,
+    write_balance_report,
+)
 from game.save_game import (
     build_save_data,
     fill_league_defaults,
@@ -111,6 +124,7 @@ from game.save_game import (
     get_saves_folder,
     list_save_files,
     load_from_file,
+    parse_save_data,
     save_to_file,
 )
 from game.settings import (
@@ -306,6 +320,7 @@ career_history = []
 retired_drivers = []
 decision_log = []
 events_resolved = []
+ai_mode = False
 
 current_season = 1
 championship_awarded = False
@@ -684,12 +699,11 @@ def apply_loaded_state(restored_state):
         assign_opening_factory_deals(season=calendar.current_season)
 
 
-def save_career(save_name=None):
-    """Save the current career progress to disk."""
+def capture_live_save():
+    """Build an in-memory snapshot of the live career world."""
 
     sync_calendar_aliases()
-
-    save_data = build_save_data(
+    return build_save_data(
         league=league,
         race_history=race_history,
         career_history=career_history,
@@ -715,6 +729,18 @@ def save_career(save_name=None):
         settings=settings_to_dict(),
     )
 
+
+def restore_live_save(save_data):
+    """Replace live game state from an in-memory snapshot."""
+
+    apply_loaded_state(parse_save_data(save_data))
+    return save_data
+
+
+def save_career(save_name=None):
+    """Save the current career progress to disk."""
+
+    save_data = capture_live_save()
     save_path = save_to_file(save_data, save_name)
 
     print("\nCareer saved:")
@@ -773,14 +799,42 @@ def maybe_autosave(moment):
     return autosave_career()
 
 
+def set_ai_mode(enabled):
+    """Turn the auto-commissioner on or off."""
+
+    global ai_mode
+    ai_mode = bool(enabled)
+    return ai_mode
+
+
+def prompt_continue(message="\nPress Enter to begin the next season..."):
+    """Pause for the player unless an AI batch is running."""
+
+    if ai_mode:
+        return ""
+    return input(message)
+
+
 def prompt_numbered(title, choices):
     """Ask for a numbered choice. choices is a list of (id, label)."""
 
     print("\n" + title)
     valid = []
+    extra_lines = []
     for key, label in choices:
-        print("%s. %s" % (key, label))
+        line = "%s. %s" % (key, label)
+        print(line)
+        extra_lines.append(line)
         valid.append(key)
+    if ai_mode:
+        picked = ai_pick_numbered(
+            len(valid),
+            prompt=title,
+            extra_lines=extra_lines,
+        )
+        if picked in valid:
+            return picked
+        return valid[0]
     while True:
         choice = input("Choose an option: ").strip()
         if choice in valid:
@@ -966,6 +1020,9 @@ def load_career(save_path=None):
 
 def prompt_save_career():
     """Offer to save the current career progress."""
+
+    if ai_mode:
+        return
 
     if maybe_autosave(AUTOSAVE_OFFSEASON):
         return
@@ -4217,10 +4274,15 @@ def build_event_context(event):
     }
 
 
-def get_numbered_choice(choice_count):
+def get_numbered_choice(choice_count, event=None):
     """Ask the player for a numbered choice."""
 
     valid = {str(number) for number in range(1, choice_count + 1)}
+    if ai_mode:
+        picked = ai_pick_numbered(choice_count, event=event)
+        if picked in valid:
+            return picked
+        return "1" if "1" in valid else sorted(valid)[0]
 
     while True:
         choice = input(
@@ -4249,7 +4311,7 @@ def present_decision_event(event):
     for choice in event["choices"]:
         print(f"{choice['id']}. {choice['label']}")
 
-    choice_id = get_numbered_choice(len(event["choices"]))
+    choice_id = get_numbered_choice(len(event["choices"]), event=event)
     context = build_event_context(event)
     result = resolve_event_choice(event, choice_id, context)
 
@@ -7901,7 +7963,7 @@ def review_single_incident(incident, investigation=None):
     print("4. Championship points penalty")
     print("5. Suspend for the next race")
 
-    choice = get_valid_choice()
+    choice = get_valid_choice(investigation)
 
     apply_commissioner_ruling(choice, driver, team)
 
@@ -7923,8 +7985,14 @@ def review_single_incident(incident, investigation=None):
         )
 
 
-def get_valid_choice():
+def get_valid_choice(investigation=None):
     """Ask the player for a valid disciplinary choice."""
+
+    if ai_mode:
+        return ai_pick_discipline(
+            investigation,
+            league.get("controversy", 20),
+        )
 
     while True:
         choice = input("\nCommissioner decision (1-5): ").strip()
@@ -8725,6 +8793,9 @@ def display_commissioner_report():
 
 def save_season_report(season_number):
     """Save the completed season to a JSON file."""
+
+    if ai_mode:
+        return
 
     champion = get_driver_champion()
     most_wins = get_most_wins_driver()
@@ -9726,10 +9797,7 @@ def process_offseason_and_advance():
     calendar.advance_to_next_season()
     sync_calendar_aliases()
     prompt_save_career()
-
-    input(
-        "\nPress Enter to begin the next season..."
-    )
+    prompt_continue()
 
 
 def run_career(number_of_seasons=3, start_season=1, resume=False):
@@ -9753,10 +9821,7 @@ def run_career(number_of_seasons=3, start_season=1, resume=False):
                 calendar.advance_to_next_season()
                 sync_calendar_aliases()
                 prompt_save_career()
-
-                input(
-                    "\nPress Enter to begin the next season..."
-                )
+                prompt_continue()
                 continue
 
             break
@@ -9803,6 +9868,218 @@ def continue_loaded_career():
     )
 
 
+def _balance_progress(message, quiet):
+    """Write batch progress to stderr so silenced stdout stays quiet."""
+
+    sys.stderr.write(message + "\n")
+    sys.stderr.flush()
+    if not quiet:
+        print(message)
+
+
+def run_balance_simulation(
+    target_seasons=DEFAULT_TARGET_SEASONS,
+    seasons_per_career=DEFAULT_SEASONS_PER_CAREER,
+    careers=None,
+    difficulty=DIFFICULTY_NORMAL,
+    seed=None,
+    quiet=True,
+    write_report=True,
+):
+    """Run a batch of AI careers and collect balance metrics."""
+
+    target_seasons = int(target_seasons or DEFAULT_TARGET_SEASONS)
+    seasons_per_career = int(
+        seasons_per_career or DEFAULT_SEASONS_PER_CAREER
+    )
+    if seasons_per_career < 1:
+        seasons_per_career = 1
+    if careers is None:
+        careers = max(1, target_seasons // seasons_per_career)
+    careers = max(1, int(careers))
+    if seed is not None:
+        random.seed(seed)
+
+    snapshot = capture_live_save()
+    previous_ai = ai_mode
+    career_rows = []
+    report = None
+    report_path = None
+
+    try:
+        set_ai_mode(True)
+        apply_game_settings(
+            {
+                "difficulty": difficulty,
+                "career_seasons": seasons_per_career,
+                "autosave": AUTOSAVE_OFF,
+            }
+        )
+        for index in range(1, careers + 1):
+            _balance_progress(
+                "AI career %s/%s (%s seasons)..."
+                % (index, careers, seasons_per_career),
+                quiet,
+            )
+            reset_career_state(keep_settings=True)
+            sink = io.StringIO()
+            if quiet:
+                with redirect_stdout(sink):
+                    run_career(number_of_seasons=seasons_per_career)
+            else:
+                run_career(number_of_seasons=seasons_per_career)
+            career_rows.append(
+                collect_career_metrics(
+                    index,
+                    seasons_per_career,
+                    career_history,
+                    league,
+                    teams,
+                    retired_drivers,
+                    driver_prospects,
+                    decision_log,
+                )
+            )
+        report = summarize_report(
+            career_rows,
+            target_seasons,
+            seasons_per_career,
+            difficulty,
+        )
+        if write_report:
+            project_root = Path(__file__).resolve().parent.parent
+            report_path = write_balance_report(report, project_root)
+            report["report_path"] = str(report_path)
+    finally:
+        set_ai_mode(previous_ai)
+        restore_live_save(snapshot)
+
+    return report
+
+
+def run_ai_seasons(
+    target_seasons=DEFAULT_TARGET_SEASONS,
+    seasons_per_career=DEFAULT_SEASONS_PER_CAREER,
+    careers=None,
+    difficulty=DIFFICULTY_NORMAL,
+    seed=None,
+    quiet=True,
+    write_report=True,
+):
+    """Alias for the Day 87 balance batch."""
+
+    return run_balance_simulation(
+        target_seasons=target_seasons,
+        seasons_per_career=seasons_per_career,
+        careers=careers,
+        difficulty=difficulty,
+        seed=seed,
+        quiet=quiet,
+        write_report=write_report,
+    )
+
+
+def display_balance_summary(report):
+    """Print the headline numbers from a balance batch."""
+
+    report = report or {}
+    print("\n" + "=" * 75)
+    print("BALANCE SIMULATION")
+    print("=" * 75)
+    print(
+        "Difficulty %s | %s careers x %s seasons (target %s)"
+        % (
+            report.get("difficulty") or DIFFICULTY_NORMAL,
+            report.get("careers_started"),
+            report.get("seasons_per_career"),
+            report.get("target_seasons"),
+        )
+    )
+    print(
+        "Seasons completed: %s | Finished careers: %s | Dismissed: %s"
+        % (
+            report.get("seasons_completed"),
+            report.get("careers_finished"),
+            report.get("careers_dismissed"),
+        )
+    )
+    print(
+        "Avg grade score %s | Integrity %s | Fans %s | Controversy %s"
+        % (
+            report.get("avg_commissioner_score"),
+            report.get("avg_integrity"),
+            report.get("avg_fan_interest"),
+            report.get("avg_controversy"),
+        )
+    )
+    print(
+        "Closures %s (folded %s / bailed %s / deferred %s) | "
+        "Entries %s | Factory switches %s | Call-ups %s | Retirements %s"
+        % (
+            report.get("closures"),
+            report.get("folded"),
+            report.get("bailed"),
+            report.get("deferred"),
+            report.get("entries"),
+            report.get("factory_switches"),
+            report.get("call_ups"),
+            report.get("retirements"),
+        )
+    )
+    champions = report.get("champions") or {}
+    if champions:
+        top = list(champions.items())[:5]
+        print(
+            "Top champions: "
+            + ", ".join("%s (%s)" % (name, count) for name, count in top)
+        )
+    grades = report.get("grades") or {}
+    if grades:
+        print(
+            "Grades: "
+            + ", ".join("%s %s" % (grade, count) for grade, count in grades.items())
+        )
+    path = report.get("report_path")
+    if path:
+        print("Report saved:")
+        print(path)
+
+
+def present_balance_menu():
+    """Run a 50- or 100-season AI batch from the main menu."""
+
+    choice = prompt_numbered(
+        "Balance simulation",
+        (
+            (
+                "1",
+                "Run 50 AI seasons (10 careers x 5)",
+            ),
+            (
+                "2",
+                "Run 100 AI seasons (20 careers x 5)",
+            ),
+            ("3", "Back"),
+        ),
+    )
+    if choice == "3":
+        return None
+    target = DEFAULT_TARGET_SEASONS if choice == "1" else LONG_TARGET_SEASONS
+    print(
+        "\nRunning %s AI seasons. The auto-commissioner answers every "
+        "hearing. This can take a minute."
+        % target
+    )
+    report = run_balance_simulation(
+        target_seasons=target,
+        seasons_per_career=DEFAULT_SEASONS_PER_CAREER,
+        quiet=True,
+        write_report=True,
+    )
+    display_balance_summary(report)
+    return report
+
+
 def display_main_menu():
     """Display the main menu."""
 
@@ -9817,19 +10094,20 @@ def display_main_menu():
     print("3. Save current career")
     print("4. Run one quick season")
     print("5. Game settings")
-    print("6. Exit")
+    print("6. Balance simulation (AI)")
+    print("7. Exit")
 
 
 def get_main_menu_choice():
     """Return a valid main menu choice."""
 
     while True:
-        choice = input("\nChoose an option (1-6): ").strip()
+        choice = input("\nChoose an option (1-7): ").strip()
 
-        if choice in {"1", "2", "3", "4", "5", "6"}:
+        if choice in {"1", "2", "3", "4", "5", "6", "7"}:
             return choice
 
-        print("Please enter a number from 1 to 6.")
+        print("Please enter a number from 1 to 7.")
 
 
 def main():
@@ -9861,6 +10139,9 @@ def main():
             present_settings_menu()
 
         elif choice == "6":
+            present_balance_menu()
+
+        elif choice == "7":
             print("\nGoodbye.")
             break
 

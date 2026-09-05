@@ -160,3 +160,5 @@
 | 158 | Career world snapshot and load catalog | Medium | Completed |
 | 159 | Game settings | High | Completed |
 | 160 | Difficulty, career length, and autosave | Medium | Completed |
+| 161 | Balance simulation | High | Completed |
+| 162 | AI auto-commissioner season batch | Medium | Completed |
