@@ -156,6 +156,7 @@ LEAGUE_DEFAULTS = {
     "season_factory_switches": [],
     "factory_history": [],
     "pending_factory_switch": None,
+    "last_office_week": None,
 }
 
 

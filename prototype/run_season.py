@@ -325,6 +325,7 @@ league = {
     "season_factory_switches": [],
     "factory_history": [],
     "pending_factory_switch": None,
+    "last_office_week": None,
 }
 
 race_history = []
@@ -537,6 +538,7 @@ def reset_career_state(keep_settings=False):
     league["season_factory_switches"] = []
     league["factory_history"] = []
     league["pending_factory_switch"] = None
+    league["last_office_week"] = None
 
     reset_policies()
 
@@ -10289,19 +10291,20 @@ def build_ui_snapshot():
                 }
             )
     decision = None
-    events = preseason_events(current_policies, calendar.current_season)
-    if events:
-        event = events[0]
-        decision = {
-            "id": event.get("id"),
-            "title": event.get("title"),
-            "category": event.get("category"),
-            "prompt": event.get("prompt"),
-            "choices": [
-                {"id": choice["id"], "label": choice["label"]}
-                for choice in event.get("choices") or []
-            ],
-        }
+    if calendar.phase == PRESEASON:
+        events = preseason_events(current_policies, calendar.current_season)
+        if events:
+            event = events[0]
+            decision = {
+                "id": event.get("id"),
+                "title": event.get("title"),
+                "category": event.get("category"),
+                "prompt": event.get("prompt"),
+                "choices": [
+                    {"id": choice["id"], "label": choice["label"]}
+                    for choice in event.get("choices") or []
+                ],
+            }
     driver_rows = []
     if drivers:
         for driver in drivers:
@@ -10314,6 +10317,14 @@ def build_ui_snapshot():
                     "personality": driver.personality,
                 }
             )
+        driver_rows.sort(
+            key=lambda row: (
+                -int(row.get("points") or 0),
+                -int(row.get("wins") or 0),
+                row.get("name") or "",
+            )
+        )
+    completed_races = len(race_history)
     schedule_rows = []
     for index, track in enumerate(tracks, start=1):
         schedule_rows.append(
@@ -10321,9 +10332,11 @@ def build_ui_snapshot():
                 "race": index,
                 "name": track.name,
                 "type": track.type,
+                "complete": index <= completed_races,
             }
         )
     series = series_name()
+    week = office_week_preview()
     mail_body = (
         "Commissioner,\n\n"
         "You run %s. You do not drive.\n\n"
@@ -10331,7 +10344,7 @@ def build_ui_snapshot():
         "Drivers want a fair garage. The board wants a league that still "
         "exists next year.\n\n"
         "Open every section on the left. Mail is your inbox. When the "
-        "checklist is done, Advance unlocks the first weekend.\n\n"
+        "checklist is done, Advance runs the next week.\n\n"
         "Python still simulates the races. This office is where you sit."
         % series
     )
@@ -10341,6 +10354,11 @@ def build_ui_snapshot():
             "series": series,
             "settings_line": settings_dashboard_text(),
             "calendar": calendar.description(),
+            "status_line": office_status_line(),
+            "advance_label": week.get("label") or "Advance",
+            "advance_python": sys.executable,
+            "advance_script": str(office_advance_script()),
+            "week_recap": league.get("last_office_week"),
             "mail": {
                 "title": "Welcome to %s" % series,
                 "from": "Series Office — %s" % calendar.phase_label(),
@@ -10397,6 +10415,195 @@ def build_ui_snapshot():
     )
 
 
+OFFICE_SAVE_NAME = "office"
+
+
+def office_save_path():
+    """Return the reserved office-session save path."""
+
+    return get_saves_folder() / ("%s.json" % OFFICE_SAVE_NAME)
+
+
+def office_advance_script():
+    """Return the Python script Godot runs to Advance a week."""
+
+    return Path(__file__).resolve().parent / "advance_week.py"
+
+
+def persist_office_career():
+    """Write the live career into the office session slot."""
+
+    return save_career(save_name=OFFICE_SAVE_NAME)
+
+
+def restore_office_career():
+    """Load the office session if it exists. Return True when loaded."""
+
+    path = office_save_path()
+    if not path.is_file():
+        return False
+    return load_career(path)
+
+
+def office_status_line():
+    """Return the desk header: calendar, next weekend, treasury, fans."""
+
+    preview = office_week_preview()
+    next_line = preview.get("next") or calendar.description()
+    return "%s — $%s — %s fans" % (
+        next_line,
+        "{:,}".format(int(league.get("treasury") or 0)),
+        league.get("fan_interest") or 0,
+    )
+
+
+def office_week_preview():
+    """Describe the week Advance will run from the desk."""
+
+    raced = len(race_history)
+    total = len(tracks)
+    if calendar.phase == PRESEASON:
+        track = tracks[0] if tracks else None
+        name = track.name if track is not None else "the opener"
+        return {
+            "kind": "race",
+            "label": "Advance — Opening weekend",
+            "next": "Preseason — next: %s" % name,
+            "track": name,
+        }
+    if calendar.phase == REGULAR_SEASON:
+        if raced >= total:
+            return {
+                "kind": "postseason",
+                "label": "Advance — Postseason",
+                "next": calendar.description(),
+            }
+        track = tracks[raced]
+        return {
+            "kind": "race",
+            "label": "Advance — Race %s" % (raced + 1),
+            "next": "Race %s of %s — %s" % (raced + 1, total, track.name),
+            "track": track.name,
+            "race_number": raced + 1,
+        }
+    if calendar.phase == POSTSEASON:
+        return {
+            "kind": "postseason",
+            "label": "Advance",
+            "next": calendar.description(),
+        }
+    return {
+        "kind": "off",
+        "label": "Advance week",
+        "next": calendar.description(),
+    }
+
+
+def recap_from_last_race():
+    """Build a week recap dict from the latest race_history row."""
+
+    if not race_history:
+        return {
+            "kind": "race",
+            "title": "Race weekend",
+            "body": "The field took the green flag.",
+        }
+    record = race_history[-1]
+    winner = race_winner_name(record, None)
+    race_number = record.get("race_number") or len(race_history)
+    track_name = record.get("track") or "the track"
+    cautions = record.get("cautions") or 0
+    pole = record.get("pole") or "the pole sitter"
+    body = (
+        "Race %s is in the books at %s.\n\n"
+        "%s took the checkered flag. Pole: %s. "
+        "Cautions: %s. The standings on the left rail are live.\n\n"
+        "Advance again for the next week."
+        % (race_number, track_name, winner, pole, cautions)
+    )
+    return {
+        "kind": "race",
+        "title": "Race %s — %s wins %s" % (race_number, winner, track_name),
+        "body": body,
+        "race_number": race_number,
+        "track": track_name,
+        "winner": winner,
+    }
+
+
+def recap_postseason():
+    """Build a postseason recap after the grid is done."""
+
+    champion = None
+    if drivers:
+        champion = max(drivers, key=lambda row: (row.points, row.wins, row.name))
+    name = champion.name if champion is not None else "The champion"
+    body = (
+        "The regular season is complete.\n\n"
+        "%s sits atop the standings. Postseason filings and the offseason "
+        "desk land in later days. Advance stays on this week until then."
+        % name
+    )
+    if championship_awarded:
+        body = (
+            "%s is the champion.\n\n"
+            "The offseason desk (contracts, factories, the feeder) lands "
+            "in Day 101. This week the office holds."
+            % name
+        )
+    return {
+        "kind": "postseason",
+        "title": "Season complete — %s" % name,
+        "body": body,
+        "winner": name,
+    }
+
+
+def advance_office_week():
+    """Step the office calendar one week and return a recap dict."""
+
+    previous = ai_mode
+    set_ai_mode(True)
+    try:
+        with redirect_stdout(io.StringIO()):
+            recap = _advance_office_week_body()
+    finally:
+        set_ai_mode(previous)
+    league["last_office_week"] = recap
+    return recap
+
+
+def _advance_office_week_body():
+    """Run one office week with the auto-commissioner catching prompts."""
+
+    if calendar.phase == PRESEASON:
+        calendar.enter_regular_season()
+        sync_calendar_aliases()
+
+    if calendar.phase == REGULAR_SEASON:
+        raced = len(race_history)
+        if raced < len(tracks):
+            track = tracks[raced]
+            run_race(track, raced + 1)
+            return recap_from_last_race()
+        calendar.enter_postseason()
+        sync_calendar_aliases()
+        if not championship_awarded:
+            award_championship()
+        return recap_postseason()
+
+    if calendar.phase == POSTSEASON:
+        if not championship_awarded:
+            award_championship()
+        return recap_postseason()
+
+    return {
+        "kind": "off",
+        "title": "Offseason week",
+        "body": "Offseason weeks land in Day 101.",
+    }
+
+
 def write_ui_snapshot(path=None):
     """Write the live career snapshot for the Godot prototype."""
 
@@ -10407,6 +10614,7 @@ def write_ui_snapshot(path=None):
 def launch_godot_ui(headless=None):
     """Write a snapshot and open the Godot 4 UI prototype."""
 
+    persist_office_career()
     path = write_ui_snapshot()
     print("\nGodot UI snapshot:")
     print(path)
