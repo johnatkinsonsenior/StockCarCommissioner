@@ -780,11 +780,13 @@ memos, and weekend headlines land as press clippings. The center pane
 shows the list and the open letter. Hearing letters display choices;
 Day 98 writes a ruling back to the sim. Visiting Dashboard, Standings,
 Teams, Television, Drivers, Rulebook, Board, and Mail fills the
-checklist. Advance stays locked until that tour is done, then it opens
-the hearing in the inbox. Day 91 is the Football Commissioner layout in
-charcoal/blue. Later office days restyle to Winston Cup crimson, gold,
-and white with 16-bit sports-sim chrome, and Advance becomes a **week**
-(race week or off week), not a dump of the season.
+checklist. Advance stays locked until that tour is done, then the first
+Advance opens the hearing in the inbox. The next Advance **runs a week**:
+preseason becomes the opening race weekend, then each Advance sims the
+next Cup race and drops a Race Control recap (plus press clippings) in
+Mail. Standings and the schedule update. Day 91 is the Football
+Commissioner layout in charcoal/blue. Later office days restyle to
+Winston Cup crimson, gold, and white with 16-bit sports-sim chrome.
 
 ## League Calendar
 

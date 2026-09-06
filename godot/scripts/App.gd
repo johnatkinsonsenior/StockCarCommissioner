@@ -25,6 +25,7 @@ var center_body: VBoxContainer
 var checklist_box: VBoxContainer
 var checklist_progress: Label
 var nav_buttons: Dictionary = {}
+var hearing_held := false
 
 
 func _ready() -> void:
@@ -62,6 +63,10 @@ func _headless_tour() -> void:
 	print("CHECKLIST_DONE=", "%s/%s" % [_completed_count(), _checklist().size()])
 	_on_advance()
 	print("ADVANCE_STATE=", "unlocked" if _checklist_complete() else "blocked")
+	_on_advance()
+	_show_section("standings")
+	_show_section("schedule")
+	_show_section("mail")
 	call_deferred("_quit_headless")
 
 
@@ -322,7 +327,8 @@ func _on_advance() -> void:
 		return
 	print("ADVANCE_UNLOCKED")
 	var hearing := _first_hearing()
-	if not hearing.is_empty():
+	if not hearing.is_empty() and not hearing_held:
+		hearing_held = true
 		screen_name = "mail"
 		visited["mail"] = true
 		selected_mail_id = str(hearing.get("id", ""))
@@ -336,8 +342,50 @@ func _on_advance() -> void:
 		_refresh_checklist()
 		_style_advance(true)
 		return
-	center_body.add_child(_title("Office ready"))
-	center_body.add_child(_line("The first weekend will sim from this button in Day 93."))
+	_run_office_week()
+
+
+func _run_office_week() -> void:
+	var python := str(_office().get("advance_python", ""))
+	var script := str(_office().get("advance_script", ""))
+	if python == "" or script == "":
+		print("WEEK_OK=0")
+		print("WEEK_ERROR=missing-advance-command")
+		center_body.add_child(_title("Advance failed"))
+		center_body.add_child(_muted("The office session is missing the week script."))
+		return
+	var output: Array = []
+	var code := OS.execute(python, PackedStringArray([script]), output, true)
+	var text := ""
+	for line in output:
+		text += str(line) + "\n"
+		print(str(line))
+	if code != 0 or text.find("WEEK_OK=1") < 0:
+		print("WEEK_OK=0")
+		center_body.add_child(_title("Advance failed"))
+		center_body.add_child(_muted("The week script did not finish. Check the Python career."))
+		center_body.add_child(_line(text.substr(0, 800)))
+		return
+	hearing_held = false
+	_reload_office()
+	print("WEEK_RELOADED=1")
+	print("CALENDAR=", str(snapshot.get("calendar", "")))
+	_show_section("mail")
+	_style_advance(true)
+
+
+func _reload_office() -> void:
+	snapshot = _load_snapshot()
+	if status_label != null:
+		var header_info: Variant = _office().get("header", {})
+		var status_text := str(snapshot.get("calendar", ""))
+		if typeof(header_info) == TYPE_DICTIONARY:
+			status_text = str(header_info.get("status_line", status_text))
+		status_label.text = status_text
+	if advance_button != null:
+		advance_button.text = str(_office().get("advance_label", "Advance"))
+	selected_mail_id = str(_office().get("selected_mail_id", ""))
+	mail_read.clear()
 
 
 func _clear_center() -> void:
@@ -408,6 +456,8 @@ func _kind_tag(kind: String) -> String:
 			return "Memo · "
 		"press":
 			return "Press · "
+		"recap":
+			return "Recap · "
 		_:
 			return ""
 
@@ -425,17 +475,19 @@ func _make_inbox_button(letter: Dictionary) -> Button:
 	button.clip_text = true
 	button.tooltip_text = "From: %s" % str(letter.get("from", ""))
 	var active := letter_id == selected_mail_id
-	_style_inbox_button(button, active, kind == "hearing")
+	_style_inbox_button(button, active, kind)
 	button.pressed.connect(_open_letter.bind(letter_id))
 	return button
 
 
-func _style_inbox_button(button: Button, active: bool, hearing: bool) -> void:
+func _style_inbox_button(button: Button, active: bool, kind: String) -> void:
 	var style := StyleBoxFlat.new()
 	if active:
 		style.bg_color = COL_BLUE_ON
-	elif hearing:
+	elif kind == "hearing":
 		style.bg_color = Color("3d2b1f")
+	elif kind == "recap":
+		style.bg_color = COL_GREEN_DIM
 	else:
 		style.bg_color = COL_PANEL
 	style.set_corner_radius_all(4)
@@ -574,8 +626,18 @@ func _fill_standings() -> void:
 	var drivers: Array = snapshot.get("drivers", [])
 	if drivers.is_empty():
 		center_body.add_child(_muted("No drivers in this snapshot."))
+		print("STANDINGS_TOP=")
 		return
-	for row in drivers:
+	var rows: Array = drivers.duplicate()
+	rows.sort_custom(func(left, right):
+		var a: Dictionary = left
+		var b: Dictionary = right
+		return int(a.get("points", 0)) > int(b.get("points", 0))
+	)
+	var leader: Dictionary = rows[0]
+	print("STANDINGS_TOP=", str(leader.get("name", "")))
+	print("STANDINGS_POINTS=", str(leader.get("points", 0)))
+	for row in rows:
 		var item: Dictionary = row
 		center_body.add_child(_line("%s  (%s)  %s pts  %s wins" % [
 			str(item.get("name", "")),
@@ -590,14 +652,21 @@ func _fill_schedule() -> void:
 	var races: Array = snapshot.get("schedule", [])
 	if races.is_empty():
 		center_body.add_child(_muted("No calendar in this snapshot."))
+		print("SCHEDULE_COMPLETE=0")
 		return
+	var done := 0
 	for row in races:
 		var item: Dictionary = row
-		center_body.add_child(_line("R%s  %s  (%s)" % [
+		var finished := bool(item.get("complete", false))
+		if finished:
+			done += 1
+		center_body.add_child(_line("%sR%s  %s  (%s)" % [
+			"✓ " if finished else "",
 			str(item.get("race", "")),
 			str(item.get("name", "")),
 			str(item.get("type", "")),
 		]))
+	print("SCHEDULE_COMPLETE=", str(done))
 
 
 func _fill_hearings() -> void:

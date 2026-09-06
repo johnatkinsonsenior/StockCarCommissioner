@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "0.3"
+UI_VERSION = "0.4"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -189,6 +189,23 @@ def normalize_letter(item, index=0):
     )
 
 
+def recap_letter(week=None):
+    """Turn the last Advanced week into an inbox recap."""
+
+    week = week or {}
+    title = str(week.get("title") or "Week recap")
+    body = str(week.get("body") or "")
+    week_kind = str(week.get("kind") or "recap")
+    sender = "Race Control" if week_kind == "race" else "Series Office"
+    return make_letter(
+        letter_id="recap-%s" % str(week.get("race_number") or week_kind),
+        kind="recap",
+        from_name=sender,
+        subject=title,
+        body=body,
+    )
+
+
 def build_office_inbox(payload=None):
     """Build the live inbox: hearings, memos, press, and series letters."""
 
@@ -199,6 +216,9 @@ def build_office_inbox(payload=None):
             for index, item in enumerate(payload.get("inbox") or [])
         ]
     letters = []
+    recap = payload.get("week_recap") or payload.get("recap")
+    if recap:
+        letters.append(recap_letter(recap))
     decision = payload.get("decision")
     if decision:
         letters.append(hearing_letter(decision))
@@ -215,13 +235,16 @@ def build_office_inbox(payload=None):
 
 
 def selected_mail_id(inbox, requested=None):
-    """Return the letter that should be open: a hearing first, else the top row."""
+    """Return the letter that should be open: recap, then a hearing, else top."""
 
     inbox = list(inbox or [])
     if requested:
         for letter in inbox:
             if letter.get("id") == requested:
                 return requested
+    for letter in inbox:
+        if letter.get("kind") == "recap":
+            return letter.get("id")
     for letter in inbox:
         if letter.get("kind") == "hearing":
             return letter.get("id")
@@ -309,6 +332,8 @@ def default_office(payload=None):
         "unread_count": len(inbox),
         "checklist": list(checklist),
         "nav": list(nav),
+        "advance_python": payload.get("advance_python") or "",
+        "advance_script": payload.get("advance_script") or "",
     }
 
 
@@ -462,7 +487,7 @@ def launch_godot_process(snapshot_path=None, headless=None, extra_args=None):
         return result
     command = [str(binary), "--path", str(project)]
     if headless:
-        command.extend(["--headless", "--quit-after", "3"])
+        command.extend(["--headless", "--quit-after", "45"])
     if extra_args:
         command.extend(list(extra_args))
     completed = subprocess.run(
