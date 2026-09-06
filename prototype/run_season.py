@@ -10346,6 +10346,8 @@ def build_ui_snapshot():
                 "from": "Series Office — %s" % calendar.phase_label(),
                 "body": mail_body,
             },
+            "headlines": list(league.get("last_media_stories") or []),
+            "alerts": list(alerts),
             "drivers": driver_rows,
             "schedule": schedule_rows,
             "menu_items": [
