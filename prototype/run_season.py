@@ -7757,6 +7757,10 @@ def office_standings_book():
                 "points": int(driver.points or 0),
                 "wins": int(driver.wins or 0),
                 "personality": driver.personality,
+                "age": int(driver.age),
+                "morale": int(driver.morale),
+                "popularity": int(driver.popularity),
+                "trust": int(driver.commissioner_trust),
             }
         )
     return rows
@@ -7807,6 +7811,58 @@ def office_recap_book():
             for index, row in enumerate(results[:3], start=1)
         ]
     return week
+
+
+def office_team_book():
+    """Return paddock shops for the office desk."""
+
+    rows = []
+    for team in teams or []:
+        owner = team.owner
+        rows.append(
+            {
+                "name": team.name,
+                "manufacturer": team.manufacturer,
+                "budget": int(team.budget),
+                "prestige": int(team.prestige),
+                "sponsor": team.primary_sponsor_label(),
+                "owner": owner.name,
+                "owner_priority": owner.priority,
+                "factory": team.factory_deal_label(),
+                "car_rating": int(team.car_rating),
+                "crew_rating": int(team.crew_rating),
+                "distress": int(team.financial_distress_level),
+            }
+        )
+    return rows
+
+
+def office_prospect_book():
+    """Return the feeder prospect pool for the office desk."""
+
+    standings_by_name = {
+        row["name"]: row
+        for row in development_standings()
+    }
+    rows = []
+    for prospect in ranked_prospects():
+        row = standings_by_name.get(prospect.name) or {}
+        readiness = int(prospect.prospect_readiness())
+        rows.append(
+            {
+                "name": prospect.name,
+                "team": prospect.team_name,
+                "pathway": prospect.pathway or "Unsigned",
+                "readiness": readiness,
+                "readiness_label": prospect_readiness_label(readiness),
+                "age": int(prospect.age),
+                "personality": prospect.personality,
+                "overall": int(prospect.overall_rating()),
+                "points": int(row.get("points") or 0),
+                "wins": int(row.get("wins") or 0),
+            }
+        )
+    return rows
 
 
 def print_qualifying_report(weekend):
@@ -10377,6 +10433,8 @@ def build_ui_snapshot():
     driver_rows = office_standings_book()
     schedule_rows = office_schedule_book()
     recap = office_recap_book()
+    team_book = office_team_book()
+    prospect_book = office_prospect_book()
     series = series_name()
     week = office_week_preview()
     mail_body = (
@@ -10413,6 +10471,8 @@ def build_ui_snapshot():
             "drivers": driver_rows,
             "standings": driver_rows,
             "schedule": schedule_rows,
+            "teams": team_book,
+            "prospects": prospect_book,
             "menu_items": [
                 {"id": "1", "label": "Start new career"},
                 {"id": "2", "label": "Load saved career"},

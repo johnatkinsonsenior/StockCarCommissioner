@@ -69,6 +69,9 @@ func _headless_tour() -> void:
 	_on_advance()
 	_show_section("standings")
 	_show_section("schedule")
+	_show_section("teams")
+	_show_section("drivers")
+	_show_section("prospects")
 	_show_section("mail")
 	call_deferred("_quit_headless")
 
@@ -723,31 +726,83 @@ func _fill_hearings() -> void:
 
 func _fill_teams() -> void:
 	center_body.add_child(_title("Teams"))
-	for team in _dash().get("teams", []):
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_muted("Shops on the Cup charter. You run the series, not a car."))
+	var shops: Array = _as_array(snapshot.get("teams", _dash().get("teams", [])))
+	print("TEAMS=", str(shops.size()))
+	if shops.is_empty():
+		center_body.add_child(_muted("No teams in this snapshot."))
+		return
+	for team in shops:
 		var row: Dictionary = team
-		center_body.add_child(_line("%s — %s" % [str(row.get("name", "")), str(row.get("owner", ""))]))
-		center_body.add_child(_muted("%s  $%s  %s" % [
-			str(row.get("manufacturer", "")),
-			_comma(row.get("budget", 0)),
-			str(row.get("sponsor", "")),
+		center_body.add_child(_gold_line(str(row.get("name", ""))))
+		center_body.add_child(_line("Owner: %s  ·  %s" % [
+			str(row.get("owner", "")),
+			str(row.get("owner_priority", "")),
 		]))
+		center_body.add_child(_muted("%s  ·  car %s  ·  crew %s  ·  prestige %s" % [
+			str(row.get("manufacturer", "")),
+			str(_as_int(row.get("car_rating", 0))),
+			str(_as_int(row.get("crew_rating", 0))),
+			str(_as_int(row.get("prestige", 0))),
+		]))
+		center_body.add_child(_muted("Budget $%s  ·  %s" % [
+			_comma(row.get("budget", 0)),
+			str(row.get("sponsor", "unsponsored")),
+		]))
+		center_body.add_child(_muted("Factory: %s" % str(row.get("factory", ""))))
 
 
 func _fill_drivers() -> void:
 	center_body.add_child(_title("Drivers"))
-	for row in snapshot.get("drivers", []):
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_muted("The premier grid. Morale and trust are the garage."))
+	var rows: Array = _as_array(snapshot.get("drivers", []))
+	print("DRIVERS=", str(rows.size()))
+	if rows.is_empty():
+		center_body.add_child(_muted("No drivers in this snapshot."))
+		return
+	for row in rows:
 		var item: Dictionary = row
-		center_body.add_child(_line("%s  %s  (%s)" % [
-			str(item.get("name", "")),
+		center_body.add_child(_gold_line(str(item.get("name", ""))))
+		center_body.add_child(_line("%s  ·  %s" % [
 			str(item.get("team", "")),
 			str(item.get("personality", "")),
+		]))
+		center_body.add_child(_muted("Age %s  ·  %s pts  ·  morale %s  ·  trust %s" % [
+			str(_as_int(item.get("age", 0))),
+			str(_as_int(item.get("points", 0))),
+			str(_as_int(item.get("morale", 0))),
+			str(_as_int(item.get("trust", 0))),
 		]))
 
 
 func _fill_prospects() -> void:
 	center_body.add_child(_title("Prospects"))
-	center_body.add_child(_line(str(_dash().get("prospects", "No prospect book."))))
-	center_body.add_child(_muted(str(_dash().get("development", ""))))
+	center_body.add_child(_gold_rule())
+	var pool: Array = _as_array(snapshot.get("prospects", []))
+	print("PROSPECTS=", str(pool.size()))
+	center_body.add_child(_muted(str(_dash().get("development", "National Development Series"))))
+	if pool.is_empty():
+		center_body.add_child(_line(str(_dash().get("prospects", "No prospect book."))))
+		return
+	center_body.add_child(_line("%s drivers waiting outside the Cup." % str(pool.size())))
+	for row in pool:
+		var item: Dictionary = row
+		center_body.add_child(_gold_line("%s  ·  %s" % [
+			str(item.get("name", "")),
+			str(item.get("readiness_label", "")),
+		]))
+		center_body.add_child(_muted("%s  ·  %s  ·  overall %s  ·  age %s" % [
+			str(item.get("pathway", "")),
+			str(item.get("team", "")),
+			str(_as_int(item.get("overall", 0))),
+			str(_as_int(item.get("age", 0))),
+		]))
+		center_body.add_child(_muted("%s pts  ·  %s wins in the feeder" % [
+			str(_as_int(item.get("points", 0))),
+			str(_as_int(item.get("wins", 0))),
+		]))
 
 
 func _fill_treasury() -> void:

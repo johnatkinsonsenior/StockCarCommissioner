@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "0.5"
+UI_VERSION = "0.6"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
