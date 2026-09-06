@@ -8,6 +8,10 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Era and look:** default book is the **pinnacle** Winston Cup (late
   ’80s–early/mid ’90s). Also runnable: 1970s, 1980s, and settings to push
   **beyond** that peak. Crimson, gold, and white. 16-bit sports-sim desk.
+- **Aero Wars:** homologated two-door coupes (Ford / GM / Chrysler
+  families) with strengths and holes per track type; the commissioner
+  writes series-wide body rules and per-track packages, and can run a
+  custom Winston Cup.
 - **Desk flow:** Football Commissioner layout (nav, mail, checklist,
   Advance) plus the best of OOTP (era start, inspectable world, news,
   history) and Front Office Football (weekly cadence between events).
@@ -174,6 +178,8 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 84 | Living Racing World | ✅ Done |
 | 90 | Playable Alpha | ✅ Done |
 | 97 | Commissioner Office | ⬜ Pending |
+| 112 | Era Books | ⬜ Pending |
+| 114 | Aero Wars | ⬜ Pending |
 
 ## Post-Alpha — Commissioner Office
 
@@ -181,7 +187,8 @@ The 90-day plan proved the sim. This era turns it into a Winston Cup
 commissioner desk: the **pinnacle** late-’80s–mid-’90s book by default,
 with 1970s / 1980s / beyond as settings; crimson, gold, and white; 16-bit
 sports-sim chrome; Football Commissioner flow; OOTP-style era start and
-inspection; Front Office Football weeks. The player stays the commissioner.
+inspection; Front Office Football weeks; **Aero Wars** as the factory
+story the office actually manages. The player stays the commissioner.
 A team-owner career is a later era, not this one.
 
 ### Era 1 — The Desk
@@ -225,3 +232,13 @@ A team-owner career is a later era, not this one.
 > **Milestone — Day 112 Living Office:** the desk sits on a full-sized paddock
 > with history you can inspect, and a new career can start in the pinnacle
 > Winston Cup or rewind the same model into the 1970s, 1980s, or beyond.
+
+### Era 4 — Aero Wars
+- [ ] Day 113 — Homologated two-door coupe bodies and manufacturer track maps (Ford / GM / Chrysler families; aero + driver skill)
+- [ ] Day 114 — Per-track rules packages and a customizable Winston Cup rulebook (homologation, wheelbase, aero specials, plates)
+
+> **Milestone — Day 114 Aero Wars:** each factory has a real body with holes
+> by track type; the commissioner writes the series-wide book and the
+> per-track kit, and can run their own Winston Cup instead of a frozen 1992
+> reprint. The live `aero_bias` stub and single `aero-restrict` policy are
+> replaced.
