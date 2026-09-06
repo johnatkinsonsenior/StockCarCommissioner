@@ -177,7 +177,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 77 | Political Career | ✅ Done |
 | 84 | Living Racing World | ✅ Done |
 | 90 | Playable Alpha | ✅ Done |
-| 97 | Commissioner Office | ⬜ Pending |
+| 97 | Commissioner Office | ✅ Done |
 | 112 | Era Books | ⬜ Pending |
 | 114 | Aero Wars | ⬜ Pending |
 
