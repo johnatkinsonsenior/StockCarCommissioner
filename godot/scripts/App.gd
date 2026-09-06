@@ -16,6 +16,8 @@ const COL_LINE := Color("3a3a3a")
 var snapshot: Dictionary = {}
 var screen_name := "mail"
 var visited: Dictionary = {}
+var selected_mail_id := ""
+var mail_read: Dictionary = {}
 var sidebar: VBoxContainer
 var status_label: Label
 var advance_button: Button
@@ -28,6 +30,9 @@ var nav_buttons: Dictionary = {}
 func _ready() -> void:
 	snapshot = _load_snapshot()
 	_build_office()
+	selected_mail_id = str(_office().get("selected_mail_id", ""))
+	if selected_mail_id == "" and not _inbox().is_empty():
+		selected_mail_id = str(_inbox()[0].get("id", ""))
 	_show_section("mail")
 	print("UI_READY")
 	print("OFFICE_READY")
@@ -36,6 +41,9 @@ func _ready() -> void:
 	print("SCREEN=", screen_name)
 	print("CHECKLIST=", str(_checklist().size()))
 	print("NAV=", str(_nav().size()))
+	print("INBOX=", str(_inbox().size()))
+	print("INBOX_HEARINGS=", str(_hearing_letters().size()))
+	print("MAIL_OPEN=", selected_mail_id)
 	if DisplayServer.get_name() == "headless":
 		call_deferred("_headless_tour")
 
@@ -45,6 +53,12 @@ func _headless_tour() -> void:
 		var section := str(item.get("section", item.get("id", "")))
 		_show_section(section)
 		print("VISIT=", section)
+		if section == "mail":
+			for letter in _inbox():
+				var letter_id := str(letter.get("id", ""))
+				_open_letter(letter_id)
+				print("READ=", letter_id)
+				print("READ_KIND=", str(letter.get("kind", "")))
 	print("CHECKLIST_DONE=", "%s/%s" % [_completed_count(), _checklist().size()])
 	_on_advance()
 	print("ADVANCE_STATE=", "unlocked" if _checklist_complete() else "blocked")
@@ -144,7 +158,7 @@ func _build_sidebar() -> void:
 	sidebar.add_child(_muted(str(snapshot.get("series", ""))))
 
 	var nav_list := VBoxContainer.new()
-	nav_list.add_theme_constant_override("separation", 6)
+	nav_list.add_theme_constant_override("separation", 4)
 	var last_group := "___"
 	for item in _nav():
 		var row: Dictionary = item
@@ -307,18 +321,174 @@ func _on_advance() -> void:
 		center_body.add_child(_line("Completed %s / %s." % [_completed_count(), _checklist().size()]))
 		return
 	print("ADVANCE_UNLOCKED")
-	var decision: Variant = snapshot.get("decision")
-	if typeof(decision) == TYPE_DICTIONARY and decision != null:
-		print("ADVANCE_HEARING=", str(decision.get("title", "")))
-		_fill_hearings()
-	else:
-		center_body.add_child(_title("Office ready"))
-		center_body.add_child(_line("The first weekend will sim from this button in Day 93."))
+	var hearing := _first_hearing()
+	if not hearing.is_empty():
+		screen_name = "mail"
+		visited["mail"] = true
+		selected_mail_id = str(hearing.get("id", ""))
+		mail_read[selected_mail_id] = true
+		for key in nav_buttons.keys():
+			_style_nav(nav_buttons[key], str(key) == "mail")
+		print("ADVANCE_HEARING=", str(hearing.get("subject", hearing.get("title", ""))))
+		print("MAIL_OPEN=", selected_mail_id)
+		print("MAIL_KIND=", "hearing")
+		_fill_mail()
+		_refresh_checklist()
+		_style_advance(true)
+		return
+	center_body.add_child(_title("Office ready"))
+	center_body.add_child(_line("The first weekend will sim from this button in Day 93."))
 
 
 func _clear_center() -> void:
 	for child in center_body.get_children():
 		child.queue_free()
+
+
+func _inbox() -> Array:
+	var letters: Array = _office().get("inbox", [])
+	if letters.is_empty():
+		var mail: Variant = _office().get("mail", {})
+		if typeof(mail) == TYPE_DICTIONARY and str(mail.get("body", "")) != "":
+			return [{
+				"id": str(mail.get("id", "welcome")),
+				"kind": str(mail.get("kind", "letter")),
+				"from": str(mail.get("from", "Series Office")),
+				"subject": str(mail.get("title", "Mail")),
+				"body": str(mail.get("body", "")),
+				"choices": [],
+			}]
+	return letters
+
+
+func _letter_by_id(letter_id: String) -> Dictionary:
+	for row in _inbox():
+		if typeof(row) == TYPE_DICTIONARY and str(row.get("id", "")) == letter_id:
+			return row
+	return {}
+
+
+func _hearing_letters() -> Array:
+	var hearings: Array = []
+	for row in _inbox():
+		if typeof(row) == TYPE_DICTIONARY and str(row.get("kind", "")) == "hearing":
+			hearings.append(row)
+	return hearings
+
+
+func _first_hearing() -> Dictionary:
+	var hearings := _hearing_letters()
+	if hearings.is_empty():
+		return {}
+	return hearings[0]
+
+
+func _unread_count() -> int:
+	var count := 0
+	for row in _inbox():
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var letter_id := str(row.get("id", ""))
+		if not mail_read.get(letter_id, false):
+			count += 1
+	return count
+
+
+func _open_letter(letter_id: String) -> void:
+	selected_mail_id = letter_id
+	mail_read[letter_id] = true
+	_show_section("mail")
+
+
+func _kind_tag(kind: String) -> String:
+	match kind:
+		"hearing":
+			return "Hearing · "
+		"alert":
+			return "Memo · "
+		"press":
+			return "Press · "
+		_:
+			return ""
+
+
+func _make_inbox_button(letter: Dictionary) -> Button:
+	var letter_id := str(letter.get("id", ""))
+	var kind := str(letter.get("kind", "letter"))
+	var read: bool = mail_read.get(letter_id, false)
+	var mark := "○" if read else "●"
+	if kind == "hearing" and not read:
+		mark = "!"
+	var button := Button.new()
+	button.text = "%s  %s%s" % [mark, _kind_tag(kind), str(letter.get("subject", "Mail"))]
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.clip_text = true
+	button.tooltip_text = "From: %s" % str(letter.get("from", ""))
+	var active := letter_id == selected_mail_id
+	_style_inbox_button(button, active, kind == "hearing")
+	button.pressed.connect(_open_letter.bind(letter_id))
+	return button
+
+
+func _style_inbox_button(button: Button, active: bool, hearing: bool) -> void:
+	var style := StyleBoxFlat.new()
+	if active:
+		style.bg_color = COL_BLUE_ON
+	elif hearing:
+		style.bg_color = Color("3d2b1f")
+	else:
+		style.bg_color = COL_PANEL
+	style.set_corner_radius_all(4)
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	button.add_theme_stylebox_override("normal", style)
+	button.add_theme_stylebox_override("hover", style)
+	button.add_theme_stylebox_override("pressed", style)
+	button.add_theme_color_override("font_color", Color.WHITE)
+
+
+func _fill_letter_into(container: VBoxContainer, letter: Dictionary) -> void:
+	if letter.is_empty():
+		container.add_child(_muted("Select a letter."))
+		return
+	var kind := str(letter.get("kind", "letter"))
+	container.add_child(_title(str(letter.get("subject", "Mail"))))
+	container.add_child(_muted("From: %s" % str(letter.get("from", "Series Office"))))
+	if str(letter.get("category", "")) != "":
+		container.add_child(_muted(str(letter.get("category", ""))))
+	var body := Label.new()
+	body.text = str(letter.get("prompt", letter.get("body", "")))
+	if str(letter.get("prompt", "")) == "":
+		body.text = str(letter.get("body", ""))
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.add_theme_color_override("font_color", COL_TEXT)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container.add_child(body)
+	if kind == "hearing":
+		for choice in letter.get("choices", []):
+			if typeof(choice) != TYPE_DICTIONARY:
+				continue
+			var row: Dictionary = choice
+			var button := Button.new()
+			button.text = "%s. %s" % [str(row.get("id", "")), str(row.get("label", ""))]
+			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			button.pressed.connect(_on_hearing_choice.bind(str(row.get("id", "")), str(row.get("label", ""))))
+			container.add_child(button)
+		container.add_child(_muted("Choices display here. Day 98 writes them back to the sim."))
+
+
+func _on_hearing_choice(choice_id: String, label: String) -> void:
+	print("CHOICE_DISPLAY=", choice_id)
+	print("CHOICE_LABEL=", label)
+
+
+func _refresh_mail_badge() -> void:
+	if not nav_buttons.has("mail"):
+		return
+	var unread := _unread_count()
+	nav_buttons["mail"].text = "Mail (%s)" % str(unread) if unread > 0 else "Mail"
 
 
 func _dash() -> Dictionary:
@@ -329,17 +499,51 @@ func _dash() -> Dictionary:
 
 
 func _fill_mail() -> void:
-	var mail: Dictionary = {}
-	var raw: Variant = _office().get("mail", {})
-	if typeof(raw) == TYPE_DICTIONARY:
-		mail = raw
-	center_body.add_child(_title(str(mail.get("title", "Mail"))))
-	center_body.add_child(_muted("From: %s" % str(mail.get("from", "Series Office"))))
-	var body := Label.new()
-	body.text = str(mail.get("body", ""))
-	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.add_theme_color_override("font_color", COL_TEXT)
-	center_body.add_child(body)
+	var letters := _inbox()
+	if letters.is_empty():
+		var mail: Dictionary = {}
+		var raw: Variant = _office().get("mail", {})
+		if typeof(raw) == TYPE_DICTIONARY:
+			mail = raw
+		center_body.add_child(_title(str(mail.get("title", "Mail"))))
+		center_body.add_child(_muted("From: %s" % str(mail.get("from", "Series Office"))))
+		var body := Label.new()
+		body.text = str(mail.get("body", ""))
+		body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		body.add_theme_color_override("font_color", COL_TEXT)
+		center_body.add_child(body)
+		print("INBOX=0")
+		print("MAIL_OPEN=")
+		print("MAIL_KIND=letter")
+		return
+	if selected_mail_id == "":
+		selected_mail_id = str(_office().get("selected_mail_id", ""))
+	if selected_mail_id == "":
+		selected_mail_id = str(letters[0].get("id", ""))
+	mail_read[selected_mail_id] = true
+	var split := HBoxContainer.new()
+	split.add_theme_constant_override("separation", 18)
+	split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var list_col := VBoxContainer.new()
+	list_col.custom_minimum_size = Vector2(280, 0)
+	list_col.add_theme_constant_override("separation", 6)
+	list_col.add_child(_title("Inbox"))
+	list_col.add_child(_muted("%s letters · %s unread" % [str(letters.size()), str(_unread_count())]))
+	for letter in letters:
+		list_col.add_child(_make_inbox_button(letter))
+	split.add_child(list_col)
+	var body_col := VBoxContainer.new()
+	body_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_col.add_theme_constant_override("separation", 10)
+	_fill_letter_into(body_col, _letter_by_id(selected_mail_id))
+	split.add_child(body_col)
+	center_body.add_child(split)
+	var opened := _letter_by_id(selected_mail_id)
+	print("INBOX=", str(letters.size()))
+	print("INBOX_HEARINGS=", str(_hearing_letters().size()))
+	print("MAIL_OPEN=", selected_mail_id)
+	print("MAIL_KIND=", str(opened.get("kind", "letter")))
 
 
 func _fill_dashboard() -> void:
@@ -398,26 +602,20 @@ func _fill_schedule() -> void:
 
 func _fill_hearings() -> void:
 	center_body.add_child(_title("Hearings"))
-	var decision: Variant = snapshot.get("decision")
-	if typeof(decision) != TYPE_DICTIONARY or decision == null:
-		center_body.add_child(_muted("No hearing is queued."))
+	var hearings := _hearing_letters()
+	if hearings.is_empty():
+		center_body.add_child(_muted("No hearing is in the inbox."))
 		return
-	var card: Dictionary = decision
-	center_body.add_child(_line(str(card.get("title", "Hearing"))))
-	center_body.add_child(_muted(str(card.get("category", ""))))
-	var prompt := Label.new()
-	prompt.text = str(card.get("prompt", ""))
-	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	prompt.add_theme_color_override("font_color", COL_TEXT)
-	center_body.add_child(prompt)
-	for choice in card.get("choices", []):
-		var row: Dictionary = choice
+	center_body.add_child(_muted("Open a letter from the inbox to rule. Choices display here until Day 98 writes them back."))
+	for letter in hearings:
+		var row: Dictionary = letter
+		center_body.add_child(_line(str(row.get("subject", "Hearing"))))
+		center_body.add_child(_muted("From: %s" % str(row.get("from", ""))))
 		var button := Button.new()
-		button.text = "%s. %s" % [str(row.get("id", "")), str(row.get("label", ""))]
+		button.text = "Open in Mail"
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.pressed.connect(_show_section.bind("mail"))
+		button.pressed.connect(_open_letter.bind(str(row.get("id", ""))))
 		center_body.add_child(button)
-	center_body.add_child(_muted("Choices display here. Day 98 writes them back to the sim."))
 
 
 func _fill_teams() -> void:
@@ -505,6 +703,7 @@ func _refresh_checklist() -> void:
 		checklist_box.add_child(_line("%s  %s" % [mark, str(row.get("label", ""))]))
 	checklist_progress = _muted("%s / %s completed" % [_completed_count(), _checklist().size()])
 	checklist_box.add_child(checklist_progress)
+	_refresh_mail_badge()
 
 
 func _completed_count() -> int:
@@ -587,8 +786,8 @@ func _style_nav(button: Button, active: bool) -> void:
 	style.set_corner_radius_all(6)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
+	style.content_margin_top = 5
+	style.content_margin_bottom = 5
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", style)
 	button.add_theme_stylebox_override("pressed", style)

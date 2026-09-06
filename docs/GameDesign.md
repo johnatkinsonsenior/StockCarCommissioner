@@ -773,7 +773,18 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 `godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH.
 
-The office opens on series mail. Visiting Dashboard, Standings, Teams, Television, Drivers, Rulebook, Board, and Mail fills the checklist. Advance stays locked until that tour is done, then it shows the queued preseason hearing. Day 91 is the Football Commissioner layout in charcoal/blue. Later office days restyle to Winston Cup crimson, gold, and white with 16-bit sports-sim chrome, and Advance becomes a **week** (race week or off week), not a dump of the season.
+The office opens on series mail. Mail is a **live inbox**: the queued
+hearing sits as a letter from the Competition Committee (or Board, Owner
+Council, garage, and so on), dashboard alerts arrive as league-office
+memos, and weekend headlines land as press clippings. The center pane
+shows the list and the open letter. Hearing letters display choices;
+Day 98 writes a ruling back to the sim. Visiting Dashboard, Standings,
+Teams, Television, Drivers, Rulebook, Board, and Mail fills the
+checklist. Advance stays locked until that tour is done, then it opens
+the hearing in the inbox. Day 91 is the Football Commissioner layout in
+charcoal/blue. Later office days restyle to Winston Cup crimson, gold,
+and white with 16-bit sports-sim chrome, and Advance becomes a **week**
+(race week or off week), not a dump of the season.
 
 ## League Calendar
 
