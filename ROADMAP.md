@@ -1,17 +1,27 @@
-# Stock Car Commissioner — 90-Day Development Roadmap
+# Stock Car Commissioner — Development Roadmap
 
-Version-controlled progress tracker for the path from Python prototype to a
-playable commissioner-management alpha. Mirrors the 90-day plan and stays in
-sync with the feature status in [`docs/Backlog.md`](docs/Backlog.md).
+Version-controlled progress tracker. Mirrors feature status in
+[`docs/Backlog.md`](docs/Backlog.md).
 
-- **Primary goal:** a deep, replayable stock car racing *commissioner*
-  simulation (the player runs the sanctioning body, not a race team).
-- **Foundation:** prove the Python simulation first; serious UI work comes late.
+- **Primary goal:** a deep, replayable stock car *commissioner* simulation.
+  The player runs the sanctioning body, not a race team.
+- **Era and look:** default book is the **pinnacle** Winston Cup (late
+  ’80s–early/mid ’90s). Also runnable: 1970s, 1980s, and settings to push
+  **beyond** that peak. Crimson, gold, and white. 16-bit sports-sim desk.
+- **Aero Wars:** homologated two-door coupes (Ford / GM / Chrysler
+  families) with strengths and holes per track type; the commissioner
+  writes series-wide body rules and per-track packages, and can run a
+  custom Winston Cup.
+- **Desk flow:** Football Commissioner layout (nav, mail, checklist,
+  Advance) plus the best of OOTP (era start, inspectable world, news,
+  history) and Front Office Football (weekly cadence between events).
+- **Calendar:** a season and an offseason, Advanced **week by week** (race
+  week, off week, offseason week). Godot is the office; Python simulates.
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–86 complete. Next coding day: **Day
-87 — Balance simulation**.
+**Current position:** Days 1–91 complete. Next coding day:
+**Day 92 — Live mail inbox**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -167,3 +177,68 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 77 | Political Career | ✅ Done |
 | 84 | Living Racing World | ✅ Done |
 | 90 | Playable Alpha | ✅ Done |
+| 97 | Commissioner Office | ⬜ Pending |
+| 112 | Era Books | ⬜ Pending |
+| 114 | Aero Wars | ⬜ Pending |
+
+## Post-Alpha — Commissioner Office
+
+The 90-day plan proved the sim. This era turns it into a Winston Cup
+commissioner desk: the **pinnacle** late-’80s–mid-’90s book by default,
+with 1970s / 1980s / beyond as settings; crimson, gold, and white; 16-bit
+sports-sim chrome; Football Commissioner flow; OOTP-style era start and
+inspection; Front Office Football weeks; **Aero Wars** as the factory
+story the office actually manages. The player stays the commissioner.
+A team-owner career is a later era, not this one.
+
+### Era 1 — The Desk
+- [x] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
+- [ ] Day 92 — Live mail inbox (hearings and league letters in the center pane)
+- [ ] Day 93 — Advance one week from the office (race week or off week)
+- [ ] Day 94 — Standings, schedule, and race recap screens
+- [ ] Day 95 — Teams, drivers, and prospect pages
+- [ ] Day 96 — Business screens (treasury, TV, sponsors)
+- [ ] Day 97 — Rulebook, councils, and board on the desk
+
+> Screens in this era use the Winston Cup palette (crimson, gold, white) and
+> 16-bit sports-sim chrome. Day 91's charcoal/blue shell is the layout
+> prototype only; later desk days restyle as they land.
+
+> **Milestone — Day 97 Commissioner Office:** the player sits in an office and
+> Advances a week at a time; they do not scroll a season log.
+
+### Era 2 — Player-paced career
+- [ ] Day 98 — Hearing choices in the office write back to the sim
+- [ ] Day 99 — Save and load from the office
+- [ ] Day 100 — New career and continue from the office (including era book)
+- [ ] Day 101 — Offseason as desk weeks, not a print dump
+- [ ] Day 102 — Race-weekend recap card (qualifying, cautions, investigation)
+- [ ] Day 103 — Alerts arrive as mail
+- [ ] Day 104 — Windows play path (no Git required for testers)
+
+> **Milestone — Day 104 Playable Office Career:** a commissioner career can be
+> started, advanced, saved, and resumed from the Godot desk.
+
+### Era 3 — Full paddock
+- [ ] Day 105 — Full premier grid (more teams and a Cup-sized field)
+- [ ] Day 106 — Clickable driver and team profiles
+- [ ] Day 107 — Historical season database you can reopen
+- [ ] Day 108 — Hall of Fame
+- [ ] Day 109 — News ticker and beat-writer headlines on the desk
+- [ ] Day 110 — Balance pass so meters hold for a decade
+- [ ] Day 111 — Packaged office build for playtesters
+- [ ] Day 112 — Era books: 1970s, 1980s, pinnacle (late ’80s–mid ’90s), and beyond
+
+> **Milestone — Day 112 Living Office:** the desk sits on a full-sized paddock
+> with history you can inspect, and a new career can start in the pinnacle
+> Winston Cup or rewind the same model into the 1970s, 1980s, or beyond.
+
+### Era 4 — Aero Wars
+- [ ] Day 113 — Homologated two-door coupe bodies and manufacturer track maps (Ford / GM / Chrysler families; aero + driver skill)
+- [ ] Day 114 — Per-track rules packages and a customizable Winston Cup rulebook (homologation, wheelbase, aero specials, plates)
+
+> **Milestone — Day 114 Aero Wars:** each factory has a real body with holes
+> by track type; the commissioner writes the series-wide book and the
+> per-track kit, and can run their own Winston Cup instead of a frozen 1992
+> reprint. The live `aero_bias` stub and single `aero-restrict` policy are
+> replaced.

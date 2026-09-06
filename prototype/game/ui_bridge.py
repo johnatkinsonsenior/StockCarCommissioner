@@ -1,4 +1,4 @@
-"""Godot UI prototype helpers: snapshot JSON and engine launch."""
+"""Godot UI helpers: snapshot JSON, office layout, and engine launch."""
 
 import json
 import os
@@ -6,8 +6,38 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "0.1"
+UI_VERSION = "0.2"
 GODOT_MAJOR = 4
+OFFICE_LAYOUT = "commissioner-desk"
+
+OFFICE_NAV = (
+    {"id": "dashboard", "label": "Dashboard", "group": ""},
+    {"id": "mail", "label": "Mail", "group": ""},
+    {"id": "standings", "label": "Standings", "group": "Competition"},
+    {"id": "schedule", "label": "Schedule", "group": "Competition"},
+    {"id": "hearings", "label": "Hearings", "group": "Competition"},
+    {"id": "teams", "label": "Teams", "group": "Paddock"},
+    {"id": "drivers", "label": "Drivers", "group": "Paddock"},
+    {"id": "prospects", "label": "Prospects", "group": "Paddock"},
+    {"id": "treasury", "label": "Treasury", "group": "Business"},
+    {"id": "television", "label": "Television", "group": "Business"},
+    {"id": "sponsors", "label": "Sponsors", "group": "Business"},
+    {"id": "rulebook", "label": "Rulebook", "group": "League"},
+    {"id": "board", "label": "Board", "group": "League"},
+    {"id": "settings", "label": "Settings", "group": ""},
+    {"id": "quit", "label": "Quit", "group": ""},
+)
+
+OFFICE_CHECKLIST = (
+    {"id": "dashboard", "label": "Review the dashboard", "section": "dashboard"},
+    {"id": "standings", "label": "View standings", "section": "standings"},
+    {"id": "teams", "label": "Review teams", "section": "teams"},
+    {"id": "television", "label": "Check television and naming rights", "section": "television"},
+    {"id": "drivers", "label": "Review the grid", "section": "drivers"},
+    {"id": "rulebook", "label": "Open the rulebook", "section": "rulebook"},
+    {"id": "board", "label": "Check the board", "section": "board"},
+    {"id": "mail", "label": "Read series mail", "section": "mail"},
+)
 
 
 def project_root():
@@ -28,18 +58,96 @@ def default_snapshot_path():
     return godot_project_dir() / "data" / "ui_snapshot.json"
 
 
+def default_office(payload=None):
+    """Return the Football Commissioner-style office payload."""
+
+    payload = payload or {}
+    dashboard = payload.get("dashboard") or {}
+    series = payload.get("series") or "Stock Car Series"
+    treasury = dashboard.get("treasury") or 0
+    fans = dashboard.get("fan_interest") or 0
+    calendar = payload.get("calendar") or dashboard.get("calendar") or "Preseason"
+    mail = payload.get("mail") or {}
+    checklist = payload.get("checklist") or [dict(item) for item in OFFICE_CHECKLIST]
+    nav = payload.get("nav") or [dict(item) for item in OFFICE_NAV]
+    return {
+        "layout": OFFICE_LAYOUT,
+        "advance_label": payload.get("advance_label") or "Advance",
+        "advance_hint": payload.get("advance_hint")
+        or "Visit each section to unlock the first weekend.",
+        "header": {
+            "calendar": calendar,
+            "treasury": treasury,
+            "fans": fans,
+            "status_line": payload.get("status_line")
+            or "%s — $%s — %s fans" % (calendar, _comma(treasury), fans),
+        },
+        "mail": {
+            "title": mail.get("title") or ("Welcome to %s" % series),
+            "from": mail.get("from") or "Series Office — Preseason",
+            "body": mail.get("body") or default_welcome_body(series),
+        },
+        "checklist": list(checklist),
+        "nav": list(nav),
+    }
+
+
+def default_welcome_body(series=None):
+    """Return the opening letter on the commissioner desk."""
+
+    series = series or "the series"
+    return (
+        "Commissioner,\n\n"
+        "You run %s. You do not drive.\n\n"
+        "Revenue comes from television, naming rights, the gate, and fines. "
+        "Owners want wins and cheaper shops. Drivers want a fair garage. "
+        "Fans want a show. The board wants a league that still exists next year.\n\n"
+        "Use the left rail to inspect standings, teams, television, and the "
+        "rulebook. Mail is your inbox. When the checklist on the right is "
+        "done, Advance unlocks the next weekend.\n\n"
+        "The Python sim still runs the races. This office is where you sit."
+        % series
+    )
+
+
+def _comma(value):
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return "0"
+    sign = "-" if number < 0 else ""
+    digits = str(abs(number))
+    parts = []
+    while len(digits) > 3:
+        parts.insert(0, digits[-3:])
+        digits = digits[:-3]
+    parts.insert(0, digits or "0")
+    return sign + ",".join(parts)
+
+
 def compose_ui_snapshot(payload):
-    """Build the JSON document the Godot prototype renders."""
+    """Build the JSON document the Godot office renders."""
 
     payload = payload or {}
     dashboard = payload.get("dashboard") or {}
     settings = payload.get("settings") or {}
     menu_items = payload.get("menu_items") or []
+    office = default_office(payload)
+    if payload.get("office"):
+        incoming = payload.get("office") or {}
+        office.update(incoming)
+        if incoming.get("header"):
+            office["header"] = dict(office.get("header") or {})
+            office["header"].update(incoming.get("header") or {})
+        if incoming.get("mail"):
+            office["mail"] = dict(office.get("mail") or {})
+            office["mail"].update(incoming.get("mail") or {})
     return {
         "game": "Stock Car Commissioner",
         "ui_version": UI_VERSION,
         "engine": "godot-4",
-        "screen": payload.get("screen") or "menu",
+        "layout": OFFICE_LAYOUT,
+        "screen": payload.get("screen") or "mail",
         "series": payload.get("series") or "Stock Car Series",
         "settings_line": payload.get("settings_line") or "",
         "calendar": payload.get("calendar") or "",
@@ -53,6 +161,9 @@ def compose_ui_snapshot(payload):
         },
         "dashboard": dashboard,
         "decision": payload.get("decision"),
+        "drivers": list(payload.get("drivers") or []),
+        "schedule": list(payload.get("schedule") or []),
+        "office": office,
     }
 
 

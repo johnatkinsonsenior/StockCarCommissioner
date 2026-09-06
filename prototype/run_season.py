@@ -10302,12 +10302,52 @@ def build_ui_snapshot():
                 for choice in event.get("choices") or []
             ],
         }
+    driver_rows = []
+    if drivers:
+        for driver in drivers:
+            driver_rows.append(
+                {
+                    "name": driver.name,
+                    "team": driver.team_name,
+                    "points": driver.points,
+                    "wins": driver.wins,
+                    "personality": driver.personality,
+                }
+            )
+    schedule_rows = []
+    for index, track in enumerate(tracks, start=1):
+        schedule_rows.append(
+            {
+                "race": index,
+                "name": track.name,
+                "type": track.type,
+            }
+        )
+    series = series_name()
+    mail_body = (
+        "Commissioner,\n\n"
+        "You run %s. You do not drive.\n\n"
+        "Television and naming rights pay the bills. Owners want wins. "
+        "Drivers want a fair garage. The board wants a league that still "
+        "exists next year.\n\n"
+        "Open every section on the left. Mail is your inbox. When the "
+        "checklist is done, Advance unlocks the first weekend.\n\n"
+        "Python still simulates the races. This office is where you sit."
+        % series
+    )
     return compose_ui_snapshot(
         {
-            "screen": "menu",
-            "series": series_name(),
+            "screen": "mail",
+            "series": series,
             "settings_line": settings_dashboard_text(),
             "calendar": calendar.description(),
+            "mail": {
+                "title": "Welcome to %s" % series,
+                "from": "Series Office — %s" % calendar.phase_label(),
+                "body": mail_body,
+            },
+            "drivers": driver_rows,
+            "schedule": schedule_rows,
             "menu_items": [
                 {"id": "1", "label": "Start new career"},
                 {"id": "2", "label": "Load saved career"},
@@ -10346,6 +10386,9 @@ def build_ui_snapshot():
                 "makers": manufacturer_dashboard_text() if teams else "",
                 "alerts": alerts,
                 "teams": team_rows,
+                "policies": [
+                    policy_label(key) for key in current_policies
+                ],
             },
             "decision": decision,
         }

@@ -168,3 +168,12 @@
 | 166 | Commissioner dashboard and decision screens | Medium | Completed |
 | 167 | Playable alpha package | High | Completed |
 | 168 | Career-mode playtest zip and launchers | Medium | Completed |
+| 169 | Commissioner office shell | High | Completed |
+| 170 | Sidebar, Advance, mail, and gated checklist | Medium | Completed |
+| 171 | Winston Cup era books | High | Not Started |
+| 172 | 1970s / 1980s / pinnacle / beyond settings | Medium | Not Started |
+| 173 | Aero Wars | High | Not Started |
+| 174 | Homologated two-door coupe bodies | High | Not Started |
+| 175 | Manufacturer aero maps per track type | High | Not Started |
+| 176 | Per-track rules packages | High | Not Started |
+| 177 | Custom Winston Cup rulebook (homologation, wheelbase, aero specials) | High | Not Started |

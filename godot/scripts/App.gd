@@ -1,23 +1,54 @@
 extends Control
 
 const SNAPSHOT_PATH := "res://data/ui_snapshot.json"
+const COL_BG := Color("1e1e1e")
+const COL_SIDE := Color("141414")
+const COL_PANEL := Color("252525")
+const COL_BLUE := Color("3a7bd5")
+const COL_BLUE_ON := Color("2b6cb0")
+const COL_GREEN := Color("2d6a4f")
+const COL_GREEN_DIM := Color("1b4332")
+const COL_TEXT := Color("f4f4f4")
+const COL_MUTED := Color("9aa3ad")
+const COL_GOLD := Color("d4a017")
+const COL_LINE := Color("3a3a3a")
 
 var snapshot: Dictionary = {}
-var screen_name := "menu"
-var chrome: VBoxContainer
-var body: Control
+var screen_name := "mail"
+var visited: Dictionary = {}
+var sidebar: VBoxContainer
 var status_label: Label
+var advance_button: Button
+var center_body: VBoxContainer
+var checklist_box: VBoxContainer
+var checklist_progress: Label
+var nav_buttons: Dictionary = {}
 
 
 func _ready() -> void:
 	snapshot = _load_snapshot()
-	_build_shell()
-	_show_menu()
+	_build_office()
+	_show_section("mail")
 	print("UI_READY")
+	print("OFFICE_READY")
+	print("LAYOUT=commissioner-desk")
 	print("SERIES=", str(snapshot.get("series", "")))
 	print("SCREEN=", screen_name)
+	print("CHECKLIST=", str(_checklist().size()))
+	print("NAV=", str(_nav().size()))
 	if DisplayServer.get_name() == "headless":
-		call_deferred("_quit_headless")
+		call_deferred("_headless_tour")
+
+
+func _headless_tour() -> void:
+	for item in _checklist():
+		var section := str(item.get("section", item.get("id", "")))
+		_show_section(section)
+		print("VISIT=", section)
+	print("CHECKLIST_DONE=", "%s/%s" % [_completed_count(), _checklist().size()])
+	_on_advance()
+	print("ADVANCE_STATE=", "unlocked" if _checklist_complete() else "blocked")
+	call_deferred("_quit_headless")
 
 
 func _quit_headless() -> void:
@@ -30,11 +61,13 @@ func _load_snapshot() -> Dictionary:
 		return {
 			"game": "Stock Car Commissioner",
 			"series": "Stock Car Series",
-			"settings_line": "Settings: Normal | 3 seasons | Autosave Off",
-			"menu_items": [],
+			"layout": "commissioner-desk",
+			"office": {},
 			"dashboard": {},
 			"settings": {},
 			"decision": null,
+			"drivers": [],
+			"schedule": [],
 		}
 	var file := FileAccess.open(SNAPSHOT_PATH, FileAccess.READ)
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
@@ -45,212 +78,454 @@ func _load_snapshot() -> Dictionary:
 	return parsed
 
 
-func _build_shell() -> void:
+func _office() -> Dictionary:
+	var office: Variant = snapshot.get("office", {})
+	if typeof(office) == TYPE_DICTIONARY:
+		return office
+	return {}
+
+
+func _nav() -> Array:
+	var nav: Array = _office().get("nav", [])
+	if nav.is_empty():
+		return [
+			{"id": "dashboard", "label": "Dashboard", "group": ""},
+			{"id": "mail", "label": "Mail", "group": ""},
+			{"id": "settings", "label": "Settings", "group": ""},
+			{"id": "quit", "label": "Quit", "group": ""},
+		]
+	return nav
+
+
+func _checklist() -> Array:
+	return _office().get("checklist", [])
+
+
+func _build_office() -> void:
 	var bg := ColorRect.new()
-	bg.color = Color("0d1117")
+	bg.color = COL_BG
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 
-	chrome = VBoxContainer.new()
-	chrome.set_anchors_preset(Control.PRESET_FULL_RECT)
-	chrome.add_theme_constant_override("separation", 0)
-	add_child(chrome)
+	var root := HBoxContainer.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_theme_constant_override("separation", 0)
+	add_child(root)
 
-	var header := PanelContainer.new()
-	header.add_theme_stylebox_override("panel", _panel(Color("161b22"), Color("d4a017")))
-	var header_row := HBoxContainer.new()
-	header_row.add_theme_constant_override("separation", 16)
-	header.add_child(header_row)
+	sidebar = VBoxContainer.new()
+	sidebar.custom_minimum_size = Vector2(220, 0)
+	sidebar.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	sidebar.add_theme_constant_override("separation", 6)
+	var side_panel := PanelContainer.new()
+	side_panel.add_theme_stylebox_override("panel", _panel(COL_SIDE, COL_LINE))
+	side_panel.custom_minimum_size = Vector2(220, 0)
+	side_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var side_margin := _padded(sidebar, 12, 12)
+	side_panel.add_child(side_margin)
+	root.add_child(side_panel)
+	_build_sidebar()
 
+	var main := VBoxContainer.new()
+	main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	main.add_theme_constant_override("separation", 0)
+	root.add_child(main)
+
+	main.add_child(_build_header())
+	main.add_child(_build_workspace())
+
+
+func _build_sidebar() -> void:
 	var title := Label.new()
-	title.text = str(snapshot.get("game", "Stock Car Commissioner")).to_upper()
-	title.add_theme_color_override("font_color", Color("d4a017"))
-	title.add_theme_font_size_override("font_size", 22)
-	header_row.add_child(title)
+	title.text = "STOCK CAR\nCOMMISSIONER"
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", COL_GOLD)
+	sidebar.add_child(title)
+	sidebar.add_child(_muted(str(snapshot.get("series", ""))))
 
-	var series := Label.new()
-	series.text = str(snapshot.get("series", ""))
-	series.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	series.add_theme_color_override("font_color", Color("e8e6e3"))
-	header_row.add_child(series)
+	var nav_list := VBoxContainer.new()
+	nav_list.add_theme_constant_override("separation", 6)
+	var last_group := "___"
+	for item in _nav():
+		var row: Dictionary = item
+		var section_id := str(row.get("id", ""))
+		if section_id in ["settings", "quit"]:
+			continue
+		var group := str(row.get("group", ""))
+		if group != last_group:
+			last_group = group
+			if group != "":
+				nav_list.add_child(_group_label(group))
+		nav_list.add_child(_make_nav_button(row))
+
+	var scroller := ScrollContainer.new()
+	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroller.add_child(nav_list)
+	nav_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sidebar.add_child(scroller)
+
+	for item in _nav():
+		var row: Dictionary = item
+		if str(row.get("id", "")) in ["settings", "quit"]:
+			sidebar.add_child(_make_nav_button(row))
+
+
+func _make_nav_button(row: Dictionary) -> Button:
+	var button := Button.new()
+	button.text = str(row.get("label", ""))
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_style_nav(button, false)
+	var section_id := str(row.get("id", ""))
+	button.pressed.connect(_on_nav.bind(section_id))
+	nav_buttons[section_id] = button
+	return button
+
+
+func _build_header() -> Control:
+	var header := PanelContainer.new()
+	header.add_theme_stylebox_override("panel", _panel(COL_PANEL, COL_LINE))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+	header.add_child(row)
+
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
 
 	status_label = Label.new()
-	status_label.text = str(snapshot.get("settings_line", ""))
-	status_label.add_theme_color_override("font_color", Color("8b9aab"))
-	header_row.add_child(status_label)
-	chrome.add_child(header)
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_label.add_theme_font_size_override("font_size", 20)
+	status_label.add_theme_color_override("font_color", COL_TEXT)
+	var header_info: Variant = _office().get("header", {})
+	var status_text := str(snapshot.get("calendar", ""))
+	if typeof(header_info) == TYPE_DICTIONARY:
+		status_text = str(header_info.get("status_line", status_text))
+	status_label.text = status_text
+	row.add_child(status_label)
 
-	var nav := HBoxContainer.new()
-	nav.add_theme_constant_override("separation", 8)
-	for item in [
-		["Menu", "_show_menu"],
-		["Dashboard", "_show_dashboard"],
-		["Settings", "_show_settings"],
-		["Decision", "_show_decision"],
-	]:
-		var button := Button.new()
-		button.text = item[0]
-		button.pressed.connect(Callable(self, item[1]))
-		nav.add_child(button)
-	chrome.add_child(_padded(nav, 12, 8))
+	var spacer2 := Control.new()
+	spacer2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer2)
 
-	body = Control.new()
-	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	chrome.add_child(body)
+	advance_button = Button.new()
+	advance_button.text = str(_office().get("advance_label", "Advance"))
+	advance_button.custom_minimum_size = Vector2(160, 40)
+	advance_button.pressed.connect(_on_advance)
+	_style_advance(false)
+	row.add_child(advance_button)
+	return header
 
 
-func _clear_body() -> void:
-	for child in body.get_children():
+func _build_workspace() -> Control:
+	var workspace := HBoxContainer.new()
+	workspace.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	workspace.add_theme_constant_override("separation", 12)
+
+	var center_panel := PanelContainer.new()
+	center_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center_panel.size_flags_stretch_ratio = 1.6
+	center_panel.add_theme_stylebox_override("panel", _panel(COL_PANEL, COL_LINE))
+	center_body = VBoxContainer.new()
+	center_body.add_theme_constant_override("separation", 10)
+	var center_scroll := ScrollContainer.new()
+	center_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	center_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var inner := _padded(center_body, 18, 16)
+	center_scroll.add_child(inner)
+	inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center_panel.add_child(center_scroll)
+	workspace.add_child(center_panel)
+
+	var right_panel := PanelContainer.new()
+	right_panel.custom_minimum_size = Vector2(280, 0)
+	right_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_panel.size_flags_stretch_ratio = 0.7
+	right_panel.add_theme_stylebox_override("panel", _panel(Color("1a1a1a"), COL_LINE))
+	checklist_box = VBoxContainer.new()
+	checklist_box.add_theme_constant_override("separation", 8)
+	right_panel.add_child(_padded(checklist_box, 16, 16))
+	workspace.add_child(right_panel)
+	_refresh_checklist()
+	return workspace
+
+
+func _on_nav(section_id: String) -> void:
+	if section_id == "quit":
+		get_tree().quit()
+		return
+	_show_section(section_id)
+
+
+func _show_section(section_id: String) -> void:
+	screen_name = section_id
+	visited[section_id] = true
+	for key in nav_buttons.keys():
+		_style_nav(nav_buttons[key], str(key) == section_id)
+	_clear_center()
+	match section_id:
+		"dashboard":
+			_fill_dashboard()
+		"mail":
+			_fill_mail()
+		"standings":
+			_fill_standings()
+		"schedule":
+			_fill_schedule()
+		"hearings":
+			_fill_hearings()
+		"teams":
+			_fill_teams()
+		"drivers":
+			_fill_drivers()
+		"prospects":
+			_fill_prospects()
+		"treasury":
+			_fill_treasury()
+		"television":
+			_fill_television()
+		"sponsors":
+			_fill_sponsors()
+		"rulebook":
+			_fill_rulebook()
+		"board":
+			_fill_board()
+		"settings":
+			_fill_settings()
+		_:
+			_fill_mail()
+	_refresh_checklist()
+	_style_advance(_checklist_complete())
+
+
+func _on_advance() -> void:
+	_clear_center()
+	if not _checklist_complete():
+		print("ADVANCE_BLOCKED")
+		center_body.add_child(_title("Advance locked"))
+		center_body.add_child(_muted(str(_office().get("advance_hint", "Visit each section first."))))
+		center_body.add_child(_line("Completed %s / %s." % [_completed_count(), _checklist().size()]))
+		return
+	print("ADVANCE_UNLOCKED")
+	var decision: Variant = snapshot.get("decision")
+	if typeof(decision) == TYPE_DICTIONARY and decision != null:
+		print("ADVANCE_HEARING=", str(decision.get("title", "")))
+		_fill_hearings()
+	else:
+		center_body.add_child(_title("Office ready"))
+		center_body.add_child(_line("The first weekend will sim from this button in Day 93."))
+
+
+func _clear_center() -> void:
+	for child in center_body.get_children():
 		child.queue_free()
 
 
-func _show_menu() -> void:
-	screen_name = "menu"
-	_clear_body()
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	body.add_child(_padded(box, 24, 16))
-	box.set_anchors_preset(Control.PRESET_FULL_RECT)
-
-	var heading := Label.new()
-	heading.text = "MAIN MENU"
-	heading.add_theme_font_size_override("font_size", 28)
-	heading.add_theme_color_override("font_color", Color("e8e6e3"))
-	box.add_child(heading)
-
-	var blurb := Label.new()
-	blurb.text = "Godot 4 prototype. Live career numbers come from the Python sim snapshot."
-	blurb.add_theme_color_override("font_color", Color("8b9aab"))
-	box.add_child(blurb)
-
-	var items: Array = snapshot.get("menu_items", [])
-	if items.is_empty():
-		items = [
-			{"id": "1", "label": "Start new career"},
-			{"id": "5", "label": "Game settings"},
-			{"id": "7", "label": "Exit"},
-		]
-	for item in items:
-		var row: Dictionary = item
-		var button := Button.new()
-		button.text = "%s. %s" % [str(row.get("id", "")), str(row.get("label", ""))]
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		var action := str(row.get("id", ""))
-		button.pressed.connect(_on_menu_item.bind(action))
-		box.add_child(button)
+func _dash() -> Dictionary:
+	var dash: Variant = snapshot.get("dashboard", {})
+	if typeof(dash) == TYPE_DICTIONARY:
+		return dash
+	return {}
 
 
-func _on_menu_item(action: String) -> void:
-	if action == "5":
-		_show_settings()
-	elif action == "7":
-		get_tree().quit()
-	else:
-		_show_dashboard()
+func _fill_mail() -> void:
+	var mail: Dictionary = {}
+	var raw: Variant = _office().get("mail", {})
+	if typeof(raw) == TYPE_DICTIONARY:
+		mail = raw
+	center_body.add_child(_title(str(mail.get("title", "Mail"))))
+	center_body.add_child(_muted("From: %s" % str(mail.get("from", "Series Office"))))
+	var body := Label.new()
+	body.text = str(mail.get("body", ""))
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.add_theme_color_override("font_color", COL_TEXT)
+	center_body.add_child(body)
 
 
-func _show_dashboard() -> void:
-	screen_name = "dashboard"
-	_clear_body()
-	var dash: Dictionary = snapshot.get("dashboard", {})
-	var root := HBoxContainer.new()
-	root.add_theme_constant_override("separation", 16)
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	body.add_child(_padded(root, 16, 12))
-
-	var left := VBoxContainer.new()
-	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left.add_theme_constant_override("separation", 8)
-	root.add_child(left)
-
-	left.add_child(_section_title("Commissioner Dashboard"))
-	left.add_child(_muted(str(dash.get("calendar", snapshot.get("calendar", "")))))
-	left.add_child(_meter("Integrity", int(dash.get("integrity", 0)), Color("3d9b6e")))
-	left.add_child(_meter("Fan interest", int(dash.get("fan_interest", 0)), Color("d4a017")))
-	left.add_child(_meter("Controversy", int(dash.get("controversy", 0)), Color("c44536")))
-	left.add_child(_meter("Owner pressure", int(dash.get("owner_pressure", 0)), Color("c44536")))
-	left.add_child(_meter("Driver sentiment", int(dash.get("driver_sentiment", 0)), Color("3d9b6e")))
-	left.add_child(_line("Grade %s (%s/100)" % [str(dash.get("grade", "—")), str(dash.get("score", 0))]))
-	left.add_child(_line(str(dash.get("approval", ""))))
-	left.add_child(_line(str(dash.get("board", ""))))
-	left.add_child(_line("Treasury $%s" % _comma(dash.get("treasury", 0))))
-	left.add_child(_line("Naming rights: %s" % str(dash.get("naming_rights", "unsponsored"))))
-	left.add_child(_line("TV rights: %s" % str(dash.get("tv_rights", "unsigned"))))
-	left.add_child(_muted(str(dash.get("prospects", ""))))
-	left.add_child(_muted(str(dash.get("development", ""))))
-	left.add_child(_muted(str(dash.get("factory", ""))))
-
-	var right := VBoxContainer.new()
-	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.add_theme_constant_override("separation", 8)
-	root.add_child(right)
-
-	right.add_child(_section_title("Grid"))
-	for team in dash.get("teams", []):
-		var row: Dictionary = team
-		right.add_child(_line("%s [%s]  $%s  %s" % [
-			str(row.get("name", "")),
-			str(row.get("manufacturer", "")),
-			_comma(row.get("budget", 0)),
-			str(row.get("sponsor", "")),
-		]))
-
-	right.add_child(_section_title("Alerts"))
+func _fill_dashboard() -> void:
+	var dash := _dash()
+	center_body.add_child(_title("Commissioner Dashboard"))
+	center_body.add_child(_muted(str(dash.get("calendar", snapshot.get("calendar", "")))))
+	center_body.add_child(_meter("Integrity", int(dash.get("integrity", 0)), Color("3d9b6e")))
+	center_body.add_child(_meter("Fan interest", int(dash.get("fan_interest", 0)), COL_GOLD))
+	center_body.add_child(_meter("Controversy", int(dash.get("controversy", 0)), Color("c44536")))
+	center_body.add_child(_meter("Owner pressure", int(dash.get("owner_pressure", 0)), Color("c44536")))
+	center_body.add_child(_meter("Driver sentiment", int(dash.get("driver_sentiment", 0)), Color("3d9b6e")))
+	center_body.add_child(_line("Grade %s (%s/100)" % [str(dash.get("grade", "—")), str(dash.get("score", 0))]))
+	center_body.add_child(_line(str(dash.get("approval", ""))))
+	center_body.add_child(_line(str(dash.get("board", ""))))
+	center_body.add_child(_line("Treasury $%s" % _comma(dash.get("treasury", 0))))
 	var alerts: Array = dash.get("alerts", [])
+	center_body.add_child(_title("Alerts"))
 	if alerts.is_empty():
-		right.add_child(_muted("No alerts."))
+		center_body.add_child(_muted("No alerts."))
 	else:
 		for alert in alerts:
-			right.add_child(_line("• " + str(alert)))
+			center_body.add_child(_line("• " + str(alert)))
 
 
-func _show_settings() -> void:
-	screen_name = "settings"
-	_clear_body()
-	var settings: Dictionary = snapshot.get("settings", {})
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	body.add_child(_padded(box, 24, 16))
-	box.add_child(_section_title("Game Settings"))
-	box.add_child(_line("Difficulty: %s" % str(settings.get("difficulty_label", "Normal"))))
-	box.add_child(_line("Career length: %s seasons" % str(settings.get("career_seasons", 3))))
-	box.add_child(_line("Autosave: %s" % str(settings.get("autosave_label", "Off"))))
-	box.add_child(_muted("The Python sim still owns these values. This screen is the Godot prototype."))
+func _fill_standings() -> void:
+	center_body.add_child(_title("Standings"))
+	center_body.add_child(_muted("Premier grid. Points update when weekends are Advanced."))
+	var drivers: Array = snapshot.get("drivers", [])
+	if drivers.is_empty():
+		center_body.add_child(_muted("No drivers in this snapshot."))
+		return
+	for row in drivers:
+		var item: Dictionary = row
+		center_body.add_child(_line("%s  (%s)  %s pts  %s wins" % [
+			str(item.get("name", "")),
+			str(item.get("team", "")),
+			str(item.get("points", 0)),
+			str(item.get("wins", 0)),
+		]))
 
 
-func _show_decision() -> void:
-	screen_name = "decision"
-	_clear_body()
+func _fill_schedule() -> void:
+	center_body.add_child(_title("Schedule"))
+	var races: Array = snapshot.get("schedule", [])
+	if races.is_empty():
+		center_body.add_child(_muted("No calendar in this snapshot."))
+		return
+	for row in races:
+		var item: Dictionary = row
+		center_body.add_child(_line("R%s  %s  (%s)" % [
+			str(item.get("race", "")),
+			str(item.get("name", "")),
+			str(item.get("type", "")),
+		]))
+
+
+func _fill_hearings() -> void:
+	center_body.add_child(_title("Hearings"))
 	var decision: Variant = snapshot.get("decision")
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	body.add_child(_padded(box, 24, 16))
-	box.add_child(_section_title("Commissioner Decision"))
 	if typeof(decision) != TYPE_DICTIONARY or decision == null:
-		box.add_child(_muted("No hearing is queued in this snapshot."))
+		center_body.add_child(_muted("No hearing is queued."))
 		return
 	var card: Dictionary = decision
-	box.add_child(_line(str(card.get("title", "Hearing"))))
-	box.add_child(_muted(str(card.get("category", ""))))
+	center_body.add_child(_line(str(card.get("title", "Hearing"))))
+	center_body.add_child(_muted(str(card.get("category", ""))))
 	var prompt := Label.new()
 	prompt.text = str(card.get("prompt", ""))
 	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	prompt.add_theme_color_override("font_color", Color("e8e6e3"))
-	box.add_child(prompt)
+	prompt.add_theme_color_override("font_color", COL_TEXT)
+	center_body.add_child(prompt)
 	for choice in card.get("choices", []):
 		var row: Dictionary = choice
 		var button := Button.new()
 		button.text = "%s. %s" % [str(row.get("id", "")), str(row.get("label", ""))]
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.pressed.connect(_show_dashboard)
-		box.add_child(button)
+		button.pressed.connect(_show_section.bind("mail"))
+		center_body.add_child(button)
+	center_body.add_child(_muted("Choices display here. Day 98 writes them back to the sim."))
 
 
-func _section_title(text: String) -> Label:
+func _fill_teams() -> void:
+	center_body.add_child(_title("Teams"))
+	for team in _dash().get("teams", []):
+		var row: Dictionary = team
+		center_body.add_child(_line("%s — %s" % [str(row.get("name", "")), str(row.get("owner", ""))]))
+		center_body.add_child(_muted("%s  $%s  %s" % [
+			str(row.get("manufacturer", "")),
+			_comma(row.get("budget", 0)),
+			str(row.get("sponsor", "")),
+		]))
+
+
+func _fill_drivers() -> void:
+	center_body.add_child(_title("Drivers"))
+	for row in snapshot.get("drivers", []):
+		var item: Dictionary = row
+		center_body.add_child(_line("%s  %s  (%s)" % [
+			str(item.get("name", "")),
+			str(item.get("team", "")),
+			str(item.get("personality", "")),
+		]))
+
+
+func _fill_prospects() -> void:
+	center_body.add_child(_title("Prospects"))
+	center_body.add_child(_line(str(_dash().get("prospects", "No prospect book."))))
+	center_body.add_child(_muted(str(_dash().get("development", ""))))
+
+
+func _fill_treasury() -> void:
+	center_body.add_child(_title("Treasury"))
+	center_body.add_child(_line("$%s" % _comma(_dash().get("treasury", 0))))
+	center_body.add_child(_muted("Fines, purses, and rights fees land here. Advance weekends to move money."))
+
+
+func _fill_television() -> void:
+	center_body.add_child(_title("Television"))
+	center_body.add_child(_line("Naming rights: %s" % str(_dash().get("naming_rights", "unsponsored"))))
+	center_body.add_child(_line("TV rights: %s" % str(_dash().get("tv_rights", "unsigned"))))
+
+
+func _fill_sponsors() -> void:
+	center_body.add_child(_title("Sponsors"))
+	for team in _dash().get("teams", []):
+		var row: Dictionary = team
+		center_body.add_child(_line("%s — %s" % [str(row.get("name", "")), str(row.get("sponsor", ""))]))
+
+
+func _fill_rulebook() -> void:
+	center_body.add_child(_title("Rulebook"))
+	var policies: Array = _dash().get("policies", [])
+	if policies.is_empty():
+		center_body.add_child(_muted("No policies in this snapshot."))
+		return
+	for policy in policies:
+		center_body.add_child(_line(str(policy)))
+
+
+func _fill_board() -> void:
+	center_body.add_child(_title("Board"))
+	center_body.add_child(_line(str(_dash().get("board", "Board not seated."))))
+	center_body.add_child(_line(str(_dash().get("approval", ""))))
+
+
+func _fill_settings() -> void:
+	var settings: Dictionary = snapshot.get("settings", {})
+	center_body.add_child(_title("Settings"))
+	center_body.add_child(_line("Difficulty: %s" % str(settings.get("difficulty_label", "Normal"))))
+	center_body.add_child(_line("Career length: %s seasons" % str(settings.get("career_seasons", 3))))
+	center_body.add_child(_line("Autosave: %s" % str(settings.get("autosave_label", "Off"))))
+	center_body.add_child(_muted(str(snapshot.get("settings_line", ""))))
+
+
+func _refresh_checklist() -> void:
+	for child in checklist_box.get_children():
+		child.queue_free()
+	checklist_box.add_child(_title("Before You Begin"))
+	checklist_box.add_child(_muted("Visit each section to unlock the first weekend."))
+	for item in _checklist():
+		var row: Dictionary = item
+		var section := str(row.get("section", row.get("id", "")))
+		var mark := "●" if visited.get(section, false) else "○"
+		checklist_box.add_child(_line("%s  %s" % [mark, str(row.get("label", ""))]))
+	checklist_progress = _muted("%s / %s completed" % [_completed_count(), _checklist().size()])
+	checklist_box.add_child(checklist_progress)
+
+
+func _completed_count() -> int:
+	var count := 0
+	for item in _checklist():
+		var section := str(item.get("section", item.get("id", "")))
+		if visited.get(section, false):
+			count += 1
+	return count
+
+
+func _checklist_complete() -> bool:
+	var total := _checklist().size()
+	return total > 0 and _completed_count() >= total
+
+
+func _title(text: String) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", 20)
-	label.add_theme_color_override("font_color", Color("d4a017"))
+	label.add_theme_font_size_override("font_size", 22)
+	label.add_theme_color_override("font_color", COL_TEXT)
 	return label
 
 
@@ -258,27 +533,47 @@ func _line(text: String) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_color_override("font_color", Color("e8e6e3"))
+	label.add_theme_color_override("font_color", COL_TEXT)
 	return label
 
 
 func _muted(text: String) -> Label:
 	var label := _line(text)
-	label.add_theme_color_override("font_color", Color("8b9aab"))
+	label.add_theme_color_override("font_color", COL_MUTED)
 	return label
+
+
+func _group_label(text: String) -> Control:
+	var wrap := HBoxContainer.new()
+	var left := ColorRect.new()
+	left.color = COL_LINE
+	left.custom_minimum_size = Vector2(16, 1)
+	left.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var label := Label.new()
+	label.text = "  %s  " % text
+	label.add_theme_color_override("font_color", COL_MUTED)
+	var right := ColorRect.new()
+	right.color = COL_LINE
+	right.custom_minimum_size = Vector2(16, 1)
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	wrap.add_child(left)
+	wrap.add_child(label)
+	wrap.add_child(right)
+	return wrap
 
 
 func _meter(label_text: String, value: int, fill: Color) -> VBoxContainer:
 	var wrap := VBoxContainer.new()
 	var caption := Label.new()
 	caption.text = "%s  %s/100" % [label_text, str(value)]
-	caption.add_theme_color_override("font_color", Color("e8e6e3"))
+	caption.add_theme_color_override("font_color", COL_TEXT)
 	wrap.add_child(caption)
 	var bar := ProgressBar.new()
 	bar.max_value = 100
 	bar.value = clamp(value, 0, 100)
 	bar.show_percentage = false
-	bar.custom_minimum_size = Vector2(0, 14)
+	bar.custom_minimum_size = Vector2(0, 12)
 	var fill_style := StyleBoxFlat.new()
 	fill_style.bg_color = fill
 	bar.add_theme_stylebox_override("fill", fill_style)
@@ -286,13 +581,43 @@ func _meter(label_text: String, value: int, fill: Color) -> VBoxContainer:
 	return wrap
 
 
+func _style_nav(button: Button, active: bool) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = COL_BLUE_ON if active else COL_BLUE
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	button.add_theme_stylebox_override("normal", style)
+	button.add_theme_stylebox_override("hover", style)
+	button.add_theme_stylebox_override("pressed", style)
+	button.add_theme_color_override("font_color", Color.WHITE)
+
+
+func _style_advance(unlocked: bool) -> void:
+	if advance_button == null:
+		return
+	var style := StyleBoxFlat.new()
+	style.bg_color = COL_GREEN if unlocked else COL_GREEN_DIM
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 16
+	style.content_margin_right = 16
+	style.content_margin_top = 10
+	style.content_margin_bottom = 10
+	advance_button.add_theme_stylebox_override("normal", style)
+	advance_button.add_theme_stylebox_override("hover", style)
+	advance_button.add_theme_stylebox_override("pressed", style)
+	advance_button.add_theme_color_override("font_color", Color.WHITE)
+
+
 func _panel(bg: Color, border: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
 	style.border_color = border
 	style.set_border_width_all(1)
-	style.content_margin_left = 16
-	style.content_margin_right = 16
+	style.content_margin_left = 12
+	style.content_margin_right = 12
 	style.content_margin_top = 10
 	style.content_margin_bottom = 10
 	return style
