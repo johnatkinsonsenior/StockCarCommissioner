@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.6",
+    "ui_version": "0.7",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -593,9 +593,56 @@
             "wins": 0
         }
     ],
-    "treasury": {},
-    "television": {},
-    "sponsors": {},
+    "treasury": {
+        "balance": 0,
+        "season_tv": 0,
+        "career_tv": 0,
+        "season_commercial": 0,
+        "career_commercial": 0,
+        "fines": 0
+    },
+    "television": {
+        "naming": "Northstar Capital ($2,461,000/yr, 5 yrs) \u2014 content",
+        "rights": "Horizon Sports ($14,932,000/yr, 6 yrs) \u2014 content",
+        "network": "Horizon Sports",
+        "last_rating": null,
+        "last_viewers": "n/a",
+        "trend": 0,
+        "last_gate": null,
+        "last_gate_fill": null,
+        "signed": true
+    },
+    "sponsors": {
+        "naming": "Northstar Capital ($2,461,000/yr, 5 yrs) \u2014 content",
+        "naming_sponsor": "Northstar Capital",
+        "partners": [
+            {
+                "sponsor": "Harbor Mutual",
+                "category": "Insurance",
+                "label": "Harbor Mutual, Insurance ($436,000/yr, 4 yrs) \u2014 content"
+            },
+            {
+                "sponsor": "BrightPath Wireless",
+                "category": "Telecom",
+                "label": "BrightPath Wireless, Telecom ($413,000/yr, 4 yrs) \u2014 content"
+            }
+        ],
+        "teams": [
+            {
+                "team": "Liberty Racing",
+                "sponsor": "Vanguard Motor Oil ($1,159,000/yr, 4 yrs) \u2014 content"
+            },
+            {
+                "team": "Pioneer Motorsports",
+                "sponsor": "Helix Electronics ($1,244,000/yr, 3 yrs) \u2014 content"
+            },
+            {
+                "team": "Summit Racing",
+                "sponsor": "Copperline Logistics ($1,012,000/yr, 3 yrs) \u2014 content"
+            }
+        ],
+        "market": 10
+    },
     "rulebook": [],
     "councils": {},
     "board": {},
