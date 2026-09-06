@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–92 complete. Next coding day:
-**Day 93 — Advance one week from the office**.
+**Current position:** Days 1–93 complete. Next coding day:
+**Day 94 — Standings, schedule, and race recap screens**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
