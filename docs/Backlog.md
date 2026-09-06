@@ -177,3 +177,5 @@
 | 175 | Manufacturer aero maps per track type | High | Not Started |
 | 176 | Per-track rules packages | High | Not Started |
 | 177 | Custom Winston Cup rulebook (homologation, wheelbase, aero specials) | High | Not Started |
+| 178 | Live mail inbox | High | Completed |
+| 179 | Hearings and league letters in Mail | Medium | Completed |

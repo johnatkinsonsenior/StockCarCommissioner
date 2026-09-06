@@ -158,7 +158,7 @@ func _build_sidebar() -> void:
 	sidebar.add_child(_muted(str(snapshot.get("series", ""))))
 
 	var nav_list := VBoxContainer.new()
-	nav_list.add_theme_constant_override("separation", 6)
+	nav_list.add_theme_constant_override("separation", 4)
 	var last_group := "___"
 	for item in _nav():
 		var row: Dictionary = item
@@ -786,8 +786,8 @@ func _style_nav(button: Button, active: bool) -> void:
 	style.set_corner_radius_all(6)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
+	style.content_margin_top = 5
+	style.content_margin_bottom = 5
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", style)
 	button.add_theme_stylebox_override("pressed", style)
