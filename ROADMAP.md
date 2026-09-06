@@ -194,7 +194,7 @@ A team-owner career is a later era, not this one.
 ### Era 1 — The Desk
 - [x] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
 - [x] Day 92 — Live mail inbox (hearings and league letters in the center pane)
-- [ ] Day 93 — Advance one week from the office (race week or off week)
+- [x] Day 93 — Advance one week from the office (race week or off week)
 - [ ] Day 94 — Standings, schedule, and race recap screens
 - [ ] Day 95 — Teams, drivers, and prospect pages
 - [ ] Day 96 — Business screens (treasury, TV, sponsors)

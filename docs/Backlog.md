@@ -179,3 +179,5 @@
 | 177 | Custom Winston Cup rulebook (homologation, wheelbase, aero specials) | High | Not Started |
 | 178 | Live mail inbox | High | Completed |
 | 179 | Hearings and league letters in Mail | Medium | Completed |
+| 180 | Advance one week from the office | High | Completed |
+| 181 | Race-week recap letters | Medium | Completed |
