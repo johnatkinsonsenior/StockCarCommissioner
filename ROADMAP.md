@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–93 complete. Next coding day:
-**Day 94 — Standings, schedule, and race recap screens**.
+**Current position:** Days 1–94 complete. Next coding day:
+**Day 95 — Teams, drivers, and prospect pages**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -195,7 +195,7 @@ A team-owner career is a later era, not this one.
 - [x] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
 - [x] Day 92 — Live mail inbox (hearings and league letters in the center pane)
 - [x] Day 93 — Advance one week from the office (race week or off week)
-- [ ] Day 94 — Standings, schedule, and race recap screens
+- [x] Day 94 — Standings, schedule, and race recap screens
 - [ ] Day 95 — Teams, drivers, and prospect pages
 - [ ] Day 96 — Business screens (treasury, TV, sponsors)
 - [ ] Day 97 — Rulebook, councils, and board on the desk

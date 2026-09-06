@@ -784,9 +784,11 @@ checklist. Advance stays locked until that tour is done, then the first
 Advance opens the hearing in the inbox. The next Advance **runs a week**:
 preseason becomes the opening race weekend, then each Advance sims the
 next Cup race and drops a Race Control recap (plus press clippings) in
-Mail. Standings and the schedule update. Day 91 is the Football
-Commissioner layout in charcoal/blue. Later office days restyle to
-Winston Cup crimson, gold, and white with 16-bit sports-sim chrome.
+Mail. **Standings** is a ranked Cup table. **Schedule** marks DONE and
+NEXT weekends. Both screens show a last-weekend recap card (winner,
+pole, cautions, podium). The desk uses Winston Cup crimson, gold, and
+white with sharp 16-bit chrome. Day 91's charcoal/blue shell was the
+layout prototype only.
 
 ## League Calendar
 

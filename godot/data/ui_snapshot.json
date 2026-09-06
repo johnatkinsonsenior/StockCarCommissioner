@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.4",
+    "ui_version": "0.5",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -127,6 +127,7 @@
     },
     "drivers": [
         {
+            "rank": 1,
             "name": "Austin Vale",
             "team": "Summit Racing",
             "points": 0,
@@ -134,6 +135,7 @@
             "personality": "Popular"
         },
         {
+            "rank": 2,
             "name": "Cole Baker",
             "team": "Liberty Racing",
             "points": 0,
@@ -141,6 +143,7 @@
             "personality": "Professional"
         },
         {
+            "rank": 3,
             "name": "Derek Lane",
             "team": "Summit Racing",
             "points": 0,
@@ -148,6 +151,7 @@
             "personality": "Aggressive"
         },
         {
+            "rank": 4,
             "name": "Mason Reed",
             "team": "Pioneer Motorsports",
             "points": 0,
@@ -155,6 +159,7 @@
             "personality": "Temperamental"
         },
         {
+            "rank": 5,
             "name": "Ryan Holt",
             "team": "Liberty Racing",
             "points": 0,
@@ -162,6 +167,57 @@
             "personality": "Veteran"
         },
         {
+            "rank": 6,
+            "name": "Tyler Knox",
+            "team": "Pioneer Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Rookie"
+        }
+    ],
+    "standings": [
+        {
+            "rank": 1,
+            "name": "Austin Vale",
+            "team": "Summit Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Popular"
+        },
+        {
+            "rank": 2,
+            "name": "Cole Baker",
+            "team": "Liberty Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional"
+        },
+        {
+            "rank": 3,
+            "name": "Derek Lane",
+            "team": "Summit Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Aggressive"
+        },
+        {
+            "rank": 4,
+            "name": "Mason Reed",
+            "team": "Pioneer Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Temperamental"
+        },
+        {
+            "rank": 5,
+            "name": "Ryan Holt",
+            "team": "Liberty Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Veteran"
+        },
+        {
+            "rank": 6,
             "name": "Tyler Knox",
             "team": "Pioneer Motorsports",
             "points": 0,
@@ -174,135 +230,195 @@
             "race": 1,
             "name": "Atlantic Speedway",
             "type": "Superspeedway",
-            "complete": false
+            "complete": false,
+            "next": true
         },
         {
             "race": 2,
             "name": "Carolina Motor Speedway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 3,
             "name": "Granite Hills Speedway",
             "type": "Short Track",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 4,
             "name": "Meridian Motor Speedway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 5,
             "name": "Pine Ridge Raceway",
             "type": "Short Track",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 6,
             "name": "Ironwood Speedway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 7,
             "name": "Cypress Point",
             "type": "Road Course",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 8,
             "name": "Delta Downs Speedway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 9,
             "name": "Liberty Bowl Speedway",
             "type": "Short Track",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 10,
             "name": "Copper Canyon Speedway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 11,
             "name": "Sierra Raceway",
             "type": "Road Course",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 12,
             "name": "Heartland Motor Speedway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 13,
             "name": "Thunder Valley",
             "type": "Superspeedway",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 14,
             "name": "Horizon Raceway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 15,
             "name": "Maple Grove Speedway",
             "type": "Short Track",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 16,
             "name": "Falls City Speedway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 17,
             "name": "Lone Star Circuit",
             "type": "Road Course",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 18,
             "name": "Bayside Speedway",
             "type": "Superspeedway",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 19,
             "name": "Emerald Coast Speedway",
             "type": "Intermediate",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 20,
             "name": "Kingsport Speedway",
             "type": "Short Track",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 21,
             "name": "Summit Point Circuit",
             "type": "Road Course",
-            "complete": false
+            "complete": false,
+            "next": false
         },
         {
             "race": 22,
             "name": "Grand National Speedway",
             "type": "Superspeedway",
-            "complete": false
+            "complete": false,
+            "next": false
         }
     ],
+    "recap": {},
+    "teams": [
+        {
+            "name": "Liberty Racing",
+            "manufacturer": "Vanguard",
+            "budget": 5000000,
+            "prestige": 70,
+            "sponsor": "Vanguard Motor Oil ($1,159,000/yr, 4 yrs) \u2014 content",
+            "owner": "Helen Voss",
+            "factory": "Vanguard (3 yrs)"
+        },
+        {
+            "name": "Pioneer Motorsports",
+            "manufacturer": "Apex",
+            "budget": 5500000,
+            "prestige": 76,
+            "sponsor": "Helix Electronics ($1,244,000/yr, 3 yrs) \u2014 content",
+            "owner": "Marcus Hale",
+            "factory": "Apex (3 yrs)"
+        },
+        {
+            "name": "Summit Racing",
+            "manufacturer": "Falcon",
+            "budget": 4800000,
+            "prestige": 64,
+            "sponsor": "Copperline Logistics ($1,012,000/yr, 3 yrs) \u2014 content",
+            "owner": "Ruth Calder",
+            "factory": "Falcon (2 yrs)"
+        }
+    ],
+    "prospects": [],
+    "treasury": {},
+    "television": {},
+    "sponsors": {},
+    "rulebook": [],
+    "councils": {},
+    "board": {},
+    "palette": "winston-cup",
     "office": {
         "layout": "commissioner-desk",
         "advance_label": "Advance \u2014 Opening weekend",

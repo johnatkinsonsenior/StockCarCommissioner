@@ -7740,6 +7740,75 @@ def record_race_history(track, race_number, results, weekend, race_points=None):
     race_history.append(race_record)
 
 
+def office_standings_book():
+    """Return ranked Cup standings for the office desk."""
+
+    rows = []
+    ranked = sorted(
+        list(drivers or []),
+        key=lambda driver: (-int(driver.points or 0), -int(driver.wins or 0), driver.name),
+    )
+    for index, driver in enumerate(ranked, start=1):
+        rows.append(
+            {
+                "rank": index,
+                "name": driver.name,
+                "team": driver.team_name,
+                "points": int(driver.points or 0),
+                "wins": int(driver.wins or 0),
+                "personality": driver.personality,
+            }
+        )
+    return rows
+
+
+def office_schedule_book():
+    """Return the Cup calendar with next and complete flags."""
+
+    completed = len(race_history)
+    next_race = completed + 1
+    in_grid = calendar.phase in (PRESEASON, REGULAR_SEASON)
+    rows = []
+    for index, track in enumerate(tracks, start=1):
+        rows.append(
+            {
+                "race": int(index),
+                "name": track.name,
+                "type": track.type,
+                "complete": index <= completed,
+                "next": in_grid and index == next_race,
+            }
+        )
+    return rows
+
+
+def office_recap_book():
+    """Return the last Advanced week, with podium lines when a race exists."""
+
+    week = dict(league.get("last_office_week") or {})
+    if not week and not race_history:
+        return {}
+    if race_history and (not week or week.get("kind") == "race"):
+        record = race_history[-1]
+        if not week:
+            week = recap_from_last_race()
+        results = record.get("results") or []
+        week["pole"] = record.get("pole") or week.get("pole") or ""
+        week["cautions"] = int(record.get("cautions") or week.get("cautions") or 0)
+        week["weather"] = record.get("weather") or week.get("weather") or ""
+        week["tv_rating"] = record.get("tv_rating")
+        week["gate"] = record.get("gate")
+        week["podium"] = [
+            {
+                "position": int(row.get("position") or index),
+                "driver": row.get("driver") or "",
+                "team": row.get("team") or "",
+            }
+            for index, row in enumerate(results[:3], start=1)
+        ]
+    return week
+
+
 def print_qualifying_report(weekend):
     """Print starting grid, penalties, heats, stages, and cautions."""
 
@@ -10305,36 +10374,9 @@ def build_ui_snapshot():
                     for choice in event.get("choices") or []
                 ],
             }
-    driver_rows = []
-    if drivers:
-        for driver in drivers:
-            driver_rows.append(
-                {
-                    "name": driver.name,
-                    "team": driver.team_name,
-                    "points": driver.points,
-                    "wins": driver.wins,
-                    "personality": driver.personality,
-                }
-            )
-        driver_rows.sort(
-            key=lambda row: (
-                -int(row.get("points") or 0),
-                -int(row.get("wins") or 0),
-                row.get("name") or "",
-            )
-        )
-    completed_races = len(race_history)
-    schedule_rows = []
-    for index, track in enumerate(tracks, start=1):
-        schedule_rows.append(
-            {
-                "race": index,
-                "name": track.name,
-                "type": track.type,
-                "complete": index <= completed_races,
-            }
-        )
+    driver_rows = office_standings_book()
+    schedule_rows = office_schedule_book()
+    recap = office_recap_book()
     series = series_name()
     week = office_week_preview()
     mail_body = (
@@ -10358,7 +10400,9 @@ def build_ui_snapshot():
             "advance_label": week.get("label") or "Advance",
             "advance_python": sys.executable,
             "advance_script": str(office_advance_script()),
-            "week_recap": league.get("last_office_week"),
+            "week_recap": recap,
+            "recap": recap,
+            "palette": "winston-cup",
             "mail": {
                 "title": "Welcome to %s" % series,
                 "from": "Series Office — %s" % calendar.phase_label(),
@@ -10367,6 +10411,7 @@ def build_ui_snapshot():
             "headlines": list(league.get("last_media_stories") or []),
             "alerts": list(alerts),
             "drivers": driver_rows,
+            "standings": driver_rows,
             "schedule": schedule_rows,
             "menu_items": [
                 {"id": "1", "label": "Start new career"},
@@ -10521,13 +10566,27 @@ def recap_from_last_race():
         "Advance again for the next week."
         % (race_number, track_name, winner, pole, cautions)
     )
+    podium = [
+        {
+            "position": int(row.get("position") or index),
+            "driver": row.get("driver") or "",
+            "team": row.get("team") or "",
+        }
+        for index, row in enumerate((record.get("results") or [])[:3], start=1)
+    ]
     return {
         "kind": "race",
         "title": "Race %s — %s wins %s" % (race_number, winner, track_name),
         "body": body,
-        "race_number": race_number,
+        "race_number": int(race_number),
         "track": track_name,
         "winner": winner,
+        "pole": pole,
+        "cautions": int(cautions),
+        "weather": record.get("weather") or "",
+        "tv_rating": record.get("tv_rating"),
+        "gate": record.get("gate"),
+        "podium": podium,
     }
 
 

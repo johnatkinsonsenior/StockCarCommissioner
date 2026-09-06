@@ -181,3 +181,5 @@
 | 179 | Hearings and league letters in Mail | Medium | Completed |
 | 180 | Advance one week from the office | High | Completed |
 | 181 | Race-week recap letters | Medium | Completed |
+| 182 | Standings and schedule screens | High | Completed |
+| 183 | Race recap screens | Medium | Completed |
