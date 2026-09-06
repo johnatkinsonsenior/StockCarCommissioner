@@ -75,6 +75,7 @@ func _headless_tour() -> void:
 	_show_section("treasury")
 	_show_section("television")
 	_show_section("sponsors")
+	_show_section("hearings")
 	_show_section("mail")
 	call_deferred("_quit_headless")
 
@@ -169,6 +170,7 @@ func _build_sidebar() -> void:
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", COL_GOLD)
 	sidebar.add_child(title)
+	sidebar.add_child(_gold_rule())
 	sidebar.add_child(_muted(str(snapshot.get("series", ""))))
 
 	var nav_list := VBoxContainer.new()
@@ -711,7 +713,9 @@ func _fill_schedule() -> void:
 
 func _fill_hearings() -> void:
 	center_body.add_child(_title("Hearings"))
+	center_body.add_child(_gold_rule())
 	var hearings := _hearing_letters()
+	print("HEARINGS=", str(hearings.size()))
 	if hearings.is_empty():
 		center_body.add_child(_muted("No hearing is in the inbox."))
 		return
@@ -870,18 +874,76 @@ func _fill_sponsors() -> void:
 
 func _fill_rulebook() -> void:
 	center_body.add_child(_title("Rulebook"))
-	var policies: Array = _dash().get("policies", [])
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_muted("Series-wide Cup rules. Hearings change these in Day 98."))
+	var policies: Array = _as_array(snapshot.get("rulebook", _dash().get("policies", [])))
+	print("RULEBOOK=", str(policies.size()))
 	if policies.is_empty():
 		center_body.add_child(_muted("No policies in this snapshot."))
 		return
 	for policy in policies:
-		center_body.add_child(_line(str(policy)))
+		if typeof(policy) == TYPE_DICTIONARY:
+			var row: Dictionary = policy
+			center_body.add_child(_gold_line(str(row.get("label", row.get("id", "Rule")))))
+			center_body.add_child(_muted(str(row.get("key", ""))))
+		else:
+			center_body.add_child(_line(str(policy)))
 
 
 func _fill_board() -> void:
 	center_body.add_child(_title("Board"))
-	center_body.add_child(_line(str(_dash().get("board", "Board not seated."))))
-	center_body.add_child(_line(str(_dash().get("approval", ""))))
+	center_body.add_child(_gold_rule())
+	var book := _as_dict(snapshot.get("board", {}))
+	var councils := _as_dict(snapshot.get("councils", {}))
+	print("BOARD_CONFIDENCE=", str(book.get("confidence_label", "")))
+	center_body.add_child(_line("Confidence: %s (%s)" % [
+		str(book.get("confidence_label", "—")),
+		str(book.get("confidence", "—")),
+	]))
+	center_body.add_child(_line("Dismissal risk: %s (%s)" % [
+		str(book.get("risk_label", "—")),
+		str(book.get("risk", "—")),
+	]))
+	if book.get("confidence") != null:
+		center_body.add_child(_meter("Board confidence", _as_int(book.get("confidence", 0)), COL_GOLD))
+		center_body.add_child(_meter("Dismissal risk", _as_int(book.get("risk", 0)), Color("c44536")))
+	center_body.add_child(_title("Approval"))
+	center_body.add_child(_line("%s (%s)" % [
+		str(book.get("approval_label", "—")),
+		str(book.get("approval", "—")),
+	]))
+	if book.get("fans") != null:
+		center_body.add_child(_meter("Fans", _as_int(book.get("fans", 0)), COL_GOLD))
+		center_body.add_child(_meter("Owners", _as_int(book.get("owners", 0)), COL_CRIMSON))
+		center_body.add_child(_meter("Drivers", _as_int(book.get("drivers", 0)), Color("3d9b6e")))
+	var owners := _as_dict(councils.get("owners", {}))
+	var garage := _as_dict(councils.get("drivers", {}))
+	print("COUNCIL_OWNER=", str(owners.get("chair", "")))
+	print("COUNCIL_DRIVER=", str(garage.get("chair", "")))
+	center_body.add_child(_title("Owner Council"))
+	center_body.add_child(_line("Chair: %s  (%s)" % [
+		str(owners.get("chair", "—")),
+		str(owners.get("team", "")),
+	]))
+	center_body.add_child(_muted("Mood: %s  ·  %s seats" % [
+		str(owners.get("mood", "quiet")),
+		str(_as_int(owners.get("seats", 0))),
+	]))
+	if str(owners.get("last", "")) != "":
+		center_body.add_child(_muted("Last vote: %s" % str(owners.get("last", ""))))
+	else:
+		center_body.add_child(_muted("No rebuke vote this career yet."))
+	center_body.add_child(_title("Driver Council"))
+	center_body.add_child(_line("Chair: %s" % str(garage.get("chair", "—"))))
+	center_body.add_child(_muted("Mood: %s  ·  %s seats" % [
+		str(garage.get("mood", "settled")),
+		str(_as_int(garage.get("seats", 0))),
+	]))
+	if str(garage.get("last", "")) != "":
+		center_body.add_child(_muted("Last feedback: %s" % str(garage.get("last", ""))))
+	else:
+		center_body.add_child(_muted("The garage has not filed this career yet."))
+	center_body.add_child(_muted("Rule docket: %s paper(s)" % str(_as_int(councils.get("docket", 0)))))
 
 
 func _fill_settings() -> void:
