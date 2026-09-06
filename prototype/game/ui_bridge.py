@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "0.4"
+UI_VERSION = "0.5"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -423,7 +423,22 @@ def compose_ui_snapshot(payload):
         "dashboard": dashboard,
         "decision": payload.get("decision"),
         "drivers": list(payload.get("drivers") or []),
+        "standings": list(
+            payload.get("standings") or payload.get("drivers") or []
+        ),
         "schedule": list(payload.get("schedule") or []),
+        "recap": payload.get("recap") or payload.get("week_recap"),
+        "teams": list(
+            payload.get("teams") or dashboard.get("teams") or []
+        ),
+        "prospects": list(payload.get("prospects") or []),
+        "treasury": payload.get("treasury") or {},
+        "television": payload.get("television") or {},
+        "sponsors": payload.get("sponsors") or {},
+        "rulebook": list(payload.get("rulebook") or []),
+        "councils": payload.get("councils") or {},
+        "board": payload.get("board") or {},
+        "palette": payload.get("palette") or "winston-cup",
         "office": office,
     }
 

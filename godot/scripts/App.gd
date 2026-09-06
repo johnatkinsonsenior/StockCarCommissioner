@@ -1,17 +1,19 @@
 extends Control
 
 const SNAPSHOT_PATH := "res://data/ui_snapshot.json"
-const COL_BG := Color("1e1e1e")
-const COL_SIDE := Color("141414")
-const COL_PANEL := Color("252525")
-const COL_BLUE := Color("3a7bd5")
-const COL_BLUE_ON := Color("2b6cb0")
-const COL_GREEN := Color("2d6a4f")
-const COL_GREEN_DIM := Color("1b4332")
-const COL_TEXT := Color("f4f4f4")
-const COL_MUTED := Color("9aa3ad")
+const COL_BG := Color("1a0c0e")
+const COL_SIDE := Color("140808")
+const COL_PANEL := Color("2a1418")
+const COL_CRIMSON := Color("8b1e2d")
+const COL_CRIMSON_ON := Color("c4283a")
+const COL_BLUE := Color("8b1e2d")
+const COL_BLUE_ON := Color("c4283a")
+const COL_GREEN := Color("c9a227")
+const COL_GREEN_DIM := Color("5c4a18")
+const COL_TEXT := Color("f7f4ee")
+const COL_MUTED := Color("c4b8a8")
 const COL_GOLD := Color("d4a017")
-const COL_LINE := Color("3a3a3a")
+const COL_LINE := Color("8a5a28")
 
 var snapshot: Dictionary = {}
 var screen_name := "mail"
@@ -37,6 +39,7 @@ func _ready() -> void:
 	_show_section("mail")
 	print("UI_READY")
 	print("OFFICE_READY")
+	print("PALETTE=", str(snapshot.get("palette", "")))
 	print("LAYOUT=commissioner-desk")
 	print("SERIES=", str(snapshot.get("series", "")))
 	print("SCREEN=", screen_name)
@@ -490,7 +493,7 @@ func _style_inbox_button(button: Button, active: bool, kind: String) -> void:
 		style.bg_color = COL_GREEN_DIM
 	else:
 		style.bg_color = COL_PANEL
-	style.set_corner_radius_all(4)
+	style.set_corner_radius_all(2)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
 	style.content_margin_top = 8
@@ -622,51 +625,82 @@ func _fill_dashboard() -> void:
 
 func _fill_standings() -> void:
 	center_body.add_child(_title("Standings"))
-	center_body.add_child(_muted("Premier grid. Points update when weekends are Advanced."))
-	var drivers: Array = snapshot.get("drivers", [])
-	if drivers.is_empty():
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_muted("Cup points. The table updates when you Advance a weekend."))
+	_fill_recap_card()
+	var rows: Array = _as_array(snapshot.get("standings", snapshot.get("drivers", [])))
+	if rows.is_empty():
 		center_body.add_child(_muted("No drivers in this snapshot."))
 		print("STANDINGS_TOP=")
+		print("STANDINGS_RANK=")
 		return
-	var rows: Array = drivers.duplicate()
 	rows.sort_custom(func(left, right):
 		var a: Dictionary = left
 		var b: Dictionary = right
-		return int(a.get("points", 0)) > int(b.get("points", 0))
+		var a_pts := _as_int(a.get("points", 0))
+		var b_pts := _as_int(b.get("points", 0))
+		if a_pts == b_pts:
+			return _as_int(a.get("wins", 0)) > _as_int(b.get("wins", 0))
+		return a_pts > b_pts
 	)
 	var leader: Dictionary = rows[0]
 	print("STANDINGS_TOP=", str(leader.get("name", "")))
-	print("STANDINGS_POINTS=", str(leader.get("points", 0)))
+	print("STANDINGS_POINTS=", str(_as_int(leader.get("points", 0))))
+	print("STANDINGS_RANK=", str(_as_int(leader.get("rank", 1))))
+	var index := 1
 	for row in rows:
 		var item: Dictionary = row
-		center_body.add_child(_line("%s  (%s)  %s pts  %s wins" % [
+		var rank := _as_int(item.get("rank", index))
+		var wins := _as_int(item.get("wins", 0))
+		var win_word := "win" if wins == 1 else "wins"
+		var line := "#%s  %s    %s pts    %s %s" % [
+			str(rank),
 			str(item.get("name", "")),
-			str(item.get("team", "")),
-			str(item.get("points", 0)),
-			str(item.get("wins", 0)),
-		]))
+			str(_as_int(item.get("points", 0))),
+			str(wins),
+			win_word,
+		]
+		if index == 1:
+			center_body.add_child(_gold_line(line))
+		else:
+			center_body.add_child(_line(line))
+		center_body.add_child(_muted(str(item.get("team", ""))))
+		index += 1
 
 
 func _fill_schedule() -> void:
 	center_body.add_child(_title("Schedule"))
-	var races: Array = snapshot.get("schedule", [])
+	center_body.add_child(_gold_rule())
+	var races: Array = _as_array(snapshot.get("schedule", []))
 	if races.is_empty():
 		center_body.add_child(_muted("No calendar in this snapshot."))
 		print("SCHEDULE_COMPLETE=0")
+		print("SCHEDULE_NEXT=")
 		return
+	_fill_recap_card()
 	var done := 0
+	var next_name := ""
 	for row in races:
 		var item: Dictionary = row
 		var finished := bool(item.get("complete", false))
+		var is_next := bool(item.get("next", false))
 		if finished:
 			done += 1
-		center_body.add_child(_line("%sR%s  %s  (%s)" % [
-			"✓ " if finished else "",
-			str(item.get("race", "")),
+		if is_next:
+			next_name = str(item.get("name", ""))
+		var tag := "    "
+		if finished:
+			tag = "DONE"
+		elif is_next:
+			tag = "NEXT"
+		center_body.add_child(_line("%s  R%s  %s" % [
+			tag,
+			str(_as_int(item.get("race", 0))),
 			str(item.get("name", "")),
-			str(item.get("type", "")),
 		]))
+		center_body.add_child(_muted(str(item.get("type", ""))))
 	print("SCHEDULE_COMPLETE=", str(done))
+	print("SCHEDULE_NEXT=", next_name)
 
 
 func _fill_hearings() -> void:
@@ -793,7 +827,7 @@ func _title(text: String) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", 22)
-	label.add_theme_color_override("font_color", COL_TEXT)
+	label.add_theme_color_override("font_color", COL_GOLD)
 	return label
 
 
@@ -809,6 +843,70 @@ func _muted(text: String) -> Label:
 	var label := _line(text)
 	label.add_theme_color_override("font_color", COL_MUTED)
 	return label
+
+
+func _gold_line(text: String) -> Label:
+	var label := _line(text)
+	label.add_theme_color_override("font_color", COL_GOLD)
+	return label
+
+
+func _gold_rule() -> ColorRect:
+	var rule := ColorRect.new()
+	rule.color = COL_GOLD
+	rule.custom_minimum_size = Vector2(0, 2)
+	rule.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return rule
+
+
+func _as_int(value: Variant) -> int:
+	return int(float(str(value)))
+
+
+func _as_dict(value: Variant) -> Dictionary:
+	if typeof(value) == TYPE_DICTIONARY:
+		return value
+	return {}
+
+
+func _as_array(value: Variant) -> Array:
+	if typeof(value) == TYPE_ARRAY:
+		return value
+	return []
+
+
+func _recap() -> Dictionary:
+	return _as_dict(snapshot.get("recap", {}))
+
+
+func _fill_recap_card() -> void:
+	var recap := _recap()
+	if recap.is_empty() or str(recap.get("title", "")) == "":
+		print("RECAP_WINNER=")
+		return
+	center_body.add_child(_line(str(recap.get("title", "Week recap"))))
+	var winner := str(recap.get("winner", ""))
+	print("RECAP_WINNER=", winner)
+	print("RECAP_TRACK=", str(recap.get("track", "")))
+	print("RECAP_KIND=", str(recap.get("kind", "")))
+	if winner != "":
+		center_body.add_child(_muted("Winner: %s" % winner))
+	if str(recap.get("pole", "")) != "":
+		center_body.add_child(_muted("Pole: %s" % str(recap.get("pole", ""))))
+	if recap.get("cautions") != null:
+		center_body.add_child(_muted("Cautions: %s" % str(_as_int(recap.get("cautions", 0)))))
+	if str(recap.get("weather", "")) != "":
+		center_body.add_child(_muted("Weather: %s" % str(recap.get("weather", ""))))
+	for row in _as_array(recap.get("podium", [])):
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = row
+		center_body.add_child(_line("P%s  %s  (%s)" % [
+			str(_as_int(item.get("position", 0))),
+			str(item.get("driver", "")),
+			str(item.get("team", "")),
+		]))
+	center_body.add_child(_gold_rule())
 
 
 func _group_label(text: String) -> Control:
@@ -852,7 +950,7 @@ func _meter(label_text: String, value: int, fill: Color) -> VBoxContainer:
 func _style_nav(button: Button, active: bool) -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = COL_BLUE_ON if active else COL_BLUE
-	style.set_corner_radius_all(6)
+	style.set_corner_radius_all(2)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
 	style.content_margin_top = 5
@@ -868,7 +966,7 @@ func _style_advance(unlocked: bool) -> void:
 		return
 	var style := StyleBoxFlat.new()
 	style.bg_color = COL_GREEN if unlocked else COL_GREEN_DIM
-	style.set_corner_radius_all(6)
+	style.set_corner_radius_all(2)
 	style.content_margin_left = 16
 	style.content_margin_right = 16
 	style.content_margin_top = 10
@@ -883,7 +981,8 @@ func _panel(bg: Color, border: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
 	style.border_color = border
-	style.set_border_width_all(1)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(0)
 	style.content_margin_left = 12
 	style.content_margin_right = 12
 	style.content_margin_top = 10
