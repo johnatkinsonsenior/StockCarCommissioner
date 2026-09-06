@@ -170,3 +170,5 @@
 | 168 | Career-mode playtest zip and launchers | Medium | Completed |
 | 169 | Commissioner office shell | High | Completed |
 | 170 | Sidebar, Advance, mail, and gated checklist | Medium | Completed |
+| 171 | Winston Cup era books | High | Not Started |
+| 172 | 1970s / 1980s / pinnacle / beyond settings | Medium | Not Started |

@@ -41,23 +41,59 @@ Repeat
 
 ## Creative North Star
 
-The sim is a stock car **commissioner** desk in the **Winston Cup era** (late 1980s through the mid-1990s). The player does not drive and does not run a single team. They run the sanctioning body the way a league office runs football or baseball: a season, an offseason, and a **weekly** cadence.
+The sim is a stock car **commissioner** desk. The player does not drive and
+does not run a single team. They run the sanctioning body the way a league
+office runs football or baseball: a season, an offseason, and a **weekly**
+cadence.
 
-### Palette and era
+### The pinnacle era (default)
 
-Crimson (or deep red), gold, and white. Wood-and-brass league office, race-week TV graphics, newspaper sports page — not a modern dark-blue app. Gold rules and crimson fills on a light or cream field, with white type and hard edges.
+Late 1980s through early-to-mid 1990s **Winston Cup** is the peak this game
+is built to capture. That is the default opening: the moment the sport felt
+biggest, loudest, and most like a national league office — cigarette-series
+prestige, packed short tracks and superspeedways, factory wars, and a
+commissioner who can still feel the garage.
 
-### 16-bit sports-sim look
+The sim's **systems** are the full modern commissioner model (TV, sponsors,
+board, manufacturers, feeder, hearings). A career **rewinds** that model
+into the chosen era. You are not locked to one frozen year. You start in an
+era book, then live forward, the way Out of the Park starts in 1969 or 1994
+and Front Office Football starts in a given season.
 
-The UI should feel like a late-’80s through early-to-mid-’90s cartridge sports game: chunky panels, a short palette, readable tables, no photoreal chrome. That 16-bit sports-desk look is the target (the revival that is popular again). Layout still follows a commissioner office, not an arcade racer.
+### Era books and settings
 
-### Games we steal from (not copy)
+A new career picks an era, then difficulty, length, and autosave. Planned
+presets:
 
-- **Out of the Park Baseball** — inspectable world, news, history, you Advance time on purpose
-- **Front Office Football** — weekly desk work between games, information density
-- **Football Commissioner** — left nav, status bar, mail, checklist, green Advance
+- **1970s Winston Cup** — the series is still becoming a true national
+  league; shorter TV shadow, more regional grit, a younger sanctioning body
+- **1980s Winston Cup** — the sport scales up; more money, more national
+  TV, the office gets real
+- **Pinnacle (late ’80s–mid ’90s)** — the default; the peak the player is
+  meant to inhabit
+- **Beyond** — settings to push past that peak (later rules, bigger
+  commercial load, custom sliders) so the same commissioner brain can run
+  “what if this office kept going” without abandoning the Winston Cup soul
 
-Python still simulates. Godot is the desk. Day 91 proved the Football Commissioner shell; later days restyle it to this Winston Cup / 16-bit look and make Advance a week, not a season dump.
+Those books are configuration, not a second game. Same desk, same weekly
+Advance, same hearings. The era changes the world you inherit: schedule
+shape, commercial heat, how loud the board is, how the garage talks.
+
+### Palette and look
+
+Crimson (or deep red), gold, and white. Wood-and-brass league office,
+race-week TV graphics, newspaper sports page — not a modern dark-blue app.
+Gold rules and crimson fills on a light or cream field, with white type and
+hard edges.
+
+The UI should feel like a late-’80s through early-to-mid-’90s cartridge
+sports game: chunky panels, a short palette, readable tables, no photoreal
+chrome. Layout still follows a commissioner office (Football Commissioner),
+with OOTP-style inspection and Front Office Football weeks.
+
+Python still simulates. Godot is the desk. Day 91 proved the shell; later
+days restyle to this look, Advance by the week, and expose era as a
+setting.
 
 ## Commissioner Discipline System
 
@@ -530,6 +566,8 @@ A new career asks for **difficulty**, **career length**, and **autosave**. The s
 
 Difficulty and autosave are stored on the career save (0.0.39). Legacy 0.0.38 files load as Normal, three seasons, autosave off.
 
+**Era** is a planned new-career setting, in the same family as OOTP's start year. The default book is **pinnacle Winston Cup** (late ’80s–mid ’90s). Other books are **1970s**, **1980s**, and **beyond** (sliders to take the same commissioner model past that peak). Era is not in the live settings file yet; it lands with the office new-career flow.
+
 ## Balance Simulation
 
 Main menu item 6 runs a batch of AI careers so the opening book can be measured before playtesting. The auto-commissioner answers every numbered hearing and post-race ruling, skips save prompts, and silences the season printout.
@@ -544,11 +582,13 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 `godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH.
 
-The office opens on series mail. Visiting Dashboard, Standings, Teams, Television, Drivers, Rulebook, Board, and Mail fills the checklist. Advance stays locked until that tour is done, then it shows the queued preseason hearing. Weekends do not sim from Advance until a later day. This is the start of the desk, not a full OOTP-style career UI.
+The office opens on series mail. Visiting Dashboard, Standings, Teams, Television, Drivers, Rulebook, Board, and Mail fills the checklist. Advance stays locked until that tour is done, then it shows the queued preseason hearing. Day 91 is the Football Commissioner layout in charcoal/blue. Later office days restyle to Winston Cup crimson, gold, and white with 16-bit sports-sim chrome, and Advance becomes a **week** (race week or off week), not a dump of the season.
 
 ## League Calendar
 
-Each season moves through a fixed league calendar:
+Each season moves through a fixed league calendar. On the desk, time
+Advances in **weeks**, like football or baseball — race week, off week, or
+offseason week — not a printed dump of every race.
 
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order; the development series races its own calendar alongside the first eight weekends

@@ -5,12 +5,12 @@ Version-controlled progress tracker. Mirrors feature status in
 
 - **Primary goal:** a deep, replayable stock car *commissioner* simulation.
   The player runs the sanctioning body, not a race team.
-- **Era and look:** Winston Cup (late ’80s–mid ’90s). Crimson, gold, and
-  white. 16-bit sports-sim desk (SNES/Genesis-era feel), not a modern dark
-  dashboard.
+- **Era and look:** default book is the **pinnacle** Winston Cup (late
+  ’80s–early/mid ’90s). Also runnable: 1970s, 1980s, and settings to push
+  **beyond** that peak. Crimson, gold, and white. 16-bit sports-sim desk.
 - **Desk flow:** Football Commissioner layout (nav, mail, checklist,
-  Advance) plus the best of OOTP (inspectable world, news, history) and
-  Front Office Football (weekly cadence between events).
+  Advance) plus the best of OOTP (era start, inspectable world, news,
+  history) and Front Office Football (weekly cadence between events).
 - **Calendar:** a season and an offseason, Advanced **week by week** (race
   week, off week, offseason week). Godot is the office; Python simulates.
 - **Working method:** each day ends with a working build, a quick test, and a
@@ -177,11 +177,12 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
 ## Post-Alpha — Commissioner Office
 
-The 90-day plan proved the sim. This era turns it into a Winston Cup-era
-desk you sit at: crimson, gold, and white; 16-bit sports-sim chrome;
-Football Commissioner flow; OOTP-style inspection; Front Office Football
-weeks. The player stays the commissioner. A team-owner career is a later
-era, not this one.
+The 90-day plan proved the sim. This era turns it into a Winston Cup
+commissioner desk: the **pinnacle** late-’80s–mid-’90s book by default,
+with 1970s / 1980s / beyond as settings; crimson, gold, and white; 16-bit
+sports-sim chrome; Football Commissioner flow; OOTP-style era start and
+inspection; Front Office Football weeks. The player stays the commissioner.
+A team-owner career is a later era, not this one.
 
 ### Era 1 — The Desk
 - [x] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
@@ -202,7 +203,7 @@ era, not this one.
 ### Era 2 — Player-paced career
 - [ ] Day 98 — Hearing choices in the office write back to the sim
 - [ ] Day 99 — Save and load from the office
-- [ ] Day 100 — New career and continue from the office
+- [ ] Day 100 — New career and continue from the office (including era book)
 - [ ] Day 101 — Offseason as desk weeks, not a print dump
 - [ ] Day 102 — Race-weekend recap card (qualifying, cautions, investigation)
 - [ ] Day 103 — Alerts arrive as mail
@@ -219,6 +220,8 @@ era, not this one.
 - [ ] Day 109 — News ticker and beat-writer headlines on the desk
 - [ ] Day 110 — Balance pass so meters hold for a decade
 - [ ] Day 111 — Packaged office build for playtesters
+- [ ] Day 112 — Era books: 1970s, 1980s, pinnacle (late ’80s–mid ’90s), and beyond
 
-> **Milestone — Day 111 Living Office:** the desk sits on a full-sized paddock
-> with history you can inspect.
+> **Milestone — Day 112 Living Office:** the desk sits on a full-sized paddock
+> with history you can inspect, and a new career can start in the pinnacle
+> Winston Cup or rewind the same model into the 1970s, 1980s, or beyond.

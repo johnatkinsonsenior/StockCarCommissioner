@@ -32,9 +32,10 @@ The optional Godot desk:
     ./play_ui.sh
 
 Godot is the commissioner office (sidebar, mail, checklist, Advance). The
-target look is Winston Cup-era crimson, gold, and white with a 16-bit
-sports-sim desk. Export templates are not required. Python still simulates
-the season.
+target look is Winston Cup crimson, gold, and white with a 16-bit sports-sim
+desk. The default career book is the late-’80s–mid-’90s peak; era settings
+will let you rewind the same model into the 1970s or 1980s, or push beyond.
+Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build
 
