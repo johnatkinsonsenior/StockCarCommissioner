@@ -185,3 +185,5 @@
 | 183 | Race recap screens | Medium | Completed |
 | 184 | Teams, drivers, and prospect pages | High | Completed |
 | 185 | Business screens (treasury, TV, sponsors) | High | Completed |
+| 186 | Rulebook, councils, and board on the desk | High | Completed |
+| 187 | Winston Cup office chrome | Medium | Completed |

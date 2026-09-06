@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–96 complete. Next coding day:
-**Day 97 — Rulebook, councils, and board on the desk**.
+**Current position:** Days 1–97 complete. Next coding day:
+**Day 98 — Hearing choices in the office write back to the sim**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -198,7 +198,7 @@ A team-owner career is a later era, not this one.
 - [x] Day 94 — Standings, schedule, and race recap screens
 - [x] Day 95 — Teams, drivers, and prospect pages
 - [x] Day 96 — Business screens (treasury, TV, sponsors)
-- [ ] Day 97 — Rulebook, councils, and board on the desk
+- [x] Day 97 — Rulebook, councils, and board on the desk
 
 > Screens in this era use the Winston Cup palette (crimson, gold, white) and
 > 16-bit sports-sim chrome. Day 91's charcoal/blue shell is the layout
