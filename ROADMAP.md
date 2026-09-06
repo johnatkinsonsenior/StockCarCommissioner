@@ -3,10 +3,16 @@
 Version-controlled progress tracker. Mirrors feature status in
 [`docs/Backlog.md`](docs/Backlog.md).
 
-- **Primary goal:** a deep, replayable stock car racing *commissioner*
-  simulation (the player runs the sanctioning body, not a race team).
-- **Reference desk:** Football Commissioner — left nav, status bar, Advance,
-  mail, and a gated checklist. Godot is the office; Python simulates.
+- **Primary goal:** a deep, replayable stock car *commissioner* simulation.
+  The player runs the sanctioning body, not a race team.
+- **Era and look:** Winston Cup (late ’80s–mid ’90s). Crimson, gold, and
+  white. 16-bit sports-sim desk (SNES/Genesis-era feel), not a modern dark
+  dashboard.
+- **Desk flow:** Football Commissioner layout (nav, mail, checklist,
+  Advance) plus the best of OOTP (inspectable world, news, history) and
+  Front Office Football (weekly cadence between events).
+- **Calendar:** a season and an offseason, Advanced **week by week** (race
+  week, off week, offseason week). Godot is the office; Python simulates.
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
@@ -171,22 +177,27 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
 ## Post-Alpha — Commissioner Office
 
-The 90-day plan proved the sim. This era turns it into a desk you sit at,
-in the same flow as Football Commissioner / Out of the Park: browse screens,
-handle mail, then Advance time. The player stays the commissioner. A
-team-owner career is a later era, not this one.
+The 90-day plan proved the sim. This era turns it into a Winston Cup-era
+desk you sit at: crimson, gold, and white; 16-bit sports-sim chrome;
+Football Commissioner flow; OOTP-style inspection; Front Office Football
+weeks. The player stays the commissioner. A team-owner career is a later
+era, not this one.
 
 ### Era 1 — The Desk
 - [x] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
 - [ ] Day 92 — Live mail inbox (hearings and league letters in the center pane)
-- [ ] Day 93 — Advance one weekend from the office
+- [ ] Day 93 — Advance one week from the office (race week or off week)
 - [ ] Day 94 — Standings, schedule, and race recap screens
 - [ ] Day 95 — Teams, drivers, and prospect pages
 - [ ] Day 96 — Business screens (treasury, TV, sponsors)
 - [ ] Day 97 — Rulebook, councils, and board on the desk
 
+> Screens in this era use the Winston Cup palette (crimson, gold, white) and
+> 16-bit sports-sim chrome. Day 91's charcoal/blue shell is the layout
+> prototype only; later desk days restyle as they land.
+
 > **Milestone — Day 97 Commissioner Office:** the player sits in an office and
-> Advances time; they do not scroll a season log.
+> Advances a week at a time; they do not scroll a season log.
 
 ### Era 2 — Player-paced career
 - [ ] Day 98 — Hearing choices in the office write back to the sim

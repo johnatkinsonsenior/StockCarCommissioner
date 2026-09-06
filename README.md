@@ -31,8 +31,10 @@ The optional Godot desk:
 
     ./play_ui.sh
 
-Godot is the commissioner office (sidebar, mail, checklist, Advance). Export
-templates are not required. The Python career still simulates the season.
+Godot is the commissioner office (sidebar, mail, checklist, Advance). The
+target look is Winston Cup-era crimson, gold, and white with a 16-bit
+sports-sim desk. Export templates are not required. Python still simulates
+the season.
 
 ## Package a playtest build
 

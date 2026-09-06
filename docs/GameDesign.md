@@ -39,6 +39,26 @@ Grow the league
 
 Repeat
 
+## Creative North Star
+
+The sim is a stock car **commissioner** desk in the **Winston Cup era** (late 1980s through the mid-1990s). The player does not drive and does not run a single team. They run the sanctioning body the way a league office runs football or baseball: a season, an offseason, and a **weekly** cadence.
+
+### Palette and era
+
+Crimson (or deep red), gold, and white. Wood-and-brass league office, race-week TV graphics, newspaper sports page — not a modern dark-blue app. Gold rules and crimson fills on a light or cream field, with white type and hard edges.
+
+### 16-bit sports-sim look
+
+The UI should feel like a late-’80s through early-to-mid-’90s cartridge sports game: chunky panels, a short palette, readable tables, no photoreal chrome. That 16-bit sports-desk look is the target (the revival that is popular again). Layout still follows a commissioner office, not an arcade racer.
+
+### Games we steal from (not copy)
+
+- **Out of the Park Baseball** — inspectable world, news, history, you Advance time on purpose
+- **Front Office Football** — weekly desk work between games, information density
+- **Football Commissioner** — left nav, status bar, mail, checklist, green Advance
+
+Python still simulates. Godot is the desk. Day 91 proved the Football Commissioner shell; later days restyle it to this Winston Cup / 16-bit look and make Advance a week, not a season dump.
+
 ## Commissioner Discipline System
 
 Following reviewable race incidents, the commissioner may choose from several disciplinary actions:
