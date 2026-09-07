@@ -6,23 +6,29 @@ breaks down.
 
 ## Setup
 
-You need Python 3.10+. Unpack the zip (or use this repository) and run:
+You need Python 3.10+. Git is not required. Unpack the zip (or use this
+repository) and run:
 
     ./play.sh
 
-Windows / no bash:
+Windows: double-click `play.bat`, or from Command Prompt:
 
-    python3 prototype/run_season.py
+    play.bat
 
-Saves land in a `saves/` folder next to the launchers. They do not travel
-inside the zip.
+`play.bat` uses the Windows `py` launcher when it is installed, otherwise
+`python`. Saves land in a `saves/` folder next to the launchers. They do not
+travel inside the zip.
 
 Optional graphical desk (Godot 4.4 editor or binary on `PATH`, or `GODOT_BIN`):
 
     ./play_ui.sh
 
-The Godot project is a prototype overlay. You do not need export templates.
-Play and save through the Python career.
+Windows:
+
+    play_ui.bat
+
+The Godot project is a playable commissioner office. You do not need export
+templates. Hearings, Advance, save/load, and new career all run from the desk.
 
 ## Career loop
 

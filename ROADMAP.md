@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–103 complete. Next coding day:
-**Day 104 — Windows play path (no Git required for testers)**.
+**Current position:** Days 1–104 complete. Next coding day:
+**Day 105 — Full premier grid (more teams and a Cup-sized field)**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -214,10 +214,10 @@ A team-owner career is a later era, not this one.
 - [x] Day 101 — Offseason as desk weeks, not a print dump
 - [x] Day 102 — Race-weekend recap card (qualifying, cautions, investigation)
 - [x] Day 103 — Alerts arrive as mail
-- [ ] Day 104 — Windows play path (no Git required for testers)
+- [x] Day 104 — Windows play path (no Git required for testers)
 
 > **Milestone — Day 104 Playable Office Career:** a commissioner career can be
-> started, advanced, saved, and resumed from the Godot desk.
+> started, advanced, saved, and resumed from the Godot desk. ✅
 
 ### Era 3 — Full paddock
 - [ ] Day 105 — Full premier grid (more teams and a Cup-sized field)
