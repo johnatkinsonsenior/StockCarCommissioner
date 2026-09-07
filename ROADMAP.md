@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–112 complete. Next coding day:
-**Day 113 — Homologated two-door coupe bodies and manufacturer track maps**.
+**Current position:** Days 1–113 complete. Next coding day:
+**Day 114 — Per-track rules packages and a customizable Winston Cup rulebook**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -234,7 +234,7 @@ A team-owner career is a later era, not this one.
 > Winston Cup or rewind the same model into the 1970s, 1980s, or beyond. ✅
 
 ### Era 4 — Aero Wars
-- [ ] Day 113 — Homologated two-door coupe bodies and manufacturer track maps (Ford / GM / Chrysler families; aero + driver skill)
+- [x] Day 113 — Homologated two-door coupe bodies and manufacturer track maps (Ford / GM / Chrysler families; aero + driver skill)
 - [ ] Day 114 — Per-track rules packages and a customizable Winston Cup rulebook (homologation, wheelbase, aero specials, plates)
 
 > **Milestone — Day 114 Aero Wars:** each factory has a real body with holes
