@@ -36,14 +36,19 @@ not travel inside the zip.
    championship is filed. **Hall of Fame** hangs retirees who won a title,
    15 races, or 4,000 points.
 4. Settings: **Save desk career** writes `desk.json`. **Load** restores a
-   slot onto the office session. **New career** resets the desk (difficulty,
-   length, autosave, era book). **Continue desk** reloads `office.json`.
+   slot onto the office session. **New career** rewinds the desk (difficulty,
+   length, autosave, era book) — grid, factories, and TV change with the
+   book. **Continue desk** reloads `office.json`.
 5. Hearing choices write back to the same sim as the terminal. The hearing
    leaves the inbox once it is resolved.
 
 The pinnacle book seats Liberty, Pioneer, Summit, Harbor, Ironwood,
 Redline, Coastal, Midland, Crown, and Blue Ridge — twenty drivers. Silver
-Creek, Lakeside, and Prairie wait outside for a charter.
+Creek, Lakeside, Prairie, Piedmont, and Bayou wait outside for a charter.
+**1970s** opens eight shops with Valiant on Harbor and Ironwood and a
+thinner TV check. **1980s** opens nine; Valiant is fading at Harbor.
+**Beyond** seats twelve (Silver Creek and Lakeside join), invites Valiant
+back onto Harbor, and fattens treasury and TV.
 
 ## Terminal loop
 

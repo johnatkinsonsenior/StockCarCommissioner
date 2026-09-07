@@ -40,8 +40,9 @@ look is Winston Cup crimson, gold, and white with a 16-bit sports-sim desk.
 The pinnacle book opens on ten Cup shops and twenty drivers. Hearings,
 Advance, save/load, and new career all run from the desk. History reopens
 completed seasons; the Hall of Fame hangs retiree plaques; a gold ticker
-cycles beat-writer headlines. Era settings still store a career label;
-the full rewind is Day 112.
+cycles beat-writer headlines. A new career rewinds the opening world:
+1970s (eight shops, Valiant still badging), 1980s (nine shops, Valiant
+fading), pinnacle (ten shops), or beyond (twelve shops, fatter TV).
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build

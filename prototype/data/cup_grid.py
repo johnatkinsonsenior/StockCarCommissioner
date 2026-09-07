@@ -8,6 +8,8 @@ from game.models import Driver, Owner, Team
 
 PINNACLE_TEAM_COUNT = 10
 PINNACLE_DRIVER_COUNT = 20
+BEYOND_TEAM_COUNT = 12
+BEYOND_DRIVER_COUNT = 24
 
 
 def _shop(
@@ -75,7 +77,7 @@ def _seat(
 
 
 def premier_teams():
-    """Return the full Cup charter used by the pinnacle book."""
+    """Return the full 12-shop book; era helpers slice the opening charter."""
 
     return [
         _shop(
@@ -228,11 +230,41 @@ def premier_teams():
             46,
             63,
         ),
+        _shop(
+            "Silver Creek Racing",
+            "Apex",
+            71,
+            69,
+            73,
+            3_700_000,
+            "Claire Dunne",
+            "Hands-On",
+            66,
+            60,
+            "prestige",
+            42,
+            60,
+        ),
+        _shop(
+            "Lakeside Motorsports",
+            "Falcon",
+            69,
+            72,
+            76,
+            3_550_000,
+            "Otis Graham",
+            "Patient",
+            62,
+            68,
+            "stability",
+            40,
+            58,
+        ),
     ]
 
 
 def premier_drivers():
-    """Return the 20-car Cup grid that sits on the pinnacle charter."""
+    """Return the full 24-seat book; era helpers slice the opening grid."""
 
     return [
         _seat(
@@ -715,6 +747,98 @@ def premier_drivers():
             superspeedway=70,
             friendships={"Nash Whitaker": 72},
         ),
+        _seat(
+            "Colt Brennan",
+            "Silver Creek Racing",
+            28,
+            78,
+            71,
+            67,
+            "Aggressive",
+            "Drew Pell",
+            60,
+            780_000,
+            2,
+            rivalry_intensity=44,
+            teammate_bond=56,
+            reputation=50,
+            credibility=52,
+            short_track=74,
+            road_course=68,
+            intermediate=76,
+            superspeedway=80,
+        ),
+        _seat(
+            "Quinn Adler",
+            "Silver Creek Racing",
+            23,
+            73,
+            76,
+            58,
+            "Rookie",
+            "Sable York",
+            62,
+            720_000,
+            3,
+            rivalry_intensity=36,
+            teammate_bond=56,
+            reputation=44,
+            credibility=54,
+            is_rookie=True,
+            short_track=70,
+            road_course=74,
+            intermediate=72,
+            superspeedway=68,
+        ),
+        _seat(
+            "Drew Pell",
+            "Lakeside Motorsports",
+            34,
+            76,
+            80,
+            54,
+            "Veteran",
+            "Colt Brennan",
+            57,
+            750_000,
+            1,
+            rivalry_intensity=44,
+            ally="Sable York",
+            friendship_strength=66,
+            teammate_bond=70,
+            reputation=60,
+            credibility=68,
+            short_track=82,
+            road_course=66,
+            intermediate=74,
+            superspeedway=64,
+            friendships={"Sable York": 66},
+        ),
+        _seat(
+            "Sable York",
+            "Lakeside Motorsports",
+            26,
+            74,
+            75,
+            60,
+            "Popular",
+            "Quinn Adler",
+            70,
+            740_000,
+            2,
+            rivalry_intensity=36,
+            ally="Drew Pell",
+            friendship_strength=66,
+            teammate_bond=70,
+            reputation=52,
+            credibility=58,
+            media_skill=78,
+            short_track=72,
+            road_course=80,
+            intermediate=70,
+            superspeedway=72,
+            friendships={"Drew Pell": 66},
+        ),
     ]
 
 
@@ -766,6 +890,36 @@ def waiting_applicants():
             "budget": 3_400_000,
             "prestige": 38,
             "engineering": 57,
+        },
+        {
+            "owner_name": "Ned Barrow",
+            "team_name": "Piedmont Racing",
+            "personality": "Hands-On",
+            "wealth": 61,
+            "patience": 58,
+            "priority": "wins",
+            "manufacturer": "Independent",
+            "car_rating": 67,
+            "crew_rating": 68,
+            "reliability": 72,
+            "budget": 3_300_000,
+            "prestige": 36,
+            "engineering": 56,
+        },
+        {
+            "owner_name": "Lila March",
+            "team_name": "Bayou Speed",
+            "personality": "Patient",
+            "wealth": 57,
+            "patience": 70,
+            "priority": "stability",
+            "manufacturer": "Independent",
+            "car_rating": 66,
+            "crew_rating": 71,
+            "reliability": 74,
+            "budget": 3_250_000,
+            "prestige": 35,
+            "engineering": 55,
         },
     ]
 
