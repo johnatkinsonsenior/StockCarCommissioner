@@ -774,6 +774,7 @@ Main menu item 6 runs a batch of AI careers so the opening book can be measured 
 
 - Board hearings present the season. Charter reviews extend a bridge loan. Factory hearings hold the current badge. New-team hearings defer. Other events take the middle option. Discipline follows the investigation packet (warning when confidence is low, a fine in ordinary cases, points when the file is severe and controversy is already high).
 - A 50-season batch is 10 careers of 5 seasons. A 100-season batch is 20 careers of 5. Difficulty stays Normal and autosave stays off for the run, then the live career is restored.
+- Incident odds scale with the live field so a twenty-car Cup pack does not triple the wreck book versus the old six-car weekend. Expected yellows stay in a playable band for a decade; integrity, fans, controversy, and the board should hold without a second balance system.
 - The JSON report lands in `season_reports/` with champions, commissioner grades, league health, closures, entries, factory switches, call-ups, retirements, and budgets. It is not written into the career save.
 
 Loaded careers and a new season keep the same league-health numbers. Expired driver contracts re-sign with the incumbent shop. The treasury funds purses after TV and commercial checks.
