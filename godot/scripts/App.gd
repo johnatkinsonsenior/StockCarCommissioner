@@ -29,6 +29,8 @@ var checklist_progress: Label
 var nav_buttons: Dictionary = {}
 var hearing_held := false
 var era_book := "pinnacle"
+var profile_team := ""
+var profile_driver := ""
 
 
 func _ready() -> void:
@@ -96,6 +98,16 @@ func _headless_tour() -> void:
 	_show_section("sponsors")
 	_show_section("hearings")
 	_show_section("mail")
+	var shops: Array = _as_array(snapshot.get("teams", []))
+	if not shops.is_empty() and typeof(shops[0]) == TYPE_DICTIONARY:
+		profile_team = str(shops[0].get("id", shops[0].get("name", "")))
+		_show_section("teams")
+		print("PROFILE_TEAM=", profile_team)
+	var grid: Array = _as_array(snapshot.get("drivers", []))
+	if not grid.is_empty() and typeof(grid[0]) == TYPE_DICTIONARY:
+		profile_driver = str(grid[0].get("id", grid[0].get("name", "")))
+		_show_section("drivers")
+		print("PROFILE_DRIVER=", profile_driver)
 	_show_section("settings")
 	_on_office_save("desk")
 	_on_new_career("1970s")
@@ -307,6 +319,10 @@ func _on_nav(section_id: String) -> void:
 	if section_id == "quit":
 		get_tree().quit()
 		return
+	if section_id == "teams":
+		profile_team = ""
+	if section_id == "drivers":
+		profile_driver = ""
 	_show_section(section_id)
 
 
@@ -792,9 +808,12 @@ func _fill_hearings() -> void:
 
 
 func _fill_teams() -> void:
+	if profile_team != "":
+		_fill_team_profile()
+		return
 	center_body.add_child(_title("Teams"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("Shops on the Cup charter. You run the series, not a car."))
+	center_body.add_child(_muted("Shops on the Cup charter. Click a shop for the full card. You run the series, not a car."))
 	var shops: Array = _as_array(snapshot.get("teams", _dash().get("teams", [])))
 	print("TEAMS=", str(shops.size()))
 	if shops.is_empty():
@@ -802,7 +821,8 @@ func _fill_teams() -> void:
 		return
 	for team in shops:
 		var row: Dictionary = team
-		center_body.add_child(_gold_line(str(row.get("name", ""))))
+		var team_id := str(row.get("id", row.get("name", "")))
+		center_body.add_child(_profile_button(str(row.get("name", "")), _open_team_profile.bind(team_id)))
 		center_body.add_child(_line("Owner: %s  ·  %s" % [
 			str(row.get("owner", "")),
 			str(row.get("owner_priority", "")),
@@ -820,10 +840,68 @@ func _fill_teams() -> void:
 		center_body.add_child(_muted("Factory: %s" % str(row.get("factory", ""))))
 
 
+func _fill_team_profile() -> void:
+	var shops: Array = _as_array(snapshot.get("teams", []))
+	var row := _row_by_id(shops, profile_team)
+	center_body.add_child(_title("Team profile"))
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_profile_button("All shops", _open_team_profile.bind("")))
+	if row.is_empty():
+		center_body.add_child(_muted("That shop is not on the charter."))
+		print("PROFILE_TEAM=")
+		return
+	print("PROFILE_TEAM=", str(row.get("id", row.get("name", ""))))
+	center_body.add_child(_gold_line(str(row.get("name", ""))))
+	center_body.add_child(_line("%s  ·  owner %s (%s)" % [
+		str(row.get("manufacturer", "")),
+		str(row.get("owner", "")),
+		str(row.get("owner_personality", row.get("owner_priority", ""))),
+	]))
+	center_body.add_child(_muted("Priority %s  ·  factory %s" % [
+		str(row.get("owner_priority", "")),
+		str(row.get("factory", "")),
+	]))
+	center_body.add_child(_line("Car %s  ·  crew %s  ·  reliability %s  ·  engineering %s" % [
+		str(_as_int(row.get("car_rating", 0))),
+		str(_as_int(row.get("crew_rating", 0))),
+		str(_as_int(row.get("reliability", 0))),
+		str(_as_int(row.get("engineering", 0))),
+	]))
+	center_body.add_child(_muted("Prestige %s  ·  facility %s  ·  garage morale %s  ·  trust %s" % [
+		str(_as_int(row.get("prestige", 0))),
+		str(_as_int(row.get("facility", 0))),
+		str(_as_int(row.get("morale", 0))),
+		str(_as_int(row.get("trust", 0))),
+	]))
+	center_body.add_child(_muted("Career wins %s  ·  titles %s  ·  budget $%s" % [
+		str(_as_int(row.get("career_wins", 0))),
+		str(_as_int(row.get("titles", row.get("championships", 0)))),
+		_comma(row.get("budget", 0)),
+	]))
+	center_body.add_child(_muted("Sponsor: %s" % str(row.get("sponsor", "unsponsored"))))
+	center_body.add_child(_gold_line("Roster"))
+	var roster: Array = _as_array(row.get("roster", []))
+	if roster.is_empty():
+		center_body.add_child(_muted("No drivers listed."))
+		return
+	for seat in roster:
+		var item: Dictionary = seat
+		var driver_id := str(item.get("id", item.get("name", "")))
+		center_body.add_child(_profile_button(str(item.get("name", "")), _open_driver_profile.bind(driver_id)))
+		center_body.add_child(_muted("%s  ·  %s pts  ·  morale %s" % [
+			str(item.get("personality", "")),
+			str(_as_int(item.get("points", 0))),
+			str(_as_int(item.get("morale", 0))),
+		]))
+
+
 func _fill_drivers() -> void:
+	if profile_driver != "":
+		_fill_driver_profile()
+		return
 	center_body.add_child(_title("Drivers"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("The premier grid. Morale and trust are the garage."))
+	center_body.add_child(_muted("The premier grid. Click a name for the full card. Morale and trust are the garage."))
 	var rows: Array = _as_array(snapshot.get("drivers", []))
 	print("DRIVERS=", str(rows.size()))
 	if rows.is_empty():
@@ -831,7 +909,8 @@ func _fill_drivers() -> void:
 		return
 	for row in rows:
 		var item: Dictionary = row
-		center_body.add_child(_gold_line(str(item.get("name", ""))))
+		var driver_id := str(item.get("id", item.get("name", "")))
+		center_body.add_child(_profile_button(str(item.get("name", "")), _open_driver_profile.bind(driver_id)))
 		center_body.add_child(_line("%s  ·  %s" % [
 			str(item.get("team", "")),
 			str(item.get("personality", "")),
@@ -842,6 +921,58 @@ func _fill_drivers() -> void:
 			str(_as_int(item.get("morale", 0))),
 			str(_as_int(item.get("trust", 0))),
 		]))
+
+
+func _fill_driver_profile() -> void:
+	var rows: Array = _as_array(snapshot.get("drivers", []))
+	var item := _row_by_id(rows, profile_driver)
+	center_body.add_child(_title("Driver profile"))
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_profile_button("All drivers", _open_driver_profile.bind("")))
+	if item.is_empty():
+		center_body.add_child(_muted("That driver is not on the grid."))
+		print("PROFILE_DRIVER=")
+		return
+	print("PROFILE_DRIVER=", str(item.get("id", item.get("name", ""))))
+	center_body.add_child(_gold_line(str(item.get("name", ""))))
+	var team_id := str(item.get("team_id", item.get("team", "")))
+	center_body.add_child(_profile_button(str(item.get("team", "")), _open_team_profile.bind(team_id)))
+	center_body.add_child(_line("%s  ·  age %s  ·  overall %s" % [
+		str(item.get("personality", "")),
+		str(_as_int(item.get("age", 0))),
+		str(_as_int(item.get("overall", 0))),
+	]))
+	center_body.add_child(_muted("Speed %s  ·  consistency %s  ·  aggression %s" % [
+		str(_as_int(item.get("speed", 0))),
+		str(_as_int(item.get("consistency", 0))),
+		str(_as_int(item.get("aggression", 0))),
+	]))
+	center_body.add_child(_line("%s pts  ·  %s wins  ·  morale %s  ·  trust %s" % [
+		str(_as_int(item.get("points", 0))),
+		str(_as_int(item.get("wins", 0))),
+		str(_as_int(item.get("morale", 0))),
+		str(_as_int(item.get("trust", 0))),
+	]))
+	center_body.add_child(_muted("Career %s wins  ·  %s pts  ·  %s starts  ·  %s titles" % [
+		str(_as_int(item.get("career_wins", 0))),
+		str(_as_int(item.get("career_points", 0))),
+		str(_as_int(item.get("career_starts", 0))),
+		str(_as_int(item.get("championships", 0))),
+	]))
+	center_body.add_child(_muted("Salary $%s  ·  %s yr contract" % [
+		_comma(item.get("salary", 0)),
+		str(_as_int(item.get("contract_years", 0))),
+	]))
+	center_body.add_child(_muted("Short %s  ·  road %s  ·  intermediate %s  ·  superspeedway %s" % [
+		str(_as_int(item.get("short_track", 0))),
+		str(_as_int(item.get("road_course", 0))),
+		str(_as_int(item.get("intermediate", 0))),
+		str(_as_int(item.get("superspeedway", 0))),
+	]))
+	if str(item.get("rival", "")) != "":
+		center_body.add_child(_muted("Rival: %s" % str(item.get("rival", ""))))
+	if str(item.get("ally", "")) != "":
+		center_body.add_child(_muted("Ally: %s" % str(item.get("ally", ""))))
 
 
 func _fill_prospects() -> void:
@@ -1201,6 +1332,53 @@ func _gold_line(text: String) -> Label:
 	var label := _line(text)
 	label.add_theme_color_override("font_color", COL_GOLD)
 	return label
+
+
+func _profile_button(text: String, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	var style := StyleBoxFlat.new()
+	style.bg_color = COL_PANEL
+	style.border_color = COL_GOLD
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(0)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 6
+	style.content_margin_bottom = 6
+	button.add_theme_stylebox_override("normal", style)
+	button.add_theme_stylebox_override("hover", style)
+	button.add_theme_stylebox_override("pressed", style)
+	button.add_theme_color_override("font_color", COL_GOLD)
+	button.pressed.connect(callback)
+	return button
+
+
+func _row_by_id(rows: Array, key: String) -> Dictionary:
+	for row in rows:
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = row
+		var ident := str(item.get("id", ""))
+		var name := str(item.get("name", ""))
+		if ident == key or name == key:
+			return item
+	return {}
+
+
+func _open_team_profile(team_id: String) -> void:
+	profile_team = team_id
+	profile_driver = ""
+	print("OPEN_TEAM=", team_id)
+	_show_section("teams")
+
+
+func _open_driver_profile(driver_id: String) -> void:
+	profile_driver = driver_id
+	profile_team = ""
+	print("OPEN_DRIVER=", driver_id)
+	_show_section("drivers")
 
 
 func _gold_rule() -> ColorRect:
