@@ -1233,8 +1233,21 @@ func _fill_recap_card() -> void:
 		center_body.add_child(_muted("Pole: %s" % str(recap.get("pole", ""))))
 	if recap.get("cautions") != null:
 		center_body.add_child(_muted("Cautions: %s" % str(_as_int(recap.get("cautions", 0)))))
+		print("RECAP_CAUTIONS=", str(_as_int(recap.get("cautions", 0))))
 	if str(recap.get("weather", "")) != "":
 		center_body.add_child(_muted("Weather: %s" % str(recap.get("weather", ""))))
+	var qualifying := _as_array(recap.get("qualifying", []))
+	print("RECAP_QUALIFYING=", str(qualifying.size()))
+	if not qualifying.is_empty():
+		center_body.add_child(_muted("Qualifying"))
+		for row in qualifying:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			var start_row: Dictionary = row
+			center_body.add_child(_line("Q%s  %s" % [
+				str(_as_int(start_row.get("position", 0))),
+				str(start_row.get("driver", "")),
+			]))
 	for row in _as_array(recap.get("podium", [])):
 		if typeof(row) != TYPE_DICTIONARY:
 			continue
@@ -1243,6 +1256,20 @@ func _fill_recap_card() -> void:
 			str(_as_int(item.get("position", 0))),
 			str(item.get("driver", "")),
 			str(item.get("team", "")),
+		]))
+	var probes := _as_array(recap.get("investigations", []))
+	print("RECAP_INVESTIGATIONS=", str(probes.size()))
+	if str(recap.get("pole", "")) != "":
+		print("RECAP_POLE=", str(recap.get("pole", "")))
+	if _as_int(recap.get("wrecks", 0)) > 0:
+		center_body.add_child(_muted("Wrecks: %s" % str(_as_int(recap.get("wrecks", 0)))))
+	for row in probes:
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var probe: Dictionary = row
+		center_body.add_child(_muted("Investigation: blame %s (%s)" % [
+			str(probe.get("blame", "")),
+			str(probe.get("confidence", "")),
 		]))
 	center_body.add_child(_gold_rule())
 
