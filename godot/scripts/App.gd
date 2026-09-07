@@ -31,6 +31,7 @@ var hearing_held := false
 var era_book := "pinnacle"
 var profile_team := ""
 var profile_driver := ""
+var profile_season := ""
 
 
 func _ready() -> void:
@@ -108,6 +109,12 @@ func _headless_tour() -> void:
 		profile_driver = str(grid[0].get("id", grid[0].get("name", "")))
 		_show_section("drivers")
 		print("PROFILE_DRIVER=", profile_driver)
+	_show_section("history")
+	var seasons: Array = _as_array(_as_dict(snapshot.get("history", {})).get("seasons", []))
+	if not seasons.is_empty() and typeof(seasons[0]) == TYPE_DICTIONARY:
+		profile_season = str(seasons[0].get("id", seasons[0].get("season", "")))
+		_show_section("history")
+		print("HISTORY_SEASON=", profile_season)
 	_show_section("settings")
 	_on_office_save("desk")
 	_on_new_career("1970s")
@@ -323,6 +330,8 @@ func _on_nav(section_id: String) -> void:
 		profile_team = ""
 	if section_id == "drivers":
 		profile_driver = ""
+	if section_id == "history":
+		profile_season = ""
 	_show_section(section_id)
 
 
@@ -357,6 +366,8 @@ func _show_section(section_id: String) -> void:
 			_fill_sponsors()
 		"rulebook":
 			_fill_rulebook()
+		"history":
+			_fill_history()
 		"board":
 			_fill_board()
 		"settings":
@@ -1137,6 +1148,84 @@ func _fill_board() -> void:
 	center_body.add_child(_muted("Rule docket: %s paper(s)" % str(_as_int(councils.get("docket", 0)))))
 
 
+func _fill_history() -> void:
+	if profile_season != "":
+		_fill_season_file()
+		return
+	center_body.add_child(_title("History"))
+	center_body.add_child(_gold_rule())
+	var book := _as_dict(snapshot.get("history", {}))
+	var seasons: Array = _as_array(book.get("seasons", []))
+	print("HISTORY=", str(seasons.size()))
+	center_body.add_child(_muted("Reopen a completed season. Preseason of year one is an empty file."))
+	var records: Array = _as_array(book.get("records", []))
+	if not records.is_empty():
+		center_body.add_child(_gold_line("All-time records"))
+		for row in records:
+			var item: Dictionary = row
+			center_body.add_child(_muted(str(item.get("text", item.get("label", "")))))
+	if seasons.is_empty():
+		center_body.add_child(_line("No seasons on file yet. Advance a championship to open the book."))
+		return
+	center_body.add_child(_gold_line("Season files"))
+	for row in seasons:
+		var item: Dictionary = row
+		var season_id := str(item.get("id", item.get("season", "")))
+		center_body.add_child(_profile_button(
+			"Season %s — %s" % [str(item.get("season", "")), str(item.get("champion", ""))],
+			_open_season_file.bind(season_id)
+		))
+		center_body.add_child(_muted("%s  ·  %s pts  ·  grade %s" % [
+			str(item.get("champion_team", "")),
+			str(_as_int(item.get("champion_points", 0))),
+			str(item.get("grade", "")),
+		]))
+
+
+func _fill_season_file() -> void:
+	var book := _as_dict(snapshot.get("history", {}))
+	var seasons: Array = _as_array(book.get("seasons", []))
+	var item := _row_by_id(seasons, profile_season)
+	center_body.add_child(_title("Season file"))
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_profile_button("All seasons", _open_season_file.bind("")))
+	if item.is_empty():
+		center_body.add_child(_muted("That season is not on file."))
+		print("HISTORY_SEASON=")
+		return
+	print("HISTORY_SEASON=", str(item.get("id", item.get("season", ""))))
+	center_body.add_child(_gold_line("Season %s champion: %s" % [
+		str(item.get("season", "")),
+		str(item.get("champion", "")),
+	]))
+	center_body.add_child(_line("%s  ·  %s pts  ·  %s wins" % [
+		str(item.get("champion_team", "")),
+		str(_as_int(item.get("champion_points", 0))),
+		str(_as_int(item.get("champion_wins", 0))),
+	]))
+	center_body.add_child(_muted("Commissioner grade %s (%s)  ·  %s races" % [
+		str(item.get("grade", "")),
+		str(_as_int(item.get("score", 0))),
+		str(_as_int(item.get("races", 0))),
+	]))
+	center_body.add_child(_muted("Integrity %s  ·  fans %s  ·  controversy %s" % [
+		str(_as_int(item.get("integrity", 0))),
+		str(_as_int(item.get("fan_interest", 0))),
+		str(_as_int(item.get("controversy", 0))),
+	]))
+	if str(item.get("finale", "")) != "":
+		center_body.add_child(_muted("Finale: %s" % str(item.get("finale", ""))))
+	center_body.add_child(_gold_line("Standings"))
+	for row in _as_array(item.get("standings", [])):
+		var entry: Dictionary = row
+		center_body.add_child(_line("%s. %s  ·  %s  ·  %s pts" % [
+			str(_as_int(entry.get("position", 0))),
+			str(entry.get("driver", "")),
+			str(entry.get("team", "")),
+			str(_as_int(entry.get("points", 0))),
+		]))
+
+
 func _fill_settings() -> void:
 	var settings: Dictionary = snapshot.get("settings", {})
 	center_body.add_child(_title("Settings"))
@@ -1379,6 +1468,12 @@ func _open_driver_profile(driver_id: String) -> void:
 	profile_team = ""
 	print("OPEN_DRIVER=", driver_id)
 	_show_section("drivers")
+
+
+func _open_season_file(season_id: String) -> void:
+	profile_season = season_id
+	print("OPEN_SEASON=", season_id)
+	_show_section("history")
 
 
 func _gold_rule() -> ColorRect:
