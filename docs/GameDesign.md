@@ -778,10 +778,13 @@ hearing sits as a letter from the Competition Committee (or Board, Owner
 Council, garage, and so on), dashboard alerts arrive as league-office
 memos, and weekend headlines land as press clippings. The center pane
 shows the list and the open letter. Hearing letters display choices;
-Day 98 writes a ruling back to the sim. Visiting Dashboard, Standings,
+picking a ruling writes it back to the career (same outcome engine as
+the terminal hearings). The hearing leaves the inbox once it is resolved.
+Visiting Dashboard, Standings,
 Teams, Television, Drivers, Rulebook, Board, and Mail fills the
 checklist. Advance stays locked until that tour is done, then the first
-Advance opens the hearing in the inbox. The next Advance **runs a week**:
+Advance opens the hearing in the inbox if it is still pending. A ruling
+from Mail at any time also counts. The next Advance **runs a week**:
 preseason becomes the opening race weekend, then each Advance sims the
 next Cup race and drops a Race Control recap (plus press clippings) in
 Mail. **Standings** is a ranked Cup table. **Schedule** marks DONE and
@@ -795,7 +798,7 @@ books: cash, naming rights, the TV deal, last rating, and shop deals.
 dismissal risk, fan/owner/driver approval, and both councils (chair,
 mood, last filing). The desk uses Winston Cup crimson, gold, and white
 with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout
-prototype only. Era 1 is the office: sit, inspect, Advance a week.
+prototype only. Era 2 starts here: rulings from the desk change the sim.
 
 ## League Calendar
 

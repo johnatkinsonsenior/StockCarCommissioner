@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "0.8"
+UI_VERSION = "0.9"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -334,6 +334,10 @@ def default_office(payload=None):
         "nav": list(nav),
         "advance_python": payload.get("advance_python") or "",
         "advance_script": payload.get("advance_script") or "",
+        "apply_python": payload.get("apply_python")
+        or payload.get("advance_python")
+        or "",
+        "apply_script": payload.get("apply_script") or "",
     }
 
 
