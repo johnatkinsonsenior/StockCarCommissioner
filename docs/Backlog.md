@@ -36,7 +36,7 @@
 | 34 | Driver popularity | Medium | In Progress |
 | 35 | Commissioner performance grade | High | Completed |
 | 36 | JSON season reports | High | Completed |
-| 37 | Historical season database | Medium | Not Started |
+| 37 | Historical season database | Medium | Completed |
 | 38 | Driver class | High | Completed |
 | 39 | Team class | High | Completed |
 | 40 | Object-based season data | High | Completed |
@@ -196,3 +196,4 @@
 | 194 | Windows play path (no Git) | High | Completed |
 | 195 | Full premier grid (Cup-sized field) | High | Completed |
 | 196 | Clickable driver and team profiles | High | Completed |
+| 197 | Historical season database on the desk | Medium | Completed |
