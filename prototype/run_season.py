@@ -148,6 +148,7 @@ from game.settings import (
     DIFFICULTY_EASY,
     DIFFICULTY_HARD,
     DIFFICULTY_NORMAL,
+    ERA_PINNACLE,
     VALID_CAREER_SEASONS,
     autosave_label,
     autosave_on,
@@ -155,6 +156,7 @@ from game.settings import (
     difficulty_label,
     difficulty_profile,
     dismissal_floor,
+    era_book_label,
     load_settings,
     reset_settings,
     settings_dashboard_text,
@@ -10732,6 +10734,7 @@ def build_ui_snapshot():
             "save_python": sys.executable,
             "save_script": str(office_save_script()),
             "load_script": str(office_load_script()),
+            "new_script": str(office_new_script()),
             "saves": office_save_catalog(),
             "week_recap": recap,
             "recap": recap,
@@ -10769,6 +10772,8 @@ def build_ui_snapshot():
                 "career_seasons": current_settings.get("career_seasons"),
                 "autosave": current_settings.get("autosave"),
                 "autosave_label": autosave_label(),
+                "era_book": current_settings.get("era_book") or ERA_PINNACLE,
+                "era_book_label": era_book_label(),
             },
             "dashboard": {
                 "calendar": calendar.description(),
@@ -10832,6 +10837,31 @@ def office_load_script():
     """Return the Python script Godot runs to load a career onto the desk."""
 
     return Path(__file__).resolve().parent / "load_office.py"
+
+
+def office_new_script():
+    """Return the Python script Godot runs to start a new desk career."""
+
+    return Path(__file__).resolve().parent / "new_career.py"
+
+
+def start_office_career(data=None):
+    """Reset a new commissioner career onto the desk."""
+
+    data = dict(data or {})
+    apply_game_settings(
+        {
+            "difficulty": data.get("difficulty") or current_settings.get("difficulty"),
+            "career_seasons": data.get("career_seasons")
+            or current_settings.get("career_seasons"),
+            "autosave": data.get("autosave") or current_settings.get("autosave"),
+            "era_book": data.get("era_book") or current_settings.get("era_book"),
+        }
+    )
+    reset_career_state(keep_settings=True)
+    persist_office_career()
+    write_ui_snapshot()
+    return dict(current_settings)
 
 
 def office_save_catalog():

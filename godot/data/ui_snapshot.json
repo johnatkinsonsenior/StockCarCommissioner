@@ -1,11 +1,11 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.10",
+    "ui_version": "0.11",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
     "series": "Northstar Capital Stock Car Series",
-    "settings_line": "Settings: Normal | 3 seasons | Autosave Off",
+    "settings_line": "Settings: Normal | 3 seasons | Autosave Off | Pinnacle (late '80s\u2013mid '90s)",
     "calendar": "Season 1 of 3 \u2014 Preseason",
     "menu_items": [
         {
@@ -42,7 +42,9 @@
         "difficulty_label": "Normal",
         "career_seasons": 3,
         "autosave": "off",
-        "autosave_label": "Off"
+        "autosave_label": "Off",
+        "era_book": "pinnacle",
+        "era_book_label": "Pinnacle (late '80s\u2013mid '90s)"
     },
     "dashboard": {
         "calendar": "Season 1 of 3 \u2014 Preseason",
@@ -926,6 +928,7 @@
         "save_python": "/usr/bin/python3",
         "save_script": "/workspace/prototype/save_office.py",
         "load_script": "/workspace/prototype/load_office.py",
+        "new_script": "/workspace/prototype/new_career.py",
         "saves": []
     },
     "saves": []

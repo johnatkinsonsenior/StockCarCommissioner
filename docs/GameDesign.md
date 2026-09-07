@@ -747,6 +747,8 @@ Players may save between seasons or from the main menu. Loaded careers resume mi
 
 ## Game Settings
 
+**Era** is a new-career setting, in the same family as OOTP's start year. The default book is **pinnacle Winston Cup** (late ’80s–mid ’90s). Other books are **1970s**, **1980s**, and **beyond**. The office Settings screen stores the chosen book on the career (schema 0.0.39 still; the field fills with a default on older saves). Full world rewind — who is on the grid, which coupe is legal, which tracks run plates — lands in Day 112. Until then the book is a career label the desk can start and continue from.
+
 A new career asks for **difficulty**, **career length**, and **autosave**. The same three live on the main-menu settings screen and on the commissioner dashboard.
 
 - Easy: more fan goodwill, a $500,000 league treasury, extra shop budget, quieter race weekends, and a patient board (dismissal floor 27).
@@ -755,9 +757,7 @@ A new career asks for **difficulty**, **career length**, and **autosave**. The s
 - Career length is 3, 5, or 10 seasons. It cannot be shortened below the season already in progress.
 - Autosave can be off, after each offseason, or after each race. The reserved slot is `autosave.json`.
 
-Difficulty and autosave are stored on the career save (0.0.39). Legacy 0.0.38 files load as Normal, three seasons, autosave off.
-
-**Era** is a planned new-career setting, in the same family as OOTP's start year. The default book is **pinnacle Winston Cup** (late ’80s–mid ’90s). Other books are **1970s**, **1980s**, and **beyond** (sliders to take the same commissioner model past that peak). Each book inherits a different Aero Wars rulebook: who is on the grid, what coupe is legal, and which tracks run plates. Era is not in the live settings file yet; it lands with the office new-career flow.
+Difficulty and autosave are stored on the career save (0.0.39). Legacy 0.0.38 files load as Normal, three seasons, autosave off. Missing era books load as pinnacle.
 
 ## Balance Simulation
 
@@ -801,7 +801,8 @@ terminal menu: Save writes `desk.json`, Load restores a slot onto the
 desk. The desk uses Winston Cup crimson, gold, and white
 with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout
 prototype only. Era 2: rulings from the desk change the sim, and careers
-save and load from Settings.
+save and load from Settings. **New career** resets the desk (difficulty,
+length, autosave, era book). **Continue desk** reloads the office session.
 
 ## League Calendar
 
