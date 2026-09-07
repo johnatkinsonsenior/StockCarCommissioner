@@ -22,6 +22,9 @@ var selected_mail_id := ""
 var mail_read: Dictionary = {}
 var sidebar: VBoxContainer
 var status_label: Label
+var ticker_label: Label
+var ticker_lines: Array = []
+var ticker_index := 0
 var advance_button: Button
 var center_body: VBoxContainer
 var checklist_box: VBoxContainer
@@ -60,6 +63,7 @@ func _ready() -> void:
 	print("MAIL_OPEN=", selected_mail_id)
 	print("APPLY_SCRIPT=", str(_office().get("apply_script", "")))
 	print("ALERT_MAIL=", str(_alert_letters().size()))
+	print("TICKER=", str(_ticker_lines().size()))
 	if DisplayServer.get_name() == "headless":
 		call_deferred("_headless_tour")
 
@@ -117,6 +121,7 @@ func _headless_tour() -> void:
 		print("HISTORY_SEASON=", profile_season)
 	_show_section("hof")
 	print("HOF=", str(_as_array(snapshot.get("hof", [])).size()))
+	print("TICKER=", str(_ticker_lines().size()))
 	_show_section("settings")
 	_on_office_save("desk")
 	_on_new_career("1970s")
@@ -257,6 +262,8 @@ func _make_nav_button(row: Dictionary) -> Button:
 
 
 func _build_header() -> Control:
+	var wrap := VBoxContainer.new()
+	wrap.add_theme_constant_override("separation", 0)
 	var header := PanelContainer.new()
 	header.add_theme_stylebox_override("panel", _panel(COL_PANEL, COL_LINE))
 	var row := HBoxContainer.new()
@@ -288,7 +295,46 @@ func _build_header() -> Control:
 	advance_button.pressed.connect(_on_advance)
 	_style_advance(false)
 	row.add_child(advance_button)
-	return header
+	wrap.add_child(header)
+	wrap.add_child(_build_ticker())
+	return wrap
+
+
+func _ticker_lines() -> Array:
+	var from_office: Array = _as_array(_office().get("ticker", []))
+	if not from_office.is_empty():
+		return from_office
+	return _as_array(snapshot.get("ticker", []))
+
+
+func _build_ticker() -> Control:
+	var bar := PanelContainer.new()
+	bar.add_theme_stylebox_override("panel", _panel(Color("140808"), COL_GOLD))
+	ticker_label = Label.new()
+	ticker_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	ticker_label.add_theme_font_size_override("font_size", 14)
+	ticker_label.add_theme_color_override("font_color", COL_GOLD)
+	ticker_lines = _ticker_lines()
+	ticker_index = 0
+	if ticker_lines.is_empty():
+		ticker_label.text = "Preseason quiet. Beat writers file after the green flag."
+	else:
+		ticker_label.text = str(ticker_lines[0])
+	bar.add_child(_padded(ticker_label, 10, 6))
+	var timer := Timer.new()
+	timer.wait_time = 4.0
+	timer.autostart = true
+	timer.timeout.connect(_tick_ticker)
+	bar.add_child(timer)
+	return bar
+
+
+func _tick_ticker() -> void:
+	ticker_lines = _ticker_lines()
+	if ticker_label == null or ticker_lines.size() <= 1:
+		return
+	ticker_index = (ticker_index + 1) % ticker_lines.size()
+	ticker_label.text = str(ticker_lines[ticker_index])
 
 
 func _build_workspace() -> Control:
@@ -447,6 +493,13 @@ func _reload_office() -> void:
 		if typeof(header_info) == TYPE_DICTIONARY:
 			status_text = str(header_info.get("status_line", status_text))
 		status_label.text = status_text
+	ticker_lines = _ticker_lines()
+	ticker_index = 0
+	if ticker_label != null:
+		if ticker_lines.is_empty():
+			ticker_label.text = "Preseason quiet. Beat writers file after the green flag."
+		else:
+			ticker_label.text = str(ticker_lines[0])
 	if advance_button != null:
 		advance_button.text = str(_office().get("advance_label", "Advance"))
 	selected_mail_id = str(_office().get("selected_mail_id", ""))
