@@ -157,6 +157,7 @@ LEAGUE_DEFAULTS = {
     "factory_history": [],
     "pending_factory_switch": None,
     "last_office_week": None,
+    "last_office_hearing": None,
 }
 
 

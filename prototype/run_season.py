@@ -539,6 +539,7 @@ def reset_career_state(keep_settings=False):
     league["factory_history"] = []
     league["pending_factory_switch"] = None
     league["last_office_week"] = None
+    league["last_office_hearing"] = None
 
     reset_policies()
 
@@ -4336,6 +4337,160 @@ def get_numbered_choice(choice_count, event=None):
         print(f"Please enter a number from 1 through {choice_count}.")
 
 
+def apply_event_followups(result, event):
+    """Run the same post-hooks the terminal career uses after a ruling."""
+
+    if not result:
+        return result
+    category = result.get("category")
+    if category == "press-conference":
+        record_press_conference(
+            result,
+            league.get("last_media_stories") or [],
+        )
+    elif category == "media-controversy":
+        record_media_controversy(
+            result,
+            event,
+            league.get("last_media_stories") or [],
+        )
+        if result.get("choice_id") == "1":
+            apply_scandal_sponsor_shock(6)
+    elif category == "owner-council":
+        record_owner_council(result)
+    elif category == "driver-council":
+        record_driver_council(result)
+    elif category == "rule-proposal":
+        record_rule_proposal(result, event)
+    elif category == "lobbying":
+        record_lobbying(result, event)
+    elif category == "rule-vote":
+        record_rule_vote(result, event)
+    elif category == "board-confidence":
+        record_board_review(result, event)
+    elif category == "team-entry":
+        record_team_entry(result, event)
+    elif category == "team-closure":
+        record_team_closure(result, event)
+    elif category == "manufacturer-switch":
+        record_manufacturer_switch(result, event)
+    return result
+
+
+def apply_event_choice(event, choice_id):
+    """Apply a numbered choice to one event without prompting."""
+
+    if event["id"] in events_resolved:
+        return None
+    context = build_event_context(event)
+    result = resolve_event_choice(event, choice_id, context)
+    events_resolved.append(event["id"])
+    decision_log.append(
+        {
+            "season": calendar.current_season,
+            **result,
+        }
+    )
+    apply_event_followups(result, event)
+    league["last_office_hearing"] = {
+        "id": result.get("event_id"),
+        "title": result.get("event_title"),
+        "choice_id": result.get("choice_id"),
+        "choice_label": result.get("choice_label"),
+        "outcome": result.get("outcome"),
+        "category": result.get("category"),
+    }
+    return result
+
+
+def catalog_decision_events():
+    """Return every event the live calendar could put on the docket."""
+
+    stories = league.get("last_media_stories") or []
+    raced = len(race_history) or 1
+    events = []
+    events.extend(preseason_events(current_policies, calendar.current_season) or [])
+    events.extend(
+        regular_season_events(
+            raced,
+            teams,
+            drivers,
+            events_resolved,
+            stories,
+        )
+        or []
+    )
+    events.extend(
+        postseason_events(
+            teams,
+            drivers,
+            events_resolved,
+            league,
+            calendar.current_season,
+        )
+        or []
+    )
+    events.extend(
+        team_entry_events(
+            calendar.current_season,
+            teams,
+            team_applicants,
+            events_resolved,
+        )
+        or []
+    )
+    events.extend(
+        team_closure_events(
+            calendar.current_season,
+            teams,
+            events_resolved,
+        )
+        or []
+    )
+    events.extend(
+        manufacturer_switch_events(
+            calendar.current_season,
+            events_resolved,
+            league,
+        )
+        or []
+    )
+    events.extend(offseason_events(current_policies, events_resolved) or [])
+    return events
+
+
+def find_pending_event(hearing_id):
+    """Return the unresolved event matching hearing_id, or None."""
+
+    hearing_id = str(hearing_id or "")
+    if not hearing_id:
+        return None
+    seen = set()
+    for event in catalog_decision_events():
+        event_id = event.get("id")
+        if event_id in seen:
+            continue
+        seen.add(event_id)
+        if str(event_id) != hearing_id:
+            continue
+        if event_id in events_resolved:
+            return None
+        return event
+    return None
+
+
+def apply_office_hearing(hearing_id, choice_id):
+    """Rule on a desk hearing and return the result record."""
+
+    event = find_pending_event(hearing_id)
+    if event is None:
+        raise ValueError("No pending hearing matches %s" % hearing_id)
+    result = apply_event_choice(event, str(choice_id))
+    if result is None:
+        raise ValueError("Hearing %s is already resolved" % hearing_id)
+    return result
+
+
 def present_decision_event(event):
     """Present one commissioner event and apply the chosen outcome."""
 
@@ -4353,16 +4508,7 @@ def present_decision_event(event):
         print(f"{choice['id']}. {choice['label']}")
 
     choice_id = get_numbered_choice(len(event["choices"]), event=event)
-    context = build_event_context(event)
-    result = resolve_event_choice(event, choice_id, context)
-
-    events_resolved.append(event["id"])
-    decision_log.append(
-        {
-            "season": calendar.current_season,
-            **result,
-        }
-    )
+    result = apply_event_choice(event, choice_id)
 
     print(f"\nDecision: {result['choice_label']}")
     print(f"Outcome: {result['outcome']}")
@@ -6461,37 +6607,6 @@ def present_events(event_list):
 
     for event in event_list:
         result = present_decision_event(event)
-        if result and result.get("category") == "press-conference":
-            record_press_conference(
-                result,
-                league.get("last_media_stories") or [],
-            )
-        if result and result.get("category") == "media-controversy":
-            record_media_controversy(
-                result,
-                event,
-                league.get("last_media_stories") or [],
-            )
-            if result.get("choice_id") == "1":
-                apply_scandal_sponsor_shock(6)
-        if result and result.get("category") == "owner-council":
-            record_owner_council(result)
-        if result and result.get("category") == "driver-council":
-            record_driver_council(result)
-        if result and result.get("category") == "rule-proposal":
-            record_rule_proposal(result, event)
-        if result and result.get("category") == "lobbying":
-            record_lobbying(result, event)
-        if result and result.get("category") == "rule-vote":
-            record_rule_vote(result, event)
-        if result and result.get("category") == "board-confidence":
-            record_board_review(result, event)
-        if result and result.get("category") == "team-entry":
-            record_team_entry(result, event)
-        if result and result.get("category") == "team-closure":
-            record_team_closure(result, event)
-        if result and result.get("category") == "manufacturer-switch":
-            record_manufacturer_switch(result, event)
         if result:
             results.append(result)
 
@@ -10563,8 +10678,9 @@ def build_ui_snapshot():
     decision = None
     if calendar.phase == PRESEASON:
         events = preseason_events(current_policies, calendar.current_season)
-        if events:
-            event = events[0]
+        for event in events:
+            if event.get("id") in events_resolved:
+                continue
             decision = {
                 "id": event.get("id"),
                 "title": event.get("title"),
@@ -10575,6 +10691,7 @@ def build_ui_snapshot():
                     for choice in event.get("choices") or []
                 ],
             }
+            break
     driver_rows = office_standings_book()
     schedule_rows = office_schedule_book()
     recap = office_recap_book()
@@ -10609,6 +10726,8 @@ def build_ui_snapshot():
             "advance_label": week.get("label") or "Advance",
             "advance_python": sys.executable,
             "advance_script": str(office_advance_script()),
+            "apply_python": sys.executable,
+            "apply_script": str(office_apply_script()),
             "week_recap": recap,
             "recap": recap,
             "palette": "winston-cup",
@@ -10690,6 +10809,12 @@ def office_advance_script():
     """Return the Python script Godot runs to Advance a week."""
 
     return Path(__file__).resolve().parent / "advance_week.py"
+
+
+def office_apply_script():
+    """Return the Python script Godot runs to rule on a hearing."""
+
+    return Path(__file__).resolve().parent / "apply_hearing.py"
 
 
 def persist_office_career():

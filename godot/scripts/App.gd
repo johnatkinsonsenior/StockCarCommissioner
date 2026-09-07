@@ -48,6 +48,7 @@ func _ready() -> void:
 	print("INBOX=", str(_inbox().size()))
 	print("INBOX_HEARINGS=", str(_hearing_letters().size()))
 	print("MAIL_OPEN=", selected_mail_id)
+	print("APPLY_SCRIPT=", str(_office().get("apply_script", "")))
 	if DisplayServer.get_name() == "headless":
 		call_deferred("_headless_tour")
 
@@ -64,6 +65,16 @@ func _headless_tour() -> void:
 				print("READ=", letter_id)
 				print("READ_KIND=", str(letter.get("kind", "")))
 	print("CHECKLIST_DONE=", "%s/%s" % [_completed_count(), _checklist().size()])
+	var hearing := _first_hearing()
+	if not hearing.is_empty():
+		var choices: Array = hearing.get("choices", [])
+		if not choices.is_empty() and typeof(choices[0]) == TYPE_DICTIONARY:
+			var first: Dictionary = choices[0]
+			_on_hearing_choice(
+				str(hearing.get("hearing_id", "")),
+				str(first.get("id", "1")),
+				str(first.get("label", "")),
+			)
 	_on_advance()
 	print("ADVANCE_STATE=", "unlocked" if _checklist_complete() else "blocked")
 	_on_advance()
@@ -537,14 +548,38 @@ func _fill_letter_into(container: VBoxContainer, letter: Dictionary) -> void:
 			var button := Button.new()
 			button.text = "%s. %s" % [str(row.get("id", "")), str(row.get("label", ""))]
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			button.pressed.connect(_on_hearing_choice.bind(str(row.get("id", "")), str(row.get("label", ""))))
+			button.pressed.connect(_on_hearing_choice.bind(
+				str(letter.get("hearing_id", "")),
+				str(row.get("id", "")),
+				str(row.get("label", "")),
+			))
 			container.add_child(button)
-		container.add_child(_muted("Choices display here. Day 98 writes them back to the sim."))
+		container.add_child(_muted("Pick a ruling. It writes back to the career."))
 
 
-func _on_hearing_choice(choice_id: String, label: String) -> void:
+func _on_hearing_choice(hearing_id: String, choice_id: String, label: String) -> void:
 	print("CHOICE_DISPLAY=", choice_id)
 	print("CHOICE_LABEL=", label)
+	print("HEARING_ID=", hearing_id)
+	var python := str(_office().get("apply_python", _office().get("advance_python", "")))
+	var script := str(_office().get("apply_script", ""))
+	if python == "" or script == "" or hearing_id == "" or choice_id == "":
+		print("HEARING_OK=0")
+		print("HEARING_ERROR=missing-apply-command")
+		return
+	var output: Array = []
+	var code := OS.execute(python, PackedStringArray([script, hearing_id, choice_id]), output, true)
+	var text := ""
+	for line in output:
+		text += str(line) + "\n"
+		print(str(line))
+	if code != 0 or text.find("HEARING_OK=1") < 0:
+		print("HEARING_OK=0")
+		return
+	hearing_held = true
+	_reload_office()
+	print("HEARING_RELOADED=1")
+	_show_section("mail")
 
 
 func _refresh_mail_badge() -> void:
