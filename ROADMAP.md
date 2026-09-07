@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–101 complete. Next coding day:
-**Day 102 — Race-weekend recap card (qualifying, cautions, investigation)**.
+**Current position:** Days 1–102 complete. Next coding day:
+**Day 103 — Alerts arrive as mail**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -212,7 +212,7 @@ A team-owner career is a later era, not this one.
 - [x] Day 99 — Save and load from the office
 - [x] Day 100 — New career and continue from the office (including era book)
 - [x] Day 101 — Offseason as desk weeks, not a print dump
-- [ ] Day 102 — Race-weekend recap card (qualifying, cautions, investigation)
+- [x] Day 102 — Race-weekend recap card (qualifying, cautions, investigation)
 - [ ] Day 103 — Alerts arrive as mail
 - [ ] Day 104 — Windows play path (no Git required for testers)
 

@@ -191,3 +191,4 @@
 | 189 | Save and load from the office | High | Completed |
 | 190 | New career and continue from the office | High | Completed |
 | 191 | Offseason as desk weeks | High | Completed |
+| 192 | Race-weekend recap card | Medium | Completed |
