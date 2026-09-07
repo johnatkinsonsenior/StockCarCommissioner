@@ -19,22 +19,26 @@ Save schema: 0.0.39
 
 ## Play a career
 
-From this folder (or an unpacked playtest zip):
+From this folder (or an unpacked playtest zip). Git is not required.
 
     ./play.sh
 
-That opens the terminal career loop. Start a new career, set difficulty and
-length, then work through seasons of races, hearings, and league business.
-See `PLAYTEST.md` for the full loop.
+Windows: double-click `play.bat`.
+
+That opens the terminal career loop. Start a new career, set difficulty,
+length, and era book, then work through seasons of races, hearings, and
+league business. See `PLAYTEST.md` for the full loop.
 
 The optional Godot desk:
 
     ./play_ui.sh
 
+Windows: double-click `play_ui.bat`.
+
 Godot is the commissioner office (sidebar, mail, checklist, Advance). The
 target look is Winston Cup crimson, gold, and white with a 16-bit sports-sim
 desk. The default career book is the late-’80s–mid-’90s peak; era settings
-will let you rewind the same model into the 1970s or 1980s, or push beyond.
+let you label a career 1970s, 1980s, pinnacle, or beyond.
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build

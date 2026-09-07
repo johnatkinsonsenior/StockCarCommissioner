@@ -771,7 +771,7 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 ## Commissioner Office
 
-`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH.
+`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. Testers unpack the zip and run the launchers; Git is not required.
 
 The office opens on series mail. Mail is a **live inbox**: the queued
 hearing sits as a letter from the Competition Committee (or Board, Owner
