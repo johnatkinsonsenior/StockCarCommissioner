@@ -198,3 +198,4 @@
 | 196 | Clickable driver and team profiles | High | Completed |
 | 197 | Historical season database on the desk | Medium | Completed |
 | 198 | Hall of Fame | Medium | Completed |
+| 199 | News ticker and beat-writer headlines | Medium | Completed |
