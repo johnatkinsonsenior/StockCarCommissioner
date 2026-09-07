@@ -159,6 +159,8 @@ LEAGUE_DEFAULTS = {
     "last_office_week": None,
     "last_office_hearing": None,
     "office_offseason_step": 0,
+    "office_mail_alerts": [],
+    "office_welcome_sent": False,
 }
 
 

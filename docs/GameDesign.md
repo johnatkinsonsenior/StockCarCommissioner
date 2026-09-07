@@ -775,8 +775,9 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 The office opens on series mail. Mail is a **live inbox**: the queued
 hearing sits as a letter from the Competition Committee (or Board, Owner
-Council, garage, and so on), dashboard alerts arrive as league-office
-memos, and weekend headlines land as press clippings. The center pane
+Council, garage, and so on). Dashboard alerts **arrive** as league-office
+memos when the situation first appears; they stay read after Advance
+instead of rebuilding unread every snapshot. Weekend headlines land as press clippings. The center pane
 shows the list and the open letter. Hearing letters display choices;
 picking a ruling writes it back to the career (same outcome engine as
 the terminal hearings). The hearing leaves the inbox once it is resolved.
