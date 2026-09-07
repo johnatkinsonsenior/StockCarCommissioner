@@ -28,6 +28,7 @@ var checklist_box: VBoxContainer
 var checklist_progress: Label
 var nav_buttons: Dictionary = {}
 var hearing_held := false
+var era_book := "pinnacle"
 
 
 func _ready() -> void:
@@ -36,6 +37,12 @@ func _ready() -> void:
 	selected_mail_id = str(_office().get("selected_mail_id", ""))
 	if selected_mail_id == "" and not _inbox().is_empty():
 		selected_mail_id = str(_inbox()[0].get("id", ""))
+	var live_era := ""
+	var settings_info: Variant = snapshot.get("settings", {})
+	if typeof(settings_info) == TYPE_DICTIONARY:
+		live_era = str(settings_info.get("era_book", ""))
+	if live_era != "":
+		era_book = live_era
 	_show_section("mail")
 	print("UI_READY")
 	print("OFFICE_READY")
@@ -90,6 +97,7 @@ func _headless_tour() -> void:
 	_show_section("mail")
 	_show_section("settings")
 	_on_office_save("desk")
+	_on_new_career("1970s")
 	_on_office_load("desk")
 	call_deferred("_quit_headless")
 
@@ -990,7 +998,27 @@ func _fill_settings() -> void:
 	center_body.add_child(_line("Difficulty: %s" % str(settings.get("difficulty_label", "Normal"))))
 	center_body.add_child(_line("Career length: %s seasons" % str(settings.get("career_seasons", 3))))
 	center_body.add_child(_line("Autosave: %s" % str(settings.get("autosave_label", "Off"))))
+	center_body.add_child(_line("Era book: %s" % str(settings.get("era_book_label", "Pinnacle (late '80s–mid '90s)"))))
+	print("ERA_BOOK=", str(settings.get("era_book", era_book)))
 	center_body.add_child(_muted(str(snapshot.get("settings_line", ""))))
+	center_body.add_child(_muted("Era books store the start decade. The full rewind lands in Day 112."))
+	for book in ["1970s", "1980s", "pinnacle", "beyond"]:
+		var era_button := Button.new()
+		var mark := "●" if book == era_book else "○"
+		era_button.text = "%s  %s" % [mark, book]
+		era_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		era_button.pressed.connect(_on_era_book.bind(book))
+		center_body.add_child(era_button)
+	var new_button := Button.new()
+	new_button.text = "New career"
+	new_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	new_button.pressed.connect(_on_new_career.bind(era_book))
+	center_body.add_child(new_button)
+	var continue_button := Button.new()
+	continue_button.text = "Continue desk"
+	continue_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	continue_button.pressed.connect(_on_office_load.bind("office"))
+	center_body.add_child(continue_button)
 	center_body.add_child(_gold_rule())
 	center_body.add_child(_title("Career files"))
 	center_body.add_child(_muted("Saves use the same JSON slots as the terminal career."))
@@ -1061,6 +1089,45 @@ func _on_office_load(slot_name: String) -> void:
 	mail_read.clear()
 	_reload_office()
 	print("LOAD_RELOADED=1")
+	print("CALENDAR=", str(snapshot.get("calendar", "")))
+	_show_section("settings")
+
+
+func _on_era_book(book: String) -> void:
+	era_book = book
+	print("ERA_PICK=", book)
+	_show_section("settings")
+
+
+func _on_new_career(book: String) -> void:
+	if book == "":
+		book = era_book
+	print("NEW_ERA=", book)
+	var python := str(_office().get("save_python", _office().get("advance_python", "")))
+	var script := str(_office().get("new_script", ""))
+	if python == "" or script == "":
+		print("NEW_OK=0")
+		print("NEW_ERROR=missing-new-command")
+		return
+	var output: Array = []
+	var code := OS.execute(
+		python,
+		PackedStringArray([script, "normal", "3", "off", book]),
+		output,
+		true,
+	)
+	var text := ""
+	for line in output:
+		text += str(line) + "\n"
+		print(str(line))
+	if code != 0 or text.find("NEW_OK=1") < 0:
+		print("NEW_OK=0")
+		return
+	era_book = book
+	hearing_held = false
+	mail_read.clear()
+	_reload_office()
+	print("NEW_RELOADED=1")
 	print("CALENDAR=", str(snapshot.get("calendar", "")))
 	_show_section("settings")
 

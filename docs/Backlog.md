@@ -189,3 +189,4 @@
 | 187 | Winston Cup office chrome | Medium | Completed |
 | 188 | Hearing choices write back to the sim | High | Completed |
 | 189 | Save and load from the office | High | Completed |
+| 190 | New career and continue from the office | High | Completed |

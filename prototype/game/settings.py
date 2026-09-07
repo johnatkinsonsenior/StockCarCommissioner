@@ -15,10 +15,17 @@ VALID_AUTOSAVE = (AUTOSAVE_OFF, AUTOSAVE_OFFSEASON, AUTOSAVE_RACE)
 VALID_CAREER_SEASONS = (3, 5, 10)
 AUTOSAVE_FILENAME = "autosave.json"
 
+ERA_1970S = "1970s"
+ERA_1980S = "1980s"
+ERA_PINNACLE = "pinnacle"
+ERA_BEYOND = "beyond"
+VALID_ERA_BOOKS = (ERA_1970S, ERA_1980S, ERA_PINNACLE, ERA_BEYOND)
+
 DEFAULT_SETTINGS = {
     "difficulty": DIFFICULTY_NORMAL,
     "career_seasons": 3,
     "autosave": AUTOSAVE_OFF,
+    "era_book": ERA_PINNACLE,
 }
 
 DIFFICULTY_LABELS = {
@@ -31,6 +38,13 @@ AUTOSAVE_LABELS = {
     AUTOSAVE_OFF: "Off",
     AUTOSAVE_OFFSEASON: "After each offseason",
     AUTOSAVE_RACE: "After each race",
+}
+
+ERA_BOOK_LABELS = {
+    ERA_1970S: "1970s Winston Cup",
+    ERA_1980S: "1980s Winston Cup",
+    ERA_PINNACLE: "Pinnacle (late '80s–mid '90s)",
+    ERA_BEYOND: "Beyond",
 }
 
 DIFFICULTY_PROFILES = {
@@ -98,6 +112,9 @@ def fill_settings_defaults(data):
     autosave = data.get("autosave")
     if autosave in VALID_AUTOSAVE:
         filled["autosave"] = autosave
+    era_book = data.get("era_book")
+    if era_book in VALID_ERA_BOOKS:
+        filled["era_book"] = era_book
     return filled
 
 
@@ -180,16 +197,24 @@ def autosave_on(moment):
     return False
 
 
+def era_book_label(era_book=None):
+    """Return a readable era-book name."""
+
+    key = era_book or current_settings.get("era_book") or ERA_PINNACLE
+    return ERA_BOOK_LABELS.get(key, ERA_BOOK_LABELS[ERA_PINNACLE])
+
+
 def settings_dashboard_text():
     """Return the compact settings dashboard line."""
 
     seasons = current_settings.get("career_seasons") or 3
     season_word = "season" if seasons == 1 else "seasons"
-    return "Settings: %s | %s %s | Autosave %s" % (
+    return "Settings: %s | %s %s | Autosave %s | %s" % (
         difficulty_label(),
         seasons,
         season_word,
         autosave_label(),
+        era_book_label(),
     )
 
 

@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "0.10"
+UI_VERSION = "0.11"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -343,6 +343,7 @@ def default_office(payload=None):
         or "",
         "save_script": payload.get("save_script") or "",
         "load_script": payload.get("load_script") or "",
+        "new_script": payload.get("new_script") or "",
         "saves": list(payload.get("saves") or []),
     }
 
@@ -424,12 +425,15 @@ def compose_ui_snapshot(payload):
         "calendar": payload.get("calendar") or "",
         "menu_items": list(menu_items),
         "settings": {
-            "difficulty": settings.get("difficulty") or "normal",
-            "difficulty_label": settings.get("difficulty_label") or "Normal",
-            "career_seasons": settings.get("career_seasons") or 3,
-            "autosave": settings.get("autosave") or "off",
-            "autosave_label": settings.get("autosave_label") or "Off",
-        },
+        "difficulty": settings.get("difficulty") or "normal",
+        "difficulty_label": settings.get("difficulty_label") or "Normal",
+        "career_seasons": settings.get("career_seasons") or 3,
+        "autosave": settings.get("autosave") or "off",
+        "autosave_label": settings.get("autosave_label") or "Off",
+        "era_book": settings.get("era_book") or "pinnacle",
+        "era_book_label": settings.get("era_book_label")
+        or "Pinnacle (late '80s–mid '90s)",
+    },
         "dashboard": dashboard,
         "decision": payload.get("decision"),
         "drivers": list(payload.get("drivers") or []),
