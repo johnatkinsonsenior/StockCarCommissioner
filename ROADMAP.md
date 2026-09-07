@@ -20,8 +20,7 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–113 complete. Next coding day:
-**Day 114 — Per-track rules packages and a customizable Winston Cup rulebook**.
+**Current position:** Days 1–114 complete. Aero Wars milestone met.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -178,8 +177,8 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 84 | Living Racing World | ✅ Done |
 | 90 | Playable Alpha | ✅ Done |
 | 97 | Commissioner Office | ✅ Done |
-| 112 | Era Books | ⬜ Pending |
-| 114 | Aero Wars | ⬜ Pending |
+| 112 | Era Books | ✅ Done |
+| 114 | Aero Wars | ✅ Done |
 
 ## Post-Alpha — Commissioner Office
 
@@ -235,10 +234,10 @@ A team-owner career is a later era, not this one.
 
 ### Era 4 — Aero Wars
 - [x] Day 113 — Homologated two-door coupe bodies and manufacturer track maps (Ford / GM / Chrysler families; aero + driver skill)
-- [ ] Day 114 — Per-track rules packages and a customizable Winston Cup rulebook (homologation, wheelbase, aero specials, plates)
+- [x] Day 114 — Per-track rules packages and a customizable Winston Cup rulebook (homologation, wheelbase, aero specials, plates)
 
 > **Milestone — Day 114 Aero Wars:** each factory has a real body with holes
 > by track type; the commissioner writes the series-wide book and the
 > per-track kit, and can run their own Winston Cup instead of a frozen 1992
 > reprint. The live `aero_bias` stub and single `aero-restrict` policy are
-> replaced.
+> replaced. ✅
