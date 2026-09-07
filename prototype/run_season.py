@@ -8392,6 +8392,29 @@ def office_hall_book():
     return rows
 
 
+def office_ticker_book():
+    """Return beat-writer headlines for the desk ticker."""
+
+    lines = []
+    for story in list(league.get("last_media_stories") or []):
+        if isinstance(story, dict):
+            headline = str(story.get("headline") or "").strip()
+            outlet = str(story.get("outlet") or "").strip()
+            if headline and outlet:
+                lines.append("%s — %s" % (outlet, headline))
+            elif headline:
+                lines.append(headline)
+        else:
+            text = str(story).strip()
+            if text:
+                lines.append(text)
+    if not lines:
+        lines.append(
+            "Preseason quiet. Beat writers file after the green flag."
+        )
+    return lines
+
+
 def print_qualifying_report(weekend):
     """Print starting grid, penalties, heats, stages, and cautions."""
 
@@ -10968,6 +10991,7 @@ def build_ui_snapshot():
     board_book = office_board_book()
     history_book = office_history_book()
     hall_book = office_hall_book()
+    ticker_book = office_ticker_book()
     series = series_name()
     week = office_week_preview()
     mail_body = (
@@ -11023,6 +11047,7 @@ def build_ui_snapshot():
             "board": board_book,
             "history": history_book,
             "hof": hall_book,
+            "ticker": ticker_book,
             "menu_items": [
                 {"id": "1", "label": "Start new career"},
                 {"id": "2", "label": "Load saved career"},
