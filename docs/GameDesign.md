@@ -361,13 +361,20 @@ Feeder results write the next offseason's scouting book. The champion jumps the 
 
 ### New Team Entry
 
-Named owners apply for a premier charter. Two shops wait in the opening book: **Ivy Navarro** at **Harbor Racing**, then **Grant Holcomb** at **Ironwood Motorsports**. Both arrive as Independent manufacturers. Offseason, after retirements and call-ups, the commissioner hears the next applicant on the same decision framework: **grant a charter**, **defer the application**, or **deny the application**.
+Named owners apply for a premier charter. The opening Cup book already
+seats ten shops. Three more wait outside: **Claire Dunne** at **Silver
+Creek Racing**, **Otis Graham** at **Lakeside Motorsports**, then **June
+Pellham** at **Prairie Outfitters Racing**. All three arrive as
+Independent manufacturers. Offseason, after retirements and call-ups,
+the commissioner hears the next applicant on the same decision
+framework: **grant a charter**, **defer the application**, or **deny the
+application**.
 
-A grant admits the shop, staffs two seats from the prospect pool (or generated rookies), and raises fan interest while incumbent owners feel the squeeze. The owner council gains the new seat automatically. Defer keeps the applicant first in line. Deny drops them from the book. The field caps at five teams; an empty book or a full grid skips the hearing. Legacy saves without an applicant list load an empty book. An insolvent shop can lose its charter in the offseason.
+A grant admits the shop, staffs two seats from the prospect pool (or generated rookies), and raises fan interest while incumbent owners feel the squeeze. The owner council gains the new seat automatically. Defer keeps the applicant first in line. Deny drops them from the book. The field caps at twelve teams; an empty book or a full grid skips the hearing. Legacy saves without an applicant list load an empty book. An insolvent shop can lose its charter in the offseason.
 
 ### Team Closure
 
-Insolvent teams face a **charter review** after offseason finances. Three answers sit on the same decision framework: **withdraw the charter** (the shop folds, drivers are released into the prospect pool as Premier-ready names, fan interest falls, remaining owners ease), **extend a bridge loan** (league treasury cash lifts the shop off Insolvent; integrity takes a hit and incumbents resent the rescue), or **defer the hearing** (they stay insolvent another year). The field cannot drop below two teams; at that floor an insolvent shop remains on the grid. The dashboard shows the last review and the live field size. An insolvent shop raises an alert.
+Insolvent teams face a **charter review** after offseason finances. Three answers sit on the same decision framework: **withdraw the charter** (the shop folds, drivers are released into the prospect pool as Premier-ready names, fan interest falls, remaining owners ease), **extend a bridge loan** (league treasury cash lifts the shop off Insolvent; integrity takes a hit and incumbents resent the rescue), or **defer the hearing** (they stay insolvent another year). The field cannot drop below six teams; at that floor an insolvent shop remains on the grid. The dashboard shows the last review and the live field size. An insolvent shop raises an alert.
 
 ### Manufacturers
 
@@ -791,8 +798,12 @@ next Cup race and drops a Race Control recap (plus press clippings) in
 Mail. **Standings** is a ranked Cup table. **Schedule** marks DONE and
 NEXT weekends. Both screens show a last-weekend recap card (winner,
 pole, cautions, qualifying, podium, wrecks, and any investigation). **Teams**, **Drivers**, and **Prospects**
-inspect the paddock: shop cards with owner and factory, the Cup grid
-with morale and trust, and the National Development Series pool.
+inspect the paddock: **ten Cup shops and a twenty-car grid**, shop cards
+with owner and factory, morale and trust, and the National Development
+Series pool. The charter can grow to twelve teams; six is the floor.
+Championship points and purse shares pad past P6 so a full field still
+scores and gets paid. Silver Creek, Lakeside, and Prairie wait outside
+for a charter.
 **Treasury**, **Television**, and **Sponsors** show the sanctioning-body
 books: cash, naming rights, the TV deal, last rating, and shop deals.
 **Rulebook** lists the live Cup policies. **Board** shows confidence,
@@ -844,7 +855,7 @@ During preseason the commissioner may set:
 - **Per-track packages** (superspeedway/plate, intermediate, short
   track, road course), with optional overrides on named venues
 
-These policies persist between seasons and affect scoring, incident risk, fines, operating costs, and which factory bodies are fast where. Stage points, when the format is stage racing, are taken from the same championship points table rather than a separate scoring system.
+These policies persist between seasons and affect scoring, incident risk, fines, operating costs, and which factory bodies are fast where. Stage points, when the format is stage racing, are taken from the same championship points table rather than a separate scoring system. Finishing places past the published six-slot table step down by one point (floor 1). Purse shares keep the original P1–P6 weights, then decay and renormalize so last place on a 20-car grid still cashes a check.
 
 The live alpha’s single `technical_rules` switch (`open` /
 `aero-restrict` / `inspection-heavy`) is the stub this system replaces.

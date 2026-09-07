@@ -95,14 +95,14 @@ from game.policies import (
     current_policies,
     get_penalty_fine_amount,
     get_penalty_points_amount,
-    get_manufacturer_points_by_position,
     get_playoff_field_size,
     get_playoff_race_count,
-    get_points_by_position,
     get_points_speeding_penalty,
     get_policy_operating_cost,
     get_scoring_bonuses,
     load_policies,
+    manufacturer_points_for_finish,
+    points_for_finish,
     policy_label,
     reset_policies,
     uses_playoff,
@@ -164,13 +164,13 @@ from game.settings import (
 )
 from game.race import (
     PART_LABELS,
-    PRIZE_PERCENTAGES,
     clamp,
     get_driver,
     get_manufacturer,
     get_team,
     manufacturer_pace_mod,
     manufacturer_reliability_mod,
+    purse_share,
     simulate_race_weekend,
     tire_load,
     weather_label,
@@ -8360,10 +8360,10 @@ def run_race(track, race_number):
     for position, result in enumerate(results, start=1):
         driver = result["driver"]
         status = result["status"]
-        finish_points = get_points_by_position()[position - 1]
+        finish_points = points_for_finish(position)
         stage_points = weekend["stage_points"].get(driver.name, 0)
         prize_money = int(
-            track.purse * PRIZE_PERCENTAGES[position - 1]
+            track.purse * purse_share(position, len(results))
         )
         start_position = result.get("start", position)
         strategy = result_strategy_text(result)
@@ -9188,7 +9188,6 @@ def get_manufacturer_standings():
     """
 
     team_manufacturer = {team.name: team.manufacturer for team in teams}
-    points_table = get_manufacturer_points_by_position()
     points = {}
 
     for race in race_history:
@@ -9205,12 +9204,7 @@ def get_manufacturer_standings():
                 best_position[manufacturer] = position
 
         for manufacturer, position in best_position.items():
-            index = position - 1
-            earned = (
-                points_table[index]
-                if index < len(points_table)
-                else points_table[-1]
-            )
+            earned = manufacturer_points_for_finish(position)
             points[manufacturer] = points.get(manufacturer, 0) + earned
 
     return sorted(points.items(), key=lambda item: item[1], reverse=True)

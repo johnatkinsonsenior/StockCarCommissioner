@@ -3301,8 +3301,8 @@ def board_confidence_event(season_number, security):
     }
 
 
-TEAM_FIELD_MAX = 5
-TEAM_FIELD_MIN = 2
+TEAM_FIELD_MAX = 12
+TEAM_FIELD_MIN = 6
 
 
 def team_entry_event(season_number, applicant, field_size):

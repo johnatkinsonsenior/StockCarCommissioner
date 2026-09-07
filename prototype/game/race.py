@@ -6,8 +6,8 @@ from data import drivers, manufacturers, teams
 from game.policies import (
     current_policies,
     get_crash_modifier,
-    get_stage_points_by_position,
     pit_road_enforcement,
+    stage_points_for_finish,
     uses_heat_races,
     uses_stage_racing,
 )
@@ -15,6 +15,31 @@ from game.policies import (
 from game.settings import incident_risk_mod
 
 PRIZE_PERCENTAGES = [0.30, 0.22, 0.17, 0.13, 0.10, 0.08]
+
+
+def purse_share(position, field_size):
+    """Return this finishing place's share of the race purse.
+
+    Weights decay from the winner and renormalize to 1.0 so a Cup-sized
+    field still pays last place instead of IndexError or a $0 check.
+    """
+
+    try:
+        place = int(position)
+        cars = int(field_size)
+    except (TypeError, ValueError):
+        return 0.0
+    if place < 1 or cars < 1 or place > cars:
+        return 0.0
+    weights = []
+    for index in range(1, cars + 1):
+        if index <= len(PRIZE_PERCENTAGES):
+            weights.append(float(PRIZE_PERCENTAGES[index - 1]))
+        else:
+            previous = weights[-1] if weights else 0.08
+            weights.append(max(0.008, previous * 0.72))
+    total = sum(weights) or 1.0
+    return weights[place - 1] / total
 
 WEATHER_CONDITIONS = (
     "Clear",
@@ -798,11 +823,10 @@ def simulate_stage_results(running_results, stage_number):
 
     staged.sort(key=lambda item: item["score"], reverse=True)
 
-    table = get_stage_points_by_position()
     awarded = []
 
     for position, item in enumerate(staged, start=1):
-        points = table[position - 1] if position <= len(table) else 0
+        points = stage_points_for_finish(position)
         awarded.append(
             {
                 "stage": stage_number,

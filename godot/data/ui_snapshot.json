@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "1.0",
+    "ui_version": "1.1",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -62,9 +62,10 @@
         "tv_rights": "Horizon Sports ($14,932,000/yr, 6 yrs) \u2014 content",
         "prospects": "Prospects: 10 waiting | Headliner: Tessa Quinn (82 Super Late)",
         "development": "Development: National Development Series | 0 of 8",
-        "factory": "Factory: last none | next Summit Racing Falcon 2 yrs",
+        "factory": "Factory: last none | next Blue Ridge Racing Falcon 2 yrs",
         "makers": "Makers: Vanguard Durability | Apex Speed | Falcon Balance",
         "alerts": [
+            "No main sponsor: Ironwood Motorsports, Blue Ridge Racing",
             "A prospect is ready for a call-up",
             "An owner has applied to enter"
         ],
@@ -94,6 +95,69 @@
                 "prestige": 64,
                 "sponsor": "Copperline Logistics ($1,012,000/yr, 3 yrs) \u2014 content",
                 "owner": "Ruth Calder",
+                "factory": "Falcon (2 yrs)"
+            },
+            {
+                "name": "Harbor Racing",
+                "manufacturer": "Vanguard",
+                "budget": 4100000,
+                "prestige": 52,
+                "sponsor": "Ridgeway Outfitters ($858,000/yr, 2 yrs) \u2014 content",
+                "owner": "Ivy Navarro",
+                "factory": "Vanguard (3 yrs)"
+            },
+            {
+                "name": "Ironwood Motorsports",
+                "manufacturer": "Apex",
+                "budget": 4250000,
+                "prestige": 50,
+                "sponsor": "unsponsored",
+                "owner": "Grant Holcomb",
+                "factory": "Apex (3 yrs)"
+            },
+            {
+                "name": "Redline Racing",
+                "manufacturer": "Apex",
+                "budget": 4600000,
+                "prestige": 61,
+                "sponsor": "BrightPath Wireless ($1,145,000/yr, 2 yrs) \u2014 content",
+                "owner": "Daria Keene",
+                "factory": "Apex (3 yrs)"
+            },
+            {
+                "name": "Coastal Speed",
+                "manufacturer": "Falcon",
+                "budget": 4350000,
+                "prestige": 55,
+                "sponsor": "Harbor Mutual ($1,189,000/yr, 2 yrs) \u2014 content",
+                "owner": "Ellis Shore",
+                "factory": "Falcon (2 yrs)"
+            },
+            {
+                "name": "Midland Racing",
+                "manufacturer": "Vanguard",
+                "budget": 4000000,
+                "prestige": 48,
+                "sponsor": "Redline Cola ($1,055,000/yr, 2 yrs) \u2014 content",
+                "owner": "Harlan Moss",
+                "factory": "Vanguard (3 yrs)"
+            },
+            {
+                "name": "Crown Motorsports",
+                "manufacturer": "Apex",
+                "budget": 4900000,
+                "prestige": 68,
+                "sponsor": "Northstar Capital ($1,356,000/yr, 3 yrs) \u2014 content",
+                "owner": "Vivian Crowe",
+                "factory": "Apex (3 yrs)"
+            },
+            {
+                "name": "Blue Ridge Racing",
+                "manufacturer": "Falcon",
+                "budget": 3950000,
+                "prestige": 46,
+                "sponsor": "unsponsored",
+                "owner": "Wade Pell",
                 "factory": "Falcon (2 yrs)"
             }
         ],
@@ -142,6 +206,30 @@
         },
         {
             "rank": 2,
+            "name": "Brett Lang",
+            "team": "Coastal Speed",
+            "points": 0,
+            "wins": 0,
+            "personality": "Veteran",
+            "age": 36,
+            "morale": 70,
+            "popularity": 62,
+            "trust": 60
+        },
+        {
+            "rank": 3,
+            "name": "Camille Ortiz",
+            "team": "Redline Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional",
+            "age": 24,
+            "morale": 70,
+            "popularity": 69,
+            "trust": 60
+        },
+        {
+            "rank": 4,
             "name": "Cole Baker",
             "team": "Liberty Racing",
             "points": 0,
@@ -153,7 +241,19 @@
             "trust": 60
         },
         {
-            "rank": 3,
+            "rank": 5,
+            "name": "Dean Rourke",
+            "team": "Midland Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Aggressive",
+            "age": 32,
+            "morale": 70,
+            "popularity": 60,
+            "trust": 60
+        },
+        {
+            "rank": 6,
             "name": "Derek Lane",
             "team": "Summit Racing",
             "points": 0,
@@ -165,7 +265,67 @@
             "trust": 60
         },
         {
-            "rank": 4,
+            "rank": 7,
+            "name": "Elena Vos",
+            "team": "Harbor Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Popular",
+            "age": 26,
+            "morale": 70,
+            "popularity": 78,
+            "trust": 60
+        },
+        {
+            "rank": 8,
+            "name": "Gemma Rhodes",
+            "team": "Blue Ridge Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional",
+            "age": 24,
+            "morale": 70,
+            "popularity": 63,
+            "trust": 60
+        },
+        {
+            "rank": 9,
+            "name": "Harper Quill",
+            "team": "Coastal Speed",
+            "points": 0,
+            "wins": 0,
+            "personality": "Rookie",
+            "age": 22,
+            "morale": 70,
+            "popularity": 71,
+            "trust": 60
+        },
+        {
+            "rank": 10,
+            "name": "Jordan Pike",
+            "team": "Harbor Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional",
+            "age": 31,
+            "morale": 70,
+            "popularity": 64,
+            "trust": 60
+        },
+        {
+            "rank": 11,
+            "name": "Lila Cho",
+            "team": "Midland Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional",
+            "age": 27,
+            "morale": 70,
+            "popularity": 67,
+            "trust": 60
+        },
+        {
+            "rank": 12,
             "name": "Mason Reed",
             "team": "Pioneer Motorsports",
             "points": 0,
@@ -177,7 +337,31 @@
             "trust": 60
         },
         {
-            "rank": 5,
+            "rank": 13,
+            "name": "Nash Whitaker",
+            "team": "Blue Ridge Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Veteran",
+            "age": 35,
+            "morale": 70,
+            "popularity": 58,
+            "trust": 60
+        },
+        {
+            "rank": 14,
+            "name": "Nina Brooks",
+            "team": "Ironwood Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Rookie",
+            "age": 23,
+            "morale": 70,
+            "popularity": 58,
+            "trust": 60
+        },
+        {
+            "rank": 15,
             "name": "Ryan Holt",
             "team": "Liberty Racing",
             "points": 0,
@@ -189,7 +373,31 @@
             "trust": 60
         },
         {
-            "rank": 6,
+            "rank": 16,
+            "name": "Seth Harlan",
+            "team": "Ironwood Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Aggressive",
+            "age": 33,
+            "morale": 70,
+            "popularity": 66,
+            "trust": 60
+        },
+        {
+            "rank": 17,
+            "name": "Skye Patton",
+            "team": "Crown Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Temperamental",
+            "age": 25,
+            "morale": 70,
+            "popularity": 73,
+            "trust": 60
+        },
+        {
+            "rank": 18,
             "name": "Tyler Knox",
             "team": "Pioneer Motorsports",
             "points": 0,
@@ -198,6 +406,30 @@
             "age": 21,
             "morale": 70,
             "popularity": 61,
+            "trust": 60
+        },
+        {
+            "rank": 19,
+            "name": "Victor Ames",
+            "team": "Crown Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Popular",
+            "age": 30,
+            "morale": 70,
+            "popularity": 82,
+            "trust": 60
+        },
+        {
+            "rank": 20,
+            "name": "Wade Kessler",
+            "team": "Redline Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Temperamental",
+            "age": 28,
+            "morale": 70,
+            "popularity": 74,
             "trust": 60
         }
     ],
@@ -216,6 +448,30 @@
         },
         {
             "rank": 2,
+            "name": "Brett Lang",
+            "team": "Coastal Speed",
+            "points": 0,
+            "wins": 0,
+            "personality": "Veteran",
+            "age": 36,
+            "morale": 70,
+            "popularity": 62,
+            "trust": 60
+        },
+        {
+            "rank": 3,
+            "name": "Camille Ortiz",
+            "team": "Redline Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional",
+            "age": 24,
+            "morale": 70,
+            "popularity": 69,
+            "trust": 60
+        },
+        {
+            "rank": 4,
             "name": "Cole Baker",
             "team": "Liberty Racing",
             "points": 0,
@@ -227,7 +483,19 @@
             "trust": 60
         },
         {
-            "rank": 3,
+            "rank": 5,
+            "name": "Dean Rourke",
+            "team": "Midland Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Aggressive",
+            "age": 32,
+            "morale": 70,
+            "popularity": 60,
+            "trust": 60
+        },
+        {
+            "rank": 6,
             "name": "Derek Lane",
             "team": "Summit Racing",
             "points": 0,
@@ -239,7 +507,67 @@
             "trust": 60
         },
         {
-            "rank": 4,
+            "rank": 7,
+            "name": "Elena Vos",
+            "team": "Harbor Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Popular",
+            "age": 26,
+            "morale": 70,
+            "popularity": 78,
+            "trust": 60
+        },
+        {
+            "rank": 8,
+            "name": "Gemma Rhodes",
+            "team": "Blue Ridge Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional",
+            "age": 24,
+            "morale": 70,
+            "popularity": 63,
+            "trust": 60
+        },
+        {
+            "rank": 9,
+            "name": "Harper Quill",
+            "team": "Coastal Speed",
+            "points": 0,
+            "wins": 0,
+            "personality": "Rookie",
+            "age": 22,
+            "morale": 70,
+            "popularity": 71,
+            "trust": 60
+        },
+        {
+            "rank": 10,
+            "name": "Jordan Pike",
+            "team": "Harbor Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional",
+            "age": 31,
+            "morale": 70,
+            "popularity": 64,
+            "trust": 60
+        },
+        {
+            "rank": 11,
+            "name": "Lila Cho",
+            "team": "Midland Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Professional",
+            "age": 27,
+            "morale": 70,
+            "popularity": 67,
+            "trust": 60
+        },
+        {
+            "rank": 12,
             "name": "Mason Reed",
             "team": "Pioneer Motorsports",
             "points": 0,
@@ -251,7 +579,31 @@
             "trust": 60
         },
         {
-            "rank": 5,
+            "rank": 13,
+            "name": "Nash Whitaker",
+            "team": "Blue Ridge Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Veteran",
+            "age": 35,
+            "morale": 70,
+            "popularity": 58,
+            "trust": 60
+        },
+        {
+            "rank": 14,
+            "name": "Nina Brooks",
+            "team": "Ironwood Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Rookie",
+            "age": 23,
+            "morale": 70,
+            "popularity": 58,
+            "trust": 60
+        },
+        {
+            "rank": 15,
             "name": "Ryan Holt",
             "team": "Liberty Racing",
             "points": 0,
@@ -263,7 +615,31 @@
             "trust": 60
         },
         {
-            "rank": 6,
+            "rank": 16,
+            "name": "Seth Harlan",
+            "team": "Ironwood Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Aggressive",
+            "age": 33,
+            "morale": 70,
+            "popularity": 66,
+            "trust": 60
+        },
+        {
+            "rank": 17,
+            "name": "Skye Patton",
+            "team": "Crown Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Temperamental",
+            "age": 25,
+            "morale": 70,
+            "popularity": 73,
+            "trust": 60
+        },
+        {
+            "rank": 18,
             "name": "Tyler Knox",
             "team": "Pioneer Motorsports",
             "points": 0,
@@ -272,6 +648,30 @@
             "age": 21,
             "morale": 70,
             "popularity": 61,
+            "trust": 60
+        },
+        {
+            "rank": 19,
+            "name": "Victor Ames",
+            "team": "Crown Motorsports",
+            "points": 0,
+            "wins": 0,
+            "personality": "Popular",
+            "age": 30,
+            "morale": 70,
+            "popularity": 82,
+            "trust": 60
+        },
+        {
+            "rank": 20,
+            "name": "Wade Kessler",
+            "team": "Redline Racing",
+            "points": 0,
+            "wins": 0,
+            "personality": "Temperamental",
+            "age": 28,
+            "morale": 70,
+            "popularity": 74,
             "trust": 60
         }
     ],
@@ -471,6 +871,97 @@
             "car_rating": 79,
             "crew_rating": 84,
             "distress": 0
+        },
+        {
+            "name": "Harbor Racing",
+            "manufacturer": "Vanguard",
+            "budget": 4100000,
+            "prestige": 52,
+            "sponsor": "Ridgeway Outfitters ($858,000/yr, 2 yrs) \u2014 content",
+            "owner": "Ivy Navarro",
+            "owner_priority": "prestige",
+            "factory": "Vanguard (3 yrs)",
+            "car_rating": 74,
+            "crew_rating": 72,
+            "distress": 0
+        },
+        {
+            "name": "Ironwood Motorsports",
+            "manufacturer": "Apex",
+            "budget": 4250000,
+            "prestige": 50,
+            "sponsor": "unsponsored",
+            "owner": "Grant Holcomb",
+            "owner_priority": "wins",
+            "factory": "Apex (3 yrs)",
+            "car_rating": 73,
+            "crew_rating": 70,
+            "distress": 0
+        },
+        {
+            "name": "Redline Racing",
+            "manufacturer": "Apex",
+            "budget": 4600000,
+            "prestige": 61,
+            "sponsor": "BrightPath Wireless ($1,145,000/yr, 2 yrs) \u2014 content",
+            "owner": "Daria Keene",
+            "owner_priority": "wins",
+            "factory": "Apex (3 yrs)",
+            "car_rating": 80,
+            "crew_rating": 76,
+            "distress": 0
+        },
+        {
+            "name": "Coastal Speed",
+            "manufacturer": "Falcon",
+            "budget": 4350000,
+            "prestige": 55,
+            "sponsor": "Harbor Mutual ($1,189,000/yr, 2 yrs) \u2014 content",
+            "owner": "Ellis Shore",
+            "owner_priority": "stability",
+            "factory": "Falcon (2 yrs)",
+            "car_rating": 76,
+            "crew_rating": 80,
+            "distress": 0
+        },
+        {
+            "name": "Midland Racing",
+            "manufacturer": "Vanguard",
+            "budget": 4000000,
+            "prestige": 48,
+            "sponsor": "Redline Cola ($1,055,000/yr, 2 yrs) \u2014 content",
+            "owner": "Harlan Moss",
+            "owner_priority": "cost-control",
+            "factory": "Vanguard (3 yrs)",
+            "car_rating": 75,
+            "crew_rating": 73,
+            "distress": 0
+        },
+        {
+            "name": "Crown Motorsports",
+            "manufacturer": "Apex",
+            "budget": 4900000,
+            "prestige": 68,
+            "sponsor": "Northstar Capital ($1,356,000/yr, 3 yrs) \u2014 content",
+            "owner": "Vivian Crowe",
+            "owner_priority": "prestige",
+            "factory": "Apex (3 yrs)",
+            "car_rating": 81,
+            "crew_rating": 71,
+            "distress": 0
+        },
+        {
+            "name": "Blue Ridge Racing",
+            "manufacturer": "Falcon",
+            "budget": 3950000,
+            "prestige": 46,
+            "sponsor": "unsponsored",
+            "owner": "Wade Pell",
+            "owner_priority": "stability",
+            "factory": "Falcon (2 yrs)",
+            "car_rating": 72,
+            "crew_rating": 77,
+            "distress": 0
         }
     ],
     "prospects": [
@@ -641,6 +1132,34 @@
             {
                 "team": "Summit Racing",
                 "sponsor": "Copperline Logistics ($1,012,000/yr, 3 yrs) \u2014 content"
+            },
+            {
+                "team": "Harbor Racing",
+                "sponsor": "Ridgeway Outfitters ($858,000/yr, 2 yrs) \u2014 content"
+            },
+            {
+                "team": "Ironwood Motorsports",
+                "sponsor": "unsponsored"
+            },
+            {
+                "team": "Redline Racing",
+                "sponsor": "BrightPath Wireless ($1,145,000/yr, 2 yrs) \u2014 content"
+            },
+            {
+                "team": "Coastal Speed",
+                "sponsor": "Harbor Mutual ($1,189,000/yr, 2 yrs) \u2014 content"
+            },
+            {
+                "team": "Midland Racing",
+                "sponsor": "Redline Cola ($1,055,000/yr, 2 yrs) \u2014 content"
+            },
+            {
+                "team": "Crown Motorsports",
+                "sponsor": "Northstar Capital ($1,356,000/yr, 3 yrs) \u2014 content"
+            },
+            {
+                "team": "Blue Ridge Racing",
+                "sponsor": "unsponsored"
             }
         ],
         "market": 10
@@ -694,14 +1213,14 @@
             "chair": "Marcus Hale",
             "team": "Pioneer Motorsports",
             "mood": "quiet",
-            "seats": 3,
+            "seats": 10,
             "last": "",
             "rebuke": false
         },
         "drivers": {
             "chair": "Austin Vale",
             "mood": "settled",
-            "seats": 6,
+            "seats": 20,
             "last": ""
         },
         "docket": 0,
@@ -764,6 +1283,18 @@
                 ]
             },
             {
+                "id": "alert-no-main-sponsor-ironwood-motorsports-blue-ridge-",
+                "kind": "alert",
+                "from": "League Office",
+                "subject": "No main sponsor: Ironwood Motorsports, Blue Ridge Racing",
+                "body": "Commissioner,\n\nNo main sponsor: Ironwood Motorsports, Blue Ridge Racing\n\nThis memo arrived when the situation first appeared. It stays in the bag until the dashboard clears.",
+                "unread": true,
+                "category": "",
+                "hearing_id": "",
+                "prompt": "",
+                "choices": []
+            },
+            {
                 "id": "alert-a-prospect-is-ready-for-a-call-up",
                 "kind": "alert",
                 "from": "League Office",
@@ -801,7 +1332,7 @@
             }
         ],
         "selected_mail_id": "hearing-rule-points-system",
-        "unread_count": 4,
+        "unread_count": 5,
         "checklist": [
             {
                 "id": "dashboard",

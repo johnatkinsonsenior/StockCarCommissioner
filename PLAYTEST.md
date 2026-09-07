@@ -51,7 +51,8 @@ A shorter smoke path: **Run one quick season** from the main menu.
 ## What to evaluate
 
 - Does a full career feel like running a league, not just clicking events?
-- Do Liberty, Pioneer, and Summit (and later expansion / closures) stay
+- Do Liberty, Pioneer, Summit, Harbor, Ironwood, Redline, Coastal,
+  Midland, Crown, and Blue Ridge (and later expansion / closures) stay
   distinct?
 - Do money, contracts, TV, sponsors, and manufacturer deals matter?
 - Is job security real on Hard without feeling random on Normal?
