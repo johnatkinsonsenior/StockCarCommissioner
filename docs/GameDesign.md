@@ -798,12 +798,13 @@ next Cup race and drops a Race Control recap (plus press clippings) in
 Mail. **Standings** is a ranked Cup table. **Schedule** marks DONE and
 NEXT weekends. Both screens show a last-weekend recap card (winner,
 pole, cautions, qualifying, podium, wrecks, and any investigation). **Teams**, **Drivers**, and **Prospects**
-inspect the paddock: **ten Cup shops and a twenty-car grid**, shop cards
-with owner and factory, morale and trust, and the National Development
-Series pool. The charter can grow to twelve teams; six is the floor.
-Championship points and purse shares pad past P6 so a full field still
-scores and gets paid. Silver Creek, Lakeside, and Prairie wait outside
-for a charter.
+inspect the paddock: **ten Cup shops and a twenty-car grid**. Click a
+shop or a driver for a full card (roster, morale, trust, career stats)
+without leaving Teams or Drivers. Shop cards still show owner and
+factory; the National Development Series pool sits on Prospects. The
+charter can grow to twelve teams; six is the floor. Championship points
+and purse shares pad past P6 so a full field still scores and gets paid.
+Silver Creek, Lakeside, and Prairie wait outside for a charter.
 **Treasury**, **Television**, and **Sponsors** show the sanctioning-body
 books: cash, naming rights, the TV deal, last rating, and shop deals.
 **Rulebook** lists the live Cup policies. **Board** shows confidence,

@@ -123,6 +123,7 @@ from game.ui_bridge import (
     find_godot_binary,
     godot_project_dir,
     launch_godot_process,
+    office_slug,
     write_ui_snapshot_file,
 )
 from game.packaging import (
@@ -7992,9 +7993,11 @@ def office_standings_book():
     for index, driver in enumerate(ranked, start=1):
         rows.append(
             {
+                "id": office_slug(driver.name),
                 "rank": index,
                 "name": driver.name,
                 "team": driver.team_name,
+                "team_id": office_slug(driver.team_name),
                 "points": int(driver.points or 0),
                 "wins": int(driver.wins or 0),
                 "personality": driver.personality,
@@ -8002,6 +8005,23 @@ def office_standings_book():
                 "morale": int(driver.morale),
                 "popularity": int(driver.popularity),
                 "trust": int(driver.commissioner_trust),
+                "speed": int(driver.speed),
+                "consistency": int(driver.consistency),
+                "aggression": int(driver.aggression),
+                "overall": int(driver.overall_rating()),
+                "salary": int(driver.salary),
+                "contract_years": int(driver.contract_years),
+                "career_wins": int(driver.career_wins),
+                "career_points": int(driver.career_points),
+                "career_starts": int(driver.career_starts),
+                "championships": int(driver.championships),
+                "rival": driver.rival or "",
+                "ally": driver.ally or "",
+                "rookie": bool(driver.is_rookie),
+                "short_track": int(driver.short_track),
+                "road_course": int(driver.road_course),
+                "intermediate": int(driver.intermediate),
+                "superspeedway": int(driver.superspeedway),
             }
         )
     return rows
@@ -8048,11 +8068,23 @@ def office_recap_book():
 def office_team_book():
     """Return paddock shops for the office desk."""
 
+    garage = {}
+    for driver in drivers or []:
+        garage.setdefault(driver.team_name, []).append(driver)
     rows = []
     for team in teams or []:
         owner = team.owner
+        roster = garage.get(team.name) or []
+        morale = 0
+        trust = 0
+        if roster:
+            morale = int(round(sum(item.morale for item in roster) / float(len(roster))))
+            trust = int(round(
+                sum(item.commissioner_trust for item in roster) / float(len(roster))
+            ))
         rows.append(
             {
+                "id": office_slug(team.name),
                 "name": team.name,
                 "manufacturer": team.manufacturer,
                 "budget": int(team.budget),
@@ -8060,10 +8092,31 @@ def office_team_book():
                 "sponsor": team.primary_sponsor_label(),
                 "owner": owner.name,
                 "owner_priority": owner.priority,
+                "owner_personality": owner.personality,
                 "factory": team.factory_deal_label(),
                 "car_rating": int(team.car_rating),
                 "crew_rating": int(team.crew_rating),
+                "reliability": int(team.reliability),
+                "engineering": int(team.engineering),
+                "facility": int(team.facility_level),
                 "distress": int(team.financial_distress_level),
+                "career_wins": int(team.career_wins),
+                "championships": int(team.championships),
+                "titles": int(team.organization_titles),
+                "morale": morale,
+                "trust": trust,
+                "roster": [
+                    {
+                        "id": office_slug(item.name),
+                        "name": item.name,
+                        "age": int(item.age),
+                        "personality": item.personality,
+                        "points": int(item.points or 0),
+                        "morale": int(item.morale),
+                        "trust": int(item.commissioner_trust),
+                    }
+                    for item in roster
+                ],
             }
         )
     return rows

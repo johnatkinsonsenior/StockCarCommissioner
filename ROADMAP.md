@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–105 complete. Next coding day:
-**Day 106 — Clickable driver and team profiles**.
+**Current position:** Days 1–106 complete. Next coding day:
+**Day 107 — Historical season database you can reopen**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -221,7 +221,7 @@ A team-owner career is a later era, not this one.
 
 ### Era 3 — Full paddock
 - [x] Day 105 — Full premier grid (more teams and a Cup-sized field)
-- [ ] Day 106 — Clickable driver and team profiles
+- [x] Day 106 — Clickable driver and team profiles
 - [ ] Day 107 — Historical season database you can reopen
 - [ ] Day 108 — Hall of Fame
 - [ ] Day 109 — News ticker and beat-writer headlines on the desk

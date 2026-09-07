@@ -1,7 +1,7 @@
 | ID | Feature                | Priority | Status      |
 | -- | ---------------------- | -------- | ----------- |
 | 1  | Race simulation        | High     | Completed   |
-| 2  | Driver Database        | High     | In Progress |
+| 2  | Driver Database        | High     | Completed   |
 | 3  | Team Database          | High     | Completed   |
 | 4  | Points Standings       | High     | In Progress |
 | 5  | Commissioner decisions | High     | Completed   |
@@ -10,7 +10,7 @@
 | 8  | Sponsors               | Medium   | Completed   |
 | 9  | Driver Contracts       | Medium   | In Progress |
 | 10 | Hall of Fame           | Low      | Not Started |
-| 11 | Prize Money System     | Medium   | In Progress |
+| 11 | Prize Money System     | Medium   | Completed   |
 | 12 | Team Finances          | High     | Completed   |
 | 13 | Crash System           | High     | Completed   |
 | 14 | Mechanical Failures    | High     | Completed   |
@@ -195,3 +195,4 @@
 | 193 | Alerts arrive as mail | High | Completed |
 | 194 | Windows play path (no Git) | High | Completed |
 | 195 | Full premier grid (Cup-sized field) | High | Completed |
+| 196 | Clickable driver and team profiles | High | Completed |

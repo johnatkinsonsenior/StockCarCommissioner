@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "1.1"
+UI_VERSION = "1.2"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -57,6 +57,19 @@ OFFICE_CHECKLIST = (
     {"id": "board", "label": "Check the board", "section": "board"},
     {"id": "mail", "label": "Read series mail", "section": "mail"},
 )
+
+
+def office_slug(name):
+    """Return a stable id for a shop or driver profile."""
+
+    text = str(name or "").strip().lower()
+    chars = []
+    for ch in text:
+        if ch.isalnum():
+            chars.append(ch)
+        elif chars and chars[-1] != "-":
+            chars.append("-")
+    return "".join(chars).strip("-")
 
 
 def hearing_sender(category=None):
