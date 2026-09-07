@@ -543,6 +543,7 @@ def reset_career_state(keep_settings=False):
     league["pending_factory_switch"] = None
     league["last_office_week"] = None
     league["last_office_hearing"] = None
+    league["office_offseason_step"] = 0
 
     reset_policies()
 
@@ -7642,16 +7643,21 @@ def run_offseason(completed_season):
     print(f"OFFSEASON AFTER SEASON {completed_season}")
     print("=" * 90)
     display_league_dashboard()
+    offseason_step_garage(completed_season)
+    offseason_step_charters(completed_season)
+    offseason_step_factories(completed_season)
+    offseason_step_commercial(completed_season)
+
+
+def offseason_step_garage(completed_season):
+    """Age the grid, progress prospects, and process retirements."""
 
     retirement_candidates = []
-
     print("\nDriver Development")
     print("-" * 90)
-
     for driver in list(drivers):
         driver.age += 1
         development = apply_driver_development(driver)
-
         print(
             f"{driver.name}, age {driver.age} "
             f"- {development['stage']} "
@@ -7660,25 +7666,36 @@ def run_offseason(completed_season):
             f"- Aggression {development['aggression_change']:+d} "
             f"- Overall {driver.overall_rating()}"
         )
-
         if should_driver_retire(driver):
             retirement_candidates.append(driver)
-
     progress_prospects()
-
     print("\nRetirement Announcements")
     print("-" * 90)
-
     if not retirement_candidates:
         print("No drivers retired this offseason.")
     else:
         for retiring_driver in retirement_candidates:
             retire_driver(retiring_driver)
             replace_retired_driver(retiring_driver)
-
     repair_premier_rosters()
     refill_prospect_pool()
     display_prospect_pool()
+    return {
+        "kind": "offseason",
+        "week": "garage",
+        "title": "Offseason — Garage week",
+        "body": (
+            "The shops closed the season %s books.\n\n"
+            "%s driver(s) retired. Prospects progressed and the feeder "
+            "pool was restocked. Advance for charter reviews."
+            % (completed_season, len(retirement_candidates))
+        ),
+        "retired": len(retirement_candidates),
+    }
+
+
+def offseason_step_charters(completed_season):
+    """Run expansion, finances, and closure hearings."""
 
     present_events(
         team_entry_events(
@@ -7688,7 +7705,6 @@ def run_offseason(completed_season):
             events_resolved,
         )
     )
-
     run_offseason_finances()
     present_events(
         team_closure_events(
@@ -7699,6 +7715,22 @@ def run_offseason(completed_season):
     )
     repair_premier_rosters()
     run_offseason_team_sponsors()
+    return {
+        "kind": "offseason",
+        "week": "charters",
+        "title": "Offseason — Charter week",
+        "body": (
+            "Charter office finished the season %s books.\n\n"
+            "Entry paper, shop ledgers, and any insolvent reviews are "
+            "filed. Advance for factory contracts."
+            % completed_season
+        ),
+    }
+
+
+def offseason_step_factories(completed_season):
+    """Tick factory deals and manufacturer-switch hearings."""
+
     run_offseason_factory_deals()
     present_events(
         manufacturer_switch_events(
@@ -7707,6 +7739,22 @@ def run_offseason(completed_season):
             league,
         )
     )
+    return {
+        "kind": "offseason",
+        "week": "factories",
+        "title": "Offseason — Factory week",
+        "body": (
+            "Factory desks closed season %s.\n\n"
+            "Supply contracts ticked. Badge-switch paper, if any, is "
+            "resolved. Advance for television and sponsors."
+            % completed_season
+        ),
+    }
+
+
+def offseason_step_commercial(completed_season):
+    """Pay commercial deals, TV, purses, and paddock relationships."""
+
     run_offseason_endorsements()
     run_offseason_league_sponsors()
     run_offseason_tv_rights()
@@ -7716,6 +7764,79 @@ def run_offseason(completed_season):
     present_events(
         offseason_events(current_policies, events_resolved)
     )
+    return {
+        "kind": "offseason",
+        "week": "commercial",
+        "title": "Offseason — Commercial week",
+        "body": (
+            "The league books for season %s are closed.\n\n"
+            "Endorsements, naming rights, television, purses, and the "
+            "sponsor market moved. Advance to open the next preseason."
+            % completed_season
+        ),
+    }
+
+
+def offseason_step_turnover(completed_season):
+    """Open the next preseason, or hold if the contract is finished."""
+
+    if not calendar.has_more_seasons():
+        return {
+            "kind": "career",
+            "week": "complete",
+            "title": "Career contract complete",
+            "body": (
+                "Season %s is in the books and the contract is finished.\n\n"
+                "The offseason work is done. Start a new career from "
+                "Settings when you want another brief."
+                % completed_season
+            ),
+        }
+    calendar.advance_to_next_season()
+    sync_calendar_aliases()
+    initialize_season(calendar.current_season)
+    calendar.enter_preseason()
+    sync_calendar_aliases()
+    league["office_offseason_step"] = 0
+    return {
+        "kind": "preseason",
+        "week": "turnover",
+        "title": "Preseason — Season %s" % calendar.current_season,
+        "body": (
+            "Season %s is open.\n\n"
+            "The grid reset, the feeder calendar is fresh, and the "
+            "checklist still applies. Advance when you are ready for "
+            "the opening weekend."
+            % calendar.current_season
+        ),
+    }
+
+
+def run_office_offseason_week():
+    """Run the next offseason desk week and return a recap."""
+
+    if calendar.phase != OFFSEASON:
+        calendar.enter_offseason()
+        sync_calendar_aliases()
+        league["office_offseason_step"] = 0
+    steps = (
+        offseason_step_garage,
+        offseason_step_charters,
+        offseason_step_factories,
+        offseason_step_commercial,
+        offseason_step_turnover,
+    )
+    step = int(league.get("office_offseason_step") or 0)
+    if step < 0:
+        step = 0
+    if step >= len(steps):
+        step = len(steps) - 1
+    recap = steps[step](calendar.current_season)
+    if recap.get("kind") in ("preseason", "career"):
+        league["office_offseason_step"] = 0
+    else:
+        league["office_offseason_step"] = step + 1
+    return recap
 
 
 def serve_suspensions():
@@ -10983,14 +11104,23 @@ def office_week_preview():
         }
     if calendar.phase == POSTSEASON:
         return {
-            "kind": "postseason",
-            "label": "Advance",
-            "next": calendar.description(),
+            "kind": "offseason",
+            "label": "Advance — Offseason",
+            "next": calendar.description() + " — next: garage week",
         }
+    step = int(league.get("office_offseason_step") or 0)
+    labels = (
+        "garage week",
+        "charter week",
+        "factory week",
+        "commercial week",
+        "next preseason",
+    )
+    name = labels[step] if 0 <= step < len(labels) else "offseason week"
     return {
         "kind": "off",
-        "label": "Advance week",
-        "next": calendar.description(),
+        "label": "Advance — %s" % name.capitalize(),
+        "next": calendar.description() + " — next: " + name,
     }
 
 
@@ -11056,8 +11186,8 @@ def recap_postseason():
     if championship_awarded:
         body = (
             "%s is the champion.\n\n"
-            "The offseason desk (contracts, factories, the feeder) lands "
-            "in Day 101. This week the office holds."
+            "Advance opens the offseason desk: garage, charters, "
+            "factories, then commercial books, then the next preseason."
             % name
         )
     return {
@@ -11104,13 +11234,12 @@ def _advance_office_week_body():
     if calendar.phase == POSTSEASON:
         if not championship_awarded:
             award_championship()
-        return recap_postseason()
+        return run_office_offseason_week()
 
-    return {
-        "kind": "off",
-        "title": "Offseason week",
-        "body": "Offseason weeks land in Day 101.",
-    }
+    if calendar.phase == OFFSEASON:
+        return run_office_offseason_week()
+
+    return run_office_offseason_week()
 
 
 def write_ui_snapshot(path=None):

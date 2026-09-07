@@ -813,7 +813,7 @@ offseason week — not a printed dump of every race.
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order; the development series races its own calendar alongside the first eight weekends
 - Postseason: standings, awards, championship, feeder champion, and season records are finalized
-- Offseason: drivers develop or decline, prospects progress from feeder results, retirements are processed and may call up a premier-ready prospect, team finances are settled and expired driver contracts re-sign, factory contracts tick and may switch, the sponsor market churns, television rights are paid, the treasury funds that season's purses, the prospect pool and development book remain on file, and paddock rivalries, feuds, and friendships are updated
+- Offseason: Advance one desk week at a time — garage (development, retirements, prospects), charters (entry, ledgers, closures), factories, then commercial books (sponsors, television, purses, paddock). The last Advance opens the next preseason. The terminal career can still run the offseason as one block.
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 
