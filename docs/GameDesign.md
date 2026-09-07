@@ -236,7 +236,9 @@ Each season report includes:
 - League health
 - Season award winners
 
-Future versions will use historical reports to create multi-season records, career statistics, hall-of-fame selections, and league evolution.
+The office **History** screen reopens each completed season (champion,
+standings, finale, league health) and lists the all-time record book
+computed from `career_history`. Preseason of season 1 is an empty file.
 
 ## Career Mode
 
@@ -809,7 +811,9 @@ Silver Creek, Lakeside, and Prairie wait outside for a charter.
 books: cash, naming rights, the TV deal, last rating, and shop deals.
 **Rulebook** lists the live Cup policies. **Board** shows confidence,
 dismissal risk, fan/owner/driver approval, and both councils (chair,
-mood, last filing). Settings lists the same JSON career slots as the
+mood, last filing). **History** reopens completed season files (champion,
+standings, finale) and the all-time record book; preseason of season 1
+is empty. Settings lists the same JSON career slots as the
 terminal menu: Save writes `desk.json`, Load restores a slot onto the
 desk. The desk uses Winston Cup crimson, gold, and white
 with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout

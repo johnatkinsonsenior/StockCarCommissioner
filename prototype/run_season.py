@@ -8295,6 +8295,85 @@ def office_board_book():
     }
 
 
+def _history_record_line(label, record):
+    """Turn a records.py tuple into a desk line."""
+
+    if not record:
+        return None
+    name = record[0]
+    value = record[1]
+    if len(record) >= 3 and record[2] not in (None, ""):
+        return "%s: %s — %s (season %s)" % (label, name, value, record[2])
+    return "%s: %s — %s" % (label, name, value)
+
+
+def office_history_book():
+    """Return reopenable season files and the all-time record book."""
+
+    records = build_record_book(drivers, retired_drivers, teams, career_history)
+    record_rows = []
+    mapping = (
+        ("Most career wins", records.get("most_career_wins")),
+        ("Most championships", records.get("most_championships")),
+        ("Most team wins", records.get("most_team_wins")),
+        ("Organization titles", records.get("most_organization_titles")),
+        ("Most wins in a season", records.get("most_wins_in_a_season")),
+        ("Highest season points", records.get("highest_season_points")),
+        ("Longest title streak", records.get("longest_title_streak")),
+        ("Longest win streak", records.get("longest_win_streak")),
+    )
+    for label, record in mapping:
+        line = _history_record_line(label, record)
+        if line:
+            record_rows.append({"label": label, "text": line})
+    seasons = []
+    for row in career_history or []:
+        races = list(row.get("race_history") or [])
+        last_race = races[-1] if races else {}
+        last_results = last_race.get("results") or []
+        finale = ""
+        if last_results:
+            winner = last_results[0].get("driver")
+            if hasattr(winner, "name"):
+                winner = winner.name
+            finale = "%s — %s" % (last_race.get("track") or "Finale", winner)
+        standings = []
+        for entry in list(row.get("standings") or [])[:10]:
+            standings.append(
+                {
+                    "position": int(entry.get("position") or 0),
+                    "driver": entry.get("driver") or "",
+                    "team": entry.get("team") or "",
+                    "points": int(entry.get("points") or 0),
+                    "wins": int(entry.get("wins") or 0),
+                }
+            )
+        season_number = int(row.get("season") or 0)
+        seasons.append(
+            {
+                "id": "season-%s" % season_number,
+                "season": season_number,
+                "champion": row.get("champion") or "",
+                "champion_team": row.get("champion_team") or "",
+                "champion_points": int(row.get("champion_points") or 0),
+                "champion_wins": int(row.get("champion_wins") or 0),
+                "grade": row.get("commissioner_grade") or "",
+                "score": int(row.get("commissioner_score") or 0),
+                "integrity": int(row.get("league_integrity") or 0),
+                "fan_interest": int(row.get("fan_interest") or 0),
+                "controversy": int(row.get("controversy") or 0),
+                "races": len(races),
+                "finale": finale,
+                "standings": standings,
+            }
+        )
+    return {
+        "seasons": seasons,
+        "records": record_rows,
+        "empty": not seasons,
+    }
+
+
 def print_qualifying_report(weekend):
     """Print starting grid, penalties, heats, stages, and cautions."""
 
@@ -10869,6 +10948,7 @@ def build_ui_snapshot():
     rulebook_book = office_rulebook_book()
     councils_book = office_councils_book()
     board_book = office_board_book()
+    history_book = office_history_book()
     series = series_name()
     week = office_week_preview()
     mail_body = (
@@ -10922,6 +11002,7 @@ def build_ui_snapshot():
             "rulebook": rulebook_book,
             "councils": councils_book,
             "board": board_book,
+            "history": history_book,
             "menu_items": [
                 {"id": "1", "label": "Start new career"},
                 {"id": "2", "label": "Load saved career"},

@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "1.2",
+    "ui_version": "1.3",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -2298,6 +2298,28 @@
         "drivers": 62,
         "dismissed": false
     },
+    "history": {
+        "seasons": [],
+        "records": [
+            {
+                "label": "Most career wins",
+                "text": "Most career wins: Cole Baker \u2014 0"
+            },
+            {
+                "label": "Most championships",
+                "text": "Most championships: Cole Baker \u2014 0"
+            },
+            {
+                "label": "Most team wins",
+                "text": "Most team wins: Liberty Racing \u2014 0"
+            },
+            {
+                "label": "Organization titles",
+                "text": "Organization titles: Liberty Racing \u2014 0"
+            }
+        ],
+        "empty": true
+    },
     "palette": "winston-cup",
     "office": {
         "layout": "commissioner-desk",
@@ -2384,7 +2406,7 @@
                 "from": "Series Office \u2014 Preseason",
                 "subject": "Welcome to Northstar Capital Stock Car Series",
                 "body": "Commissioner,\n\nYou run Northstar Capital Stock Car Series. You do not drive.\n\nTelevision and naming rights pay the bills. Owners want wins. Drivers want a fair garage. The board wants a league that still exists next year.\n\nOpen every section on the left. Mail is your inbox. When the checklist is done, Advance runs the next week.\n\nPython still simulates the races. This office is where you sit.",
-                "unread": false,
+                "unread": true,
                 "category": "",
                 "hearing_id": "",
                 "prompt": "",
@@ -2494,6 +2516,11 @@
             {
                 "id": "rulebook",
                 "label": "Rulebook",
+                "group": "League"
+            },
+            {
+                "id": "history",
+                "label": "History",
                 "group": "League"
             },
             {
