@@ -56,6 +56,7 @@ func _ready() -> void:
 	print("INBOX_HEARINGS=", str(_hearing_letters().size()))
 	print("MAIL_OPEN=", selected_mail_id)
 	print("APPLY_SCRIPT=", str(_office().get("apply_script", "")))
+	print("ALERT_MAIL=", str(_alert_letters().size()))
 	if DisplayServer.get_name() == "headless":
 		call_deferred("_headless_tour")
 
@@ -457,6 +458,14 @@ func _hearing_letters() -> Array:
 	return hearings
 
 
+func _alert_letters() -> Array:
+	var memos: Array = []
+	for row in _inbox():
+		if typeof(row) == TYPE_DICTIONARY and str(row.get("kind", "")) == "alert":
+			memos.append(row)
+	return memos
+
+
 func _first_hearing() -> Dictionary:
 	var hearings := _hearing_letters()
 	if hearings.is_empty():
@@ -469,9 +478,13 @@ func _unread_count() -> int:
 	for row in _inbox():
 		if typeof(row) != TYPE_DICTIONARY:
 			continue
-		var letter_id := str(row.get("id", ""))
-		if not mail_read.get(letter_id, false):
-			count += 1
+		var letter: Dictionary = row
+		var letter_id := str(letter.get("id", ""))
+		if mail_read.get(letter_id, false):
+			continue
+		if letter.has("unread") and not bool(letter.get("unread", true)):
+			continue
+		count += 1
 	return count
 
 
@@ -651,6 +664,7 @@ func _fill_mail() -> void:
 	var opened := _letter_by_id(selected_mail_id)
 	print("INBOX=", str(letters.size()))
 	print("INBOX_HEARINGS=", str(_hearing_letters().size()))
+	print("ALERT_MAIL=", str(_alert_letters().size()))
 	print("MAIL_OPEN=", selected_mail_id)
 	print("MAIL_KIND=", str(opened.get("kind", "letter")))
 

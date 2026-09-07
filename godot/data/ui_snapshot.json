@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.13",
+    "ui_version": "0.14",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -764,11 +764,11 @@
                 ]
             },
             {
-                "id": "alert-0",
+                "id": "alert-a-prospect-is-ready-for-a-call-up",
                 "kind": "alert",
                 "from": "League Office",
                 "subject": "A prospect is ready for a call-up",
-                "body": "Commissioner,\n\nA prospect is ready for a call-up\n\nThis sits on the dashboard until the situation changes. Read it, then Advance when the inbox is clear enough to work.",
+                "body": "Commissioner,\n\nA prospect is ready for a call-up\n\nThis memo arrived when the situation first appeared. It stays in the bag until the dashboard clears.",
                 "unread": true,
                 "category": "",
                 "hearing_id": "",
@@ -776,11 +776,11 @@
                 "choices": []
             },
             {
-                "id": "alert-1",
+                "id": "alert-an-owner-has-applied-to-enter",
                 "kind": "alert",
                 "from": "League Office",
                 "subject": "An owner has applied to enter",
-                "body": "Commissioner,\n\nAn owner has applied to enter\n\nThis sits on the dashboard until the situation changes. Read it, then Advance when the inbox is clear enough to work.",
+                "body": "Commissioner,\n\nAn owner has applied to enter\n\nThis memo arrived when the situation first appeared. It stays in the bag until the dashboard clears.",
                 "unread": true,
                 "category": "",
                 "hearing_id": "",

@@ -544,6 +544,8 @@ def reset_career_state(keep_settings=False):
     league["last_office_week"] = None
     league["last_office_hearing"] = None
     league["office_offseason_step"] = 0
+    league["office_mail_alerts"] = []
+    league["office_welcome_sent"] = False
 
     reset_policies()
 
@@ -10758,6 +10760,7 @@ def build_ui_snapshot():
     approval_line = ""
     board_line = ""
     alerts = []
+    inbox_alerts = []
     team_rows = []
     if drivers and teams:
         approval = refresh_approval_ratings()
@@ -10778,6 +10781,7 @@ def build_ui_snapshot():
             security.get("risk_label"),
         )
         alerts = list(collect_commissioner_alerts())
+        inbox_alerts = sync_office_alert_mail(alerts)
         for team in teams:
             team_rows.append(
                 {
@@ -10831,7 +10835,7 @@ def build_ui_snapshot():
         "Python still simulates the races. This office is where you sit."
         % series
     )
-    return compose_ui_snapshot(
+    snapshot = compose_ui_snapshot(
         {
             "screen": "mail",
             "series": series,
@@ -10858,6 +10862,8 @@ def build_ui_snapshot():
             },
             "headlines": list(league.get("last_media_stories") or []),
             "alerts": list(alerts),
+            "inbox_alerts": inbox_alerts,
+            "welcome_unread": not bool(league.get("office_welcome_sent")),
             "drivers": driver_rows,
             "standings": driver_rows,
             "schedule": schedule_rows,
@@ -10916,6 +10922,8 @@ def build_ui_snapshot():
             "decision": decision,
         }
     )
+    league["office_welcome_sent"] = True
+    return snapshot
 
 
 OFFICE_SAVE_NAME = "office"
@@ -11035,6 +11043,58 @@ def load_office_slot(save_name):
     persist_office_career()
     write_ui_snapshot()
     return path
+
+
+def alert_mail_key(text):
+    """Return a stable memo id from alert text."""
+
+    slug = []
+    for char in str(text or ""):
+        if char.isalnum():
+            slug.append(char.lower())
+        elif slug and slug[-1] != "-":
+            slug.append("-")
+    return "".join(slug).strip("-")[:48] or "memo"
+
+
+def sync_office_alert_mail(alerts):
+    """File new dashboard alerts as unread memos; keep live ones in the bag."""
+
+    current = [str(item) for item in (alerts or [])]
+    bag = list(league.get("office_mail_alerts") or [])
+    known = {}
+    for row in bag:
+        key = str(row.get("key") or "")
+        if key:
+            known[key] = dict(row)
+    rows = []
+    for text in current:
+        key = alert_mail_key(text)
+        previous = known.get(key)
+        if previous:
+            rows.append(
+                {
+                    "key": key,
+                    "text": text,
+                    "unread": bool(previous.get("unread")),
+                }
+            )
+        else:
+            rows.append({"key": key, "text": text, "unread": True})
+    league["office_mail_alerts"] = rows
+    return rows
+
+
+def mark_office_alerts_read():
+    """Mark filed alert memos read after a week Advances."""
+
+    rows = []
+    for row in league.get("office_mail_alerts") or []:
+        updated = dict(row)
+        updated["unread"] = False
+        rows.append(updated)
+    league["office_mail_alerts"] = rows
+    return rows
 
 
 def persist_office_career():
@@ -11259,6 +11319,7 @@ def advance_office_week():
             recap = _advance_office_week_body()
     finally:
         set_ai_mode(previous)
+    mark_office_alerts_read()
     league["last_office_week"] = recap
     return recap
 

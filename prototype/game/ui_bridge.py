@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "0.13"
+UI_VERSION = "0.14"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -75,6 +75,7 @@ def make_letter(
     hearing_id="",
     prompt="",
     choices=None,
+    unread=True,
 ):
     """Return one inbox letter dictionary."""
 
@@ -84,7 +85,7 @@ def make_letter(
         "from": from_name or "Series Office",
         "subject": subject or "Mail",
         "body": body or "",
-        "unread": True,
+        "unread": bool(unread),
         "category": category or "",
         "hearing_id": hearing_id or "",
         "prompt": prompt or "",
@@ -122,19 +123,27 @@ def hearing_letter(decision):
 def alert_letter(index, alert):
     """Turn a dashboard alert into a league-office memo."""
 
-    text = str(alert)
+    unread = True
+    key = str(index)
+    if isinstance(alert, dict):
+        text = str(alert.get("text") or alert.get("subject") or "")
+        unread = bool(alert.get("unread", True))
+        key = str(alert.get("key") or key)
+    else:
+        text = str(alert)
     return make_letter(
-        letter_id="alert-%s" % index,
+        letter_id="alert-%s" % key,
         kind="alert",
         from_name="League Office",
         subject=text,
         body=(
             "Commissioner,\n\n"
             "%s\n\n"
-            "This sits on the dashboard until the situation changes. "
-            "Read it, then Advance when the inbox is clear enough to work."
+            "This memo arrived when the situation first appeared. "
+            "It stays in the bag until the dashboard clears."
             % text
         ),
+        unread=unread,
     )
 
 
@@ -167,6 +176,7 @@ def welcome_letter(payload=None):
         from_name=mail.get("from") or "Series Office — Preseason",
         subject=mail.get("title") or ("Welcome to %s" % series),
         body=mail.get("body") or default_welcome_body(series),
+        unread=payload.get("welcome_unread", True),
     )
 
 
@@ -186,6 +196,7 @@ def normalize_letter(item, index=0):
         hearing_id=item.get("hearing_id") or "",
         prompt=item.get("prompt") or "",
         choices=item.get("choices") or [],
+        unread=item.get("unread", True),
     )
 
 
@@ -222,9 +233,11 @@ def build_office_inbox(payload=None):
     decision = payload.get("decision")
     if decision:
         letters.append(hearing_letter(decision))
-    alerts = payload.get("alerts")
+    alerts = payload.get("inbox_alerts")
     if alerts is None:
-        alerts = (payload.get("dashboard") or {}).get("alerts") or []
+        alerts = payload.get("alerts")
+        if alerts is None:
+            alerts = (payload.get("dashboard") or {}).get("alerts") or []
     for index, alert in enumerate(alerts):
         letters.append(alert_letter(index, alert))
     headlines = payload.get("headlines") or payload.get("media") or []
