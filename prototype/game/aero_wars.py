@@ -387,7 +387,7 @@ def is_plate_track(track, book=None):
     """Return whether this venue runs a restrictor this week."""
 
     book = book or live_book()
-    if track is None or not book.get("plates"):
+    if track is None:
         return False
     if isinstance(track, dict):
         name = track.get("name")
@@ -395,9 +395,6 @@ def is_plate_track(track, book=None):
     else:
         name = getattr(track, "name", None)
         track_type = getattr(track, "type", None)
-    plates = list(book.get("plate_tracks") or PLATE_TRACKS)
-    if name in plates:
-        return True
     packages = live_packages()
     venues = packages.get("venues") or {}
     override = venues.get(name) or {}
@@ -409,6 +406,11 @@ def is_plate_track(track, book=None):
     if ss.get("plates") == "off":
         return False
     if ss.get("plates") == "on" and track_type == "Superspeedway":
+        return True
+    if not book.get("plates"):
+        return False
+    plates = list(book.get("plate_tracks") or PLATE_TRACKS)
+    if name in plates:
         return True
     return False
 
