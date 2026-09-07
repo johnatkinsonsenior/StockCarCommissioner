@@ -197,10 +197,21 @@ def live_packages():
     return default_packages()
 
 
+def _truthy(value):
+    return str(value).lower() in ("1", "true", "on", "yes")
+
+
 def apply_aero_rule(league, key, value):
     """Rewrite one winter-book or package slot. Day 114 desk writer."""
 
     book = ensure_aero_book(league)
+    packages = None
+    if league is not None:
+        packages = league.get("track_packages")
+    if not isinstance(packages, dict) or not packages:
+        packages = default_packages()
+        if league is not None:
+            league["track_packages"] = packages
     key = str(key or "").strip()
     if key == "aero_specials":
         if value in (SPECIALS_BANNED, SPECIALS_LEGAL, SPECIALS_HOMOLOGATE):
@@ -208,14 +219,14 @@ def apply_aero_rule(league, key, value):
             if value == SPECIALS_LEGAL:
                 book["aerocoupes"] = True
     elif key == "aerocoupes":
-        book["aerocoupes"] = str(value).lower() in ("1", "true", "on", "yes")
+        book["aerocoupes"] = _truthy(value)
     elif key == "template":
         if value in ("identity", "spec"):
             book["template"] = value
     elif key == "plates":
-        book["plates"] = str(value).lower() in ("1", "true", "on", "yes")
+        book["plates"] = _truthy(value)
     elif key == "chrysler":
-        book["chrysler"] = str(value).lower() in ("1", "true", "on", "yes")
+        book["chrysler"] = _truthy(value)
     elif key == "wheelbase":
         try:
             book["wheelbase"] = int(value)
@@ -223,10 +234,26 @@ def apply_aero_rule(league, key, value):
             pass
     elif key == "homologation":
         book["homologation"] = value
-    elif key == "short_equalize":
-        book["short_equalize"] = str(value).lower() in ("1", "true", "on", "yes")
+    elif key in ("short_equalize", "st_equalize"):
+        on = _truthy(value)
+        book["short_equalize"] = on
+        kit = dict(packages.get("Short Track") or {})
+        kit["equalize"] = on
+        packages["Short Track"] = kit
     elif key == "spoiler":
         if value in ("identity", "flatten", "stock"):
+            book["spoiler"] = value
+    elif key in ("ss_plates", "package_ss_plates"):
+        token = str(value).lower()
+        if token in ("on", "off", "era"):
+            kit = dict(packages.get("Superspeedway") or {})
+            kit["plates"] = token
+            packages["Superspeedway"] = kit
+    elif key == "int_spoiler":
+        if value in ("identity", "flatten", "stock"):
+            kit = dict(packages.get("Intermediate") or {})
+            kit["spoiler"] = value
+            packages["Intermediate"] = kit
             book["spoiler"] = value
     elif key == "plate_track":
         tracks = list(book.get("plate_tracks") or [])
@@ -236,7 +263,8 @@ def apply_aero_rule(league, key, value):
             book["plate_tracks"] = tracks
     if league is not None:
         league["aero_book"] = book
-    bind_live(book, league.get("track_packages") if league else None)
+        league["track_packages"] = packages
+    bind_live(book, packages)
     return book
 
 
@@ -359,7 +387,7 @@ def is_plate_track(track, book=None):
     """Return whether this venue runs a restrictor this week."""
 
     book = book or live_book()
-    if track is None or not book.get("plates"):
+    if track is None:
         return False
     if isinstance(track, dict):
         name = track.get("name")
@@ -367,9 +395,6 @@ def is_plate_track(track, book=None):
     else:
         name = getattr(track, "name", None)
         track_type = getattr(track, "type", None)
-    plates = list(book.get("plate_tracks") or PLATE_TRACKS)
-    if name in plates:
-        return True
     packages = live_packages()
     venues = packages.get("venues") or {}
     override = venues.get(name) or {}
@@ -381,6 +406,11 @@ def is_plate_track(track, book=None):
     if ss.get("plates") == "off":
         return False
     if ss.get("plates") == "on" and track_type == "Superspeedway":
+        return True
+    if not book.get("plates"):
+        return False
+    plates = list(book.get("plate_tracks") or PLATE_TRACKS)
+    if name in plates:
         return True
     return False
 
@@ -506,6 +536,157 @@ def office_bodies_book(makers=None, era_book=None, book=None):
             }
         )
     return rows
+
+
+def package_lines(packages=None, book=None):
+    """Return per-track kit lines for the desk."""
+
+    packages = packages or live_packages()
+    book = book or live_book()
+    ss = packages.get("Superspeedway") or {}
+    inter = packages.get("Intermediate") or {}
+    short = packages.get("Short Track") or {}
+    road = packages.get("Road Course") or {}
+    plates = ss.get("plates") or "era"
+    if plates == "on":
+        plate_line = "plates on every superspeedway"
+    elif plates == "off":
+        plate_line = "no plates"
+    else:
+        plate_line = "plates follow the winter book"
+    spoiler = inter.get("spoiler") or book.get("spoiler") or "identity"
+    equalized = bool(book.get("short_equalize") or short.get("equalize"))
+    return [
+        "Superspeedway: %s" % plate_line,
+        "Intermediate: spoiler %s" % spoiler,
+        "Short Track: %s" % ("aero equalized" if equalized else "mechanical"),
+        "Road Course: downforce %s" % (road.get("downforce") or "stock"),
+    ]
+
+
+def office_aero_actions(book=None, packages=None):
+    """Return Rulebook rewrite buttons for the winter book and kits."""
+
+    book = book or live_book()
+    packages = packages or live_packages()
+    specials = book.get("aero_specials") or SPECIALS_BANNED
+    actions = []
+    if specials != SPECIALS_LEGAL:
+        actions.append(
+            {
+                "key": "aero_specials",
+                "value": SPECIALS_LEGAL,
+                "label": "Legalize aero specials",
+            }
+        )
+    else:
+        actions.append(
+            {
+                "key": "aero_specials",
+                "value": SPECIALS_BANNED,
+                "label": "Ban aero specials",
+            }
+        )
+    if book.get("template") != "spec":
+        actions.append(
+            {
+                "key": "template",
+                "value": "spec",
+                "label": "Adopt a spec silhouette",
+            }
+        )
+    else:
+        actions.append(
+            {
+                "key": "template",
+                "value": "identity",
+                "label": "Restore manufacturer identity",
+            }
+        )
+    if book.get("plates"):
+        actions.append(
+            {
+                "key": "plates",
+                "value": "off",
+                "label": "Pull restrictor plates",
+            }
+        )
+    else:
+        actions.append(
+            {
+                "key": "plates",
+                "value": "on",
+                "label": "Plate the two biggest ovals",
+            }
+        )
+    if book.get("chrysler"):
+        actions.append(
+            {
+                "key": "chrysler",
+                "value": "off",
+                "label": "Close the book to Chrysler",
+            }
+        )
+    else:
+        actions.append(
+            {
+                "key": "chrysler",
+                "value": "on",
+                "label": "Invite Chrysler",
+            }
+        )
+    if book.get("short_equalize"):
+        actions.append(
+            {
+                "key": "short_equalize",
+                "value": "off",
+                "label": "Let short tracks stay mechanical",
+            }
+        )
+    else:
+        actions.append(
+            {
+                "key": "short_equalize",
+                "value": "on",
+                "label": "Equalize short-track aero",
+            }
+        )
+    ss = packages.get("Superspeedway") or {}
+    if ss.get("plates") != "off":
+        actions.append(
+            {
+                "key": "ss_plates",
+                "value": "off",
+                "label": "Superspeedway kit: no plates",
+            }
+        )
+    else:
+        actions.append(
+            {
+                "key": "ss_plates",
+                "value": "era",
+                "label": "Superspeedway kit: follow the era book",
+            }
+        )
+    inter = packages.get("Intermediate") or {}
+    spoiler = inter.get("spoiler") or book.get("spoiler") or "identity"
+    if spoiler != "flatten":
+        actions.append(
+            {
+                "key": "int_spoiler",
+                "value": "flatten",
+                "label": "Intermediate kit: flatten spoilers",
+            }
+        )
+    else:
+        actions.append(
+            {
+                "key": "int_spoiler",
+                "value": "identity",
+                "label": "Intermediate kit: restore identity",
+            }
+        )
+    return actions
 
 
 def book_lines(book=None):

@@ -8,7 +8,7 @@ when the board meets.
 
 ## Current Version
 
-0.2.0-office (Living Office)
+0.3.0-aero (Aero Wars)
 
 Save schema: 0.0.40
 
@@ -45,16 +45,18 @@ cycles beat-writer headlines. A new career rewinds the opening world:
 fading), pinnacle (ten shops), or beyond (twelve shops, fatter TV).
 Each factory fields a homologated two-door coupe with a track map;
 driver skill still owns the short tracks, aero owns the superspeedways.
+Rulebook writes the winter book and the per-track kit — legalize
+specials, spec vs identity, plates, invite Chrysler.
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build
 
     python3 prototype/package_alpha.py
 
-Writes `dist/stock-car-commissioner-0.2.0-office.zip`. Pass an output path if
+Writes `dist/stock-car-commissioner-0.3.0-aero.zip`. Pass an output path if
 you want the zip somewhere else.
 
 ## Development status
 
-Era 3 packages a living office on a Cup-sized paddock. Playtesters unpack
-and run the launchers; Git is not required.
+Era 4 ships Aero Wars: named coupes, track maps, and a commissioner-written
+winter book. Playtesters unpack and run the launchers; Git is not required.
