@@ -158,6 +158,7 @@ LEAGUE_DEFAULTS = {
     "pending_factory_switch": None,
     "last_office_week": None,
     "last_office_hearing": None,
+    "office_offseason_step": 0,
 }
 
 
