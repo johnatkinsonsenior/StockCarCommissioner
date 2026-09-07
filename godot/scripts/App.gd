@@ -88,6 +88,9 @@ func _headless_tour() -> void:
 	_show_section("sponsors")
 	_show_section("hearings")
 	_show_section("mail")
+	_show_section("settings")
+	_on_office_save("desk")
+	_on_office_load("desk")
 	call_deferred("_quit_headless")
 
 
@@ -988,6 +991,78 @@ func _fill_settings() -> void:
 	center_body.add_child(_line("Career length: %s seasons" % str(settings.get("career_seasons", 3))))
 	center_body.add_child(_line("Autosave: %s" % str(settings.get("autosave_label", "Off"))))
 	center_body.add_child(_muted(str(snapshot.get("settings_line", ""))))
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_title("Career files"))
+	center_body.add_child(_muted("Saves use the same JSON slots as the terminal career."))
+	var save_button := Button.new()
+	save_button.text = "Save desk career"
+	save_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	save_button.pressed.connect(_on_office_save.bind("desk"))
+	center_body.add_child(save_button)
+	var saves: Array = _office().get("saves", [])
+	if saves.is_empty():
+		saves = snapshot.get("saves", [])
+	print("SAVES=", str(saves.size()))
+	if saves.is_empty():
+		center_body.add_child(_muted("No career files yet. Save writes desk.json."))
+		return
+	for item in saves:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		var row: Dictionary = item
+		var filename := str(row.get("filename", ""))
+		var load_button := Button.new()
+		load_button.text = "Load  %s" % str(row.get("label", filename))
+		load_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		load_button.pressed.connect(_on_office_load.bind(filename))
+		center_body.add_child(load_button)
+
+
+func _on_office_save(slot_name: String) -> void:
+	print("SAVE_SLOT=", slot_name)
+	var python := str(_office().get("save_python", _office().get("advance_python", "")))
+	var script := str(_office().get("save_script", ""))
+	if python == "" or script == "":
+		print("SAVE_OK=0")
+		print("SAVE_ERROR=missing-save-command")
+		return
+	var output: Array = []
+	var code := OS.execute(python, PackedStringArray([script, slot_name]), output, true)
+	var text := ""
+	for line in output:
+		text += str(line) + "\n"
+		print(str(line))
+	if code != 0 or text.find("SAVE_OK=1") < 0:
+		print("SAVE_OK=0")
+		return
+	_reload_office()
+	print("SAVE_RELOADED=1")
+	_show_section("settings")
+
+
+func _on_office_load(slot_name: String) -> void:
+	print("LOAD_SLOT=", slot_name)
+	var python := str(_office().get("save_python", _office().get("advance_python", "")))
+	var script := str(_office().get("load_script", ""))
+	if python == "" or script == "" or slot_name == "":
+		print("LOAD_OK=0")
+		print("LOAD_ERROR=missing-load-command")
+		return
+	var output: Array = []
+	var code := OS.execute(python, PackedStringArray([script, slot_name]), output, true)
+	var text := ""
+	for line in output:
+		text += str(line) + "\n"
+		print(str(line))
+	if code != 0 or text.find("LOAD_OK=1") < 0:
+		print("LOAD_OK=0")
+		return
+	hearing_held = false
+	mail_read.clear()
+	_reload_office()
+	print("LOAD_RELOADED=1")
+	print("CALENDAR=", str(snapshot.get("calendar", "")))
+	_show_section("settings")
 
 
 func _refresh_checklist() -> void:

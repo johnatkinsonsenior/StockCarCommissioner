@@ -188,3 +188,4 @@
 | 186 | Rulebook, councils, and board on the desk | High | Completed |
 | 187 | Winston Cup office chrome | Medium | Completed |
 | 188 | Hearing choices write back to the sim | High | Completed |
+| 189 | Save and load from the office | High | Completed |

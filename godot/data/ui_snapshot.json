@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.9",
+    "ui_version": "0.10",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -922,6 +922,11 @@
         "advance_python": "/usr/bin/python3",
         "advance_script": "/workspace/prototype/advance_week.py",
         "apply_python": "/usr/bin/python3",
-        "apply_script": "/workspace/prototype/apply_hearing.py"
-    }
+        "apply_script": "/workspace/prototype/apply_hearing.py",
+        "save_python": "/usr/bin/python3",
+        "save_script": "/workspace/prototype/save_office.py",
+        "load_script": "/workspace/prototype/load_office.py",
+        "saves": []
+    },
+    "saves": []
 }

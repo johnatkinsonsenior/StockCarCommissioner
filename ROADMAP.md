@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–98 complete. Next coding day:
-**Day 99 — Save and load from the office**.
+**Current position:** Days 1–99 complete. Next coding day:
+**Day 100 — New career and continue from the office (including era book)**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -209,7 +209,7 @@ A team-owner career is a later era, not this one.
 
 ### Era 2 — Player-paced career
 - [x] Day 98 — Hearing choices in the office write back to the sim
-- [ ] Day 99 — Save and load from the office
+- [x] Day 99 — Save and load from the office
 - [ ] Day 100 — New career and continue from the office (including era book)
 - [ ] Day 101 — Offseason as desk weeks, not a print dump
 - [ ] Day 102 — Race-weekend recap card (qualifying, cautions, investigation)

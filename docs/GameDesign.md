@@ -796,9 +796,12 @@ with morale and trust, and the National Development Series pool.
 books: cash, naming rights, the TV deal, last rating, and shop deals.
 **Rulebook** lists the live Cup policies. **Board** shows confidence,
 dismissal risk, fan/owner/driver approval, and both councils (chair,
-mood, last filing). The desk uses Winston Cup crimson, gold, and white
+mood, last filing). Settings lists the same JSON career slots as the
+terminal menu: Save writes `desk.json`, Load restores a slot onto the
+desk. The desk uses Winston Cup crimson, gold, and white
 with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout
-prototype only. Era 2 starts here: rulings from the desk change the sim.
+prototype only. Era 2: rulings from the desk change the sim, and careers
+save and load from Settings.
 
 ## League Calendar
 

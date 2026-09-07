@@ -137,6 +137,7 @@ from game.save_game import (
     list_save_files,
     load_from_file,
     parse_save_data,
+    peek_save_summary,
     save_to_file,
 )
 from game.settings import (
@@ -10728,6 +10729,10 @@ def build_ui_snapshot():
             "advance_script": str(office_advance_script()),
             "apply_python": sys.executable,
             "apply_script": str(office_apply_script()),
+            "save_python": sys.executable,
+            "save_script": str(office_save_script()),
+            "load_script": str(office_load_script()),
+            "saves": office_save_catalog(),
             "week_recap": recap,
             "recap": recap,
             "palette": "winston-cup",
@@ -10815,6 +10820,79 @@ def office_apply_script():
     """Return the Python script Godot runs to rule on a hearing."""
 
     return Path(__file__).resolve().parent / "apply_hearing.py"
+
+
+def office_save_script():
+    """Return the Python script Godot runs to save the desk career."""
+
+    return Path(__file__).resolve().parent / "save_office.py"
+
+
+def office_load_script():
+    """Return the Python script Godot runs to load a career onto the desk."""
+
+    return Path(__file__).resolve().parent / "load_office.py"
+
+
+def office_save_catalog():
+    """Return career save slots for the office Settings screen."""
+
+    rows = []
+    for path in list_save_files():
+        summary = peek_save_summary(path) or {}
+        rows.append(
+            {
+                "name": path.stem,
+                "filename": path.name,
+                "path": str(path),
+                "label": format_save_listing(path),
+                "office": path.stem == OFFICE_SAVE_NAME,
+                "season": summary.get("season"),
+                "phase": summary.get("phase"),
+                "difficulty": summary.get("difficulty"),
+            }
+        )
+    return rows
+
+
+def resolve_office_save_path(name):
+    """Resolve a desk save name to a file inside the saves folder."""
+
+    name = str(name or "").strip()
+    folder = get_saves_folder().resolve()
+    if not name:
+        return None
+    path = Path(name)
+    if path.is_absolute():
+        resolved = path.resolve()
+    else:
+        filename = name if name.endswith(".json") else "%s.json" % name
+        resolved = (folder / filename).resolve()
+    if resolved.parent != folder:
+        raise ValueError("Save is outside the saves folder")
+    return resolved
+
+
+def save_office_slot(save_name=None):
+    """Write the live desk career to a named slot and refresh the snapshot."""
+
+    path = save_career(save_name=save_name)
+    persist_office_career()
+    write_ui_snapshot()
+    return path
+
+
+def load_office_slot(save_name):
+    """Load a career slot onto the desk and refresh the snapshot."""
+
+    path = resolve_office_save_path(save_name)
+    if path is None or not path.is_file():
+        raise ValueError("No save named %s" % (save_name or "(blank)"))
+    if not load_career(path):
+        raise ValueError("Could not load %s" % path.name)
+    persist_office_career()
+    write_ui_snapshot()
+    return path
 
 
 def persist_office_career():

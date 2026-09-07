@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "0.9"
+UI_VERSION = "0.10"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -338,6 +338,12 @@ def default_office(payload=None):
         or payload.get("advance_python")
         or "",
         "apply_script": payload.get("apply_script") or "",
+        "save_python": payload.get("save_python")
+        or payload.get("advance_python")
+        or "",
+        "save_script": payload.get("save_script") or "",
+        "load_script": payload.get("load_script") or "",
+        "saves": list(payload.get("saves") or []),
     }
 
 
@@ -444,6 +450,7 @@ def compose_ui_snapshot(payload):
         "board": payload.get("board") or {},
         "palette": payload.get("palette") or "winston-cup",
         "office": office,
+        "saves": list(payload.get("saves") or office.get("saves") or []),
     }
 
 
