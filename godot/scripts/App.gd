@@ -115,6 +115,8 @@ func _headless_tour() -> void:
 		profile_season = str(seasons[0].get("id", seasons[0].get("season", "")))
 		_show_section("history")
 		print("HISTORY_SEASON=", profile_season)
+	_show_section("hof")
+	print("HOF=", str(_as_array(snapshot.get("hof", [])).size()))
 	_show_section("settings")
 	_on_office_save("desk")
 	_on_new_career("1970s")
@@ -368,6 +370,8 @@ func _show_section(section_id: String) -> void:
 			_fill_rulebook()
 		"history":
 			_fill_history()
+		"hof":
+			_fill_hof()
 		"board":
 			_fill_board()
 		"settings":
@@ -1224,6 +1228,32 @@ func _fill_season_file() -> void:
 			str(entry.get("team", "")),
 			str(_as_int(entry.get("points", 0))),
 		]))
+
+
+func _fill_hof() -> void:
+	center_body.add_child(_title("Hall of Fame"))
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_muted("Retirees induct on a title, 15 Cup wins, or 4,000 career points."))
+	var plaques: Array = _as_array(snapshot.get("hof", []))
+	print("HOF=", str(plaques.size()))
+	if plaques.is_empty():
+		center_body.add_child(_line("The hall is empty. Champions and long careers hang here after they park."))
+		return
+	for row in plaques:
+		var plaque: Dictionary = row
+		center_body.add_child(_gold_line(str(plaque.get("name", ""))))
+		center_body.add_child(_line("%s  ·  inducted season %s  ·  %s" % [
+			str(plaque.get("team", "")),
+			str(plaque.get("season", "")),
+			str(plaque.get("reason", "")),
+		]))
+		center_body.add_child(_muted("%s titles  ·  %s wins  ·  %s pts" % [
+			str(_as_int(plaque.get("championships", 0))),
+			str(_as_int(plaque.get("career_wins", 0))),
+			str(_as_int(plaque.get("career_points", 0))),
+		]))
+		if str(plaque.get("blurb", "")) != "":
+			center_body.add_child(_muted(str(plaque.get("blurb", ""))))
 
 
 func _fill_settings() -> void:

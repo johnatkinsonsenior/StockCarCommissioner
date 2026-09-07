@@ -161,6 +161,7 @@ LEAGUE_DEFAULTS = {
     "office_offseason_step": 0,
     "office_mail_alerts": [],
     "office_welcome_sent": False,
+    "hall_of_fame": [],
 }
 
 

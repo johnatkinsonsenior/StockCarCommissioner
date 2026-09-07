@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "1.3",
+    "ui_version": "1.4",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -2320,6 +2320,7 @@
         ],
         "empty": true
     },
+    "hof": [],
     "palette": "winston-cup",
     "office": {
         "layout": "commissioner-desk",
@@ -2521,6 +2522,11 @@
             {
                 "id": "history",
                 "label": "History",
+                "group": "League"
+            },
+            {
+                "id": "hof",
+                "label": "Hall of Fame",
                 "group": "League"
             },
             {

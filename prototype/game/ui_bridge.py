@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "1.3"
+UI_VERSION = "1.4"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -43,6 +43,7 @@ OFFICE_NAV = (
     {"id": "sponsors", "label": "Sponsors", "group": "Business"},
     {"id": "rulebook", "label": "Rulebook", "group": "League"},
     {"id": "history", "label": "History", "group": "League"},
+    {"id": "hof", "label": "Hall of Fame", "group": "League"},
     {"id": "board", "label": "Board", "group": "League"},
     {"id": "settings", "label": "Settings", "group": ""},
     {"id": "quit", "label": "Quit", "group": ""},
@@ -480,6 +481,7 @@ def compose_ui_snapshot(payload):
         "councils": payload.get("councils") or {},
         "board": payload.get("board") or {},
         "history": payload.get("history") or {},
+        "hof": list(payload.get("hof") or []),
         "palette": payload.get("palette") or "winston-cup",
         "office": office,
         "saves": list(payload.get("saves") or office.get("saves") or []),
