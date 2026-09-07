@@ -1444,6 +1444,7 @@ func _on_new_career(book: String) -> void:
 	era_book = book
 	hearing_held = false
 	mail_read.clear()
+	visited.clear()
 	_reload_office()
 	print("NEW_RELOADED=1")
 	print("CALENDAR=", str(snapshot.get("calendar", "")))
