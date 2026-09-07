@@ -7926,6 +7926,90 @@ def office_sponsor_book():
     }
 
 
+def office_rulebook_book():
+    """Return the live Cup rulebook for the office desk."""
+
+    rows = []
+    for key in current_policies:
+        rows.append(
+            {
+                "id": key,
+                "key": key,
+                "value": current_policies[key],
+                "label": policy_label(key),
+            }
+        )
+    return rows
+
+
+def office_councils_book():
+    """Return owner and driver council lines for the office desk."""
+
+    owner_chair = owner_council_chair(teams) if teams else None
+    driver_chair = driver_council_chair(drivers) if drivers else None
+    last_owners = league.get("last_owner_council") or {}
+    last_garage = league.get("last_driver_council") or {}
+    last_vote = league.get("last_rule_vote") or {}
+    owner_last = ""
+    if last_owners:
+        owner_last = "%s aye, %s nay" % (
+            last_owners.get("ayes") or last_owners.get("tally", {}).get("ayes") or "—",
+            last_owners.get("nays") or last_owners.get("tally", {}).get("nays") or "—",
+        )
+        if last_owners.get("passed"):
+            owner_last += " — rebuke passed"
+    garage_last = ""
+    if last_garage:
+        garage_last = last_garage.get("result") or last_garage.get("verdict") or ""
+    vote_last = ""
+    if last_vote:
+        vote_last = last_vote.get("result") or last_vote.get("verdict") or ""
+    return {
+        "owners": {
+            "chair": owner_chair.owner.name if owner_chair is not None else "",
+            "team": owner_chair.name if owner_chair is not None else "",
+            "mood": owner_council_mood(teams, league.get("owner_pressure", 0)) if teams else "quiet",
+            "seats": len(list(teams or [])),
+            "last": owner_last,
+            "rebuke": bool(last_owners.get("passed")),
+        },
+        "drivers": {
+            "chair": driver_chair.name if driver_chair is not None else "",
+            "mood": driver_council_mood(
+                drivers, league.get("driver_sentiment", 60)
+            )
+            if drivers
+            else "settled",
+            "seats": len(list(drivers or [])),
+            "last": garage_last,
+        },
+        "docket": len(league.get("rule_docket") or []),
+        "last_vote": vote_last,
+    }
+
+
+def office_board_book():
+    """Return board confidence and approval for the office desk."""
+
+    approval = {}
+    security = {}
+    if drivers and teams:
+        approval = refresh_approval_ratings()
+        security = refresh_job_security()
+    return {
+        "confidence": security.get("confidence"),
+        "confidence_label": security.get("confidence_label") or "",
+        "risk": security.get("risk"),
+        "risk_label": security.get("risk_label") or "",
+        "approval": approval.get("overall"),
+        "approval_label": approval.get("label") or "",
+        "fans": approval.get("fans"),
+        "owners": approval.get("owners"),
+        "drivers": approval.get("drivers"),
+        "dismissed": bool(league.get("dismissed")),
+    }
+
+
 def print_qualifying_report(weekend):
     """Print starting grid, penalties, heats, stages, and cautions."""
 
@@ -10499,6 +10583,9 @@ def build_ui_snapshot():
     treasury_book = office_treasury_book()
     television_book = office_television_book()
     sponsor_book = office_sponsor_book()
+    rulebook_book = office_rulebook_book()
+    councils_book = office_councils_book()
+    board_book = office_board_book()
     series = series_name()
     week = office_week_preview()
     mail_body = (
@@ -10540,6 +10627,9 @@ def build_ui_snapshot():
             "treasury": treasury_book,
             "television": television_book,
             "sponsors": sponsor_book,
+            "rulebook": rulebook_book,
+            "councils": councils_book,
+            "board": board_book,
             "menu_items": [
                 {"id": "1", "label": "Start new career"},
                 {"id": "2", "label": "Load saved career"},

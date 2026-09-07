@@ -791,8 +791,11 @@ inspect the paddock: shop cards with owner and factory, the Cup grid
 with morale and trust, and the National Development Series pool.
 **Treasury**, **Television**, and **Sponsors** show the sanctioning-body
 books: cash, naming rights, the TV deal, last rating, and shop deals.
-The desk uses Winston Cup crimson, gold, and white with sharp 16-bit chrome. Day 91's charcoal/blue shell was the
-layout prototype only.
+**Rulebook** lists the live Cup policies. **Board** shows confidence,
+dismissal risk, fan/owner/driver approval, and both councils (chair,
+mood, last filing). The desk uses Winston Cup crimson, gold, and white
+with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout
+prototype only. Era 1 is the office: sit, inspect, Advance a week.
 
 ## League Calendar
 

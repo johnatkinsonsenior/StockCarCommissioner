@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.7",
+    "ui_version": "0.8",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -643,9 +643,80 @@
         ],
         "market": 10
     },
-    "rulebook": [],
-    "councils": {},
-    "board": {},
+    "rulebook": [
+        {
+            "id": "points_system",
+            "key": "points_system",
+            "value": "standard",
+            "label": "Standard points"
+        },
+        {
+            "id": "race_format",
+            "key": "race_format",
+            "value": "single-feature",
+            "label": "Single-feature race"
+        },
+        {
+            "id": "penalty_standard",
+            "key": "penalty_standard",
+            "value": "balanced",
+            "label": "Balanced enforcement"
+        },
+        {
+            "id": "technical_rules",
+            "key": "technical_rules",
+            "value": "open",
+            "label": "Open technical package"
+        },
+        {
+            "id": "safety_standard",
+            "key": "safety_standard",
+            "value": "current",
+            "label": "Current safety standard"
+        },
+        {
+            "id": "scoring_bonuses",
+            "key": "scoring_bonuses",
+            "value": "standard",
+            "label": "Standard bonus points"
+        },
+        {
+            "id": "championship_format",
+            "key": "championship_format",
+            "value": "season-long",
+            "label": "Season-long championship"
+        }
+    ],
+    "councils": {
+        "owners": {
+            "chair": "Marcus Hale",
+            "team": "Pioneer Motorsports",
+            "mood": "quiet",
+            "seats": 3,
+            "last": "",
+            "rebuke": false
+        },
+        "drivers": {
+            "chair": "Austin Vale",
+            "mood": "settled",
+            "seats": 6,
+            "last": ""
+        },
+        "docket": 0,
+        "last_vote": ""
+    },
+    "board": {
+        "confidence": 70,
+        "confidence_label": "Steady",
+        "risk": 30,
+        "risk_label": "Moderate",
+        "approval": 66,
+        "approval_label": "Accepted",
+        "fans": 65,
+        "owners": 70,
+        "drivers": 62,
+        "dismissed": false
+    },
     "palette": "winston-cup",
     "office": {
         "layout": "commissioner-desk",
