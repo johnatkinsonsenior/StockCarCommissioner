@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.5",
+    "ui_version": "0.6",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -132,7 +132,11 @@
             "team": "Summit Racing",
             "points": 0,
             "wins": 0,
-            "personality": "Popular"
+            "personality": "Popular",
+            "age": 25,
+            "morale": 70,
+            "popularity": 90,
+            "trust": 60
         },
         {
             "rank": 2,
@@ -140,7 +144,11 @@
             "team": "Liberty Racing",
             "points": 0,
             "wins": 0,
-            "personality": "Professional"
+            "personality": "Professional",
+            "age": 29,
+            "morale": 70,
+            "popularity": 72,
+            "trust": 60
         },
         {
             "rank": 3,
@@ -148,7 +156,11 @@
             "team": "Summit Racing",
             "points": 0,
             "wins": 0,
-            "personality": "Aggressive"
+            "personality": "Aggressive",
+            "age": 34,
+            "morale": 70,
+            "popularity": 76,
+            "trust": 60
         },
         {
             "rank": 4,
@@ -156,7 +168,11 @@
             "team": "Pioneer Motorsports",
             "points": 0,
             "wins": 0,
-            "personality": "Temperamental"
+            "personality": "Temperamental",
+            "age": 27,
+            "morale": 70,
+            "popularity": 84,
+            "trust": 60
         },
         {
             "rank": 5,
@@ -164,7 +180,11 @@
             "team": "Liberty Racing",
             "points": 0,
             "wins": 0,
-            "personality": "Veteran"
+            "personality": "Veteran",
+            "age": 38,
+            "morale": 70,
+            "popularity": 68,
+            "trust": 60
         },
         {
             "rank": 6,
@@ -172,7 +192,11 @@
             "team": "Pioneer Motorsports",
             "points": 0,
             "wins": 0,
-            "personality": "Rookie"
+            "personality": "Rookie",
+            "age": 21,
+            "morale": 70,
+            "popularity": 61,
+            "trust": 60
         }
     ],
     "standings": [
@@ -182,7 +206,11 @@
             "team": "Summit Racing",
             "points": 0,
             "wins": 0,
-            "personality": "Popular"
+            "personality": "Popular",
+            "age": 25,
+            "morale": 70,
+            "popularity": 90,
+            "trust": 60
         },
         {
             "rank": 2,
@@ -190,7 +218,11 @@
             "team": "Liberty Racing",
             "points": 0,
             "wins": 0,
-            "personality": "Professional"
+            "personality": "Professional",
+            "age": 29,
+            "morale": 70,
+            "popularity": 72,
+            "trust": 60
         },
         {
             "rank": 3,
@@ -198,7 +230,11 @@
             "team": "Summit Racing",
             "points": 0,
             "wins": 0,
-            "personality": "Aggressive"
+            "personality": "Aggressive",
+            "age": 34,
+            "morale": 70,
+            "popularity": 76,
+            "trust": 60
         },
         {
             "rank": 4,
@@ -206,7 +242,11 @@
             "team": "Pioneer Motorsports",
             "points": 0,
             "wins": 0,
-            "personality": "Temperamental"
+            "personality": "Temperamental",
+            "age": 27,
+            "morale": 70,
+            "popularity": 84,
+            "trust": 60
         },
         {
             "rank": 5,
@@ -214,7 +254,11 @@
             "team": "Liberty Racing",
             "points": 0,
             "wins": 0,
-            "personality": "Veteran"
+            "personality": "Veteran",
+            "age": 38,
+            "morale": 70,
+            "popularity": 68,
+            "trust": 60
         },
         {
             "rank": 6,
@@ -222,7 +266,11 @@
             "team": "Pioneer Motorsports",
             "points": 0,
             "wins": 0,
-            "personality": "Rookie"
+            "personality": "Rookie",
+            "age": 21,
+            "morale": 70,
+            "popularity": 61,
+            "trust": 60
         }
     ],
     "schedule": [
@@ -390,7 +438,11 @@
             "prestige": 70,
             "sponsor": "Vanguard Motor Oil ($1,159,000/yr, 4 yrs) \u2014 content",
             "owner": "Helen Voss",
-            "factory": "Vanguard (3 yrs)"
+            "owner_priority": "stability",
+            "factory": "Vanguard (3 yrs)",
+            "car_rating": 82,
+            "crew_rating": 78,
+            "distress": 0
         },
         {
             "name": "Pioneer Motorsports",
@@ -399,7 +451,11 @@
             "prestige": 76,
             "sponsor": "Helix Electronics ($1,244,000/yr, 3 yrs) \u2014 content",
             "owner": "Marcus Hale",
-            "factory": "Apex (3 yrs)"
+            "owner_priority": "wins",
+            "factory": "Apex (3 yrs)",
+            "car_rating": 86,
+            "crew_rating": 74,
+            "distress": 0
         },
         {
             "name": "Summit Racing",
@@ -408,10 +464,135 @@
             "prestige": 64,
             "sponsor": "Copperline Logistics ($1,012,000/yr, 3 yrs) \u2014 content",
             "owner": "Ruth Calder",
-            "factory": "Falcon (2 yrs)"
+            "owner_priority": "cost-control",
+            "factory": "Falcon (2 yrs)",
+            "car_rating": 79,
+            "crew_rating": 84,
+            "distress": 0
         }
     ],
-    "prospects": [],
+    "prospects": [
+        {
+            "name": "Tessa Quinn",
+            "team": "Heartland Super Lates",
+            "pathway": "Super Late",
+            "readiness": 82,
+            "readiness_label": "Premier-ready",
+            "age": 21,
+            "personality": "Popular",
+            "overall": 69,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Dane Holloway",
+            "team": "Carolina Late Models",
+            "pathway": "Late Model",
+            "readiness": 78,
+            "readiness_label": "On the radar",
+            "age": 20,
+            "personality": "Aggressive",
+            "overall": 66,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Micah Prado",
+            "team": "Lakeside Modifieds",
+            "pathway": "Modified",
+            "readiness": 74,
+            "readiness_label": "On the radar",
+            "age": 22,
+            "personality": "Professional",
+            "overall": 69,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Sloane Avery",
+            "team": "Red Clay Dirt",
+            "pathway": "Dirt Late Model",
+            "readiness": 71,
+            "readiness_label": "On the radar",
+            "age": 19,
+            "personality": "Temperamental",
+            "overall": 62,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Reid Langford",
+            "team": "Atlantic Touring",
+            "pathway": "Touring",
+            "readiness": 69,
+            "readiness_label": "Developing",
+            "age": 23,
+            "personality": "Professional",
+            "overall": 69,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Ivy Brennan",
+            "team": "Heartland Super Lates",
+            "pathway": "Super Late",
+            "readiness": 66,
+            "readiness_label": "Developing",
+            "age": 18,
+            "personality": "Rookie",
+            "overall": 61,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Colton Briggs",
+            "team": "Carolina Late Models",
+            "pathway": "Late Model",
+            "readiness": 64,
+            "readiness_label": "Developing",
+            "age": 21,
+            "personality": "Professional",
+            "overall": 63,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Maren Shaw",
+            "team": "Red Clay Dirt",
+            "pathway": "Dirt Late Model",
+            "readiness": 61,
+            "readiness_label": "Developing",
+            "age": 20,
+            "personality": "Aggressive",
+            "overall": 58,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Pax Ellison",
+            "team": "Lakeside Modifieds",
+            "pathway": "Modified",
+            "readiness": 58,
+            "readiness_label": "Raw",
+            "age": 19,
+            "personality": "Rookie",
+            "overall": 61,
+            "points": 0,
+            "wins": 0
+        },
+        {
+            "name": "Harlan Crowe",
+            "team": "Atlantic Touring",
+            "pathway": "Touring",
+            "readiness": 54,
+            "readiness_label": "Raw",
+            "age": 24,
+            "personality": "Veteran",
+            "overall": 64,
+            "points": 0,
+            "wins": 0
+        }
+    ],
     "treasury": {},
     "television": {},
     "sponsors": {},

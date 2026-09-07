@@ -786,8 +786,10 @@ preseason becomes the opening race weekend, then each Advance sims the
 next Cup race and drops a Race Control recap (plus press clippings) in
 Mail. **Standings** is a ranked Cup table. **Schedule** marks DONE and
 NEXT weekends. Both screens show a last-weekend recap card (winner,
-pole, cautions, podium). The desk uses Winston Cup crimson, gold, and
-white with sharp 16-bit chrome. Day 91's charcoal/blue shell was the
+pole, cautions, podium). **Teams**, **Drivers**, and **Prospects**
+inspect the paddock: shop cards with owner and factory, the Cup grid
+with morale and trust, and the National Development Series pool.
+The desk uses Winston Cup crimson, gold, and white with sharp 16-bit chrome. Day 91's charcoal/blue shell was the
 layout prototype only.
 
 ## League Calendar
