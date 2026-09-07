@@ -192,3 +192,4 @@
 | 190 | New career and continue from the office | High | Completed |
 | 191 | Offseason as desk weeks | High | Completed |
 | 192 | Race-weekend recap card | Medium | Completed |
+| 193 | Alerts arrive as mail | High | Completed |
