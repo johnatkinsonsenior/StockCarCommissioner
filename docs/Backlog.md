@@ -193,3 +193,4 @@
 | 191 | Offseason as desk weeks | High | Completed |
 | 192 | Race-weekend recap card | Medium | Completed |
 | 193 | Alerts arrive as mail | High | Completed |
+| 194 | Windows play path (no Git) | High | Completed |
