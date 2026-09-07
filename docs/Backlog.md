@@ -9,7 +9,7 @@
 | 7  | TV Contracts           | Medium   | Completed   |
 | 8  | Sponsors               | Medium   | Completed   |
 | 9  | Driver Contracts       | Medium   | In Progress |
-| 10 | Hall of Fame           | Low      | Not Started |
+| 10 | Hall of Fame           | Low      | Completed   |
 | 11 | Prize Money System     | Medium   | Completed   |
 | 12 | Team Finances          | High     | Completed   |
 | 13 | Crash System           | High     | Completed   |
@@ -197,3 +197,4 @@
 | 195 | Full premier grid (Cup-sized field) | High | Completed |
 | 196 | Clickable driver and team profiles | High | Completed |
 | 197 | Historical season database on the desk | Medium | Completed |
+| 198 | Hall of Fame | Medium | Completed |
