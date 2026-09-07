@@ -10,7 +10,7 @@ when the board meets.
 
 0.2.0-office (Living Office)
 
-Save schema: 0.0.39
+Save schema: 0.0.40
 
 ## Requirements
 
@@ -43,6 +43,8 @@ completed seasons; the Hall of Fame hangs retiree plaques; a gold ticker
 cycles beat-writer headlines. A new career rewinds the opening world:
 1970s (eight shops, Valiant still badging), 1980s (nine shops, Valiant
 fading), pinnacle (ten shops), or beyond (twelve shops, fatter TV).
+Each factory fields a homologated two-door coupe with a track map;
+driver skill still owns the short tracks, aero owns the superspeedways.
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build

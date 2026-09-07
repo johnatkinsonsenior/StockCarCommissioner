@@ -172,9 +172,9 @@
 | 170 | Sidebar, Advance, mail, and gated checklist | Medium | Completed |
 | 171 | Winston Cup era books | High | Completed |
 | 172 | 1970s / 1980s / pinnacle / beyond settings | Medium | Completed |
-| 173 | Aero Wars | High | Not Started |
-| 174 | Homologated two-door coupe bodies | High | Not Started |
-| 175 | Manufacturer aero maps per track type | High | Not Started |
+| 173 | Aero Wars | High | In Progress |
+| 174 | Homologated two-door coupe bodies | High | Completed |
+| 175 | Manufacturer aero maps per track type | High | Completed |
 | 176 | Per-track rules packages | High | Not Started |
 | 177 | Custom Winston Cup rulebook (homologation, wheelbase, aero specials) | High | Not Started |
 | 178 | Live mail inbox | High | Completed |
@@ -202,3 +202,4 @@
 | 200 | Decade balance pass for a Cup-sized field | High | Completed |
 | 201 | Packaged office build for playtesters | High | Completed |
 | 202 | Era books: 1970s / 1980s / pinnacle / beyond | High | Completed |
+| 203 | Homologated coupe bodies and track maps | High | Completed |

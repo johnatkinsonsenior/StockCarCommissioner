@@ -464,10 +464,12 @@ calendar) are the other canonical **per-track** package. The pinnacle
 book starts with plates on those two superspeedways. The player can
 pull them, spread them, or invent a different superspeedway kit.
 
-The live alpha still uses one factory `aero_bias` that only ticks on
+The live alpha used one factory `aero_bias` that only ticked on
 road courses and superspeedways, plus a single series-wide technical
-policy (`open` / `aero-restrict` / `inspection-heavy`). Aero Wars
-replaces that stub.
+policy (`open` / `aero-restrict` / `inspection-heavy`). **Aero Wars**
+replaces that stub: each factory fields a named homologated coupe with a
+four-number track map, and race pace mixes that map with driver skill.
+Day 114 lets the commissioner rewrite the winter book and the per-track kit.
 
 #### Bodies, not just badges
 
@@ -766,7 +768,7 @@ A new career asks for **difficulty**, **career length**, and **autosave**. The s
 - Career length is 3, 5, or 10 seasons. It cannot be shortened below the season already in progress.
 - Autosave can be off, after each offseason, or after each race. The reserved slot is `autosave.json`.
 
-Difficulty and autosave are stored on the career save (0.0.39). Legacy 0.0.38 files load as Normal, three seasons, autosave off. Missing era books load as pinnacle.
+Difficulty and autosave are stored on the career save (0.0.40). Legacy 0.0.38 files load as Normal, three seasons, autosave off. Missing era books load as pinnacle. Missing Aero Wars books inherit the era default.
 
 ## Balance Simulation
 
