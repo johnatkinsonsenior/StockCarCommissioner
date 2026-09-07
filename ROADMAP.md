@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–104 complete. Next coding day:
-**Day 105 — Full premier grid (more teams and a Cup-sized field)**.
+**Current position:** Days 1–105 complete. Next coding day:
+**Day 106 — Clickable driver and team profiles**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -220,7 +220,7 @@ A team-owner career is a later era, not this one.
 > started, advanced, saved, and resumed from the Godot desk. ✅
 
 ### Era 3 — Full paddock
-- [ ] Day 105 — Full premier grid (more teams and a Cup-sized field)
+- [x] Day 105 — Full premier grid (more teams and a Cup-sized field)
 - [ ] Day 106 — Clickable driver and team profiles
 - [ ] Day 107 — Historical season database you can reopen
 - [ ] Day 108 — Hall of Fame

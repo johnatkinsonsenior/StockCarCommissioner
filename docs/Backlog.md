@@ -194,3 +194,4 @@
 | 192 | Race-weekend recap card | Medium | Completed |
 | 193 | Alerts arrive as mail | High | Completed |
 | 194 | Windows play path (no Git) | High | Completed |
+| 195 | Full premier grid (Cup-sized field) | High | Completed |
