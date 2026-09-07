@@ -750,13 +750,13 @@ Saved data includes:
 - Manufacturer factory contracts, years remaining, and switch history
 - Homologated bodies, Aero Wars track maps, and per-track rules packages
 - Nested calendar (season, career length, phase) and a load-menu summary card
-- Game settings: difficulty, career length, autosave, and (planned) era book
+- Game settings: difficulty, career length, autosave, and era book
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
 ## Game Settings
 
-**Era** is a new-career setting, in the same family as OOTP's start year. The default book is **pinnacle Winston Cup** (late ’80s–mid ’90s). Other books are **1970s**, **1980s**, and **beyond**. The office Settings screen stores the chosen book on the career (schema 0.0.39 still; the field fills with a default on older saves). Full world rewind — who is on the grid, which coupe is legal, which tracks run plates — lands in Day 112. Until then the book is a career label the desk can start and continue from.
+**Era** is a new-career setting, in the same family as OOTP's start year. The default book is **pinnacle Winston Cup** (late ’80s–mid ’90s): ten shops, twenty drivers, Vanguard / Apex / Falcon. **1970s** opens eight regional shops with **Valiant** (the Chrysler analogue) still badging Harbor and Ironwood and a thinner TV check. **1980s** opens nine shops; Valiant is fading at Harbor. **Beyond** opens twelve shops, invites Valiant back onto Harbor, and fattens treasury and TV. The same commissioner model runs forward from that opening world. Homologated coupes and per-track aero kits are still Days 113–114.
 
 A new career asks for **difficulty**, **career length**, and **autosave**. The same three live on the main-menu settings screen and on the commissioner dashboard.
 
@@ -827,8 +827,9 @@ terminal menu: Save writes `desk.json`, Load restores a slot onto the
 desk. The desk uses Winston Cup crimson, gold, and white
 with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout
 prototype only. Era 2: rulings from the desk change the sim, and careers
-save and load from Settings. **New career** resets the desk (difficulty,
-length, autosave, era book). **Continue desk** reloads the office session.
+save and load from Settings. **New career** rewinds the desk (difficulty,
+length, autosave, era book): who is on the grid, which factories badge it,
+and how fat the TV check is. **Continue desk** reloads the office session.
 
 ## League Calendar
 

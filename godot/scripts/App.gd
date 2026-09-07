@@ -1318,11 +1318,12 @@ func _fill_settings() -> void:
 	center_body.add_child(_line("Era book: %s" % str(settings.get("era_book_label", "Pinnacle (late '80s–mid '90s)"))))
 	print("ERA_BOOK=", str(settings.get("era_book", era_book)))
 	center_body.add_child(_muted(str(snapshot.get("settings_line", ""))))
-	center_body.add_child(_muted("Era books store the start decade. The full rewind lands in Day 112."))
+	center_body.add_child(_muted("A new career rewinds the opening world: who is on the grid, which factories badge it, and how fat the TV check is."))
+	var era_shops := {"1970s": 8, "1980s": 9, "pinnacle": 10, "beyond": 12}
 	for book in ["1970s", "1980s", "pinnacle", "beyond"]:
 		var era_button := Button.new()
 		var mark := "●" if book == era_book else "○"
-		era_button.text = "%s  %s" % [mark, book]
+		era_button.text = "%s  %s  (%s shops)" % [mark, book, str(era_shops.get(book, 10))]
 		era_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		era_button.pressed.connect(_on_era_book.bind(book))
 		center_body.add_child(era_button)
@@ -1443,9 +1444,26 @@ func _on_new_career(book: String) -> void:
 	era_book = book
 	hearing_held = false
 	mail_read.clear()
+	visited.clear()
 	_reload_office()
 	print("NEW_RELOADED=1")
 	print("CALENDAR=", str(snapshot.get("calendar", "")))
+	print("ERA_BOOK=", str(_as_dict(snapshot.get("settings", {})).get("era_book", book)))
+	print("ERA_TEAMS=", str(_as_array(snapshot.get("teams", [])).size()))
+	print("ERA_DRIVERS=", str(_as_array(snapshot.get("drivers", [])).size()))
+	var harbor := ""
+	var makers: PackedStringArray = PackedStringArray()
+	for row in _as_array(snapshot.get("teams", [])):
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var maker := str(row.get("manufacturer", ""))
+		if maker != "" and not makers.has(maker):
+			makers.append(maker)
+		if str(row.get("name", "")) == "Harbor Racing":
+			harbor = maker
+	print("ERA_HARBOR=", harbor)
+	print("ERA_MAKERS=", ",".join(makers))
+	print("ERA_TV=", str(_as_dict(snapshot.get("television", {})).get("rights", "")))
 	_show_section("settings")
 
 

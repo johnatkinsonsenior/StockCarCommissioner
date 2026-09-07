@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–111 complete. Next coding day:
-**Day 112 — Era books: 1970s, 1980s, pinnacle (late ’80s–mid ’90s), and beyond**.
+**Current position:** Days 1–112 complete. Next coding day:
+**Day 113 — Homologated two-door coupe bodies and manufacturer track maps**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -227,11 +227,11 @@ A team-owner career is a later era, not this one.
 - [x] Day 109 — News ticker and beat-writer headlines on the desk
 - [x] Day 110 — Balance pass so meters hold for a decade
 - [x] Day 111 — Packaged office build for playtesters
-- [ ] Day 112 — Era books: 1970s, 1980s, pinnacle (late ’80s–mid ’90s), and beyond
+- [x] Day 112 — Era books: 1970s, 1980s, pinnacle (late ’80s–mid ’90s), and beyond
 
 > **Milestone — Day 112 Living Office:** the desk sits on a full-sized paddock
 > with history you can inspect, and a new career can start in the pinnacle
-> Winston Cup or rewind the same model into the 1970s, 1980s, or beyond.
+> Winston Cup or rewind the same model into the 1970s, 1980s, or beyond. ✅
 
 ### Era 4 — Aero Wars
 - [ ] Day 113 — Homologated two-door coupe bodies and manufacturer track maps (Ford / GM / Chrysler families; aero + driver skill)

@@ -7,14 +7,10 @@ from datetime import datetime
 from pathlib import Path
 
 from data import (
-    create_initial_drivers,
     create_driver_prospects,
-    create_team_applicants,
     create_initial_networks,
-    create_initial_manufacturers,
     create_initial_sponsors,
     create_sponsor_prospects,
-    create_initial_teams,
     create_initial_tracks,
     generate_development_schedule,
     generate_season_schedule,
@@ -92,6 +88,14 @@ from game.models import (
 )
 from game.records import build_record_book
 from game.hall_of_fame import consider_hall_of_fame
+from game.era_books import (
+    apply_era_flavor,
+    create_applicants_for_era,
+    create_drivers_for_era,
+    create_manufacturers_for_era,
+    create_teams_for_era,
+    normalize_era_book,
+)
 from game.policies import (
     current_policies,
     get_penalty_fine_amount,
@@ -443,17 +447,19 @@ def reset_career_state(keep_settings=False):
     decision_log.clear()
     events_resolved.clear()
 
+    era_book = normalize_era_book(current_settings.get("era_book"))
+
     drivers.clear()
-    drivers.extend(create_initial_drivers())
+    drivers.extend(create_drivers_for_era(era_book))
 
     driver_prospects.clear()
     driver_prospects.extend(create_driver_prospects())
 
     team_applicants.clear()
-    team_applicants.extend(create_team_applicants())
+    team_applicants.extend(create_applicants_for_era(era_book))
 
     teams.clear()
-    teams.extend(create_initial_teams())
+    teams.extend(create_teams_for_era(era_book))
 
     tracks.clear()
     tracks.extend(create_initial_tracks())
@@ -471,7 +477,7 @@ def reset_career_state(keep_settings=False):
     networks.extend(create_initial_networks())
 
     manufacturers.clear()
-    manufacturers.extend(create_initial_manufacturers())
+    manufacturers.extend(create_manufacturers_for_era(era_book))
 
     league["integrity"] = 70
     league["fan_interest"] = 65
@@ -576,6 +582,7 @@ def reset_career_state(keep_settings=False):
     )
     assign_opening_factory_deals(season=calendar.current_season)
     apply_opening_difficulty()
+    apply_era_flavor(league, teams, era_book)
 
 
 def is_season_mid_progress():
@@ -661,7 +668,9 @@ def apply_loaded_state(restored_state):
     if restored_state.get("manufacturers") is not None:
         manufacturers.extend(restored_state["manufacturers"])
     else:
-        manufacturers.extend(create_initial_manufacturers())
+        manufacturers.extend(create_manufacturers_for_era(
+            current_settings.get("era_book")
+        ))
 
     raw_league = restored_state["league"]
     had_naming = restored_state.get("had_naming_rights")

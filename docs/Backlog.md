@@ -170,8 +170,8 @@
 | 168 | Career-mode playtest zip and launchers | Medium | Completed |
 | 169 | Commissioner office shell | High | Completed |
 | 170 | Sidebar, Advance, mail, and gated checklist | Medium | Completed |
-| 171 | Winston Cup era books | High | Not Started |
-| 172 | 1970s / 1980s / pinnacle / beyond settings | Medium | Not Started |
+| 171 | Winston Cup era books | High | Completed |
+| 172 | 1970s / 1980s / pinnacle / beyond settings | Medium | Completed |
 | 173 | Aero Wars | High | Not Started |
 | 174 | Homologated two-door coupe bodies | High | Not Started |
 | 175 | Manufacturer aero maps per track type | High | Not Started |
@@ -201,3 +201,4 @@
 | 199 | News ticker and beat-writer headlines | Medium | Completed |
 | 200 | Decade balance pass for a Cup-sized field | High | Completed |
 | 201 | Packaged office build for playtesters | High | Completed |
+| 202 | Era books: 1970s / 1980s / pinnacle / beyond | High | Completed |
