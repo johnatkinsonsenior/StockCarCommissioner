@@ -7865,6 +7865,67 @@ def office_prospect_book():
     return rows
 
 
+def office_treasury_book():
+    """Return league money for the office desk."""
+
+    return {
+        "balance": int(league.get("treasury") or 0),
+        "season_tv": int(league.get("season_tv_income") or 0),
+        "career_tv": int(league.get("career_tv_income") or 0),
+        "season_commercial": int(league.get("season_commercial_income") or 0),
+        "career_commercial": int(league.get("career_commercial_income") or 0),
+        "fines": int(league.get("fines_collected") or 0),
+    }
+
+
+def office_television_book():
+    """Return broadcast and gate lines for the office desk."""
+
+    deal = league.get("tv_rights") or {}
+    return {
+        "naming": league_deal_label(league.get("naming_rights")),
+        "rights": tv_deal_label(deal),
+        "network": deal.get("network") or "",
+        "last_rating": league.get("last_tv_rating"),
+        "last_viewers": format_viewers(league.get("last_tv_viewers")),
+        "trend": int(league.get("tv_rating_trend") or 0),
+        "last_gate": league.get("last_gate_attendance"),
+        "last_gate_fill": league.get("last_gate_fill"),
+        "signed": bool(deal.get("network")),
+    }
+
+
+def office_sponsor_book():
+    """Return series and shop sponsors for the office desk."""
+
+    naming = league.get("naming_rights") or {}
+    partners = []
+    for partner in league.get("official_partners") or []:
+        if partner and partner.get("sponsor"):
+            partners.append(
+                {
+                    "sponsor": partner.get("sponsor"),
+                    "category": partner.get("category") or "partner",
+                    "label": league_deal_label(partner),
+                }
+            )
+    shops = []
+    for team in teams or []:
+        shops.append(
+            {
+                "team": team.name,
+                "sponsor": team.primary_sponsor_label(),
+            }
+        )
+    return {
+        "naming": league_deal_label(naming),
+        "naming_sponsor": naming.get("sponsor") or "",
+        "partners": partners,
+        "teams": shops,
+        "market": len(list(sponsor_prospects or [])),
+    }
+
+
 def print_qualifying_report(weekend):
     """Print starting grid, penalties, heats, stages, and cautions."""
 
@@ -10435,6 +10496,9 @@ def build_ui_snapshot():
     recap = office_recap_book()
     team_book = office_team_book()
     prospect_book = office_prospect_book()
+    treasury_book = office_treasury_book()
+    television_book = office_television_book()
+    sponsor_book = office_sponsor_book()
     series = series_name()
     week = office_week_preview()
     mail_body = (
@@ -10473,6 +10537,9 @@ def build_ui_snapshot():
             "schedule": schedule_rows,
             "teams": team_book,
             "prospects": prospect_book,
+            "treasury": treasury_book,
+            "television": television_book,
+            "sponsors": sponsor_book,
             "menu_items": [
                 {"id": "1", "label": "Start new career"},
                 {"id": "2", "label": "Load saved career"},

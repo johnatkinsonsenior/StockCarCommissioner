@@ -72,6 +72,9 @@ func _headless_tour() -> void:
 	_show_section("teams")
 	_show_section("drivers")
 	_show_section("prospects")
+	_show_section("treasury")
+	_show_section("television")
+	_show_section("sponsors")
 	_show_section("mail")
 	call_deferred("_quit_headless")
 
@@ -807,21 +810,62 @@ func _fill_prospects() -> void:
 
 func _fill_treasury() -> void:
 	center_body.add_child(_title("Treasury"))
-	center_body.add_child(_line("$%s" % _comma(_dash().get("treasury", 0))))
-	center_body.add_child(_muted("Fines, purses, and rights fees land here. Advance weekends to move money."))
+	center_body.add_child(_gold_rule())
+	var book := _as_dict(snapshot.get("treasury", {}))
+	var balance := _as_int(book.get("balance", _dash().get("treasury", 0)))
+	print("TREASURY=", str(balance))
+	center_body.add_child(_gold_line("$%s" % _comma(balance)))
+	center_body.add_child(_muted("The sanctioning body, not a race team."))
+	center_body.add_child(_line("Season TV: $%s" % _comma(book.get("season_tv", 0))))
+	center_body.add_child(_line("Season commercial: $%s" % _comma(book.get("season_commercial", 0))))
+	center_body.add_child(_line("Career TV: $%s" % _comma(book.get("career_tv", 0))))
+	center_body.add_child(_line("Career commercial: $%s" % _comma(book.get("career_commercial", 0))))
+	center_body.add_child(_line("Fines collected: $%s" % _comma(book.get("fines", 0))))
 
 
 func _fill_television() -> void:
 	center_body.add_child(_title("Television"))
-	center_body.add_child(_line("Naming rights: %s" % str(_dash().get("naming_rights", "unsponsored"))))
-	center_body.add_child(_line("TV rights: %s" % str(_dash().get("tv_rights", "unsigned"))))
+	center_body.add_child(_gold_rule())
+	var book := _as_dict(snapshot.get("television", {}))
+	print("TV_RIGHTS=", str(book.get("rights", _dash().get("tv_rights", "unsigned"))))
+	center_body.add_child(_line("Naming rights: %s" % str(book.get("naming", _dash().get("naming_rights", "unsponsored")))))
+	center_body.add_child(_line("TV rights: %s" % str(book.get("rights", _dash().get("tv_rights", "unsigned")))))
+	if str(book.get("network", "")) != "":
+		center_body.add_child(_muted("Network: %s" % str(book.get("network", ""))))
+	var rating = book.get("last_rating", null)
+	if rating != null:
+		center_body.add_child(_line("Last rating: %s" % str(_as_int(rating))))
+		center_body.add_child(_muted("Viewers: %s  ·  trend %s" % [
+			str(book.get("last_viewers", "n/a")),
+			str(_as_int(book.get("trend", 0))),
+		]))
+	else:
+		center_body.add_child(_muted("No weekend rating yet. Advance a race to put a number on the board."))
+	if book.get("last_gate", null) != null:
+		center_body.add_child(_line("Last gate: %s" % _comma(book.get("last_gate", 0))))
 
 
 func _fill_sponsors() -> void:
 	center_body.add_child(_title("Sponsors"))
-	for team in _dash().get("teams", []):
-		var row: Dictionary = team
-		center_body.add_child(_line("%s — %s" % [str(row.get("name", "")), str(row.get("sponsor", ""))]))
+	center_body.add_child(_gold_rule())
+	var book := _as_dict(snapshot.get("sponsors", {}))
+	var shops: Array = _as_array(book.get("teams", []))
+	if shops.is_empty():
+		for team in _dash().get("teams", []):
+			shops.append(team)
+	print("SPONSORS=", str(shops.size()))
+	center_body.add_child(_line("Series: %s" % str(book.get("naming", _dash().get("naming_rights", "unsponsored")))))
+	center_body.add_child(_muted("Companies waiting: %s" % str(_as_int(book.get("market", 0)))))
+	for partner in _as_array(book.get("partners", [])):
+		if typeof(partner) != TYPE_DICTIONARY:
+			continue
+		var row: Dictionary = partner
+		center_body.add_child(_line("%s — %s" % [str(row.get("category", "partner")), str(row.get("label", ""))]))
+	center_body.add_child(_title("Shop deals"))
+	for shop in shops:
+		var item: Dictionary = shop
+		center_body.add_child(_gold_line(str(item.get("team", item.get("name", "")))))
+		center_body.add_child(_muted(str(item.get("sponsor", ""))))
 
 
 func _fill_rulebook() -> void:
