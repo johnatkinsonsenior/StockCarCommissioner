@@ -15,6 +15,18 @@ from game.policies import (
 from game.settings import incident_risk_mod
 
 PRIZE_PERCENTAGES = [0.30, 0.22, 0.17, 0.13, 0.10, 0.08]
+CALIBRATION_FIELD = 6
+
+
+def field_incident_scale(field_size):
+    """Keep expected Cup wrecks near the old six-car weekend."""
+
+    try:
+        size = int(field_size)
+    except (TypeError, ValueError):
+        size = CALIBRATION_FIELD
+    size = max(CALIBRATION_FIELD, size)
+    return float(CALIBRATION_FIELD) / size
 
 
 def purse_share(position, field_size):
@@ -222,7 +234,7 @@ def blank_result_fields(start_position, strategy, fuel_call="window"):
     }
 
 
-def calculate_crash_chance(driver, track, weather=None):
+def calculate_crash_chance(driver, track, weather=None, field_size=None):
     aggression_effect = driver.aggression // 10
     consistency_effect = driver.consistency // 15
     weather_mod = (weather or {}).get("incident_mod", 0)
@@ -243,12 +255,13 @@ def calculate_crash_chance(driver, track, weather=None):
         + banking_tax
         + rivalry_heat
     )
+    crash_chance = int(round(crash_chance * field_incident_scale(field_size)))
 
-    return clamp(crash_chance, 3, 45)
+    return clamp(crash_chance, 2, 28)
 
 
-def check_for_crash(driver, track, weather=None):
-    crash_chance = calculate_crash_chance(driver, track, weather)
+def check_for_crash(driver, track, weather=None, field_size=None):
+    crash_chance = calculate_crash_chance(driver, track, weather, field_size)
 
     return random.randint(1, 100) <= crash_chance
 
@@ -603,10 +616,11 @@ def determine_crash_cause(driver, contact="crash"):
     return "Racing Incident"
 
 
-def resolve_contact(driver, track, weather):
+def resolve_contact(driver, track, weather, field_size=None):
     """Turn crash chance into minor contact, a spin, or a crash."""
 
-    crashed = check_for_crash(driver, track, weather)
+    crashed = check_for_crash(driver, track, weather, field_size)
+    scale = field_incident_scale(field_size)
 
     if not crashed:
         minor_chance = (
@@ -614,8 +628,9 @@ def resolve_contact(driver, track, weather):
             + driver.aggression // 20
             + getattr(driver, "rivalry_intensity", 0) // 25
         )
+        minor_chance = int(round(minor_chance * scale))
 
-        if random.randint(1, 100) <= clamp(minor_chance, 4, 28):
+        if random.randint(1, 100) <= clamp(minor_chance, 3, 22):
             return {
                 "contact": "minor contact",
                 "status": "Running",
@@ -678,7 +693,7 @@ def determine_driver_result(
     }
     fuel_call = choose_fuel_call(driver, strategy, cautions)
     extras = blank_result_fields(start_position, strategy, fuel_call)
-    contact = resolve_contact(driver, track, weather)
+    contact = resolve_contact(driver, track, weather, field_size)
 
     if contact and contact["status"] == "Crash":
         return {
@@ -900,6 +915,9 @@ def apply_multi_car_wrecks(results, track):
                 16
                 + weekend_incident_risk(track) // 2
                 - distance * 7
+            )
+            collect_chance = int(
+                round(collect_chance * field_incident_scale(len(results)))
             )
 
             if track.type == "Superspeedway":

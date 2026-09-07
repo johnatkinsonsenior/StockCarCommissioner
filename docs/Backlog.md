@@ -199,3 +199,4 @@
 | 197 | Historical season database on the desk | Medium | Completed |
 | 198 | Hall of Fame | Medium | Completed |
 | 199 | News ticker and beat-writer headlines | Medium | Completed |
+| 200 | Decade balance pass for a Cup-sized field | High | Completed |

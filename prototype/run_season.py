@@ -785,6 +785,22 @@ def apply_season_baseline():
     league["controversy"] = profile["controversy"]
 
 
+def cool_league_meters():
+    """Ease controversy and owner heat toward the opening book in the offseason."""
+
+    profile = difficulty_profile()
+    target_con = int(profile.get("controversy") or 20)
+    target_own = int(profile.get("owner_pressure") or 25)
+    current_con = int(league.get("controversy") or target_con)
+    current_own = int(league.get("owner_pressure") or target_own)
+    league["controversy"] = clamp(
+        int(round(current_con * 0.55 + target_con * 0.45))
+    )
+    league["owner_pressure"] = clamp(
+        int(round(current_own * 0.50 + target_own * 0.50))
+    )
+
+
 def apply_opening_difficulty():
     """Apply difficulty to a freshly built career world."""
 
@@ -7663,6 +7679,8 @@ def run_offseason(completed_season):
 
 def offseason_step_garage(completed_season):
     """Age the grid, progress prospects, and process retirements."""
+
+    cool_league_meters()
 
     retirement_candidates = []
     print("\nDriver Development")

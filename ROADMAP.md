@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–109 complete. Next coding day:
-**Day 110 — Balance pass so meters hold for a decade**.
+**Current position:** Days 1–110 complete. Next coding day:
+**Day 111 — Packaged office build for playtesters**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -225,7 +225,7 @@ A team-owner career is a later era, not this one.
 - [x] Day 107 — Historical season database you can reopen
 - [x] Day 108 — Hall of Fame
 - [x] Day 109 — News ticker and beat-writer headlines on the desk
-- [ ] Day 110 — Balance pass so meters hold for a decade
+- [x] Day 110 — Balance pass so meters hold for a decade
 - [ ] Day 111 — Packaged office build for playtesters
 - [ ] Day 112 — Era books: 1970s, 1980s, pinnacle (late ’80s–mid ’90s), and beyond
 
