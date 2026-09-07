@@ -1,36 +1,51 @@
-# Playtest guide — Stock Car Commissioner 0.1.0-alpha
+# Playtest guide — Stock Car Commissioner 0.2.0-office
 
-This build is a packaged career-mode prototype. Play it to judge whether the
-commissioner loop is fun, whether the league feels alive, and where balance
-breaks down.
+This build is a packaged **commissioner office**. Play it to judge whether
+running the sanctioning body from the desk is fun, whether a ten-team Cup
+field feels alive, and where balance breaks down across a career.
 
 ## Setup
 
 You need Python 3.10+. Git is not required. Unpack the zip (or use this
-repository) and run:
-
-    ./play.sh
-
-Windows: double-click `play.bat`, or from Command Prompt:
-
-    play.bat
-
-`play.bat` uses the Windows `py` launcher when it is installed, otherwise
-`python`. Saves land in a `saves/` folder next to the launchers. They do not
-travel inside the zip.
-
-Optional graphical desk (Godot 4.4 editor or binary on `PATH`, or `GODOT_BIN`):
+repository) and run the Godot desk:
 
     ./play_ui.sh
 
-Windows:
+Windows: double-click `play_ui.bat`, or from Command Prompt:
 
     play_ui.bat
 
-The Godot project is a playable commissioner office. You do not need export
-templates. Hearings, Advance, save/load, and new career all run from the desk.
+Godot 4.4 editor or binary on `PATH` (or `GODOT_BIN`) opens the office.
+Export templates are not required. If Godot is missing, the terminal loop
+still works:
 
-## Career loop
+    ./play.sh
+
+Windows: `play.bat` uses the `py` launcher when installed, otherwise
+`python`. Saves land in a `saves/` folder next to the launchers. They do
+not travel inside the zip.
+
+## Office loop
+
+1. Open **Mail**. The queued hearing sits as a letter. Dashboard alerts
+   arrive as memos. A gold ticker under the status bar carries beat copy.
+2. Visit Dashboard, Standings, Teams, Television, Drivers, Rulebook, Board,
+   and Mail to fill the first-weekend checklist. **Advance** then runs a
+   week: the next Cup race, a Race Control recap, and new mail.
+3. Click a shop or driver for a full card. **History** is empty until a
+   championship is filed. **Hall of Fame** hangs retirees who won a title,
+   15 races, or 4,000 points.
+4. Settings: **Save desk career** writes `desk.json`. **Load** restores a
+   slot onto the office session. **New career** resets the desk (difficulty,
+   length, autosave, era book). **Continue desk** reloads `office.json`.
+5. Hearing choices write back to the same sim as the terminal. The hearing
+   leaves the inbox once it is resolved.
+
+The pinnacle book seats Liberty, Pioneer, Summit, Harbor, Ironwood,
+Redline, Coastal, Midland, Crown, and Blue Ridge — twenty drivers. Silver
+Creek, Lakeside, and Prairie wait outside for a charter.
+
+## Terminal loop
 
 1. **Start new career** from the main menu.
 2. Choose **difficulty** (Easy / Normal / Hard), **career length** (3 / 5 / 10
@@ -38,28 +53,19 @@ templates. Hearings, Advance, save/load, and new career all run from the desk.
 3. Each season walks preseason business, the 22-race premier calendar, a
    development-series feeder, incidents, hearings, discipline, owners, media,
    and the offseason.
-4. Hearings present numbered choices. There is no universally correct ruling.
-   Lenient calls can grow fans and controversy; strict calls can protect
-   integrity and anger the grid.
-5. Watch the dashboard meters: integrity, fan interest, controversy, owner
-   pressure, driver sentiment, treasury, board confidence, and approval.
-6. **Save current career** / **Load saved career** any time from the main menu.
-   Autosave writes `saves/autosave.json` when enabled.
-
-A shorter smoke path: **Run one quick season** from the main menu.
+4. A shorter smoke path: **Run one quick season**.
 
 ## What to evaluate
 
 - Does a full career feel like running a league, not just clicking events?
-- Do Liberty, Pioneer, Summit, Harbor, Ironwood, Redline, Coastal,
-  Midland, Crown, and Blue Ridge (and later expansion / closures) stay
-  distinct?
+- Do the ten Cup shops stay distinct through expansion and closures?
 - Do money, contracts, TV, sponsors, and manufacturer deals matter?
 - Is job security real on Hard without feeling random on Normal?
+- Does a decade still feel playable, or do the meters run away?
 - Where did you want to quit, and where did you want one more season?
 
 ## Notes
 
-- Game version `0.1.0-alpha`. Save files are schema `0.0.39`.
+- Game version `0.2.0-office`. Save files are schema `0.0.39`.
 - Balance simulation (main menu item 6) is for developers, not required play.
 - Item 7 launches the Godot commissioner office; item 8 exits.

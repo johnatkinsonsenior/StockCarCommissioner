@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 GAME_NAME = "Stock Car Commissioner"
-GAME_VERSION = "0.1.0-alpha"
+GAME_VERSION = "0.2.0-office"
 SAVE_SCHEMA_VERSION = "0.0.39"
 PACKAGE_SLUG = "stock-car-commissioner"
 UI_ENGINE = "godot-4.4"
@@ -183,7 +183,9 @@ def build_manifest(root=None, file_count=0, version=None):
         "file_count": file_count,
         "notes": (
             "Unpack the zip and run the launchers. Git is not required. "
-            "Python 3.10+ is required. Godot 4.4 is optional for the office desk."
+            "Python 3.10+ is required. Godot 4.4 is optional for the office desk. "
+            "The desk is a 10-team Cup office: hearings, Advance, save/load, "
+            "new career, History, and Hall of Fame."
         ),
     }
 

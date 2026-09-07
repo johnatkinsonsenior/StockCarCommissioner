@@ -8,14 +8,14 @@ when the board meets.
 
 ## Current Version
 
-0.1.0-alpha (Playable Alpha)
+0.2.0-office (Living Office)
 
 Save schema: 0.0.39
 
 ## Requirements
 
 - Python 3.10 or newer
-- Optional: [Godot 4.4](https://godotengine.org/download) for the graphical UI prototype
+- Optional: [Godot 4.4](https://godotengine.org/download) for the graphical office desk
 
 ## Play a career
 
@@ -29,26 +29,29 @@ That opens the terminal career loop. Start a new career, set difficulty,
 length, and era book, then work through seasons of races, hearings, and
 league business. See `PLAYTEST.md` for the full loop.
 
-The optional Godot desk:
+The Godot commissioner office (recommended for playtesters):
 
     ./play_ui.sh
 
 Windows: double-click `play_ui.bat`.
 
 Godot is the commissioner office (sidebar, mail, checklist, Advance). The
-target look is Winston Cup crimson, gold, and white with a 16-bit sports-sim
-desk. The default career book is the late-’80s–mid-’90s peak; era settings
-let you label a career 1970s, 1980s, pinnacle, or beyond.
+look is Winston Cup crimson, gold, and white with a 16-bit sports-sim desk.
+The pinnacle book opens on ten Cup shops and twenty drivers. Hearings,
+Advance, save/load, and new career all run from the desk. History reopens
+completed seasons; the Hall of Fame hangs retiree plaques; a gold ticker
+cycles beat-writer headlines. Era settings still store a career label;
+the full rewind is Day 112.
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build
 
     python3 prototype/package_alpha.py
 
-Writes `dist/stock-car-commissioner-0.1.0-alpha.zip`. Pass an output path if
+Writes `dist/stock-car-commissioner-0.2.0-office.zip`. Pass an output path if
 you want the zip somewhere else.
 
 ## Development status
 
-The 90-day plan through playable alpha is complete. The career loop can be
-played repeatedly and evaluated for balance and fun.
+Era 3 packages a living office on a Cup-sized paddock. Playtesters unpack
+and run the launchers; Git is not required.

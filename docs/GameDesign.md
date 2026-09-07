@@ -777,14 +777,16 @@ Main menu item 6 runs a batch of AI careers so the opening book can be measured 
 - Incident odds scale with the live field so a twenty-car Cup pack keeps
   expected wrecks near the old six-car weekend. Offseason cools
   controversy and owner pressure toward the difficulty book so the
-  meters can hold for a decade without a second balance system.
+  meters can hold for a decade without a second balance system. A Normal
+  10-season AI career on the twenty-car book finishes without dismissal;
+  controversy stays in the 50s–70s and the board stays employed.
 - The JSON report lands in `season_reports/` with champions, commissioner grades, league health, closures, entries, factory switches, call-ups, retirements, and budgets. It is not written into the career save.
 
 Loaded careers and a new season keep the same league-health numbers. Expired driver contracts re-sign with the incumbent shop. The treasury funds purses after TV and commercial checks.
 
 ## Commissioner Office
 
-`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. Testers unpack the zip and run the launchers; Git is not required.
+`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. Testers unpack `dist/stock-car-commissioner-0.2.0-office.zip` (`python3 prototype/package_alpha.py`) and run the launchers; Git is not required. Python 3.10+ is required. Godot 4.4 is optional.
 
 The office opens on series mail. Mail is a **live inbox**: the queued
 hearing sits as a letter from the Competition Committee (or Board, Owner
