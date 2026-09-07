@@ -190,3 +190,4 @@
 | 188 | Hearing choices write back to the sim | High | Completed |
 | 189 | Save and load from the office | High | Completed |
 | 190 | New career and continue from the office | High | Completed |
+| 191 | Offseason as desk weeks | High | Completed |
