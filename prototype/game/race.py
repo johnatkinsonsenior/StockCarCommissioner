@@ -19,14 +19,14 @@ CALIBRATION_FIELD = 6
 
 
 def field_incident_scale(field_size):
-    """Keep Cup wreck volume near the old six-car weekend."""
+    """Keep expected Cup wrecks near the old six-car weekend."""
 
     try:
         size = int(field_size)
     except (TypeError, ValueError):
         size = CALIBRATION_FIELD
     size = max(CALIBRATION_FIELD, size)
-    return (float(CALIBRATION_FIELD) / size) ** 0.5
+    return float(CALIBRATION_FIELD) / size
 
 
 def purse_share(position, field_size):
