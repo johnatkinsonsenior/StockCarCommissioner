@@ -9,7 +9,7 @@ from pathlib import Path
 
 GAME_NAME = "Stock Car Commissioner"
 GAME_VERSION = "0.2.0-office"
-SAVE_SCHEMA_VERSION = "0.0.39"
+SAVE_SCHEMA_VERSION = "0.0.40"
 PACKAGE_SLUG = "stock-car-commissioner"
 UI_ENGINE = "godot-4.4"
 

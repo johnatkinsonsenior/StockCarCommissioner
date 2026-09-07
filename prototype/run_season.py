@@ -96,6 +96,14 @@ from game.era_books import (
     create_teams_for_era,
     normalize_era_book,
 )
+from game.aero_wars import (
+    body_map_for,
+    book_lines,
+    coupe_spec,
+    ensure_aero_book,
+    office_bodies_book,
+    one_make_runaway,
+)
 from game.policies import (
     current_policies,
     get_penalty_fine_amount,
@@ -556,6 +564,8 @@ def reset_career_state(keep_settings=False):
     league["office_mail_alerts"] = []
     league["office_welcome_sent"] = False
     league["hall_of_fame"] = []
+    league["aero_book"] = {}
+    league["track_packages"] = {}
 
     reset_policies()
 
@@ -583,6 +593,7 @@ def reset_career_state(keep_settings=False):
     assign_opening_factory_deals(season=calendar.current_season)
     apply_opening_difficulty()
     apply_era_flavor(league, teams, era_book)
+    ensure_aero_book(league, era_book)
 
 
 def is_season_mid_progress():
@@ -689,6 +700,7 @@ def apply_loaded_state(restored_state):
 
     load_policies(restored_state.get("policies"))
     load_settings(restored_state.get("settings"), replace=True)
+    ensure_aero_book(league, current_settings.get("era_book"))
 
     championship_awarded = restored_state["championship_awarded"]
 
@@ -1326,6 +1338,13 @@ def collect_commissioner_alerts():
         if entered:
             parts.append("entered " + ", ".join(entered))
         alerts.append("Sponsor market: " + "; ".join(parts))
+
+    runaway = one_make_runaway(
+        race_history,
+        {team.name: team for team in teams or []},
+    )
+    if runaway:
+        alerts.append("%s is running away with victory lane" % runaway)
 
     unhappy_drivers = [
         driver
@@ -4195,6 +4214,7 @@ def display_league_dashboard():
         f"{policy_label('scoring_bonuses')}; "
         f"{policy_label('championship_format')}"
     )
+    print("Aero Wars — " + " | ".join(book_lines()))
     print(
         "Finances — "
         f"{richest_team.name} ${richest_team.budget:,} / "
@@ -5503,7 +5523,12 @@ def manufacturer_dashboard_text():
         ]
         if not shops and maker.name == "Independent":
             continue
-        parts.append("{0} {1}".format(maker.name, maker.identity))
+        spec = coupe_spec(maker.name)
+        parts.append("{0} {1} {2}".format(
+            maker.name,
+            spec.get("family") or maker.identity,
+            spec.get("name") or "",
+        ).strip())
     if not parts:
         return "Makers: none"
     return "Makers: " + " | ".join(parts)
@@ -8118,6 +8143,8 @@ def office_team_book():
             trust = int(round(
                 sum(item.commissioner_trust for item in roster) / float(len(roster))
             ))
+        spec = coupe_spec(team.manufacturer)
+        body = body_map_for(team.manufacturer)
         rows.append(
             {
                 "id": office_slug(team.name),
@@ -8141,6 +8168,12 @@ def office_team_book():
                 "titles": int(team.organization_titles),
                 "morale": morale,
                 "trust": trust,
+                "family": spec.get("family") or "",
+                "coupe": spec.get("name") or "",
+                "short_track": int(body.get("short_track") or 50),
+                "intermediate": int(body.get("intermediate") or 50),
+                "superspeedway": int(body.get("superspeedway") or 50),
+                "road_course": int(body.get("road_course") or 50),
                 "roster": [
                     {
                         "id": office_slug(item.name),
@@ -8248,11 +8281,11 @@ def office_sponsor_book():
 
 
 def office_rulebook_book():
-    """Return the live Cup rulebook for the office desk."""
+    """Return the live Cup rulebook and homologated bodies for the desk."""
 
-    rows = []
+    policies = []
     for key in current_policies:
-        rows.append(
+        policies.append(
             {
                 "id": key,
                 "key": key,
@@ -8260,7 +8293,16 @@ def office_rulebook_book():
                 "label": policy_label(key),
             }
         )
-    return rows
+    ensure_aero_book(league, current_settings.get("era_book"))
+    return {
+        "policies": policies,
+        "bodies": office_bodies_book(manufacturers),
+        "book": book_lines(),
+        "wheelbase": (league.get("aero_book") or {}).get("wheelbase"),
+        "specials": (league.get("aero_book") or {}).get("aero_specials"),
+        "plates": bool((league.get("aero_book") or {}).get("plates")),
+        "template": (league.get("aero_book") or {}).get("template"),
+    }
 
 
 def office_councils_book():

@@ -10,7 +10,7 @@ from game.calendar import PHASE_LABELS
 from game.models import Driver, Manufacturer, Network, Owner, Sponsor, Team, Track
 from game.settings import DIFFICULTY_LABELS, settings_from_save
 
-SAVE_VERSION = "0.0.39"
+SAVE_VERSION = "0.0.40"
 SUPPORTED_SAVE_VERSIONS = {
     "0.0.3",
     "0.0.4",
@@ -49,6 +49,7 @@ SUPPORTED_SAVE_VERSIONS = {
     "0.0.37",
     "0.0.38",
     "0.0.39",
+    "0.0.40",
 }
 GAME_NAME = "Stock Car Commissioner"
 
@@ -162,6 +163,8 @@ LEAGUE_DEFAULTS = {
     "office_mail_alerts": [],
     "office_welcome_sent": False,
     "hall_of_fame": [],
+    "aero_book": {},
+    "track_packages": {},
 }
 
 

@@ -766,6 +766,11 @@ func _fill_dashboard() -> void:
 	center_body.add_child(_line(str(dash.get("approval", ""))))
 	center_body.add_child(_line(str(dash.get("board", ""))))
 	center_body.add_child(_line("Treasury $%s" % _comma(dash.get("treasury", 0))))
+	if str(dash.get("makers", "")) != "":
+		center_body.add_child(_muted(str(dash.get("makers", ""))))
+		print("MAKERS=", str(dash.get("makers", "")))
+	if str(dash.get("factory", "")) != "":
+		center_body.add_child(_muted(str(dash.get("factory", ""))))
 	var alerts: Array = dash.get("alerts", [])
 	center_body.add_child(_title("Alerts"))
 	if alerts.is_empty():
@@ -901,6 +906,15 @@ func _fill_teams() -> void:
 			str(_as_int(row.get("crew_rating", 0))),
 			str(_as_int(row.get("prestige", 0))),
 		]))
+		if str(row.get("coupe", "")) != "":
+			center_body.add_child(_muted("%s %s  ·  ST %s  Int %s  SS %s  RC %s" % [
+				str(row.get("family", "")),
+				str(row.get("coupe", "")),
+				str(_as_int(row.get("short_track", 0))),
+				str(_as_int(row.get("intermediate", 0))),
+				str(_as_int(row.get("superspeedway", 0))),
+				str(_as_int(row.get("road_course", 0))),
+			]))
 		center_body.add_child(_muted("Budget $%s  ·  %s" % [
 			_comma(row.get("budget", 0)),
 			str(row.get("sponsor", "unsponsored")),
@@ -929,6 +943,18 @@ func _fill_team_profile() -> void:
 		str(row.get("owner_priority", "")),
 		str(row.get("factory", "")),
 	]))
+	if str(row.get("coupe", "")) != "":
+		center_body.add_child(_gold_line("%s  ·  %s" % [
+			str(row.get("family", "")),
+			str(row.get("coupe", "")),
+		]))
+		center_body.add_child(_muted("ST %s  ·  Int %s  ·  SS %s  ·  RC %s" % [
+			str(_as_int(row.get("short_track", 0))),
+			str(_as_int(row.get("intermediate", 0))),
+			str(_as_int(row.get("superspeedway", 0))),
+			str(_as_int(row.get("road_course", 0))),
+		]))
+		print("PROFILE_COUPE=", str(row.get("coupe", "")))
 	center_body.add_child(_line("Car %s  ·  crew %s  ·  reliability %s  ·  engineering %s" % [
 		str(_as_int(row.get("car_rating", 0))),
 		str(_as_int(row.get("crew_rating", 0))),
@@ -1134,12 +1160,55 @@ func _fill_sponsors() -> void:
 func _fill_rulebook() -> void:
 	center_body.add_child(_title("Rulebook"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("Series-wide Cup rules. Hearings change these in Day 98."))
-	var policies: Array = _as_array(snapshot.get("rulebook", _dash().get("policies", [])))
+	center_body.add_child(_muted("Homologated coupes and the winter book. Hearings still write points and format."))
+	var raw: Variant = snapshot.get("rulebook", _dash().get("policies", []))
+	var policies: Array = []
+	var bodies: Array = []
+	var book_lines: Array = []
+	if typeof(raw) == TYPE_DICTIONARY:
+		var book: Dictionary = raw
+		policies = _as_array(book.get("policies", []))
+		bodies = _as_array(book.get("bodies", []))
+		book_lines = _as_array(book.get("book", []))
+		print("AERO_SPECIALS=", str(book.get("specials", "")))
+		print("AERO_PLATES=", str(book.get("plates", false)))
+		print("AERO_TEMPLATE=", str(book.get("template", "")))
+		print("AERO_WHEELBASE=", str(book.get("wheelbase", "")))
+	else:
+		policies = _as_array(raw)
 	print("RULEBOOK=", str(policies.size()))
-	if policies.is_empty():
+	print("BODIES=", str(bodies.size()))
+	if not book_lines.is_empty():
+		center_body.add_child(_gold_line("Winter book"))
+		for line in book_lines:
+			center_body.add_child(_line(str(line)))
+	if not bodies.is_empty():
+		center_body.add_child(_gold_line("Homologated bodies"))
+		for row in bodies:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			var body: Dictionary = row
+			center_body.add_child(_line("%s  ·  %s  ·  %s" % [
+				str(body.get("maker", "")),
+				str(body.get("family", "")),
+				str(body.get("coupe", "")),
+			]))
+			center_body.add_child(_muted("ST %s  Int %s  SS %s  RC %s" % [
+				str(_as_int(body.get("short_track", 0))),
+				str(_as_int(body.get("intermediate", 0))),
+				str(_as_int(body.get("superspeedway", 0))),
+				str(_as_int(body.get("road_course", 0))),
+			]))
+			if str(body.get("maker", "")) == "Apex":
+				print("BODY_APEX=", str(body.get("coupe", "")))
+			if str(body.get("maker", "")) == "Vanguard":
+				print("BODY_VANGUARD=", str(body.get("coupe", "")))
+			if str(body.get("maker", "")) == "Valiant":
+				print("BODY_VALIANT=", str(body.get("coupe", "")))
+	if policies.is_empty() and bodies.is_empty():
 		center_body.add_child(_muted("No policies in this snapshot."))
 		return
+	center_body.add_child(_gold_line("Series policies"))
 	for policy in policies:
 		if typeof(policy) == TYPE_DICTIONARY:
 			var row: Dictionary = policy

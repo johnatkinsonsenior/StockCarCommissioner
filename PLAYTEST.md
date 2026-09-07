@@ -71,6 +71,6 @@ back onto Harbor, and fattens treasury and TV.
 
 ## Notes
 
-- Game version `0.2.0-office`. Save files are schema `0.0.39`.
+- Game version `0.2.0-office`. Save files are schema `0.0.40`.
 - Balance simulation (main menu item 6) is for developers, not required play.
 - Item 7 launches the Godot commissioner office; item 8 exits.

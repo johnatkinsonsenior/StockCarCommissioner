@@ -13,6 +13,12 @@ from game.policies import (
 )
 
 from game.settings import incident_risk_mod
+from game.aero_wars import (
+    body_pace_tick,
+    mechanical_heat,
+    pack_heat,
+    skill_pace_tick,
+)
 
 PRIZE_PERCENTAGES = [0.30, 0.22, 0.17, 0.13, 0.10, 0.08]
 CALIBRATION_FIELD = 6
@@ -89,6 +95,17 @@ def get_team(team_name):
     raise ValueError(f"Team not found: {team_name}")
 
 
+def team_or_none(team_name):
+    """Return a shop or None when the charter does not list that name."""
+
+    if not team_name:
+        return None
+    try:
+        return get_team(team_name)
+    except ValueError:
+        return None
+
+
 def get_manufacturer(name):
     """Return the automaker matching the supplied name."""
 
@@ -114,7 +131,7 @@ def manufacturer_pace_mod(team, track=None):
         return 0
     bonus = maker.pace_bonus()
     if track is not None:
-        bonus += maker.aero_bonus(track.type)
+        bonus += body_pace_tick(team, track)
     return bonus
 
 
@@ -254,6 +271,7 @@ def calculate_crash_chance(driver, track, weather=None, field_size=None):
         + surface_tax
         + banking_tax
         + rivalry_heat
+        + pack_heat(track, team_or_none(getattr(driver, "team_name", None)))
     )
     crash_chance = int(round(crash_chance * field_incident_scale(field_size)))
 
@@ -284,7 +302,8 @@ def check_for_mechanical_failure(team, track=None, weather=None, strategy="two-s
         - team.reliability
         - engineering_help
         + length_tax
-        - manufacturer_reliability_mod(team),
+        - manufacturer_reliability_mod(team)
+        + mechanical_heat(team, track),
     )
 
     if random.randint(1, 100) > failure_chance:
@@ -501,12 +520,11 @@ def pit_strategy_score(strategy, team, track, weather, cautions):
 def calculate_qualifying_score(driver, team, track, weather):
     """Return a qualifying speed used to set the grid."""
 
-    skill = driver.track_skill_for(track.type)
     engineering = getattr(team, "engineering", 0)
 
     return (
         driver.speed
-        + skill // 2
+        + skill_pace_tick(driver, track)
         + team.car_rating // 2
         + engineering // 8
         + manufacturer_pace_mod(team, track)
@@ -573,7 +591,6 @@ def calculate_race_score(
     fuel_call="window",
 ):
     engineering = getattr(team, "engineering", 0)
-    skill = driver.track_skill_for(track.type)
     grid_weight = 2 + track.passing_difficulty // 20
     grid_bonus = (field_size - start_position) * grid_weight
     weather_mod = weather.get("race_mod", 0)
@@ -585,7 +602,7 @@ def calculate_race_score(
         + team.car_rating
         + team.crew_rating
         + engineering // 5
-        + skill // 3
+        + skill_pace_tick(driver, track)
         + manufacturer_pace_mod(team, track)
         + grid_bonus
         + weather_mod
