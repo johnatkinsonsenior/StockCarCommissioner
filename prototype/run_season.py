@@ -91,6 +91,7 @@ from game.models import (
     sponsor_satisfaction_label,
 )
 from game.records import build_record_book
+from game.hall_of_fame import consider_hall_of_fame
 from game.policies import (
     current_policies,
     get_penalty_fine_amount,
@@ -330,6 +331,7 @@ league = {
     "factory_history": [],
     "pending_factory_switch": None,
     "last_office_week": None,
+    "hall_of_fame": [],
 }
 
 race_history = []
@@ -547,6 +549,7 @@ def reset_career_state(keep_settings=False):
     league["office_offseason_step"] = 0
     league["office_mail_alerts"] = []
     league["office_welcome_sent"] = False
+    league["hall_of_fame"] = []
 
     reset_policies()
 
@@ -6818,6 +6821,12 @@ def retire_driver(driver):
         f"Career: {driver.career_wins} wins, "
         f"{driver.championships} championships."
     )
+    plaque = consider_hall_of_fame(league, driver, calendar.current_season)
+    if plaque:
+        print(
+            "%s is inducted into the Hall of Fame (%s)."
+            % (plaque["name"], plaque["reason"])
+        )
 
 
 def replace_retired_driver(retired_driver):
@@ -8372,6 +8381,15 @@ def office_history_book():
         "records": record_rows,
         "empty": not seasons,
     }
+
+
+def office_hall_book():
+    """Return Hall of Fame plaques for the office desk."""
+
+    rows = []
+    for plaque in list(league.get("hall_of_fame") or []):
+        rows.append(dict(plaque))
+    return rows
 
 
 def print_qualifying_report(weekend):
@@ -10949,6 +10967,7 @@ def build_ui_snapshot():
     councils_book = office_councils_book()
     board_book = office_board_book()
     history_book = office_history_book()
+    hall_book = office_hall_book()
     series = series_name()
     week = office_week_preview()
     mail_body = (
@@ -11003,6 +11022,7 @@ def build_ui_snapshot():
             "councils": councils_book,
             "board": board_book,
             "history": history_book,
+            "hof": hall_book,
             "menu_items": [
                 {"id": "1", "label": "Start new career"},
                 {"id": "2", "label": "Load saved career"},

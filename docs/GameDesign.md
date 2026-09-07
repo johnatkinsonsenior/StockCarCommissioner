@@ -813,7 +813,8 @@ books: cash, naming rights, the TV deal, last rating, and shop deals.
 dismissal risk, fan/owner/driver approval, and both councils (chair,
 mood, last filing). **History** reopens completed season files (champion,
 standings, finale) and the all-time record book; preseason of season 1
-is empty. Settings lists the same JSON career slots as the
+is empty. **Hall of Fame** hangs plaques for retirees who won a title,
+15 Cup races, or 4,000 career points. Settings lists the same JSON career slots as the
 terminal menu: Save writes `desk.json`, Load restores a slot onto the
 desk. The desk uses Winston Cup crimson, gold, and white
 with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout
