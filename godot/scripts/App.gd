@@ -62,6 +62,7 @@ func _ready() -> void:
 	print("INBOX_HEARINGS=", str(_hearing_letters().size()))
 	print("MAIL_OPEN=", selected_mail_id)
 	print("APPLY_SCRIPT=", str(_office().get("apply_script", "")))
+	print("AERO_SCRIPT=", str(_office().get("aero_script", "")))
 	print("ALERT_MAIL=", str(_alert_letters().size()))
 	print("TICKER=", str(_ticker_lines().size()))
 	if DisplayServer.get_name() == "headless":
@@ -126,6 +127,8 @@ func _headless_tour() -> void:
 	_on_office_save("desk")
 	_on_new_career("1970s")
 	_on_office_load("desk")
+	_show_section("rulebook")
+	_on_aero_rule("aero_specials", "legal")
 	call_deferred("_quit_headless")
 
 
@@ -1160,20 +1163,26 @@ func _fill_sponsors() -> void:
 func _fill_rulebook() -> void:
 	center_body.add_child(_title("Rulebook"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("Homologated coupes and the winter book. Hearings still write points and format."))
+	center_body.add_child(_muted("Write the winter book and the per-track kit. Hearings still write points and format."))
 	var raw: Variant = snapshot.get("rulebook", _dash().get("policies", []))
 	var policies: Array = []
 	var bodies: Array = []
 	var book_lines: Array = []
+	var package_lines: Array = []
+	var actions: Array = []
 	if typeof(raw) == TYPE_DICTIONARY:
 		var book: Dictionary = raw
 		policies = _as_array(book.get("policies", []))
 		bodies = _as_array(book.get("bodies", []))
 		book_lines = _as_array(book.get("book", []))
+		package_lines = _as_array(book.get("packages", []))
+		actions = _as_array(book.get("actions", []))
 		print("AERO_SPECIALS=", str(book.get("specials", "")))
 		print("AERO_PLATES=", str(book.get("plates", false)))
 		print("AERO_TEMPLATE=", str(book.get("template", "")))
 		print("AERO_WHEELBASE=", str(book.get("wheelbase", "")))
+		print("AERO_CHRYSLER=", str(book.get("chrysler", false)))
+		print("AERO_ACTIONS=", str(actions.size()))
 	else:
 		policies = _as_array(raw)
 	print("RULEBOOK=", str(policies.size()))
@@ -1182,6 +1191,20 @@ func _fill_rulebook() -> void:
 		center_body.add_child(_gold_line("Winter book"))
 		for line in book_lines:
 			center_body.add_child(_line(str(line)))
+	if not package_lines.is_empty():
+		center_body.add_child(_gold_line("Per-track kits"))
+		for line in package_lines:
+			center_body.add_child(_line(str(line)))
+	if not actions.is_empty():
+		center_body.add_child(_gold_line("Rewrite the book"))
+		for row in actions:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = row
+			var key := str(action.get("key", ""))
+			var value := str(action.get("value", ""))
+			var label := str(action.get("label", key))
+			center_body.add_child(_profile_button(label, _on_aero_rule.bind(key, value)))
 	if not bodies.is_empty():
 		center_body.add_child(_gold_line("Homologated bodies"))
 		for row in bodies:
@@ -1216,6 +1239,34 @@ func _fill_rulebook() -> void:
 			center_body.add_child(_muted(str(row.get("key", ""))))
 		else:
 			center_body.add_child(_line(str(policy)))
+
+
+func _on_aero_rule(key: String, value: String) -> void:
+	print("AERO_KEY=", key)
+	print("AERO_VALUE=", value)
+	var python := str(_office().get("save_python", _office().get("advance_python", "")))
+	var script := str(_office().get("aero_script", ""))
+	if python == "" or script == "" or key == "":
+		print("AERO_OK=0")
+		print("AERO_ERROR=missing-aero-command")
+		return
+	var output: Array = []
+	var code := OS.execute(
+		python,
+		PackedStringArray([script, key, value]),
+		output,
+		true,
+	)
+	var text := ""
+	for line in output:
+		text += str(line) + "\n"
+		print(str(line))
+	if code != 0 or text.find("AERO_OK=1") < 0:
+		print("AERO_OK=0")
+		return
+	_reload_office()
+	print("AERO_RELOADED=1")
+	_show_section("rulebook")
 
 
 func _fill_board() -> void:

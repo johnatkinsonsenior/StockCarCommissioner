@@ -97,12 +97,15 @@ from game.era_books import (
     normalize_era_book,
 )
 from game.aero_wars import (
+    apply_aero_rule,
     body_map_for,
     book_lines,
     coupe_spec,
     ensure_aero_book,
+    office_aero_actions,
     office_bodies_book,
     one_make_runaway,
+    package_lines,
 )
 from game.policies import (
     current_policies,
@@ -4546,6 +4549,72 @@ def apply_office_hearing(hearing_id, choice_id):
     return result
 
 
+def _invite_valiant_factory():
+    """Add Valiant to the factory list without rebadging live shops."""
+
+    for maker in manufacturers:
+        if maker.name == "Valiant":
+            return
+    roster = create_manufacturers_for_era("beyond")
+    valiant = None
+    for maker in roster:
+        if maker.name == "Valiant":
+            valiant = maker
+            break
+    if valiant is None:
+        return
+    insert_at = len(manufacturers)
+    for index, maker in enumerate(manufacturers):
+        if maker.name == "Independent":
+            insert_at = index
+            break
+    manufacturers.insert(insert_at, valiant)
+
+
+def _apply_aero_flavor(key, before, book):
+    """League meters for a winter-book rewrite that actually changed."""
+
+    if key in ("short_equalize", "st_equalize"):
+        now = bool(book.get("short_equalize"))
+        was = bool(before.get("short_equalize"))
+        if now and not was:
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) - 6)
+            league["controversy"] = clamp(league.get("controversy", 0) + 4)
+        elif was and not now:
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) + 3)
+            league["controversy"] = clamp(league.get("controversy", 0) - 2)
+    elif key == "aero_specials":
+        now = book.get("aero_specials")
+        was = before.get("aero_specials")
+        if now == "legal" and was != "legal":
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) + 5)
+            league["controversy"] = clamp(league.get("controversy", 0) + 8)
+        elif was == "legal" and now != "legal":
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) - 3)
+            league["controversy"] = clamp(league.get("controversy", 0) - 4)
+    elif key == "template":
+        now = book.get("template")
+        was = before.get("template")
+        if now == "spec" and was != "spec":
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) - 4)
+            league["integrity"] = clamp(league.get("integrity", 0) + 3)
+        elif was == "spec" and now != "spec":
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) + 2)
+
+
+def apply_office_aero(key, value):
+    """Rewrite one winter-book or package slot from the desk."""
+
+    before = dict(ensure_aero_book(league) or {})
+    book = apply_aero_rule(league, key, value)
+    if key == "chrysler" and book.get("chrysler"):
+        _invite_valiant_factory()
+    if key == "template" and book.get("template") == "spec":
+        current_policies["technical_rules"] = "inspection-heavy"
+    _apply_aero_flavor(key, before, book)
+    return book
+
+
 def present_decision_event(event):
     """Present one commissioner event and apply the chosen outcome."""
 
@@ -8294,14 +8363,19 @@ def office_rulebook_book():
             }
         )
     ensure_aero_book(league, current_settings.get("era_book"))
+    aero = league.get("aero_book") or {}
     return {
         "policies": policies,
         "bodies": office_bodies_book(manufacturers),
         "book": book_lines(),
-        "wheelbase": (league.get("aero_book") or {}).get("wheelbase"),
-        "specials": (league.get("aero_book") or {}).get("aero_specials"),
-        "plates": bool((league.get("aero_book") or {}).get("plates")),
-        "template": (league.get("aero_book") or {}).get("template"),
+        "packages": package_lines(),
+        "actions": office_aero_actions(),
+        "wheelbase": aero.get("wheelbase"),
+        "specials": aero.get("aero_specials"),
+        "plates": bool(aero.get("plates")),
+        "template": aero.get("template"),
+        "chrysler": bool(aero.get("chrysler")),
+        "short_equalize": bool(aero.get("short_equalize")),
     }
 
 
@@ -11090,6 +11164,7 @@ def build_ui_snapshot():
             "save_script": str(office_save_script()),
             "load_script": str(office_load_script()),
             "new_script": str(office_new_script()),
+            "aero_script": str(office_aero_script()),
             "saves": office_save_catalog(),
             "week_recap": recap,
             "recap": recap,
@@ -11205,6 +11280,12 @@ def office_new_script():
     """Return the Python script Godot runs to start a new desk career."""
 
     return Path(__file__).resolve().parent / "new_career.py"
+
+
+def office_aero_script():
+    """Return the Python script Godot runs to rewrite the winter book."""
+
+    return Path(__file__).resolve().parent / "apply_aero.py"
 
 
 def start_office_career(data=None):

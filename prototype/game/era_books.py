@@ -2,7 +2,7 @@
 
 Day 100 stored the book as a label. Day 112 changes who sits on the
 opening grid, which factories badge the field, and how fat the TV
-check is. Days 113–114 are the Aero Wars coupe rewrite.
+check is. Days 113–114 wrote the Aero Wars coupe book.
 """
 
 from data.cup_grid import (

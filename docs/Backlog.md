@@ -175,8 +175,8 @@
 | 173 | Aero Wars | High | In Progress |
 | 174 | Homologated two-door coupe bodies | High | Completed |
 | 175 | Manufacturer aero maps per track type | High | Completed |
-| 176 | Per-track rules packages | High | Not Started |
-| 177 | Custom Winston Cup rulebook (homologation, wheelbase, aero specials) | High | Not Started |
+| 176 | Per-track rules packages | High | In Progress |
+| 177 | Custom Winston Cup rulebook (homologation, wheelbase, aero specials) | High | In Progress |
 | 178 | Live mail inbox | High | Completed |
 | 179 | Hearings and league letters in Mail | Medium | Completed |
 | 180 | Advance one week from the office | High | Completed |

@@ -469,7 +469,8 @@ road courses and superspeedways, plus a single series-wide technical
 policy (`open` / `aero-restrict` / `inspection-heavy`). **Aero Wars**
 replaces that stub: each factory fields a named homologated coupe with a
 four-number track map, and race pace mixes that map with driver skill.
-Day 114 lets the commissioner rewrite the winter book and the per-track kit.
+The commissioner rewrites the winter book and the per-track kit from
+Rulebook, or from the preseason winter-body hearing.
 
 #### Bodies, not just badges
 
@@ -758,7 +759,7 @@ Players may save between seasons or from the main menu. Loaded careers resume mi
 
 ## Game Settings
 
-**Era** is a new-career setting, in the same family as OOTP's start year. The default book is **pinnacle Winston Cup** (late ’80s–mid ’90s): ten shops, twenty drivers, Vanguard / Apex / Falcon. **1970s** opens eight regional shops with **Valiant** (the Chrysler analogue) still badging Harbor and Ironwood and a thinner TV check. **1980s** opens nine shops; Valiant is fading at Harbor. **Beyond** opens twelve shops, invites Valiant back onto Harbor, and fattens treasury and TV. The same commissioner model runs forward from that opening world. Homologated coupes and per-track aero kits are still Days 113–114.
+**Era** is a new-career setting, in the same family as OOTP's start year. The default book is **pinnacle Winston Cup** (late ’80s–mid ’90s): ten shops, twenty drivers, Vanguard / Apex / Falcon. **1970s** opens eight regional shops with **Valiant** (the Chrysler analogue) still badging Harbor and Ironwood and a thinner TV check. **1980s** opens nine shops; Valiant is fading at Harbor. **Beyond** opens twelve shops, invites Valiant back onto Harbor, and fattens treasury and TV. The same commissioner model runs forward from that opening world. Homologated coupes and per-track aero kits ship with the Aero Wars book.
 
 A new career asks for **difficulty**, **career length**, and **autosave**. The same three live on the main-menu settings screen and on the commissioner dashboard.
 
@@ -788,7 +789,7 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 ## Commissioner Office
 
-`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. Testers unpack `dist/stock-car-commissioner-0.2.0-office.zip` (`python3 prototype/package_alpha.py`) and run the launchers; Git is not required. Python 3.10+ is required. Godot 4.4 is optional.
+`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. Testers unpack `dist/stock-car-commissioner-0.3.0-aero.zip` (`python3 prototype/package_alpha.py`) and run the launchers; Git is not required. Python 3.10+ is required. Godot 4.4 is optional.
 
 The office opens on series mail. Mail is a **live inbox**: the queued
 hearing sits as a letter from the Competition Committee (or Board, Owner
@@ -817,7 +818,10 @@ and purse shares pad past P6 so a full field still scores and gets paid.
 Silver Creek, Lakeside, and Prairie wait outside for a charter.
 **Treasury**, **Television**, and **Sponsors** show the sanctioning-body
 books: cash, naming rights, the TV deal, last rating, and shop deals.
-**Rulebook** lists the live Cup policies. **Board** shows confidence,
+**Rulebook** lists the live Cup policies and the Aero Wars winter book:
+homologated bodies, per-track kits, and rewrite buttons (legalize
+specials, spec vs identity, plates, Chrysler, short-track equalize).
+**Board** shows confidence,
 dismissal risk, fan/owner/driver approval, and both councils (chair,
 mood, last filing). **History** reopens completed season files (champion,
 standings, finale) and the all-time record book; preseason of season 1
@@ -874,8 +878,9 @@ During preseason the commissioner may set:
 
 These policies persist between seasons and affect scoring, incident risk, fines, operating costs, and which factory bodies are fast where. Stage points, when the format is stage racing, are taken from the same championship points table rather than a separate scoring system. Finishing places past the published six-slot table step down by one point (floor 1). Purse shares keep the original P1–P6 weights, then decay and renormalize so last place on a 20-car grid still cashes a check.
 
-The live alpha’s single `technical_rules` switch (`open` /
-`aero-restrict` / `inspection-heavy`) is the stub this system replaces.
+The live `technical_rules` switch (`open` / `aero-restrict` /
+`inspection-heavy`) remains as a crash-and-cost modifier for old saves.
+Aero Wars is the body lever: winter book plus per-track kit.
 
 Owners and drivers can also **introduce** rule proposals after the championship. The commissioner dockets, tables, or kills the paper. A later owner-council vote decides whether the policy actually changes.
 
