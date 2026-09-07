@@ -8032,23 +8032,14 @@ def office_recap_book():
     if not week and not race_history:
         return {}
     if race_history and (not week or week.get("kind") == "race"):
-        record = race_history[-1]
+        card = weekend_card_from_record(race_history[-1])
         if not week:
-            week = recap_from_last_race()
-        results = record.get("results") or []
-        week["pole"] = record.get("pole") or week.get("pole") or ""
-        week["cautions"] = int(record.get("cautions") or week.get("cautions") or 0)
-        week["weather"] = record.get("weather") or week.get("weather") or ""
-        week["tv_rating"] = record.get("tv_rating")
-        week["gate"] = record.get("gate")
-        week["podium"] = [
-            {
-                "position": int(row.get("position") or index),
-                "driver": row.get("driver") or "",
-                "team": row.get("team") or "",
-            }
-            for index, row in enumerate(results[:3], start=1)
-        ]
+            week = card
+        else:
+            for key, value in card.items():
+                if key in ("title", "body", "kind") and week.get(key):
+                    continue
+                week[key] = value
     return week
 
 
@@ -11124,27 +11115,67 @@ def office_week_preview():
     }
 
 
-def recap_from_last_race():
-    """Build a week recap dict from the latest race_history row."""
+def weekend_card_from_record(record):
+    """Build the office weekend card from one race_history row."""
 
-    if not race_history:
-        return {
-            "kind": "race",
-            "title": "Race weekend",
-            "body": "The field took the green flag.",
-        }
-    record = race_history[-1]
+    record = record or {}
+    results = list(record.get("results") or [])
     winner = race_winner_name(record, None)
     race_number = record.get("race_number") or len(race_history)
     track_name = record.get("track") or "the track"
-    cautions = record.get("cautions") or 0
-    pole = record.get("pole") or "the pole sitter"
+    cautions = int(record.get("cautions") or 0)
+    pole = record.get("pole") or ""
+    qualifying = sorted(
+        [
+            {
+                "position": int(row.get("qualifying_position") or 0),
+                "driver": row.get("driver") or "",
+                "team": row.get("team") or "",
+            }
+            for row in results
+            if row.get("qualifying_position")
+        ],
+        key=lambda row: (row["position"] or 99, row["driver"]),
+    )
+    investigations = []
+    for packet in record.get("investigations") or []:
+        investigations.append(
+            {
+                "driver": packet.get("driver") or "",
+                "team": packet.get("team") or "",
+                "blame": packet.get("blame") or "",
+                "confidence": packet.get("confidence") or "",
+                "cause": packet.get("cause") or "",
+            }
+        )
+    wrecks = list(record.get("wrecks") or [])
+    wreck_count = len(wrecks)
+    biggest = 0
+    if wrecks:
+        biggest = max(int(row.get("size") or 0) for row in wrecks)
+    lead = investigations[0] if investigations else {}
+    probe_line = ""
+    if lead:
+        probe_line = "Investigation: blame %s (%s)." % (
+            lead.get("blame") or "none",
+            lead.get("confidence") or "open",
+        )
+    elif wreck_count:
+        probe_line = "Wrecks: %s (biggest %s-car)." % (wreck_count, biggest)
     body = (
         "Race %s is in the books at %s.\n\n"
         "%s took the checkered flag. Pole: %s. "
-        "Cautions: %s. The standings on the left rail are live.\n\n"
+        "Cautions: %s. Weather: %s. %s\n\n"
         "Advance again for the next week."
-        % (race_number, track_name, winner, pole, cautions)
+        % (
+            race_number,
+            track_name,
+            winner,
+            pole or "the pole sitter",
+            cautions,
+            record.get("weather") or "green",
+            probe_line,
+        )
     )
     podium = [
         {
@@ -11152,7 +11183,7 @@ def recap_from_last_race():
             "driver": row.get("driver") or "",
             "team": row.get("team") or "",
         }
-        for index, row in enumerate((record.get("results") or [])[:3], start=1)
+        for index, row in enumerate(results[:3], start=1)
     ]
     return {
         "kind": "race",
@@ -11162,12 +11193,32 @@ def recap_from_last_race():
         "track": track_name,
         "winner": winner,
         "pole": pole,
-        "cautions": int(cautions),
+        "cautions": cautions,
         "weather": record.get("weather") or "",
+        "temperature": record.get("temperature"),
+        "format": record.get("format") or "",
         "tv_rating": record.get("tv_rating"),
         "gate": record.get("gate"),
         "podium": podium,
+        "qualifying": qualifying[:8],
+        "investigations": investigations,
+        "wrecks": wreck_count,
+        "biggest_wreck": biggest,
     }
+
+
+def recap_from_last_race():
+    """Build a week recap dict from the latest race_history row."""
+
+    if not race_history:
+        return {
+            "kind": "race",
+            "title": "Race weekend",
+            "body": "The field took the green flag.",
+            "qualifying": [],
+            "investigations": [],
+        }
+    return weekend_card_from_record(race_history[-1])
 
 
 def recap_postseason():

@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "0.12",
+    "ui_version": "0.13",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",

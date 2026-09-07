@@ -789,7 +789,7 @@ preseason becomes the opening race weekend, then each Advance sims the
 next Cup race and drops a Race Control recap (plus press clippings) in
 Mail. **Standings** is a ranked Cup table. **Schedule** marks DONE and
 NEXT weekends. Both screens show a last-weekend recap card (winner,
-pole, cautions, podium). **Teams**, **Drivers**, and **Prospects**
+pole, cautions, qualifying, podium, wrecks, and any investigation). **Teams**, **Drivers**, and **Prospects**
 inspect the paddock: shop cards with owner and factory, the Cup grid
 with morale and trust, and the National Development Series pool.
 **Treasury**, **Television**, and **Sponsors** show the sanctioning-body
