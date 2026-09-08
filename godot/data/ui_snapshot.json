@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "2.0",
+    "ui_version": "2.1",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -1617,6 +1617,7 @@
             "trust": 60,
             "family": "GM",
             "coupe": "Monte Carlo Aerocoupe",
+            "portrait": "monte_carlo_aerocoupe",
             "short_track": 56,
             "intermediate": 56,
             "superspeedway": 66,
@@ -1666,6 +1667,7 @@
             "trust": 60,
             "family": "Ford",
             "coupe": "Thunderbird",
+            "portrait": "thunderbird",
             "short_track": 42,
             "intermediate": 60,
             "superspeedway": 74,
@@ -1715,6 +1717,7 @@
             "trust": 60,
             "family": "GM",
             "coupe": "Grand Prix 2+2",
+            "portrait": "grand_prix_22",
             "short_track": 54,
             "intermediate": 56,
             "superspeedway": 64,
@@ -1764,6 +1767,7 @@
             "trust": 60,
             "family": "GM",
             "coupe": "Monte Carlo Aerocoupe",
+            "portrait": "monte_carlo_aerocoupe",
             "short_track": 56,
             "intermediate": 56,
             "superspeedway": 66,
@@ -1813,6 +1817,7 @@
             "trust": 60,
             "family": "Ford",
             "coupe": "Thunderbird",
+            "portrait": "thunderbird",
             "short_track": 42,
             "intermediate": 60,
             "superspeedway": 74,
@@ -1862,6 +1867,7 @@
             "trust": 60,
             "family": "Ford",
             "coupe": "Thunderbird",
+            "portrait": "thunderbird",
             "short_track": 42,
             "intermediate": 60,
             "superspeedway": 74,
@@ -1911,6 +1917,7 @@
             "trust": 60,
             "family": "GM",
             "coupe": "Grand Prix 2+2",
+            "portrait": "grand_prix_22",
             "short_track": 54,
             "intermediate": 56,
             "superspeedway": 64,
@@ -1960,6 +1967,7 @@
             "trust": 60,
             "family": "GM",
             "coupe": "Monte Carlo Aerocoupe",
+            "portrait": "monte_carlo_aerocoupe",
             "short_track": 56,
             "intermediate": 56,
             "superspeedway": 66,
@@ -2009,6 +2017,7 @@
             "trust": 60,
             "family": "Ford",
             "coupe": "Thunderbird",
+            "portrait": "thunderbird",
             "short_track": 42,
             "intermediate": 60,
             "superspeedway": 74,
@@ -2058,6 +2067,7 @@
             "trust": 60,
             "family": "GM",
             "coupe": "Grand Prix 2+2",
+            "portrait": "grand_prix_22",
             "short_track": 54,
             "intermediate": 56,
             "superspeedway": 64,
@@ -2334,6 +2344,39 @@
                 "maker": "Vanguard",
                 "family": "GM",
                 "coupe": "Monte Carlo Aerocoupe",
+                "portrait": "monte_carlo_aerocoupe",
+                "choices": [
+                    {
+                        "id": "chevelle",
+                        "name": "Chevelle",
+                        "portrait": "chevelle",
+                        "selected": false,
+                        "short_track": 66,
+                        "intermediate": 54,
+                        "superspeedway": 46,
+                        "road_course": 50
+                    },
+                    {
+                        "id": "monte_carlo",
+                        "name": "Monte Carlo",
+                        "portrait": "monte_carlo",
+                        "selected": false,
+                        "short_track": 64,
+                        "intermediate": 54,
+                        "superspeedway": 44,
+                        "road_course": 50
+                    },
+                    {
+                        "id": "monte_carlo_aerocoupe",
+                        "name": "Monte Carlo Aerocoupe",
+                        "portrait": "monte_carlo_aerocoupe",
+                        "selected": true,
+                        "short_track": 56,
+                        "intermediate": 56,
+                        "superspeedway": 66,
+                        "road_course": 48
+                    }
+                ],
                 "short_track": 56,
                 "intermediate": 56,
                 "superspeedway": 66,
@@ -2343,6 +2386,29 @@
                 "maker": "Apex",
                 "family": "Ford",
                 "coupe": "Thunderbird",
+                "portrait": "thunderbird",
+                "choices": [
+                    {
+                        "id": "torino",
+                        "name": "Torino",
+                        "portrait": "torino",
+                        "selected": false,
+                        "short_track": 46,
+                        "intermediate": 56,
+                        "superspeedway": 70,
+                        "road_course": 48
+                    },
+                    {
+                        "id": "thunderbird",
+                        "name": "Thunderbird",
+                        "portrait": "thunderbird",
+                        "selected": true,
+                        "short_track": 42,
+                        "intermediate": 60,
+                        "superspeedway": 74,
+                        "road_course": 52
+                    }
+                ],
                 "short_track": 42,
                 "intermediate": 60,
                 "superspeedway": 74,
@@ -2352,6 +2418,29 @@
                 "maker": "Falcon",
                 "family": "GM",
                 "coupe": "Grand Prix 2+2",
+                "portrait": "grand_prix_22",
+                "choices": [
+                    {
+                        "id": "grand_prix",
+                        "name": "Grand Prix",
+                        "portrait": "grand_prix",
+                        "selected": false,
+                        "short_track": 58,
+                        "intermediate": 56,
+                        "superspeedway": 52,
+                        "road_course": 54
+                    },
+                    {
+                        "id": "grand_prix_22",
+                        "name": "Grand Prix 2+2",
+                        "portrait": "grand_prix_22",
+                        "selected": true,
+                        "short_track": 54,
+                        "intermediate": 56,
+                        "superspeedway": 64,
+                        "road_course": 50
+                    }
+                ],
                 "short_track": 54,
                 "intermediate": 56,
                 "superspeedway": 64,
@@ -2361,6 +2450,19 @@
                 "maker": "Independent",
                 "family": "Independent",
                 "coupe": "Generic coupe",
+                "portrait": "generic_coupe",
+                "choices": [
+                    {
+                        "id": "generic_coupe",
+                        "name": "Generic coupe",
+                        "portrait": "generic_coupe",
+                        "selected": true,
+                        "short_track": 48,
+                        "intermediate": 48,
+                        "superspeedway": 48,
+                        "road_course": 48
+                    }
+                ],
                 "short_track": 48,
                 "intermediate": 48,
                 "superspeedway": 48,
@@ -2425,7 +2527,9 @@
         "plates": true,
         "template": "identity",
         "chrysler": false,
-        "short_equalize": false
+        "short_equalize": false,
+        "season": 1,
+        "era_book": "pinnacle"
     },
     "councils": {
         "owners": {
