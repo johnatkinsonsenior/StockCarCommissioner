@@ -92,6 +92,7 @@ def default_aero_book(era_book=None):
         "plate_tracks": list(PLATE_TRACKS),
         "short_equalize": False,
         "spoiler": "identity",
+        "body_picks": {},
     }
     if era == ERA_1970S:
         book["homologation"] = 500
@@ -261,6 +262,18 @@ def apply_aero_rule(league, key, value):
         if name and name not in tracks:
             tracks.append(name)
             book["plate_tracks"] = tracks
+    elif key == "body_pick":
+        maker, body_id = _parse_body_pick(value)
+        if maker and body_id:
+            picks = dict(book.get("body_picks") or {})
+            entry = body_by_id(body_id) or body_by_name(maker, body_id)
+            if (
+                entry is not None
+                and entry.get("maker") == maker
+                and _body_legal(entry, book)
+            ):
+                picks[maker] = entry["id"]
+                book["body_picks"] = picks
     if league is not None:
         league["aero_book"] = book
         league["track_packages"] = packages
@@ -277,8 +290,153 @@ def _map(short_track, intermediate, superspeedway, road_course):
     }
 
 
-def coupe_spec(maker_name, era_book=None, book=None):
-    """Return the named homologated body this factory fields right now."""
+def _parse_body_pick(value):
+    text = str(value or "").strip()
+    if ":" not in text:
+        return "", ""
+    maker, body_id = text.split(":", 1)
+    return maker.strip(), body_id.strip()
+
+
+def body_catalog():
+    """Return every homologated coupe the commissioner can field."""
+
+    return [
+        {
+            "id": "torino",
+            "maker": "Apex",
+            "name": "Torino",
+            "family": FAMILY_FORD,
+            "map": _map(46, 56, 70, 48),
+            "needs": None,
+        },
+        {
+            "id": "thunderbird",
+            "maker": "Apex",
+            "name": "Thunderbird",
+            "family": FAMILY_FORD,
+            "map": _map(42, 60, 74, 52),
+            "needs": None,
+        },
+        {
+            "id": "chevelle",
+            "maker": "Vanguard",
+            "name": "Chevelle",
+            "family": FAMILY_GM,
+            "map": _map(66, 54, 46, 50),
+            "needs": None,
+        },
+        {
+            "id": "monte_carlo",
+            "maker": "Vanguard",
+            "name": "Monte Carlo",
+            "family": FAMILY_GM,
+            "map": _map(64, 54, 44, 50),
+            "needs": None,
+        },
+        {
+            "id": "monte_carlo_aerocoupe",
+            "maker": "Vanguard",
+            "name": "Monte Carlo Aerocoupe",
+            "family": FAMILY_GM,
+            "map": _map(56, 56, 66, 48),
+            "needs": "aerocoupes",
+        },
+        {
+            "id": "grand_prix",
+            "maker": "Falcon",
+            "name": "Grand Prix",
+            "family": FAMILY_GM,
+            "map": _map(58, 56, 52, 54),
+            "needs": None,
+        },
+        {
+            "id": "grand_prix_22",
+            "maker": "Falcon",
+            "name": "Grand Prix 2+2",
+            "family": FAMILY_GM,
+            "map": _map(54, 56, 64, 50),
+            "needs": "aerocoupes",
+        },
+        {
+            "id": "charger",
+            "maker": "Valiant",
+            "name": "Charger",
+            "family": FAMILY_CHRYSLER,
+            "map": _map(50, 52, 54, 46),
+            "needs": None,
+        },
+        {
+            "id": "superbird",
+            "maker": "Valiant",
+            "name": "Superbird",
+            "family": FAMILY_CHRYSLER,
+            "map": _map(38, 50, 88, 36),
+            "needs": "specials",
+        },
+        {
+            "id": "mirada",
+            "maker": "Valiant",
+            "name": "Mirada",
+            "family": FAMILY_CHRYSLER,
+            "map": _map(52, 50, 48, 48),
+            "needs": None,
+        },
+        {
+            "id": "magnum",
+            "maker": "Valiant",
+            "name": "Magnum",
+            "family": FAMILY_CHRYSLER,
+            "map": _map(50, 52, 56, 48),
+            "needs": None,
+        },
+        {
+            "id": "generic_coupe",
+            "maker": "Independent",
+            "name": "Generic coupe",
+            "family": FAMILY_INDEPENDENT,
+            "map": _map(48, 48, 48, 48),
+            "needs": None,
+        },
+    ]
+
+
+def body_by_id(body_id):
+    token = str(body_id or "").strip()
+    for entry in body_catalog():
+        if entry["id"] == token:
+            return entry
+    return None
+
+
+def body_by_name(maker, name):
+    maker = str(maker or "")
+    name = str(name or "").strip()
+    slug = name.lower().replace(" ", "_").replace("+", "")
+    for entry in body_catalog():
+        if entry["maker"] != maker:
+            continue
+        if entry["name"] == name or entry["id"] == slug:
+            return entry
+    return None
+
+
+def _body_legal(entry, book):
+    if entry is None:
+        return False
+    needs = entry.get("needs")
+    specials = (book or {}).get("aero_specials") or SPECIALS_BANNED
+    winged = specials in (SPECIALS_LEGAL, SPECIALS_HOMOLOGATE)
+    aero = bool((book or {}).get("aerocoupes")) or winged
+    if needs == "specials":
+        return winged
+    if needs == "aerocoupes":
+        return aero
+    return True
+
+
+def default_body_id(maker_name, era_book=None, book=None):
+    """Return the inherited coupe id for this factory and era."""
 
     era = era_book or _era()
     book = book or live_book()
@@ -286,93 +444,76 @@ def coupe_spec(maker_name, era_book=None, book=None):
     specials = book.get("aero_specials") or SPECIALS_BANNED
     winged = specials in (SPECIALS_LEGAL, SPECIALS_HOMOLOGATE)
     aero = bool(book.get("aerocoupes")) or winged
-
     if maker == "Apex":
-        if era == ERA_1970S:
-            return {
-                "name": "Torino",
-                "family": FAMILY_FORD,
-                "map": _map(46, 56, 70, 48),
-            }
-        if era == ERA_1980S:
-            return {
-                "name": "Thunderbird",
-                "family": FAMILY_FORD,
-                "map": _map(44, 58, 72, 50),
-            }
-        return {
-            "name": "Thunderbird",
-            "family": FAMILY_FORD,
-            "map": _map(42, 60, 74, 52),
-        }
-
+        return "torino" if era == ERA_1970S else "thunderbird"
     if maker == "Vanguard":
         if era == ERA_1970S:
-            return {
-                "name": "Chevelle",
-                "family": FAMILY_GM,
-                "map": _map(66, 54, 46, 50),
-            }
-        if aero:
-            return {
-                "name": "Monte Carlo Aerocoupe",
-                "family": FAMILY_GM,
-                "map": _map(56, 56, 66, 48),
-            }
-        return {
-            "name": "Monte Carlo",
-            "family": FAMILY_GM,
-            "map": _map(64, 54, 44, 50),
-        }
-
+            return "chevelle"
+        return "monte_carlo_aerocoupe" if aero else "monte_carlo"
     if maker == "Falcon":
         if era == ERA_1970S:
-            return {
-                "name": "Grand Prix",
-                "family": FAMILY_GM,
-                "map": _map(60, 55, 50, 52),
-            }
-        if aero:
-            return {
-                "name": "Grand Prix 2+2",
-                "family": FAMILY_GM,
-                "map": _map(54, 56, 64, 50),
-            }
-        return {
-            "name": "Grand Prix",
-            "family": FAMILY_GM,
-            "map": _map(58, 56, 52, 54),
-        }
-
+            return "grand_prix"
+        return "grand_prix_22" if aero else "grand_prix"
     if maker == "Valiant":
         if winged:
-            return {
-                "name": "Superbird",
-                "family": FAMILY_CHRYSLER,
-                "map": _map(38, 50, 88, 36),
-            }
+            return "superbird"
         if era == ERA_1970S:
-            return {
-                "name": "Charger",
-                "family": FAMILY_CHRYSLER,
-                "map": _map(50, 52, 54, 46),
-            }
+            return "charger"
         if era == ERA_1980S:
-            return {
-                "name": "Mirada",
-                "family": FAMILY_CHRYSLER,
-                "map": _map(52, 50, 48, 48),
-            }
-        return {
-            "name": "Magnum",
-            "family": FAMILY_CHRYSLER,
-            "map": _map(50, 52, 56, 48),
-        }
+            return "mirada"
+        return "magnum"
+    return "generic_coupe"
 
+
+def legal_bodies(maker_name, era_book=None, book=None):
+    """Return legal coupe cards this factory may field this year."""
+
+    maker = str(maker_name or "Independent")
+    book = book or live_book()
+    rows = []
+    for entry in body_catalog():
+        if entry["maker"] != maker:
+            continue
+        if not _body_legal(entry, book):
+            continue
+        rows.append(dict(entry))
+    return rows
+
+
+def _spec_from_entry(entry):
     return {
+        "id": entry.get("id"),
+        "name": entry.get("name"),
+        "family": entry.get("family"),
+        "map": dict(entry.get("map") or _map(50, 50, 50, 50)),
+        "portrait": entry.get("id"),
+    }
+
+
+def coupe_spec(maker_name, era_book=None, book=None):
+    """Return the named homologated body this factory fields right now."""
+
+    era = era_book or _era()
+    book = book or live_book()
+    maker = str(maker_name or "Independent")
+    picks = book.get("body_picks") if isinstance(book.get("body_picks"), dict) else {}
+    picked = picks.get(maker)
+    entry = body_by_id(picked) or body_by_name(maker, picked)
+    if (
+        entry is not None
+        and entry.get("maker") == maker
+        and _body_legal(entry, book)
+    ):
+        return _spec_from_entry(entry)
+    fallback = body_by_id(default_body_id(maker, era, book))
+    if fallback is not None:
+        return _spec_from_entry(fallback)
+    return {
+        "id": "generic_coupe",
         "name": "Generic coupe",
         "family": FAMILY_INDEPENDENT,
         "map": _map(48, 48, 48, 48),
+        "portrait": "generic_coupe",
     }
 
 
@@ -524,11 +665,27 @@ def office_bodies_book(makers=None, era_book=None, book=None):
         seen.append(name)
         spec = coupe_spec(name, era, book)
         body_map = body_map_for(name, None, era, book)
+        choices = []
+        for entry in legal_bodies(name, era, book):
+            choices.append(
+                {
+                    "id": entry.get("id"),
+                    "name": entry.get("name"),
+                    "portrait": entry.get("id"),
+                    "selected": entry.get("id") == spec.get("id"),
+                    "short_track": int((entry.get("map") or {}).get("short_track") or 50),
+                    "intermediate": int((entry.get("map") or {}).get("intermediate") or 50),
+                    "superspeedway": int((entry.get("map") or {}).get("superspeedway") or 50),
+                    "road_course": int((entry.get("map") or {}).get("road_course") or 50),
+                }
+            )
         rows.append(
             {
                 "maker": name,
                 "family": spec.get("family"),
                 "coupe": spec.get("name"),
+                "portrait": spec.get("portrait") or spec.get("id"),
+                "choices": choices,
                 "short_track": int(body_map.get("short_track") or 50),
                 "intermediate": int(body_map.get("intermediate") or 50),
                 "superspeedway": int(body_map.get("superspeedway") or 50),
