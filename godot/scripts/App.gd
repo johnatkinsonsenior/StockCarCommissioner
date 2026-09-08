@@ -1298,10 +1298,11 @@ func _body_portrait(portrait_id: String) -> TextureRect:
 	if portrait_id == "":
 		return null
 	var path := "res://assets/bodies/%s.png" % portrait_id
-	if not ResourceLoader.exists(path):
+	var img := Image.new()
+	if img.load(path) != OK:
 		print("PORTRAIT_MISSING=", portrait_id)
 		return null
-	var tex: Texture2D = load(path)
+	var tex := ImageTexture.create_from_image(img)
 	if tex == null:
 		return null
 	var image := TextureRect.new()
