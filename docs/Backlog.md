@@ -204,3 +204,19 @@
 | 202 | Era books: 1970s / 1980s / pinnacle / beyond | High | Completed |
 | 203 | Homologated coupe bodies and track maps | High | Completed |
 | 204 | Commissioner-written winter book and per-track kits | High | Completed |
+| 205 | Named-venue kit overrides | High | Not Started |
+| 206 | Homologation count and wheelbase on the desk | High | Not Started |
+| 207 | Homologate-to-run aero specials | High | Not Started |
+| 208 | Factory lobbying of the winter book | High | Not Started |
+| 209 | Owner and garage lobbying of per-track kits | High | Not Started |
+| 210 | One-make runaway and plate-pack hearings | High | Not Started |
+| 211 | Win-on-Sunday factory health on the desk | Medium | Not Started |
+| 212 | Aero Wars playtest loop | High | Not Started |
+| 213 | Aero Wars desk bug pass | High | Not Started |
+| 214 | Packaged writable-book playtest zip | High | Not Started |
+| 215 | Beyond opening world (commerce, board) | High | Not Started |
+| 216 | Beyond default template tightness | High | Not Started |
+| 217 | Four-door-as-coupe (Taurus analog) opt-in | High | Not Started |
+| 218 | Persistent custom sliders on Beyond | Medium | Not Started |
+| 219 | Later-era garage, media, and schedule flavor | Medium | Not Started |
+| 220 | Decade balance on the Beyond book | High | Not Started |

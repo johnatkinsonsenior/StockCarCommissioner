@@ -59,4 +59,5 @@ you want the zip somewhere else.
 ## Development status
 
 Era 4 ships Aero Wars: named coupes, track maps, and a commissioner-written
-winter book. Playtesters unpack and run the launchers; Git is not required.
+winter book. Next on the roadmap: kit politics (named venues, homologation,
+Detroit and garage lobby), then a playtest zip, then Beyond.
