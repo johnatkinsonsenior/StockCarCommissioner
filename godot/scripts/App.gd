@@ -1241,27 +1241,6 @@ func _fill_rulebook() -> void:
 			var value := str(action.get("value", ""))
 			var label := str(action.get("label", key))
 			center_body.add_child(_profile_button(label, _on_aero_rule.bind(key, value)))
-	if not bodies.is_empty():
-		var year_label := "This year's bodies"
-		if typeof(raw) == TYPE_DICTIONARY:
-			var season_n := _as_int(raw.get("season", 0))
-			var era_label := str(raw.get("era_book", era_book))
-			if season_n > 0:
-				year_label = "Season %s bodies  ·  %s book" % [str(season_n), era_label]
-		center_body.add_child(_gold_line(year_label))
-		for row in bodies:
-			if typeof(row) != TYPE_DICTIONARY:
-				continue
-			var body: Dictionary = row
-			_add_body_card(body)
-			if str(body.get("maker", "")) == "Apex":
-				print("BODY_APEX=", str(body.get("coupe", "")))
-				print("PORTRAIT_APEX=", str(body.get("portrait", "")))
-			if str(body.get("maker", "")) == "Vanguard":
-				print("BODY_VANGUARD=", str(body.get("coupe", "")))
-			if str(body.get("maker", "")) == "Valiant":
-				print("BODY_VALIANT=", str(body.get("coupe", "")))
-				print("PORTRAIT_VALIANT=", str(body.get("portrait", "")))
 	if policies.is_empty() and bodies.is_empty():
 		center_body.add_child(_muted("No policies in this snapshot."))
 		return
