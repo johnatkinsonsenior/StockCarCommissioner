@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–114 complete. Aero Wars milestone met. Next
-coding day: **Day 115 — 16-bit body portraits and this year's car pick**.
+**Current position:** Days 1–115 complete. Next coding day:
+**Day 116 — Named-venue kit overrides**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -254,7 +254,7 @@ Do not skip to a team-owner career.
 Day 114 gave the commissioner sliders. This era gives those sliders
 stakeholders — and lets the office *see* the cars it homologates.
 
-- [ ] Day 115 — 16-bit homologated body portraits; commissioner picks this year's coupe per factory
+- [x] Day 115 — 16-bit homologated body portraits; commissioner picks this year's coupe per factory
 - [ ] Day 116 — Named-venue kit overrides (plate this oval, not every superspeedway)
 - [ ] Day 117 — Homologation count and wheelbase class on the Rulebook desk
 - [ ] Day 118 — Homologate-to-run as a first-class aero-specials choice

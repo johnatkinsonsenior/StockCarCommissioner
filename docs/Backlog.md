@@ -204,8 +204,8 @@
 | 202 | Era books: 1970s / 1980s / pinnacle / beyond | High | Completed |
 | 203 | Homologated coupe bodies and track maps | High | Completed |
 | 204 | Commissioner-written winter book and per-track kits | High | Completed |
-| 205 | 16-bit homologated body portraits | High | In Progress |
-| 206 | Commissioner picks this year's coupe per factory | High | In Progress |
+| 205 | 16-bit homologated body portraits | High | Completed |
+| 206 | Commissioner picks this year's coupe per factory | High | Completed |
 | 207 | Named-venue kit overrides | High | Not Started |
 | 208 | Homologation count and wheelbase on the desk | High | Not Started |
 | 209 | Homologate-to-run aero specials | High | Not Started |

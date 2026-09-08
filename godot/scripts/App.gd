@@ -1310,6 +1310,7 @@ func _body_portrait(portrait_id: String) -> TextureRect:
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	image.custom_minimum_size = Vector2(192, 108)
 	image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	print("PORTRAIT_LOADED=", portrait_id)
 	return image
 
 
