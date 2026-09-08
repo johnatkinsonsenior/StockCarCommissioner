@@ -918,6 +918,7 @@ func _fill_teams() -> void:
 				portrait.custom_minimum_size = Vector2(128, 72)
 				team_row.add_child(portrait)
 			var copy := VBoxContainer.new()
+			copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			copy.add_child(_muted("%s %s  ·  ST %s  Int %s  SS %s  RC %s" % [
 				str(row.get("family", "")),
 				str(row.get("coupe", "")),
@@ -957,19 +958,25 @@ func _fill_team_profile() -> void:
 		str(row.get("factory", "")),
 	]))
 	if str(row.get("coupe", "")) != "":
+		var body_row := HBoxContainer.new()
+		body_row.add_theme_constant_override("separation", 10)
 		var portrait := _body_portrait(str(row.get("portrait", "")))
 		if portrait != null:
-			center_body.add_child(portrait)
-		center_body.add_child(_gold_line("%s  ·  %s" % [
+			body_row.add_child(portrait)
+		var copy := VBoxContainer.new()
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		copy.add_child(_gold_line("%s  ·  %s" % [
 			str(row.get("family", "")),
 			str(row.get("coupe", "")),
 		]))
-		center_body.add_child(_muted("ST %s  ·  Int %s  ·  SS %s  ·  RC %s" % [
+		copy.add_child(_muted("ST %s  ·  Int %s  ·  SS %s  ·  RC %s" % [
 			str(_as_int(row.get("short_track", 0))),
 			str(_as_int(row.get("intermediate", 0))),
 			str(_as_int(row.get("superspeedway", 0))),
 			str(_as_int(row.get("road_course", 0))),
 		]))
+		body_row.add_child(copy)
+		center_body.add_child(body_row)
 		print("PROFILE_COUPE=", str(row.get("coupe", "")))
 	center_body.add_child(_line("Car %s  ·  crew %s  ·  reliability %s  ·  engineering %s" % [
 		str(_as_int(row.get("car_rating", 0))),
@@ -1309,6 +1316,8 @@ func _body_portrait(portrait_id: String) -> TextureRect:
 	image.texture = tex
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	image.custom_minimum_size = Vector2(192, 108)
+	image.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	image.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	print("PORTRAIT_LOADED=", portrait_id)
 	return image
