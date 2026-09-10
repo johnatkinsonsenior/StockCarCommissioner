@@ -10,3 +10,6 @@ saves/
 season_reports/*.json
 godot/.godot/
 dist/
+
+# Local scratch from agent tooling
+agent-tools/

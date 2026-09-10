@@ -104,6 +104,7 @@ from game.aero_wars import (
     ensure_aero_book,
     office_aero_actions,
     office_bodies_book,
+    office_venue_kits,
     one_make_runaway,
     package_lines,
 )
@@ -4600,6 +4601,8 @@ def _apply_aero_flavor(key, before, book):
             league["integrity"] = clamp(league.get("integrity", 0) + 3)
         elif was == "spec" and now != "spec":
             league["fan_interest"] = clamp(league.get("fan_interest", 0) + 2)
+    elif key in ("venue_plates", "venue_kit"):
+        league["controversy"] = clamp(league.get("controversy", 0) + 2)
 
 
 def apply_office_aero(key, value):
@@ -8370,6 +8373,7 @@ def office_rulebook_book():
         "bodies": office_bodies_book(manufacturers),
         "book": book_lines(),
         "packages": package_lines(),
+        "venues": office_venue_kits(tracks),
         "actions": office_aero_actions(),
         "wheelbase": aero.get("wheelbase"),
         "specials": aero.get("aero_specials"),

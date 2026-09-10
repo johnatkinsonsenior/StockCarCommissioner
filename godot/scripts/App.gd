@@ -130,6 +130,7 @@ func _headless_tour() -> void:
 	_show_section("rulebook")
 	_on_aero_rule("aero_specials", "legal")
 	_on_aero_rule("body_pick", "Apex:torino")
+	_on_aero_rule("venue_plates", "Thunder Valley:on")
 	call_deferred("_quit_headless")
 
 
@@ -1189,6 +1190,7 @@ func _fill_rulebook() -> void:
 	var bodies: Array = []
 	var book_lines: Array = []
 	var package_lines: Array = []
+	var venue_rows: Array = []
 	var actions: Array = []
 	if typeof(raw) == TYPE_DICTIONARY:
 		var book: Dictionary = raw
@@ -1196,6 +1198,7 @@ func _fill_rulebook() -> void:
 		bodies = _as_array(book.get("bodies", []))
 		book_lines = _as_array(book.get("book", []))
 		package_lines = _as_array(book.get("packages", []))
+		venue_rows = _as_array(book.get("venues", []))
 		actions = _as_array(book.get("actions", []))
 		print("AERO_SPECIALS=", str(book.get("specials", "")))
 		print("AERO_PLATES=", str(book.get("plates", false)))
@@ -1203,6 +1206,7 @@ func _fill_rulebook() -> void:
 		print("AERO_WHEELBASE=", str(book.get("wheelbase", "")))
 		print("AERO_CHRYSLER=", str(book.get("chrysler", false)))
 		print("AERO_ACTIONS=", str(actions.size()))
+		print("AERO_VENUES=", str(venue_rows.size()))
 		print("AERO_SEASON=", str(book.get("season", "")))
 		print("AERO_ERA=", str(book.get("era_book", era_book)))
 	else:
@@ -1238,6 +1242,13 @@ func _fill_rulebook() -> void:
 		center_body.add_child(_gold_line("Per-track kits"))
 		for line in package_lines:
 			center_body.add_child(_line(str(line)))
+	if not venue_rows.is_empty():
+		center_body.add_child(_gold_line("Named venues"))
+		center_body.add_child(_muted("Plate this oval without plating every superspeedway."))
+		for row in venue_rows:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			_add_venue_kit_card(row)
 	if not actions.is_empty():
 		center_body.add_child(_gold_line("Rewrite the book"))
 		for row in actions:
@@ -1259,6 +1270,22 @@ func _fill_rulebook() -> void:
 			center_body.add_child(_muted(str(row.get("key", ""))))
 		else:
 			center_body.add_child(_line(str(policy)))
+
+
+func _add_venue_kit_card(venue: Dictionary) -> void:
+	var name := str(venue.get("name", ""))
+	var calendar := "on this year's schedule" if bool(venue.get("on_calendar", false)) else "rotates in from the pool"
+	center_body.add_child(_line("%s  ·  %s" % [name, str(venue.get("status", ""))]))
+	center_body.add_child(_muted("%s  ·  %s" % [str(venue.get("override", "")), calendar]))
+	print("VENUE_%s=%s" % [name.to_upper().replace(" ", "_"), str(venue.get("mode", ""))])
+	for row in _as_array(venue.get("actions", [])):
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = row
+		var key := str(action.get("key", "venue_plates"))
+		var value := str(action.get("value", ""))
+		var label := str(action.get("label", key))
+		center_body.add_child(_profile_button(label, _on_aero_rule.bind(key, value)))
 
 
 func _add_body_card(body: Dictionary) -> void:

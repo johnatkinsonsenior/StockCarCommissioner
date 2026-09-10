@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 import run_season as rs
+from game.aero_wars import venue_plate_mode
 
 
 def main():
@@ -43,6 +44,12 @@ def main():
     print("AERO_CHRYSLER=%s" % (book.get("chrysler") if book else ""))
     picks = (book.get("body_picks") if book else None) or {}
     print("AERO_BODY_PICKS=%s" % ",".join("%s:%s" % item for item in sorted(picks.items())))
+    packages = rs.league.get("track_packages") if rs.league else None
+    venues = (packages or {}).get("venues") or {}
+    bits = []
+    for name in sorted(venues):
+        bits.append("%s:%s" % (name, venue_plate_mode(name, packages)))
+    print("AERO_VENUES=%s" % ",".join(bits))
     return 0
 
 

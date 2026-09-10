@@ -10,7 +10,7 @@ when the board meets.
 
 0.3.0-aero (Aero Wars)
 
-Save schema: 0.0.40
+Save schema: 0.0.41
 
 ## Requirements
 
@@ -46,7 +46,8 @@ fading), pinnacle (ten shops), or beyond (twelve shops, fatter TV).
 Each factory fields a homologated two-door coupe with a track map;
 driver skill still owns the short tracks, aero owns the superspeedways.
 Rulebook shows 16-bit body cards for this racing year — pick the legal
-coupe each factory fields.
+coupe each factory fields. Named superspeedways can break from the type
+kit: plate this oval without plating every big track.
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build
@@ -59,5 +60,6 @@ you want the zip somewhere else.
 ## Development status
 
 Era 4 ships Aero Wars: named coupes, track maps, and a commissioner-written
-winter book. Next on the roadmap: kit politics (named venues, homologation,
-Detroit and garage lobby), then a playtest zip, then Beyond.
+winter book. Named venues can override the type kit. Next on the roadmap:
+homologation on the desk, then Detroit and garage lobby, then a playtest zip,
+then Beyond.

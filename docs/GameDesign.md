@@ -460,10 +460,12 @@ enough to homologate, then so fast on the big ovals that NASCAR
 That is the founding commissioner decision of this system. The 1970s
 book inherits the ban. The player can repeal it.
 
-Restrictor plates at Daytona and Talladega (**1988** in the historical
-calendar) are the other canonical **per-track** package. The pinnacle
-book starts with plates on those two superspeedways. The player can
-pull them, spread them, or invent a different superspeedway kit.
+Restrictor plates at Daytona and Talladega analogues (**1988** in the
+historical calendar) are the other canonical **per-track** package. The
+pinnacle book starts with plates on those two superspeedways. The
+player can pull them, spread them to every superspeedway, or **override
+a named venue** — plate Thunder Valley without plating Atlantic, or
+open Coastal while the type kit still plates the rest.
 
 The live alpha used one factory `aero_bias` that only ticked on
 road courses and superspeedways, plus a single series-wide technical
@@ -828,8 +830,9 @@ Silver Creek, Lakeside, and Prairie wait outside for a charter.
 **Treasury**, **Television**, and **Sponsors** show the sanctioning-body
 books: cash, naming rights, the TV deal, last rating, and shop deals.
 **Rulebook** lists the live Cup policies and the Aero Wars winter book:
-homologated bodies, per-track kits, and rewrite buttons (legalize
-specials, spec vs identity, plates, Chrysler, short-track equalize).
+homologated bodies, per-track kits, named-venue plate overrides (this
+oval, not every superspeedway), and rewrite buttons (legalize specials,
+spec vs identity, plates, Chrysler, short-track equalize).
 **Board** shows confidence,
 dismissal risk, fan/owner/driver approval, and both councils (chair,
 mood, last filing). **History** reopens completed season files (champion,

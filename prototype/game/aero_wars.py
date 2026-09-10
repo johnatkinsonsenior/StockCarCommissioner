@@ -4,7 +4,9 @@ Day 113 replaces the single `aero_bias` tick that only fired on road
 courses and superspeedways. Each factory fields a named two-door coupe
 with a four-number map (short track, intermediate, superspeedway, road).
 Race pace mixes that map with driver track skill. Day 114 lets the
-commissioner rewrite the winter book and the per-track kit.
+commissioner rewrite the winter book and the per-track kit. Day 116
+lets a named venue break from its type kit — plate this oval, not
+every superspeedway.
 """
 
 from game.settings import (
@@ -262,6 +264,9 @@ def apply_aero_rule(league, key, value):
         if name and name not in tracks:
             tracks.append(name)
             book["plate_tracks"] = tracks
+    elif key in ("venue_plates", "venue_kit"):
+        name, token = _parse_venue_token(value)
+        set_venue_plates(packages, name, token)
     elif key == "body_pick":
         maker, body_id = _parse_body_pick(value)
         if maker and body_id:
@@ -296,6 +301,65 @@ def _parse_body_pick(value):
         return "", ""
     maker, body_id = text.split(":", 1)
     return maker.strip(), body_id.strip()
+
+
+def _parse_venue_token(value):
+    """Split 'Atlantic Speedway:on' into (name, plates token)."""
+
+    text = str(value or "").strip()
+    if ":" not in text:
+        return text, ""
+    name, token = text.rsplit(":", 1)
+    return name.strip(), token.strip().lower()
+
+
+def _plates_token(value):
+    """Normalize a plates override to on, off, or era (inherit)."""
+
+    token = str(value).strip().lower()
+    if token in ("on", "true", "1", "yes", "plate", "plated"):
+        return "on"
+    if token in ("off", "false", "0", "no", "open"):
+        return "off"
+    if token in ("era", "follow", "inherit", "type", "kit", ""):
+        return "era"
+    return ""
+
+
+def venue_plate_mode(name, packages=None):
+    """Return on, off, or era for this named venue's kit override."""
+
+    packages = packages or live_packages()
+    venues = packages.get("venues") if isinstance(packages, dict) else None
+    if not isinstance(venues, dict):
+        return "era"
+    kit = venues.get(name) or {}
+    plates = kit.get("plates") if isinstance(kit, dict) else None
+    if plates is True or plates == "on":
+        return "on"
+    if plates is False or plates == "off":
+        return "off"
+    return "era"
+
+
+def set_venue_plates(packages, name, token):
+    """Write or clear a named-venue plates override. Returns the venues map."""
+
+    packages = packages if isinstance(packages, dict) else default_packages()
+    venues = dict(packages.get("venues") or {})
+    name = str(name or "").strip()
+    mode = _plates_token(token)
+    if not name or mode == "":
+        packages["venues"] = venues
+        return venues
+    if mode == "era":
+        venues.pop(name, None)
+    else:
+        kit = dict(venues.get(name) or {})
+        kit["plates"] = mode == "on"
+        venues[name] = kit
+    packages["venues"] = venues
+    return venues
 
 
 def body_catalog():
@@ -537,11 +601,10 @@ def is_plate_track(track, book=None):
         name = getattr(track, "name", None)
         track_type = getattr(track, "type", None)
     packages = live_packages()
-    venues = packages.get("venues") or {}
-    override = venues.get(name) or {}
-    if override.get("plates") is True:
+    mode = venue_plate_mode(name, packages)
+    if mode == "on":
         return True
-    if override.get("plates") is False:
+    if mode == "off":
         return False
     ss = packages.get("Superspeedway") or {}
     if ss.get("plates") == "off":
@@ -713,12 +776,21 @@ def package_lines(packages=None, book=None):
         plate_line = "plates follow the winter book"
     spoiler = inter.get("spoiler") or book.get("spoiler") or "identity"
     equalized = bool(book.get("short_equalize") or short.get("equalize"))
-    return [
+    lines = [
         "Superspeedway: %s" % plate_line,
         "Intermediate: spoiler %s" % spoiler,
         "Short Track: %s" % ("aero equalized" if equalized else "mechanical"),
         "Road Course: downforce %s" % (road.get("downforce") or "stock"),
     ]
+    venues = packages.get("venues") or {}
+    for venue_name in sorted(venues):
+        kit = venues.get(venue_name) or {}
+        plates_on = kit.get("plates")
+        if plates_on is True or plates_on == "on":
+            lines.append("%s: plates (named venue)" % venue_name)
+        elif plates_on is False or plates_on == "off":
+            lines.append("%s: open (named venue)" % venue_name)
+    return lines
 
 
 def office_aero_actions(book=None, packages=None):
@@ -844,6 +916,92 @@ def office_aero_actions(book=None, packages=None):
             }
         )
     return actions
+
+
+def office_venue_kits(schedule=None, pool=None, book=None, packages=None):
+    """Return superspeedway cards so one oval can break from the type kit."""
+
+    book = book or live_book()
+    packages = packages or live_packages()
+    if pool is None:
+        try:
+            from data.season_data import create_track_pool
+
+            pool = create_track_pool()
+        except Exception:
+            pool = []
+    rows = []
+    seen = set()
+    calendar_names = set()
+    for track in schedule or []:
+        name = getattr(track, "name", None) or (
+            track.get("name") if isinstance(track, dict) else None
+        )
+        if name:
+            calendar_names.add(name)
+    for source in (schedule, pool):
+        for track in source or []:
+            if isinstance(track, dict):
+                name = track.get("name")
+                track_type = track.get("type")
+            else:
+                name = getattr(track, "name", None)
+                track_type = getattr(track, "type", None)
+            if not name or name in seen:
+                continue
+            if track_type != "Superspeedway":
+                continue
+            seen.add(name)
+            mode = venue_plate_mode(name, packages)
+            plated = is_plate_track(track, book)
+            if plated:
+                status = "plates this week"
+            else:
+                status = "open this week"
+            if mode == "on":
+                override = "named venue: plates"
+            elif mode == "off":
+                override = "named venue: open"
+            else:
+                override = "follows the type kit"
+            actions = []
+            if mode != "on":
+                actions.append(
+                    {
+                        "key": "venue_plates",
+                        "value": "%s:on" % name,
+                        "label": "Plate this oval",
+                    }
+                )
+            if mode != "off":
+                actions.append(
+                    {
+                        "key": "venue_plates",
+                        "value": "%s:off" % name,
+                        "label": "Run this oval open",
+                    }
+                )
+            if mode != "era":
+                actions.append(
+                    {
+                        "key": "venue_plates",
+                        "value": "%s:era" % name,
+                        "label": "Follow the type kit",
+                    }
+                )
+            rows.append(
+                {
+                    "name": name,
+                    "type": track_type,
+                    "mode": mode,
+                    "plated": plated,
+                    "on_calendar": name in calendar_names,
+                    "status": status,
+                    "override": override,
+                    "actions": actions,
+                }
+            )
+    return rows
 
 
 def book_lines(book=None):

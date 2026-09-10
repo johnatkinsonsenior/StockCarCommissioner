@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "2.1",
+    "ui_version": "2.2",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -2484,6 +2484,134 @@
             "Intermediate: spoiler identity",
             "Short Track: mechanical",
             "Road Course: downforce stock"
+        ],
+        "venues": [
+            {
+                "name": "Atlantic Speedway",
+                "type": "Superspeedway",
+                "mode": "era",
+                "plated": true,
+                "on_calendar": true,
+                "status": "plates this week",
+                "override": "follows the type kit",
+                "actions": [
+                    {
+                        "key": "venue_plates",
+                        "value": "Atlantic Speedway:on",
+                        "label": "Plate this oval"
+                    },
+                    {
+                        "key": "venue_plates",
+                        "value": "Atlantic Speedway:off",
+                        "label": "Run this oval open"
+                    }
+                ]
+            },
+            {
+                "name": "Thunder Valley",
+                "type": "Superspeedway",
+                "mode": "era",
+                "plated": false,
+                "on_calendar": true,
+                "status": "open this week",
+                "override": "follows the type kit",
+                "actions": [
+                    {
+                        "key": "venue_plates",
+                        "value": "Thunder Valley:on",
+                        "label": "Plate this oval"
+                    },
+                    {
+                        "key": "venue_plates",
+                        "value": "Thunder Valley:off",
+                        "label": "Run this oval open"
+                    }
+                ]
+            },
+            {
+                "name": "Bayside Speedway",
+                "type": "Superspeedway",
+                "mode": "era",
+                "plated": false,
+                "on_calendar": true,
+                "status": "open this week",
+                "override": "follows the type kit",
+                "actions": [
+                    {
+                        "key": "venue_plates",
+                        "value": "Bayside Speedway:on",
+                        "label": "Plate this oval"
+                    },
+                    {
+                        "key": "venue_plates",
+                        "value": "Bayside Speedway:off",
+                        "label": "Run this oval open"
+                    }
+                ]
+            },
+            {
+                "name": "Grand National Speedway",
+                "type": "Superspeedway",
+                "mode": "era",
+                "plated": false,
+                "on_calendar": true,
+                "status": "open this week",
+                "override": "follows the type kit",
+                "actions": [
+                    {
+                        "key": "venue_plates",
+                        "value": "Grand National Speedway:on",
+                        "label": "Plate this oval"
+                    },
+                    {
+                        "key": "venue_plates",
+                        "value": "Grand National Speedway:off",
+                        "label": "Run this oval open"
+                    }
+                ]
+            },
+            {
+                "name": "Daybreak Superspeedway",
+                "type": "Superspeedway",
+                "mode": "era",
+                "plated": false,
+                "on_calendar": false,
+                "status": "open this week",
+                "override": "follows the type kit",
+                "actions": [
+                    {
+                        "key": "venue_plates",
+                        "value": "Daybreak Superspeedway:on",
+                        "label": "Plate this oval"
+                    },
+                    {
+                        "key": "venue_plates",
+                        "value": "Daybreak Superspeedway:off",
+                        "label": "Run this oval open"
+                    }
+                ]
+            },
+            {
+                "name": "Coastal Superspeedway",
+                "type": "Superspeedway",
+                "mode": "era",
+                "plated": true,
+                "on_calendar": false,
+                "status": "plates this week",
+                "override": "follows the type kit",
+                "actions": [
+                    {
+                        "key": "venue_plates",
+                        "value": "Coastal Superspeedway:on",
+                        "label": "Plate this oval"
+                    },
+                    {
+                        "key": "venue_plates",
+                        "value": "Coastal Superspeedway:off",
+                        "label": "Run this oval open"
+                    }
+                ]
+            }
         ],
         "actions": [
             {

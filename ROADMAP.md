@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–115 complete. Next coding day:
-**Day 116 — Named-venue kit overrides**.
+**Current position:** Days 1–116 complete. Next coding day:
+**Day 117 — Homologation count and wheelbase class on the Rulebook desk**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -255,7 +255,7 @@ Day 114 gave the commissioner sliders. This era gives those sliders
 stakeholders — and lets the office *see* the cars it homologates.
 
 - [x] Day 115 — 16-bit homologated body portraits; commissioner picks this year's coupe per factory
-- [ ] Day 116 — Named-venue kit overrides (plate this oval, not every superspeedway)
+- [x] Day 116 — Named-venue kit overrides (plate this oval, not every superspeedway)
 - [ ] Day 117 — Homologation count and wheelbase class on the Rulebook desk
 - [ ] Day 118 — Homologate-to-run as a first-class aero-specials choice
 - [ ] Day 119 — Factories lobby the winter book (Detroit mail; no auto-rebadge)
