@@ -82,7 +82,8 @@ presets:
 - **Beyond** — settings to push past that peak (later rules, bigger
   commercial load, tighter templates, custom sliders) so the same
   commissioner brain can run “what if this office kept going” without
-  abandoning the Winston Cup soul
+  abandoning the Winston Cup soul. **Days 127–133** make that book a
+  real opening world, not only a label.
 
 Those books are configuration, not a second game. Same desk, same weekly
 Advance, same hearings. The era changes the world you inherit: schedule
@@ -546,12 +547,15 @@ track types, and the commissioner can override a single venue:
 
 A package that saves Talladega can kill Bristol. Owners, drivers, and
 factories lobby these kits the same way they lobby points and safety.
-A one-make runaway raises a dashboard alert and costs **fan interest**.
-A pack that is too tight on plates raises **controversy** (boring
-single-file, or wreck-fest, depending on how the kit lands). Close
-manufacturer racing, visible in victory lane, is the excitement the
-office is paid to protect. “Win on Sunday, sell on Monday” is a league
-health metric, not flavor text.
+**Days 115–122** make that lobbying live: 16-bit body cards the
+commissioner picks for the racing year, named venues that break from the
+type kit, homologation and wheelbase on the Rulebook desk, and
+`homologate-to-run` as a real specials choice. A one-make runaway raises
+a dashboard alert and costs **fan interest**. A pack that is too tight
+on plates raises **controversy** (boring single-file, or wreck-fest,
+depending on how the kit lands). Close manufacturer racing, visible in
+victory lane, is the excitement the office is paid to protect. “Win on
+Sunday, sell on Monday” is a league health metric, not flavor text.
 
 #### Custom Winston Cup
 
@@ -561,9 +565,14 @@ A new career — and the in-career rulebook screen — lets the player run
 Era books pick the historical default. Sliders and hearings then rewrite
 it: Superbirds legal in 1987; no plates at Daytona; Chrysler invited
 back; Aerocoupes banned so Ford keeps the big tracks; a spec template
-that ends the war. The board, the owner council, and the factories
-react. The player is not picking a favorite make. They are deciding
-what kind of racing the sanctioning body will sell.
+that ends the war. The board, the owner council, and the factories react
+(Days 119–122). The player is not picking a favorite make. They are
+deciding what kind of racing the sanctioning body will sell.
+
+**Days 123–126** package that office for playtesters. **Days 127–133**
+push the same commissioner brain **Beyond** the pinnacle book (fatter
+commerce, tighter default templates, an opt-in four-door-as-coupe). A
+team-owner career stays a later era.
 
 ## Team Finances and Offseason Spending
 

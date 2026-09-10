@@ -129,6 +129,7 @@ func _headless_tour() -> void:
 	_on_office_load("desk")
 	_show_section("rulebook")
 	_on_aero_rule("aero_specials", "legal")
+	_on_aero_rule("body_pick", "Apex:torino")
 	call_deferred("_quit_headless")
 
 
@@ -910,7 +911,15 @@ func _fill_teams() -> void:
 			str(_as_int(row.get("prestige", 0))),
 		]))
 		if str(row.get("coupe", "")) != "":
-			center_body.add_child(_muted("%s %s  ·  ST %s  Int %s  SS %s  RC %s" % [
+			var team_row := HBoxContainer.new()
+			team_row.add_theme_constant_override("separation", 8)
+			var portrait := _body_portrait(str(row.get("portrait", "")))
+			if portrait != null:
+				portrait.custom_minimum_size = Vector2(128, 72)
+				team_row.add_child(portrait)
+			var copy := VBoxContainer.new()
+			copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			copy.add_child(_muted("%s %s  ·  ST %s  Int %s  SS %s  RC %s" % [
 				str(row.get("family", "")),
 				str(row.get("coupe", "")),
 				str(_as_int(row.get("short_track", 0))),
@@ -918,6 +927,8 @@ func _fill_teams() -> void:
 				str(_as_int(row.get("superspeedway", 0))),
 				str(_as_int(row.get("road_course", 0))),
 			]))
+			team_row.add_child(copy)
+			center_body.add_child(team_row)
 		center_body.add_child(_muted("Budget $%s  ·  %s" % [
 			_comma(row.get("budget", 0)),
 			str(row.get("sponsor", "unsponsored")),
@@ -947,16 +958,25 @@ func _fill_team_profile() -> void:
 		str(row.get("factory", "")),
 	]))
 	if str(row.get("coupe", "")) != "":
-		center_body.add_child(_gold_line("%s  ·  %s" % [
+		var body_row := HBoxContainer.new()
+		body_row.add_theme_constant_override("separation", 10)
+		var portrait := _body_portrait(str(row.get("portrait", "")))
+		if portrait != null:
+			body_row.add_child(portrait)
+		var copy := VBoxContainer.new()
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		copy.add_child(_gold_line("%s  ·  %s" % [
 			str(row.get("family", "")),
 			str(row.get("coupe", "")),
 		]))
-		center_body.add_child(_muted("ST %s  ·  Int %s  ·  SS %s  ·  RC %s" % [
+		copy.add_child(_muted("ST %s  ·  Int %s  ·  SS %s  ·  RC %s" % [
 			str(_as_int(row.get("short_track", 0))),
 			str(_as_int(row.get("intermediate", 0))),
 			str(_as_int(row.get("superspeedway", 0))),
 			str(_as_int(row.get("road_course", 0))),
 		]))
+		body_row.add_child(copy)
+		center_body.add_child(body_row)
 		print("PROFILE_COUPE=", str(row.get("coupe", "")))
 	center_body.add_child(_line("Car %s  ·  crew %s  ·  reliability %s  ·  engineering %s" % [
 		str(_as_int(row.get("car_rating", 0))),
@@ -1163,7 +1183,7 @@ func _fill_sponsors() -> void:
 func _fill_rulebook() -> void:
 	center_body.add_child(_title("Rulebook"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("Write the winter book and the per-track kit. Hearings still write points and format."))
+	center_body.add_child(_muted("Write the winter book and pick this year's homologated coupes."))
 	var raw: Variant = snapshot.get("rulebook", _dash().get("policies", []))
 	var policies: Array = []
 	var bodies: Array = []
@@ -1183,6 +1203,8 @@ func _fill_rulebook() -> void:
 		print("AERO_WHEELBASE=", str(book.get("wheelbase", "")))
 		print("AERO_CHRYSLER=", str(book.get("chrysler", false)))
 		print("AERO_ACTIONS=", str(actions.size()))
+		print("AERO_SEASON=", str(book.get("season", "")))
+		print("AERO_ERA=", str(book.get("era_book", era_book)))
 	else:
 		policies = _as_array(raw)
 	print("RULEBOOK=", str(policies.size()))
@@ -1191,6 +1213,27 @@ func _fill_rulebook() -> void:
 		center_body.add_child(_gold_line("Winter book"))
 		for line in book_lines:
 			center_body.add_child(_line(str(line)))
+	if not bodies.is_empty():
+		var year_label := "This year's bodies"
+		if typeof(raw) == TYPE_DICTIONARY:
+			var season_n := _as_int(raw.get("season", 0))
+			var era_label := str(raw.get("era_book", era_book))
+			if season_n > 0:
+				year_label = "Season %s bodies  ·  %s book" % [str(season_n), era_label]
+		center_body.add_child(_gold_line(year_label))
+		for row in bodies:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			var body: Dictionary = row
+			_add_body_card(body)
+			if str(body.get("maker", "")) == "Apex":
+				print("BODY_APEX=", str(body.get("coupe", "")))
+				print("PORTRAIT_APEX=", str(body.get("portrait", "")))
+			if str(body.get("maker", "")) == "Vanguard":
+				print("BODY_VANGUARD=", str(body.get("coupe", "")))
+			if str(body.get("maker", "")) == "Valiant":
+				print("BODY_VALIANT=", str(body.get("coupe", "")))
+				print("PORTRAIT_VALIANT=", str(body.get("portrait", "")))
 	if not package_lines.is_empty():
 		center_body.add_child(_gold_line("Per-track kits"))
 		for line in package_lines:
@@ -1205,29 +1248,6 @@ func _fill_rulebook() -> void:
 			var value := str(action.get("value", ""))
 			var label := str(action.get("label", key))
 			center_body.add_child(_profile_button(label, _on_aero_rule.bind(key, value)))
-	if not bodies.is_empty():
-		center_body.add_child(_gold_line("Homologated bodies"))
-		for row in bodies:
-			if typeof(row) != TYPE_DICTIONARY:
-				continue
-			var body: Dictionary = row
-			center_body.add_child(_line("%s  ·  %s  ·  %s" % [
-				str(body.get("maker", "")),
-				str(body.get("family", "")),
-				str(body.get("coupe", "")),
-			]))
-			center_body.add_child(_muted("ST %s  Int %s  SS %s  RC %s" % [
-				str(_as_int(body.get("short_track", 0))),
-				str(_as_int(body.get("intermediate", 0))),
-				str(_as_int(body.get("superspeedway", 0))),
-				str(_as_int(body.get("road_course", 0))),
-			]))
-			if str(body.get("maker", "")) == "Apex":
-				print("BODY_APEX=", str(body.get("coupe", "")))
-			if str(body.get("maker", "")) == "Vanguard":
-				print("BODY_VANGUARD=", str(body.get("coupe", "")))
-			if str(body.get("maker", "")) == "Valiant":
-				print("BODY_VALIANT=", str(body.get("coupe", "")))
 	if policies.is_empty() and bodies.is_empty():
 		center_body.add_child(_muted("No policies in this snapshot."))
 		return
@@ -1239,6 +1259,68 @@ func _fill_rulebook() -> void:
 			center_body.add_child(_muted(str(row.get("key", ""))))
 		else:
 			center_body.add_child(_line(str(policy)))
+
+
+func _add_body_card(body: Dictionary) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var portrait := _body_portrait(str(body.get("portrait", "")))
+	if portrait != null:
+		row.add_child(portrait)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_child(_line("%s  ·  %s  ·  %s" % [
+		str(body.get("maker", "")),
+		str(body.get("family", "")),
+		str(body.get("coupe", "")),
+	]))
+	copy.add_child(_muted("ST %s  Int %s  SS %s  RC %s" % [
+		str(_as_int(body.get("short_track", 0))),
+		str(_as_int(body.get("intermediate", 0))),
+		str(_as_int(body.get("superspeedway", 0))),
+		str(_as_int(body.get("road_course", 0))),
+	]))
+	var choices: Array = _as_array(body.get("choices", []))
+	print("BODY_CHOICES_%s=%s" % [str(body.get("maker", "")).to_upper(), str(choices.size())])
+	if choices.size() > 1:
+		copy.add_child(_muted("Select this year's coupe"))
+		for choice in choices:
+			if typeof(choice) != TYPE_DICTIONARY:
+				continue
+			var option: Dictionary = choice
+			var selected := bool(option.get("selected", false))
+			var mark := "●" if selected else "○"
+			var label := "%s  %s" % [mark, str(option.get("name", ""))]
+			var key := "body_pick"
+			var value := "%s:%s" % [str(body.get("maker", "")), str(option.get("id", ""))]
+			if selected:
+				copy.add_child(_muted(label))
+			else:
+				copy.add_child(_profile_button(label, _on_aero_rule.bind(key, value)))
+	row.add_child(copy)
+	center_body.add_child(row)
+
+
+func _body_portrait(portrait_id: String) -> TextureRect:
+	if portrait_id == "":
+		return null
+	var path := "res://assets/bodies/%s.png" % portrait_id
+	var img := Image.new()
+	if img.load(path) != OK:
+		print("PORTRAIT_MISSING=", portrait_id)
+		return null
+	var tex := ImageTexture.create_from_image(img)
+	if tex == null:
+		return null
+	var image := TextureRect.new()
+	image.texture = tex
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.custom_minimum_size = Vector2(192, 108)
+	image.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	image.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	print("PORTRAIT_LOADED=", portrait_id)
+	return image
 
 
 func _on_aero_rule(key: String, value: String) -> void:

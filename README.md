@@ -45,8 +45,8 @@ cycles beat-writer headlines. A new career rewinds the opening world:
 fading), pinnacle (ten shops), or beyond (twelve shops, fatter TV).
 Each factory fields a homologated two-door coupe with a track map;
 driver skill still owns the short tracks, aero owns the superspeedways.
-Rulebook writes the winter book and the per-track kit — legalize
-specials, spec vs identity, plates, invite Chrysler.
+Rulebook shows 16-bit body cards for this racing year — pick the legal
+coupe each factory fields.
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build
@@ -59,4 +59,5 @@ you want the zip somewhere else.
 ## Development status
 
 Era 4 ships Aero Wars: named coupes, track maps, and a commissioner-written
-winter book. Playtesters unpack and run the launchers; Git is not required.
+winter book. Next on the roadmap: kit politics (named venues, homologation,
+Detroit and garage lobby), then a playtest zip, then Beyond.
