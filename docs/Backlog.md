@@ -1,7 +1,7 @@
 | ID | Feature                | Priority | Status      |
 | -- | ---------------------- | -------- | ----------- |
 | 1  | Race simulation        | High     | Completed   |
-| 2  | Driver Database        | High     | In Progress |
+| 2  | Driver Database        | High     | Completed   |
 | 3  | Team Database          | High     | Completed   |
 | 4  | Points Standings       | High     | In Progress |
 | 5  | Commissioner decisions | High     | Completed   |
@@ -9,8 +9,8 @@
 | 7  | TV Contracts           | Medium   | Completed   |
 | 8  | Sponsors               | Medium   | Completed   |
 | 9  | Driver Contracts       | Medium   | In Progress |
-| 10 | Hall of Fame           | Low      | Not Started |
-| 11 | Prize Money System     | Medium   | In Progress |
+| 10 | Hall of Fame           | Low      | Completed   |
+| 11 | Prize Money System     | Medium   | Completed   |
 | 12 | Team Finances          | High     | Completed   |
 | 13 | Crash System           | High     | Completed   |
 | 14 | Mechanical Failures    | High     | Completed   |
@@ -36,7 +36,7 @@
 | 34 | Driver popularity | Medium | In Progress |
 | 35 | Commissioner performance grade | High | Completed |
 | 36 | JSON season reports | High | Completed |
-| 37 | Historical season database | Medium | Not Started |
+| 37 | Historical season database | Medium | Completed |
 | 38 | Driver class | High | Completed |
 | 39 | Team class | High | Completed |
 | 40 | Object-based season data | High | Completed |
@@ -168,3 +168,57 @@
 | 166 | Commissioner dashboard and decision screens | Medium | Completed |
 | 167 | Playable alpha package | High | Completed |
 | 168 | Career-mode playtest zip and launchers | Medium | Completed |
+| 169 | Commissioner office shell | High | Completed |
+| 170 | Sidebar, Advance, mail, and gated checklist | Medium | Completed |
+| 171 | Winston Cup era books | High | Completed |
+| 172 | 1970s / 1980s / pinnacle / beyond settings | Medium | Completed |
+| 173 | Aero Wars | High | Completed |
+| 174 | Homologated two-door coupe bodies | High | Completed |
+| 175 | Manufacturer aero maps per track type | High | Completed |
+| 176 | Per-track rules packages | High | Completed |
+| 177 | Custom Winston Cup rulebook (homologation, wheelbase, aero specials) | High | Completed |
+| 178 | Live mail inbox | High | Completed |
+| 179 | Hearings and league letters in Mail | Medium | Completed |
+| 180 | Advance one week from the office | High | Completed |
+| 181 | Race-week recap letters | Medium | Completed |
+| 182 | Standings and schedule screens | High | Completed |
+| 183 | Race recap screens | Medium | Completed |
+| 184 | Teams, drivers, and prospect pages | High | Completed |
+| 185 | Business screens (treasury, TV, sponsors) | High | Completed |
+| 186 | Rulebook, councils, and board on the desk | High | Completed |
+| 187 | Winston Cup office chrome | Medium | Completed |
+| 188 | Hearing choices write back to the sim | High | Completed |
+| 189 | Save and load from the office | High | Completed |
+| 190 | New career and continue from the office | High | Completed |
+| 191 | Offseason as desk weeks | High | Completed |
+| 192 | Race-weekend recap card | Medium | Completed |
+| 193 | Alerts arrive as mail | High | Completed |
+| 194 | Windows play path (no Git) | High | Completed |
+| 195 | Full premier grid (Cup-sized field) | High | Completed |
+| 196 | Clickable driver and team profiles | High | Completed |
+| 197 | Historical season database on the desk | Medium | Completed |
+| 198 | Hall of Fame | Medium | Completed |
+| 199 | News ticker and beat-writer headlines | Medium | Completed |
+| 200 | Decade balance pass for a Cup-sized field | High | Completed |
+| 201 | Packaged office build for playtesters | High | Completed |
+| 202 | Era books: 1970s / 1980s / pinnacle / beyond | High | Completed |
+| 203 | Homologated coupe bodies and track maps | High | Completed |
+| 204 | Commissioner-written winter book and per-track kits | High | Completed |
+| 205 | 16-bit homologated body portraits | High | Completed |
+| 206 | Commissioner picks this year's coupe per factory | High | Completed |
+| 207 | Named-venue kit overrides | High | Completed |
+| 208 | Homologation count and wheelbase on the desk | High | Not Started |
+| 209 | Homologate-to-run aero specials | High | Not Started |
+| 210 | Factory lobbying of the winter book | High | Not Started |
+| 211 | Owner and garage lobbying of per-track kits | High | Not Started |
+| 212 | One-make runaway and plate-pack hearings | High | Not Started |
+| 213 | Win-on-Sunday factory health on the desk | Medium | Not Started |
+| 214 | Aero Wars playtest loop | High | Not Started |
+| 215 | Aero Wars desk bug pass | High | Not Started |
+| 216 | Packaged writable-book playtest zip | High | Not Started |
+| 217 | Beyond opening world (commerce, board) | High | Not Started |
+| 218 | Beyond default template tightness | High | Not Started |
+| 219 | Four-door-as-coupe (Taurus analog) opt-in | High | Not Started |
+| 220 | Persistent custom sliders on Beyond | Medium | Not Started |
+| 221 | Later-era garage, media, and schedule flavor | Medium | Not Started |
+| 222 | Decade balance on the Beyond book | High | Not Started |

@@ -41,6 +41,16 @@ def apply_effect(effect, context):
     elif effect_type == "policy":
         policies[effect["key"]] = effect["value"]
 
+    elif effect_type == "aero":
+        from game.aero_wars import apply_aero_rule
+
+        apply_aero_rule(league, effect.get("key"), effect.get("value"))
+        if (
+            effect.get("key") == "template"
+            and effect.get("value") == "spec"
+        ):
+            policies["technical_rules"] = "inspection-heavy"
+
     elif effect_type == "all_drivers":
         stat = effect["stat"]
         delta = effect["delta"]

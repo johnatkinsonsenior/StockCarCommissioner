@@ -8,8 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 GAME_NAME = "Stock Car Commissioner"
-GAME_VERSION = "0.1.0-alpha"
-SAVE_SCHEMA_VERSION = "0.0.39"
+GAME_VERSION = "0.3.0-aero"
+SAVE_SCHEMA_VERSION = "0.0.41"
 PACKAGE_SLUG = "stock-car-commissioner"
 UI_ENGINE = "godot-4.4"
 
@@ -23,6 +23,8 @@ INCLUDE_PATHS = (
     "VERSION",
     "play.sh",
     "play_ui.sh",
+    "play.bat",
+    "play_ui.bat",
 )
 
 REQUIRED_PATHS = (
@@ -30,6 +32,8 @@ REQUIRED_PATHS = (
     "prototype/package_alpha.py",
     "play.sh",
     "play_ui.sh",
+    "play.bat",
+    "play_ui.bat",
     "PLAYTEST.md",
     "VERSION",
     "README.md",
@@ -173,13 +177,15 @@ def build_manifest(root=None, file_count=0, version=None):
         "save_schema": SAVE_SCHEMA_VERSION,
         "packaged_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "python": "3.10+",
-        "career_loop": "./play.sh",
-        "optional_ui": "./play_ui.sh",
+        "career_loop": "./play.sh (Windows: play.bat)",
+        "optional_ui": "./play_ui.sh (Windows: play_ui.bat)",
         "ui_engine": UI_ENGINE,
         "file_count": file_count,
         "notes": (
-            "The Python career loop is the playable alpha. "
-            "Godot 4.4 is an optional UI prototype and is not required."
+            "Unpack the zip and run the launchers. Git is not required. "
+            "Python 3.10+ is required. Godot 4.4 is optional for the office desk. "
+            "The desk is a 10-team Cup office: hearings, Advance, save/load, "
+            "new career, History, and Hall of Fame."
         ),
     }
 

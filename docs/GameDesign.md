@@ -39,6 +39,73 @@ Grow the league
 
 Repeat
 
+## Creative North Star
+
+The sim is a stock car **commissioner** desk. The player does not drive and
+does not run a single team. They run the sanctioning body the way a league
+office runs football or baseball: a season, an offseason, and a **weekly**
+cadence.
+
+### The pinnacle era (default)
+
+Late 1980s through early-to-mid 1990s **Winston Cup** is the peak this game
+is built to capture. That is the default opening: the moment the sport felt
+biggest, loudest, and most like a national league office — cigarette-series
+prestige, packed short tracks and superspeedways, **Aero Wars** (Ford vs GM
+coupes, Chrysler already gone unless you invite them back), and a
+commissioner who can still feel the garage.
+
+The sim's **systems** are the full modern commissioner model (TV, sponsors,
+board, manufacturers, feeder, hearings). A career **rewinds** that model
+into the chosen era. You are not locked to one frozen year. You start in an
+era book, then live forward, the way Out of the Park starts in 1969 or 1994
+and Front Office Football starts in a given season.
+
+### Era books and settings
+
+A new career picks an era, then difficulty, length, and autosave. Planned
+presets:
+
+- **1970s Winston Cup** — the series is still becoming a true national
+  league; shorter TV shadow, more regional grit, a younger sanctioning body.
+  Chrysler, Ford, and GM all badge the grid. The Aero Warriors have just
+  been legislated down; the commissioner can leave that ban in place or
+  write them back in.
+- **1980s Winston Cup** — the sport scales up; more money, more national
+  TV, the office gets real. Detroit downsizes to a 110-inch wheelbase.
+  Ford’s slick coupes fight GM’s bricks and homologated Aerocoupes.
+  Chrysler fades and leaves.
+- **Pinnacle (late ’80s–mid ’90s)** — the default; the peak the player is
+  meant to inhabit. Ford vs GM two-door coupes, restrictor plates at the
+  two superspeedways, and a commissioner who can still rewrite the package
+  track by track.
+- **Beyond** — settings to push past that peak (later rules, bigger
+  commercial load, tighter templates, custom sliders) so the same
+  commissioner brain can run “what if this office kept going” without
+  abandoning the Winston Cup soul. **Days 127–133** make that book a
+  real opening world, not only a label.
+
+Those books are configuration, not a second game. Same desk, same weekly
+Advance, same hearings. The era changes the world you inherit: schedule
+shape, commercial heat, how loud the board is, how the garage talks, and
+**which factory bodies are legal and where they are fast**.
+
+### Palette and look
+
+Crimson (or deep red), gold, and white. Wood-and-brass league office,
+race-week TV graphics, newspaper sports page — not a modern dark-blue app.
+Gold rules and crimson fills on a light or cream field, with white type and
+hard edges.
+
+The UI should feel like a late-’80s through early-to-mid-’90s cartridge
+sports game: chunky panels, a short palette, readable tables, no photoreal
+chrome. Layout still follows a commissioner office (Football Commissioner),
+with OOTP-style inspection and Front Office Football weeks.
+
+Python still simulates. Godot is the desk. Day 91 proved the shell; later
+days restyle to this look, Advance by the week, and expose era as a
+setting.
+
 ## Commissioner Discipline System
 
 Following reviewable race incidents, the commissioner may choose from several disciplinary actions:
@@ -170,7 +237,9 @@ Each season report includes:
 - League health
 - Season award winners
 
-Future versions will use historical reports to create multi-season records, career statistics, hall-of-fame selections, and league evolution.
+The office **History** screen reopens each completed season (champion,
+standings, finale, league health) and lists the all-time record book
+computed from `career_history`. Preseason of season 1 is an empty file.
 
 ## Career Mode
 
@@ -295,17 +364,217 @@ Feeder results write the next offseason's scouting book. The champion jumps the 
 
 ### New Team Entry
 
-Named owners apply for a premier charter. Two shops wait in the opening book: **Ivy Navarro** at **Harbor Racing**, then **Grant Holcomb** at **Ironwood Motorsports**. Both arrive as Independent manufacturers. Offseason, after retirements and call-ups, the commissioner hears the next applicant on the same decision framework: **grant a charter**, **defer the application**, or **deny the application**.
+Named owners apply for a premier charter. The opening Cup book already
+seats ten shops. Three more wait outside: **Claire Dunne** at **Silver
+Creek Racing**, **Otis Graham** at **Lakeside Motorsports**, then **June
+Pellham** at **Prairie Outfitters Racing**. All three arrive as
+Independent manufacturers. Offseason, after retirements and call-ups,
+the commissioner hears the next applicant on the same decision
+framework: **grant a charter**, **defer the application**, or **deny the
+application**.
 
-A grant admits the shop, staffs two seats from the prospect pool (or generated rookies), and raises fan interest while incumbent owners feel the squeeze. The owner council gains the new seat automatically. Defer keeps the applicant first in line. Deny drops them from the book. The field caps at five teams; an empty book or a full grid skips the hearing. Legacy saves without an applicant list load an empty book. An insolvent shop can lose its charter in the offseason.
+A grant admits the shop, staffs two seats from the prospect pool (or generated rookies), and raises fan interest while incumbent owners feel the squeeze. The owner council gains the new seat automatically. Defer keeps the applicant first in line. Deny drops them from the book. The field caps at twelve teams; an empty book or a full grid skips the hearing. Legacy saves without an applicant list load an empty book. An insolvent shop can lose its charter in the offseason.
 
 ### Team Closure
 
-Insolvent teams face a **charter review** after offseason finances. Three answers sit on the same decision framework: **withdraw the charter** (the shop folds, drivers are released into the prospect pool as Premier-ready names, fan interest falls, remaining owners ease), **extend a bridge loan** (league treasury cash lifts the shop off Insolvent; integrity takes a hit and incumbents resent the rescue), or **defer the hearing** (they stay insolvent another year). The field cannot drop below two teams; at that floor an insolvent shop remains on the grid. The dashboard shows the last review and the live field size. An insolvent shop raises an alert.
+Insolvent teams face a **charter review** after offseason finances. Three answers sit on the same decision framework: **withdraw the charter** (the shop folds, drivers are released into the prospect pool as Premier-ready names, fan interest falls, remaining owners ease), **extend a bridge loan** (league treasury cash lifts the shop off Insolvent; integrity takes a hit and incumbents resent the rescue), or **defer the hearing** (they stay insolvent another year). The field cannot drop below six teams; at that floor an insolvent shop remains on the grid. The dashboard shows the last review and the live field size. An insolvent shop raises an alert.
 
 ### Manufacturers
 
-Named automakers badge the grid. Opening factories are **Vanguard** (Durability), **Apex** (Speed), and **Falcon** (Balance). Expansion shops arrive **Independent** (Unaligned). Each identity slightly shifts race pace and mechanical risk. Teams hold a **factory contract** with years remaining. Offseason, expired or unsigned shops may renew, court a new factory, or stay Independent. A proposed switch goes to the commissioner: **approve the switch**, **hold the current badge**, or **force Independent**. Retooling a live factory costs shop budget. The dashboard shows the last move and the next expiring deal. A last-year contract or an unsigned shop raises an alert.
+Named automakers badge the grid. The **Aero Wars** are the factory story
+the commissioner actually manages: each make fields a homologated
+**two-door coupe** with real strengths and holes by track type. Driver
+skill still wins short tracks; a slick roof and nose win Daytona. The
+office writes the package that makes that fight fair, exciting, or
+historically “what if.”
+
+The live alpha still ships fictional factory names — **Vanguard**
+(Durability), **Apex** (Speed), **Falcon** (Balance), plus **Independent**
+(Unaligned) for expansion shops. Those names are stand-ins for Detroit
+families, not a fourth-gen spec-car grid. Era books remap them onto the
+makes that actually ran Winston Cup:
+
+- **Ford family** — Ford and Mercury. Sleek coupes (Torino Talladega,
+  Thunderbird). Fast on superspeedways and big intermediates; often
+  hungrier for mechanical grip on short tracks.
+- **GM family** — Chevrolet, Pontiac, Oldsmobile, Buick. Boxier “bricks”
+  that shove air on short tracks and modest intermediates; they answer
+  Ford with homologated Aerocoupes (sloped rear glass, Pontiac 2+2) when
+  the office allows them.
+- **Chrysler family** — Dodge and Plymouth. The 1969–70 Aero Warriors
+  (Charger Daytona, Superbird) were the ultimate superspeedway bodies.
+  NASCAR kneecapped them for 1971. Chrysler’s factory presence fades
+  through the early ’80s and is **gone after 1985** in the default
+  pinnacle book unless the commissioner invites them back.
+
+Each identity still shifts race pace and mechanical risk. The Aero Wars
+layer adds a **body map** per track type on top of that (see below).
+Teams hold a **factory contract** with years remaining. Offseason,
+expired or unsigned shops may renew, court a new factory, or stay
+Independent. A proposed switch goes to the commissioner: **approve the
+switch**, **hold the current badge**, or **force Independent**. Retooling
+a live factory costs shop budget. The dashboard shows the last move and
+the next expiring deal. A last-year contract or an unsigned shop raises
+an alert.
+
+### Aero Wars
+
+The excitement of Winston Cup was never a spec silhouette. Fans knew
+which roof was in victory lane because Ford, GM, and Chrysler had spent
+the week arguing about noses, rear glass, and whether last year’s street
+coupe still counted. That fight is a first-class commissioner system,
+not a hidden `aero_bias` tick.
+
+#### What the rulebook actually required
+
+NASCAR’s 1970s–1990s book did not let Detroit bring an unlimited
+prototype. The Cup car had to be a **production American passenger car**
+sold to the public, homologated in street form, then raced as a
+**two-door coupe / two-door hardtop**. Monte Carlo, Thunderbird, Grand
+Prix, Cutlass, Regal, Torino, Charger, Road Runner — the field was
+coupes. Four-door sedans were not the Cup body in these eras. (The 1998
+Taurus analog — a four-door street car raced as a NASCAR coupe — belongs
+to **Beyond**, and only if the commissioner allows it.)
+
+Homologation was the lever. Roughly **500** street units in the late
+’60s; later a **per-dealership** count (Plymouth had to build nearly
+2,000 Superbirds). By the mid-’80s GM got Aerocoupes on track with as
+few as **200** street cars. The commissioner sets that number.
+
+Wheelbase followed Detroit:
+
+- Through 1980: intermediates around **115 inches** (the Grand National
+  intermediates that replaced the big 119-inch cars).
+- **1981:** NASCAR cut the Cup car to **110 inches** when the street
+  cars downsized.
+
+Templates measured the race body against the homologated street shape,
+with NASCAR-allowed deviations. A **common template** (everyone in the
+same silhouette) is a **Beyond** option, not the pinnacle default. The
+pinnacle book keeps manufacturer identity visible in the body.
+
+The original Aero Warriors — Ford Torino Talladega, Mercury Cyclone
+Spoiler II, Dodge Charger Daytona, Plymouth Superbird — were street-legal
+enough to homologate, then so fast on the big ovals that NASCAR
+**legislated them out for 1971** (tiny engines or crushing extra weight).
+That is the founding commissioner decision of this system. The 1970s
+book inherits the ban. The player can repeal it.
+
+Restrictor plates at Daytona and Talladega analogues (**1988** in the
+historical calendar) are the other canonical **per-track** package. The
+pinnacle book starts with plates on those two superspeedways. The
+player can pull them, spread them to every superspeedway, or **override
+a named venue** — plate Thunder Valley without plating Atlantic, or
+open Coastal while the type kit still plates the rest.
+
+The live alpha used one factory `aero_bias` that only ticked on
+road courses and superspeedways, plus a single series-wide technical
+policy (`open` / `aero-restrict` / `inspection-heavy`). **Aero Wars**
+replaces that stub: each factory fields a named homologated coupe with a
+four-number track map, and race pace mixes that map with driver skill.
+The commissioner rewrites the winter book and the per-track kit from
+Rulebook, or from the preseason winter-body hearing.
+
+#### Bodies, not just badges
+
+Each factory on the grid fields a **homologated body** for the current
+era: a named coupe with an aero map, not only a speed/reliability/aero
+triple. The map is four numbers, one per track type:
+
+- **Short track** — mechanical grip, brakes, driver. Aero is a small
+  factor. GM bricks and a short-track ace belong here.
+- **Intermediate** — mix. Nose, roof, and rear glass matter, but a
+  driver can still steal the race.
+- **Superspeedway** — aero and the office’s plate/spoiler kit dominate.
+  Driver skill is pack craft and blocking, not raw corner speed. Ford
+  slicks and (if legal) winged Mopars belong here.
+- **Road course** — braking, balance, and downforce. Driver skill is
+  huge; a twitchy superspeedway special can be a handful.
+
+A make that is a missile at Talladega can be a sitting duck at Bristol.
+That is the point.
+
+Chrysler’s presence is era-gated. The 1970s book has Dodge and Plymouth
+on the grid. The 1980s book lets Chrysler fade and exit. The pinnacle
+book is a **Ford vs GM** war unless the commissioner **invites Chrysler
+back** or writes a custom homologation that makes a new coupe legal.
+Independent shops run a generic, unloved body with no factory map.
+
+#### Aero plus driver skill
+
+Race pace combines **driver track skill** and **body aero** at that
+venue. They are not interchangeable.
+
+- On a short track, a great driver in a weaker body can still beat a
+  factory favorite.
+- On a superspeedway, they cannot out-drive a 20-mph aero hole. The
+  package either gives that body a chance (plates, spoiler, air dam) or
+  it does not.
+- On an intermediate, both halves show. This is where manufacturer
+  identity and star drivers stack for the fans.
+- On a road course, driver skill leads; aero balance can still dump a
+  one-trick superspeedway coupe into the weeds.
+
+Qualifying, long-run pace, and wreck risk all read the same mix. A
+body that is loose in a pack raises superspeedway incident heat. A
+brick that overheats behind a spoiler change is a mechanical-risk tick,
+not a random DNF.
+
+#### Rules packages — series-wide and per-track
+
+The commissioner wears the Competition Director hat here. Two layers:
+
+**Series body rules** (the winter book, inherited from the era, editable
+in settings and in preseason technical hearings):
+
+- Homologation count (200 / 500 / per-dealer)
+- Wheelbase class (115-inch intermediates, 110-inch downsized, or mixed)
+- Two-door coupe requirement (on in every Winston Cup book)
+- Aero specials: winged cars, long noses, Aerocoupes — legal, banned, or
+  homologate-to-run
+- Template tightness (manufacturer identity vs spec silhouette)
+- Which factory families may enter
+
+**Per-track packages** (the week-to-week kit). Default bins match the
+track types, and the commissioner can override a single venue:
+
+- **Superspeedway / plate tracks** — restrictor or no restrictor,
+  spoiler height, radiator opening. Historical default: plates at the
+  two biggest ovals from 1988 on.
+- **Intermediate** — spoiler and air-dam kit that either preserves
+  factory identity or flattens it.
+- **Short track** — less aero, more mechanical; a package that “aero
+  equalizes” here is usually a mistake.
+- **Road course** — downforce and brake-cooling kit.
+
+A package that saves Talladega can kill Bristol. Owners, drivers, and
+factories lobby these kits the same way they lobby points and safety.
+**Days 115–122** make that lobbying live: 16-bit body cards the
+commissioner picks for the racing year, named venues that break from the
+type kit, homologation and wheelbase on the Rulebook desk, and
+`homologate-to-run` as a real specials choice. A one-make runaway raises
+a dashboard alert and costs **fan interest**. A pack that is too tight
+on plates raises **controversy** (boring single-file, or wreck-fest,
+depending on how the kit lands). Close manufacturer racing, visible in
+victory lane, is the excitement the office is paid to protect. “Win on
+Sunday, sell on Monday” is a league health metric, not flavor text.
+
+#### Custom Winston Cup
+
+A new career — and the in-career rulebook screen — lets the player run
+**their** Winston Cup, not a frozen 1992 reprint.
+
+Era books pick the historical default. Sliders and hearings then rewrite
+it: Superbirds legal in 1987; no plates at Daytona; Chrysler invited
+back; Aerocoupes banned so Ford keeps the big tracks; a spec template
+that ends the war. The board, the owner council, and the factories react
+(Days 119–122). The player is not picking a favorite make. They are
+deciding what kind of racing the sanctioning body will sell.
+
+**Days 123–126** package that office for playtesters. **Days 127–133**
+push the same commissioner brain **Beyond** the pinnacle book (fatter
+commerce, tighter default templates, an opt-in four-door-as-coupe). A
+team-owner career stays a later era.
 
 ## Team Finances and Offseason Spending
 
@@ -493,12 +762,15 @@ Saved data includes:
 - Development-series calendar, standings, and champion
 - Prospect call-ups onto open premier seats
 - Manufacturer factory contracts, years remaining, and switch history
+- Homologated bodies, Aero Wars track maps, and per-track rules packages
 - Nested calendar (season, career length, phase) and a load-menu summary card
-- Game settings: difficulty, career length, and autosave
+- Game settings: difficulty, career length, autosave, and era book
 
 Players may save between seasons or from the main menu. Loaded careers resume mid-season if races remain, or continue with the next scheduled season.
 
 ## Game Settings
+
+**Era** is a new-career setting, in the same family as OOTP's start year. The default book is **pinnacle Winston Cup** (late ’80s–mid ’90s): ten shops, twenty drivers, Vanguard / Apex / Falcon. **1970s** opens eight regional shops with **Valiant** (the Chrysler analogue) still badging Harbor and Ironwood and a thinner TV check. **1980s** opens nine shops; Valiant is fading at Harbor. **Beyond** opens twelve shops, invites Valiant back onto Harbor, and fattens treasury and TV. The same commissioner model runs forward from that opening world. Homologated coupes and per-track aero kits ship with the Aero Wars book.
 
 A new career asks for **difficulty**, **career length**, and **autosave**. The same three live on the main-menu settings screen and on the commissioner dashboard.
 
@@ -508,7 +780,7 @@ A new career asks for **difficulty**, **career length**, and **autosave**. The s
 - Career length is 3, 5, or 10 seasons. It cannot be shortened below the season already in progress.
 - Autosave can be off, after each offseason, or after each race. The reserved slot is `autosave.json`.
 
-Difficulty and autosave are stored on the career save (0.0.39). Legacy 0.0.38 files load as Normal, three seasons, autosave off.
+Difficulty and autosave are stored on the career save (0.0.40). Legacy 0.0.38 files load as Normal, three seasons, autosave off. Missing era books load as pinnacle. Missing Aero Wars books inherit the era default.
 
 ## Balance Simulation
 
@@ -516,30 +788,83 @@ Main menu item 6 runs a batch of AI careers so the opening book can be measured 
 
 - Board hearings present the season. Charter reviews extend a bridge loan. Factory hearings hold the current badge. New-team hearings defer. Other events take the middle option. Discipline follows the investigation packet (warning when confidence is low, a fine in ordinary cases, points when the file is severe and controversy is already high).
 - A 50-season batch is 10 careers of 5 seasons. A 100-season batch is 20 careers of 5. Difficulty stays Normal and autosave stays off for the run, then the live career is restored.
+- Incident odds scale with the live field so a twenty-car Cup pack keeps
+  expected wrecks near the old six-car weekend. Offseason cools
+  controversy and owner pressure toward the difficulty book so the
+  meters can hold for a decade without a second balance system. A Normal
+  10-season AI career on the twenty-car book finishes without dismissal;
+  controversy stays in the 50s–70s and the board stays employed.
 - The JSON report lands in `season_reports/` with champions, commissioner grades, league health, closures, entries, factory switches, call-ups, retirements, and budgets. It is not written into the career save.
 
 Loaded careers and a new season keep the same league-health numbers. Expired driver contracts re-sign with the incumbent shop. The treasury funds purses after TV and commercial checks.
 
-## Godot UI Prototype
+## Commissioner Office
 
-`godot/` is a Godot 4.4 project that reads a live career snapshot from the Python sim. Main menu item 7 (or `python3 prototype/run_ui.py`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH.
+`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. Testers unpack `dist/stock-car-commissioner-0.3.0-aero.zip` (`python3 prototype/package_alpha.py`) and run the launchers; Git is not required. Python 3.10+ is required. Godot 4.4 is optional.
 
-The prototype has four screens: main menu, commissioner dashboard (league meters, treasury, TV and naming rights, grid, alerts), settings (difficulty, career length, autosave), and a sample numbered hearing from the preseason rule book. This is the start of the graphical interface, not a packaged playable build.
+The office opens on series mail. Mail is a **live inbox**: the queued
+hearing sits as a letter from the Competition Committee (or Board, Owner
+Council, garage, and so on). Dashboard alerts **arrive** as league-office
+memos when the situation first appears; they stay read after Advance
+instead of rebuilding unread every snapshot. Weekend headlines land as press clippings. The center pane
+shows the list and the open letter. Hearing letters display choices;
+picking a ruling writes it back to the career (same outcome engine as
+the terminal hearings). The hearing leaves the inbox once it is resolved.
+Visiting Dashboard, Standings,
+Teams, Television, Drivers, Rulebook, Board, and Mail fills the
+checklist. Advance stays locked until that tour is done, then the first
+Advance opens the hearing in the inbox if it is still pending. A ruling
+from Mail at any time also counts. The next Advance **runs a week**:
+preseason becomes the opening race weekend, then each Advance sims the
+next Cup race and drops a Race Control recap (plus press clippings) in
+Mail. **Standings** is a ranked Cup table. **Schedule** marks DONE and
+NEXT weekends. Both screens show a last-weekend recap card (winner,
+pole, cautions, qualifying, podium, wrecks, and any investigation). **Teams**, **Drivers**, and **Prospects**
+inspect the paddock: **ten Cup shops and a twenty-car grid**. Click a
+shop or a driver for a full card (roster, morale, trust, career stats)
+without leaving Teams or Drivers. Shop cards still show owner and
+factory; the National Development Series pool sits on Prospects. The
+charter can grow to twelve teams; six is the floor. Championship points
+and purse shares pad past P6 so a full field still scores and gets paid.
+Silver Creek, Lakeside, and Prairie wait outside for a charter.
+**Treasury**, **Television**, and **Sponsors** show the sanctioning-body
+books: cash, naming rights, the TV deal, last rating, and shop deals.
+**Rulebook** lists the live Cup policies and the Aero Wars winter book:
+homologated bodies, per-track kits, named-venue plate overrides (this
+oval, not every superspeedway), and rewrite buttons (legalize specials,
+spec vs identity, plates, Chrysler, short-track equalize).
+**Board** shows confidence,
+dismissal risk, fan/owner/driver approval, and both councils (chair,
+mood, last filing). **History** reopens completed season files (champion,
+standings, finale) and the all-time record book; preseason of season 1
+is empty. **Hall of Fame** hangs plaques for retirees who won a title,
+15 Cup races, or 4,000 career points. A gold **news ticker** under the
+status bar cycles beat-writer headlines (preseason files a quiet line).
+Settings lists the same JSON career slots as the
+terminal menu: Save writes `desk.json`, Load restores a slot onto the
+desk. The desk uses Winston Cup crimson, gold, and white
+with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout
+prototype only. Era 2: rulings from the desk change the sim, and careers
+save and load from Settings. **New career** rewinds the desk (difficulty,
+length, autosave, era book): who is on the grid, which factories badge it,
+and how fat the TV check is. **Continue desk** reloads the office session.
 
 ## League Calendar
 
-Each season moves through a fixed league calendar:
+Each season moves through a fixed league calendar. On the desk, time
+Advances in **weeks**, like football or baseball — race week, off week, or
+offseason week — not a printed dump of every race.
 
 - Preseason: the series prepares teams and drivers for the new year
 - Regular Season: championship races are run in order; the development series races its own calendar alongside the first eight weekends
 - Postseason: standings, awards, championship, feeder champion, and season records are finalized
-- Offseason: drivers develop or decline, prospects progress from feeder results, retirements are processed and may call up a premier-ready prospect, team finances are settled and expired driver contracts re-sign, factory contracts tick and may switch, the sponsor market churns, television rights are paid, the treasury funds that season's purses, the prospect pool and development book remain on file, and paddock rivalries, feuds, and friendships are updated
+- Offseason: Advance one desk week at a time — garage (development, retirements, prospects), charters (entry, ledgers, closures), factories, then commercial books (sponsors, television, purses, paddock). The last Advance opens the next preseason. The terminal career can still run the offseason as one block.
 
 The calendar phase is saved with career progress. A loaded career resumes in the same phase, including remaining regular-season races.
 
 ## Commissioner Management
 
-The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, the National Development Series leader or champion, the last prospect call-up, last factory switch and next expiring factory deal, difficulty, career length, and autosave, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
+The commissioner reviews a dashboard at each calendar phase and after every race. The dashboard shows league health, fan interest, controversy, locker-room happiness, reputation, rivalries, feuds, and friendships, team organizations, series naming rights, television rights, TV ratings, gate attendance, media headlines, last press-conference answer, last media scandal, owner-council chair and last rebuke vote, driver-council chair and last feedback, the rule-proposal docket, owner coalitions, last paddock lobbying, the last owner-council rule vote, commissioner approval with fans, owners, and drivers, board confidence and dismissal risk, the prospect pool waiting outside the premier series, the National Development Series leader or champion, the last prospect call-up, last factory switch and next expiring factory deal, homologated bodies and the current per-track aero package, difficulty, career length, and autosave, main-sponsor contracts, sponsor withdrawals, the sponsor market (active, idle, and waiting companies), the broadcast market, driver-commissioner relationships, active policies, the next race weekend's track and seating capacity, the last weekend's weather, pole, cautions, wrecks, investigation blame, last TV rating, last gate, and last headlines, and key alerts.
 
 ### Decision Events
 
@@ -558,9 +883,16 @@ During preseason the commissioner may set:
 - Championship points structure
 - Race format
 - Penalty standards
-- Technical rules
+- Technical rules, including the **Aero Wars** body book (homologation,
+  wheelbase, aero specials, template tightness)
+- **Per-track packages** (superspeedway/plate, intermediate, short
+  track, road course), with optional overrides on named venues
 
-These policies persist between seasons and affect scoring, incident risk, fines, and operating costs. Stage points, when the format is stage racing, are taken from the same championship points table rather than a separate scoring system.
+These policies persist between seasons and affect scoring, incident risk, fines, operating costs, and which factory bodies are fast where. Stage points, when the format is stage racing, are taken from the same championship points table rather than a separate scoring system. Finishing places past the published six-slot table step down by one point (floor 1). Purse shares keep the original P1–P6 weights, then decay and renormalize so last place on a 20-car grid still cashes a check.
+
+The live `technical_rules` switch (`open` / `aero-restrict` /
+`inspection-heavy`) remains as a crash-and-cost modifier for old saves.
+Aero Wars is the body lever: winter book plus per-track kit.
 
 Owners and drivers can also **introduce** rule proposals after the championship. The commissioner dockets, tables, or kills the paper. A later owner-council vote decides whether the policy actually changes.
 

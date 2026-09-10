@@ -4,15 +4,15 @@ config_version=5
 [application]
 
 config/name="Stock Car Commissioner"
-config/description="Godot 4 UI prototype for the commissioner management sim"
+config/description="Commissioner office desk for the stock car league sim"
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=1400
+window/size/viewport_height=800
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

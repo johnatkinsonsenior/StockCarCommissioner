@@ -107,6 +107,28 @@ def get_points_by_position():
     return POINTS_TABLES[current_policies["points_system"]]
 
 
+def points_for_finish(position, table=None):
+    """Return championship points for a finishing position.
+
+    Tables stay short (winner through P6). Places beyond the last published
+    slot step down by one point, never below 1, so a Cup-sized field cannot
+    IndexError and last-place cars still score.
+    """
+
+    try:
+        place = int(position)
+    except (TypeError, ValueError):
+        return 0
+    if place < 1:
+        return 0
+    table = list(table if table is not None else get_points_by_position())
+    if not table:
+        return 0
+    if place <= len(table):
+        return int(table[place - 1])
+    return max(1, int(table[-1]) - (place - len(table)))
+
+
 def get_stage_points_by_position():
     """Return stage points derived from the active championship table."""
 
@@ -114,6 +136,12 @@ def get_stage_points_by_position():
         max(1, points // 4)
         for points in get_points_by_position()
     ]
+
+
+def stage_points_for_finish(position):
+    """Return stage points for a finishing position, padded like race points."""
+
+    return max(1, points_for_finish(position) // 4) if int(position or 0) >= 1 else 0
 
 
 def get_scoring_bonuses():
@@ -126,6 +154,12 @@ def get_manufacturer_points_by_position():
     """Return the manufacturer points table (by best-finisher position)."""
 
     return MANUFACTURER_POINTS
+
+
+def manufacturer_points_for_finish(position):
+    """Return manufacturer points for a best-finisher place, padded past P6."""
+
+    return points_for_finish(position, MANUFACTURER_POINTS)
 
 
 def uses_playoff():

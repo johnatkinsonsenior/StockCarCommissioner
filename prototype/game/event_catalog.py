@@ -550,30 +550,40 @@ def penalty_standard_event(policies):
 
 
 def technical_rules_event(policies):
-    """Preseason decision about the technical package."""
+    """Preseason winter body book — the Aero Wars hearing."""
 
-    current = policy_label("technical_rules", policies["technical_rules"])
+    from game.aero_wars import live_book
+
+    book = live_book()
+    specials = book.get("aero_specials") or "banned"
+    template = book.get("template") or "identity"
+    plates = "on" if book.get("plates") else "off"
+    inherited = policy_label("technical_rules", policies.get("technical_rules"))
 
     return {
         "id": "rule-technical-package",
-        "title": "Technical Rules Package",
+        "title": "Winter Body Book",
         "category": "rule-change",
         "phase": PRESEASON,
         "prompt": (
-            "The competition director wants a technical direction for the "
-            f"cars. Current policy: {current}."
+            "The competition director wants a direction for the homologated "
+            "coupes. This is the winter body book, not a generic aero cap. "
+            "Current book: aero specials %s, template %s, plates %s "
+            "(legacy inspection: %s)."
+            % (specials, template, plates, inherited)
         ),
         "choices": [
             {
                 "id": "1",
-                "label": "Leave the open package in place",
-                "effects": [
-                    {"type": "policy", "key": "technical_rules", "value": "open"},
-                ],
+                "label": "Keep the inherited era book",
+                "effects": [],
                 "outcomes": [
                     {
                         "weight": 70,
-                        "text": "Engineering departments keep their current playbooks.",
+                        "text": (
+                            "Manufacturer identity stays in the body. "
+                            "Ford, GM, and whoever is invited keep their holes."
+                        ),
                         "effects": [],
                     },
                     {
@@ -587,25 +597,31 @@ def technical_rules_event(policies):
             },
             {
                 "id": "2",
-                "label": "Restrict aero development",
+                "label": "Legalize aero specials",
                 "effects": [
                     {
-                        "type": "policy",
-                        "key": "technical_rules",
-                        "value": "aero-restrict",
+                        "type": "aero",
+                        "key": "aero_specials",
+                        "value": "legal",
                     },
-                    {"type": "league", "stat": "integrity", "delta": 3},
-                    {"type": "league", "stat": "fan_interest", "delta": 2},
+                    {"type": "league", "stat": "fan_interest", "delta": 5},
+                    {"type": "league", "stat": "controversy", "delta": 8},
                 ],
                 "outcomes": [
                     {
                         "weight": 60,
-                        "text": "Closer handling packages should help side-by-side racing.",
+                        "text": (
+                            "Winged cars and long noses are legal if a factory "
+                            "can homologate them. The big ovals get loud."
+                        ),
                         "effects": [],
                     },
                     {
                         "weight": 40,
-                        "text": "Well-funded teams accuse the series of capping speed.",
+                        "text": (
+                            "Owners who already spent on bricks accuse the "
+                            "series of rewriting the war midstream."
+                        ),
                         "effects": [
                             {"type": "league", "stat": "owner_pressure", "delta": 8},
                         ],
@@ -614,20 +630,24 @@ def technical_rules_event(policies):
             },
             {
                 "id": "3",
-                "label": "Tighten inspection and technical scrutiny",
+                "label": "Adopt a spec silhouette",
                 "effects": [
+                    {"type": "aero", "key": "template", "value": "spec"},
                     {
                         "type": "policy",
                         "key": "technical_rules",
                         "value": "inspection-heavy",
                     },
                     {"type": "league", "stat": "integrity", "delta": 5},
-                    {"type": "league", "stat": "controversy", "delta": 2},
+                    {"type": "league", "stat": "fan_interest", "delta": -4},
                 ],
                 "outcomes": [
                     {
                         "weight": 65,
-                        "text": "Inspectors get more time and more authority.",
+                        "text": (
+                            "A common template flattens manufacturer identity. "
+                            "Inspectors get more time and more authority."
+                        ),
                         "effects": [
                             {"type": "league", "stat": "owner_pressure", "delta": 5},
                         ],
@@ -3301,8 +3321,8 @@ def board_confidence_event(season_number, security):
     }
 
 
-TEAM_FIELD_MAX = 5
-TEAM_FIELD_MIN = 2
+TEAM_FIELD_MAX = 12
+TEAM_FIELD_MIN = 6
 
 
 def team_entry_event(season_number, applicant, field_size):

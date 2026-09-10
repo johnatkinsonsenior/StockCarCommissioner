@@ -651,11 +651,13 @@ class Manufacturer:
         return (self.reliability_bias - 50) // 10
 
     def aero_bonus(self, track_type=None):
-        """Return extra pace at aero-sensitive venues."""
+        """Return extra pace from the homologated body map at this venue."""
 
-        if track_type not in ("Road Course", "Superspeedway"):
-            return 0
-        return (self.aero_bias - 50) // 12
+        from game.aero_wars import TYPE_KEYS, body_map_for
+
+        key = TYPE_KEYS.get(track_type, "intermediate")
+        rating = int(body_map_for(self.name, None).get(key) or 50)
+        return (rating - 50) // 8
 
     def description(self):
         """Return a short label for prompts and the dashboard."""
