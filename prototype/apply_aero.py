@@ -41,6 +41,8 @@ def main():
     print("AERO_TEMPLATE=%s" % (book.get("template") if book else ""))
     print("AERO_PLATES=%s" % (book.get("plates") if book else ""))
     print("AERO_CHRYSLER=%s" % (book.get("chrysler") if book else ""))
+    picks = (book.get("body_picks") if book else None) or {}
+    print("AERO_BODY_PICKS=%s" % ",".join("%s:%s" % item for item in sorted(picks.items())))
     return 0
 
 

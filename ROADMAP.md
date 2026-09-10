@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–114 complete. Aero Wars milestone met. Next
-coding day: **Day 115 — Named-venue kit overrides**.
+**Current position:** Days 1–115 complete. Next coding day:
+**Day 116 — Named-venue kit overrides**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -180,9 +180,9 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 97 | Commissioner Office | ✅ Done |
 | 112 | Era Books | ✅ Done |
 | 114 | Aero Wars | ✅ Done |
-| 121 | Kit Politics | ⬜ Pending |
-| 125 | Playable Aero Wars | ⬜ Pending |
-| 132 | Beyond the Peak | ⬜ Pending |
+| 122 | Kit Politics | ⬜ Pending |
+| 126 | Playable Aero Wars | ⬜ Pending |
+| 133 | Beyond the Peak | ⬜ Pending |
 
 ## Post-Alpha — Commissioner Office
 
@@ -252,32 +252,33 @@ Do not skip to a team-owner career.
 
 ### Era 5 — Kit politics
 Day 114 gave the commissioner sliders. This era gives those sliders
-stakeholders. A package that saves the big oval can still kill the short
-track — now owners, the garage, and Detroit mail you about it.
+stakeholders — and lets the office *see* the cars it homologates.
 
-- [ ] Day 115 — Named-venue kit overrides (plate this oval, not every superspeedway)
-- [ ] Day 116 — Homologation count and wheelbase class on the Rulebook desk
-- [ ] Day 117 — Homologate-to-run as a first-class aero-specials choice
-- [ ] Day 118 — Factories lobby the winter book (Detroit mail; no auto-rebadge)
-- [ ] Day 119 — Owners and the garage lobby per-track kits (reuse proposal/lobby)
-- [ ] Day 120 — Victory-lane politics (one-make runaway hearing; plate-pack controversy)
-- [ ] Day 121 — Board and factories react on the desk (Win-on-Sunday as a health line)
+- [x] Day 115 — 16-bit homologated body portraits; commissioner picks this year's coupe per factory
+- [ ] Day 116 — Named-venue kit overrides (plate this oval, not every superspeedway)
+- [ ] Day 117 — Homologation count and wheelbase class on the Rulebook desk
+- [ ] Day 118 — Homologate-to-run as a first-class aero-specials choice
+- [ ] Day 119 — Factories lobby the winter book (Detroit mail; no auto-rebadge)
+- [ ] Day 120 — Owners and the garage lobby per-track kits (reuse proposal/lobby)
+- [ ] Day 121 — Victory-lane politics (one-make runaway hearing; plate-pack controversy)
+- [ ] Day 122 — Board and factories react on the desk (Win-on-Sunday as a health line)
 
-> **Milestone — Day 121 Kit Politics:** the winter book and the per-track
-> kit have stakeholders, not only rewrite buttons. Named venues can break
-> from the type kit; homologation is a desk lever; factories, owners, and
-> the garage lobby the package the same way they lobby points.
+> **Milestone — Day 122 Kit Politics:** the winter book and the per-track
+> kit have stakeholders, not only rewrite buttons. Each racing year shows
+> 16-bit body cards the commissioner can pick; named venues can break from
+> the type kit; homologation is a desk lever; factories, owners, and the
+> garage lobby the package the same way they lobby points.
 
 ### Era 6 — Playtest the living office
 The first build where era books *and* a writable body book exist. Testers
 unpack it and run a career before the office grows another system.
 
-- [ ] Day 122 — Playtest loop for the writable book (specials, plates, Chrysler, venue kits)
-- [ ] Day 123 — Bug pass from the Aero Wars desk (save/load book, era rewind vs custom book)
-- [ ] Day 124 — Packaged playtest zip with the writable book
-- [ ] Day 125 — Known-issues note and a tester career pass (meters, Superbirds, plates)
+- [ ] Day 123 — Playtest loop for the writable book (specials, plates, Chrysler, venue kits)
+- [ ] Day 124 — Bug pass from the Aero Wars desk (save/load book, era rewind vs custom book)
+- [ ] Day 125 — Packaged playtest zip with the writable book
+- [ ] Day 126 — Known-issues note and a tester career pass (meters, Superbirds, plates)
 
-> **Milestone — Day 125 Playable Aero Wars:** a playtester can unpack a zip,
+> **Milestone — Day 126 Playable Aero Wars:** a playtester can unpack a zip,
 > sit at the desk, and run their own Winston Cup — legalize specials, pull
 > plates, invite Chrysler — without Git.
 
@@ -285,15 +286,15 @@ unpack it and run a career before the office grows another system.
 Same commissioner brain, a later inherited world. Not a second game, and
 not a team-owner career.
 
-- [ ] Day 126 — Beyond opening world: fatter commercial load, louder board
-- [ ] Day 127 — Tighter default templates in Beyond (identity remains a commissioner write)
-- [ ] Day 128 — Four-door street car raced as a coupe (Taurus analog) only if allowed
-- [ ] Day 129 — Custom sliders persist on a Beyond career (inherited, not frozen)
-- [ ] Day 130 — Later-era garage, media, and schedule flavor
-- [ ] Day 131 — Decade balance pass on the later book
-- [ ] Day 132 — Playable Beyond career on the same desk
+- [ ] Day 127 — Beyond opening world: fatter commercial load, louder board
+- [ ] Day 128 — Tighter default templates in Beyond (identity remains a commissioner write)
+- [ ] Day 129 — Four-door street car raced as a coupe (Taurus analog) only if allowed
+- [ ] Day 130 — Custom sliders persist on a Beyond career (inherited, not frozen)
+- [ ] Day 131 — Later-era garage, media, and schedule flavor
+- [ ] Day 132 — Decade balance pass on the later book
+- [ ] Day 133 — Playable Beyond career on the same desk
 
-> **Milestone — Day 132 Beyond the Peak:** a new career can start past the
+> **Milestone — Day 133 Beyond the Peak:** a new career can start past the
 > pinnacle Winston Cup — tighter templates, heavier commerce, opt-in
 > four-door-as-coupe — without abandoning the office, the weekly Advance,
 > or the Aero Wars book. A team-owner career stays a later era.

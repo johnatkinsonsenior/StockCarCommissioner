@@ -8239,6 +8239,7 @@ def office_team_book():
                 "trust": trust,
                 "family": spec.get("family") or "",
                 "coupe": spec.get("name") or "",
+                "portrait": spec.get("portrait") or spec.get("id") or "",
                 "short_track": int(body.get("short_track") or 50),
                 "intermediate": int(body.get("intermediate") or 50),
                 "superspeedway": int(body.get("superspeedway") or 50),
@@ -8376,6 +8377,8 @@ def office_rulebook_book():
         "template": aero.get("template"),
         "chrysler": bool(aero.get("chrysler")),
         "short_equalize": bool(aero.get("short_equalize")),
+        "season": calendar.current_season,
+        "era_book": current_settings.get("era_book"),
     }
 
 
