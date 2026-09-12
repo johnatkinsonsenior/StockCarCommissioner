@@ -207,7 +207,7 @@
 | 205 | 16-bit homologated body portraits | High | Completed |
 | 206 | Commissioner picks this year's coupe per factory | High | Completed |
 | 207 | Named-venue kit overrides | High | Completed |
-| 208 | Homologation count and wheelbase on the desk | High | Not Started |
+| 208 | Homologation count and wheelbase on the desk | High | Completed |
 | 209 | Homologate-to-run aero specials | High | Not Started |
 | 210 | Factory lobbying of the winter book | High | Not Started |
 | 211 | Owner and garage lobbying of per-track kits | High | Not Started |

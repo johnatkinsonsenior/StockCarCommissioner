@@ -102,9 +102,12 @@ from game.aero_wars import (
     book_lines,
     coupe_spec,
     ensure_aero_book,
+    homologation_operating_cost,
     office_aero_actions,
     office_bodies_book,
+    office_homologation_desk,
     office_venue_kits,
+    office_wheelbase_desk,
     one_make_runaway,
     package_lines,
 )
@@ -4603,6 +4606,35 @@ def _apply_aero_flavor(key, before, book):
             league["fan_interest"] = clamp(league.get("fan_interest", 0) + 2)
     elif key in ("venue_plates", "venue_kit"):
         league["controversy"] = clamp(league.get("controversy", 0) + 2)
+    elif key == "homologation":
+        now = book.get("homologation")
+        was = before.get("homologation")
+        if now == was:
+            return
+        if now == 200:
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) + 3)
+            league["integrity"] = clamp(league.get("integrity", 0) - 2)
+        elif now == 500:
+            league["integrity"] = clamp(league.get("integrity", 0) + 2)
+            league["controversy"] = clamp(league.get("controversy", 0) - 2)
+        elif now == "per-dealer":
+            league["integrity"] = clamp(league.get("integrity", 0) + 4)
+            league["owner_pressure"] = clamp(league.get("owner_pressure", 0) + 6)
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) - 2)
+    elif key == "wheelbase":
+        now = book.get("wheelbase")
+        was = before.get("wheelbase")
+        if now == was:
+            return
+        if now == "mixed":
+            league["controversy"] = clamp(league.get("controversy", 0) + 6)
+            league["integrity"] = clamp(league.get("integrity", 0) - 3)
+        elif now == 115:
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) + 2)
+            league["controversy"] = clamp(league.get("controversy", 0) - 2)
+        elif now == 110:
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) + 3)
+            league["controversy"] = clamp(league.get("controversy", 0) + 2)
 
 
 def apply_office_aero(key, value):
@@ -7333,6 +7365,7 @@ def calculate_operating_expenses(team):
         BASE_OPERATING_EXPENSE
         + team.facility_level * FACILITY_MAINTENANCE_PER_LEVEL
         + get_policy_operating_cost()
+        + homologation_operating_cost()
     )
 
     if team.financial_distress_level >= 2:
@@ -8375,6 +8408,9 @@ def office_rulebook_book():
         "packages": package_lines(),
         "venues": office_venue_kits(tracks),
         "actions": office_aero_actions(),
+        "homologation_count": office_homologation_desk(),
+        "wheelbase_class": office_wheelbase_desk(),
+        "homologation": aero.get("homologation"),
         "wheelbase": aero.get("wheelbase"),
         "specials": aero.get("aero_specials"),
         "plates": bool(aero.get("plates")),

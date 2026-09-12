@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "2.2",
+    "ui_version": "2.3",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -2471,7 +2471,7 @@
         ],
         "book": [
             "Two-door coupes required",
-            "110-inch wheelbase",
+            "110-inch downsized",
             "200 street units",
             "Aero specials banned",
             "Aerocoupes legal",
@@ -2650,6 +2650,63 @@
                 "label": "Intermediate kit: flatten spoilers"
             }
         ],
+        "homologation_count": {
+            "value": 200,
+            "label": "200 street units",
+            "blurb": "Detroit must sell this many street coupes before the race body is legal.",
+            "choices": [
+                {
+                    "key": "homologation",
+                    "value": "200",
+                    "label": "200 street units",
+                    "blurb": "A short street run. Detroit can homologate wilder coupes.",
+                    "selected": true
+                },
+                {
+                    "key": "homologation",
+                    "value": "500",
+                    "label": "500 street units",
+                    "blurb": "The late-sixties count. A real production line, not a handful.",
+                    "selected": false
+                },
+                {
+                    "key": "homologation",
+                    "value": "per-dealer",
+                    "label": "Per-dealership count",
+                    "blurb": "Each dealer takes one. Superbird-era paperwork.",
+                    "selected": false
+                }
+            ]
+        },
+        "wheelbase_class": {
+            "value": 110,
+            "label": "110-inch downsized",
+            "blurb": "The Cup car's wheelbase. Downsizing in 1981 made aero the war.",
+            "choices": [
+                {
+                    "key": "wheelbase",
+                    "value": "110",
+                    "label": "110-inch downsized",
+                    "blurb": "The 1981 cut. Aero owns the big tracks.",
+                    "selected": true
+                },
+                {
+                    "key": "wheelbase",
+                    "value": "115",
+                    "label": "115-inch intermediates",
+                    "blurb": "Grand National wheelbase. Mechanical grip, less aero war.",
+                    "selected": false
+                },
+                {
+                    "key": "wheelbase",
+                    "value": "mixed",
+                    "label": "Mixed class",
+                    "blurb": "Shops may run 110 or 115. Packing gets messy.",
+                    "selected": false
+                }
+            ]
+        },
+        "homologation": 200,
         "wheelbase": 110,
         "specials": "banned",
         "plates": true,
@@ -2948,10 +3005,72 @@
         "load_script": "/workspace/prototype/load_office.py",
         "new_script": "/workspace/prototype/new_career.py",
         "aero_script": "/workspace/prototype/apply_aero.py",
-        "saves": [],
+        "saves": [
+            {
+                "name": "office",
+                "filename": "office.json",
+                "path": "/workspace/saves/office.json",
+                "label": "office.json \u2014 Season 1 of 3, Regular Season, 10 teams, Normal",
+                "office": true,
+                "season": 1,
+                "phase": "regular-season",
+                "difficulty": "normal"
+            },
+            {
+                "name": "desk",
+                "filename": "desk.json",
+                "path": "/workspace/saves/desk.json",
+                "label": "desk.json \u2014 Season 1 of 3, Regular Season, 10 teams, Normal",
+                "office": false,
+                "season": 1,
+                "phase": "regular-season",
+                "difficulty": "normal"
+            },
+            {
+                "name": "day117",
+                "filename": "day117.json",
+                "path": "/workspace/saves/day117.json",
+                "label": "day117.json \u2014 Season 1 of 3, Preseason, 10 teams, Normal",
+                "office": false,
+                "season": 1,
+                "phase": "preseason",
+                "difficulty": "normal"
+            }
+        ],
         "ticker": [
             "Preseason quiet. Beat writers file after the green flag."
         ]
     },
-    "saves": []
+    "saves": [
+        {
+            "name": "office",
+            "filename": "office.json",
+            "path": "/workspace/saves/office.json",
+            "label": "office.json \u2014 Season 1 of 3, Regular Season, 10 teams, Normal",
+            "office": true,
+            "season": 1,
+            "phase": "regular-season",
+            "difficulty": "normal"
+        },
+        {
+            "name": "desk",
+            "filename": "desk.json",
+            "path": "/workspace/saves/desk.json",
+            "label": "desk.json \u2014 Season 1 of 3, Regular Season, 10 teams, Normal",
+            "office": false,
+            "season": 1,
+            "phase": "regular-season",
+            "difficulty": "normal"
+        },
+        {
+            "name": "day117",
+            "filename": "day117.json",
+            "path": "/workspace/saves/day117.json",
+            "label": "day117.json \u2014 Season 1 of 3, Preseason, 10 teams, Normal",
+            "office": false,
+            "season": 1,
+            "phase": "preseason",
+            "difficulty": "normal"
+        }
+    ]
 }

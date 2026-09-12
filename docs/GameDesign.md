@@ -831,7 +831,9 @@ Silver Creek, Lakeside, and Prairie wait outside for a charter.
 books: cash, naming rights, the TV deal, last rating, and shop deals.
 **Rulebook** lists the live Cup policies and the Aero Wars winter book:
 homologated bodies, per-track kits, named-venue plate overrides (this
-oval, not every superspeedway), and rewrite buttons (legalize specials,
+oval, not every superspeedway), homologation count (200 / 500 /
+per-dealer), wheelbase class (110-inch downsized, 115-inch
+intermediates, or mixed), and rewrite buttons (legalize specials,
 spec vs identity, plates, Chrysler, short-track equalize).
 **Board** shows confidence,
 dismissal risk, fan/owner/driver approval, and both councils (chair,

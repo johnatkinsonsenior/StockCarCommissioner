@@ -32,9 +32,11 @@ not travel inside the zip.
 2. Visit Dashboard, Standings, Teams, Television, Drivers, Rulebook, Board,
    and Mail to fill the first-weekend checklist. **Rulebook** is the winter
    body book: rewrite specials, template, plates, Chrysler, and the
-   per-track kit. **Named venues** can plate one oval without plating
-   every superspeedway. **Advance** then runs a week: the next Cup race,
-   a Race Control recap, and new mail.
+   per-track kit. **Homologation count** (200 / 500 / per-dealer) and
+   **wheelbase class** (110-inch downsized, 115-inch intermediates, or
+   mixed) sit on Rulebook as desk levers. **Named venues** can plate one
+   oval without plating every superspeedway. **Advance** then runs a week:
+   the next Cup race, a Race Control recap, and new mail.
 3. Click a shop or driver for a full card. **History** is empty until a
    championship is filed. **Hall of Fame** hangs retirees who won a title,
    15 races, or 4,000 points.

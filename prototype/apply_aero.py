@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Rewrite one Aero Wars winter-book or package slot from the office."""
+"""Rewrite one Aero Wars winter-book or package slot from the office.
+
+Day 117 prints homologation count and wheelbase class so the Rulebook
+desk can round-trip those levers.
+"""
 
 import io
 import sys
@@ -42,6 +46,8 @@ def main():
     print("AERO_TEMPLATE=%s" % (book.get("template") if book else ""))
     print("AERO_PLATES=%s" % (book.get("plates") if book else ""))
     print("AERO_CHRYSLER=%s" % (book.get("chrysler") if book else ""))
+    print("AERO_HOMOLOGATION=%s" % (book.get("homologation") if book else ""))
+    print("AERO_WHEELBASE=%s" % (book.get("wheelbase") if book else ""))
     picks = (book.get("body_picks") if book else None) or {}
     print("AERO_BODY_PICKS=%s" % ",".join("%s:%s" % item for item in sorted(picks.items())))
     packages = rs.league.get("track_packages") if rs.league else None
