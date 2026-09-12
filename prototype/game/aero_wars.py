@@ -6,7 +6,8 @@ with a four-number map (short track, intermediate, superspeedway, road).
 Race pace mixes that map with driver track skill. Day 114 lets the
 commissioner rewrite the winter book and the per-track kit. Day 116
 lets a named venue break from its type kit — plate this oval, not
-every superspeedway.
+every superspeedway. Day 117 puts homologation count and wheelbase
+class on the Rulebook desk as first-class winter-book levers.
 """
 
 from game.settings import (
@@ -58,6 +59,50 @@ SPECIALS_BANNED = "banned"
 SPECIALS_LEGAL = "legal"
 SPECIALS_HOMOLOGATE = "homologate"
 
+HOMOLOGATION_200 = 200
+HOMOLOGATION_500 = 500
+HOMOLOGATION_PER_DEALER = "per-dealer"
+
+WHEELBASE_110 = 110
+WHEELBASE_115 = 115
+WHEELBASE_MIXED = "mixed"
+
+HOMOLOGATION_OPTIONS = (
+    {
+        "value": HOMOLOGATION_200,
+        "label": "200 street units",
+        "blurb": "A short street run. Detroit can homologate wilder coupes.",
+    },
+    {
+        "value": HOMOLOGATION_500,
+        "label": "500 street units",
+        "blurb": "The late-sixties count. A real production line, not a handful.",
+    },
+    {
+        "value": HOMOLOGATION_PER_DEALER,
+        "label": "Per-dealership count",
+        "blurb": "Each dealer takes one. Superbird-era paperwork.",
+    },
+)
+
+WHEELBASE_OPTIONS = (
+    {
+        "value": WHEELBASE_110,
+        "label": "110-inch downsized",
+        "blurb": "The 1981 cut. Aero owns the big tracks.",
+    },
+    {
+        "value": WHEELBASE_115,
+        "label": "115-inch intermediates",
+        "blurb": "Grand National wheelbase. Mechanical grip, less aero war.",
+    },
+    {
+        "value": WHEELBASE_MIXED,
+        "label": "Mixed class",
+        "blurb": "Shops may run 110 or 115. Packing gets messy.",
+    },
+)
+
 _LIVE = {"book": None, "packages": None}
 
 
@@ -70,6 +115,89 @@ def _era():
 
 def _bound(value, lo=0, hi=100):
     return max(lo, min(hi, int(value)))
+
+
+def normalize_homologation(value):
+    """Return 200, 500, or per-dealer, else None."""
+
+    if value in (HOMOLOGATION_200, HOMOLOGATION_500):
+        return int(value)
+    token = str(value or "").strip().lower().replace("_", "-")
+    token = token.replace(" ", "-")
+    if token in ("200", "200-units", "200-street-units"):
+        return HOMOLOGATION_200
+    if token in ("500", "500-units", "500-street-units"):
+        return HOMOLOGATION_500
+    if token in (
+        "per-dealer",
+        "per-dealership",
+        "dealer",
+        "dealership",
+        "perdealer",
+    ):
+        return HOMOLOGATION_PER_DEALER
+    try:
+        count = int(value)
+    except (TypeError, ValueError):
+        return None
+    if count in (HOMOLOGATION_200, HOMOLOGATION_500):
+        return count
+    return None
+
+
+def normalize_wheelbase(value):
+    """Return 110, 115, or mixed, else None."""
+
+    if value in (WHEELBASE_110, WHEELBASE_115):
+        return int(value)
+    token = str(value or "").strip().lower().replace("_", "-")
+    token = token.replace(" ", "-")
+    if token in ("110", "110-inch", "downsized", "downsize"):
+        return WHEELBASE_110
+    if token in ("115", "115-inch", "intermediate", "intermediates"):
+        return WHEELBASE_115
+    if token in ("mixed", "mix", "both"):
+        return WHEELBASE_MIXED
+    try:
+        inches = int(float(token))
+    except (TypeError, ValueError):
+        return None
+    if inches in (WHEELBASE_110, WHEELBASE_115):
+        return inches
+    return None
+
+
+def homologation_label(value):
+    """Return the winter-book line for a homologation count."""
+
+    token = normalize_homologation(value)
+    if token == HOMOLOGATION_PER_DEALER:
+        return "Per-dealership homologation"
+    if token == HOMOLOGATION_500:
+        return "500 street units"
+    return "200 street units"
+
+
+def wheelbase_label(value):
+    """Return the winter-book line for a wheelbase class."""
+
+    token = normalize_wheelbase(value)
+    if token == WHEELBASE_MIXED:
+        return "Mixed wheelbase class (110 and 115)"
+    if token == WHEELBASE_115:
+        return "115-inch intermediates"
+    return "110-inch downsized"
+
+
+def homologation_operating_cost(book=None):
+    """Return extra per-shop cost from the live homologation count."""
+
+    token = normalize_homologation((book or live_book()).get("homologation"))
+    if token == HOMOLOGATION_500:
+        return 25_000
+    if token == HOMOLOGATION_PER_DEALER:
+        return 75_000
+    return 0
 
 
 def family_for(maker_name):
@@ -159,6 +287,14 @@ def ensure_aero_book(league, era_book=None):
         for key, value in defaults.items():
             if key not in current:
                 current[key] = value
+        homo = normalize_homologation(current.get("homologation"))
+        current["homologation"] = (
+            homo if homo is not None else defaults["homologation"]
+        )
+        wheel = normalize_wheelbase(current.get("wheelbase"))
+        current["wheelbase"] = (
+            wheel if wheel is not None else defaults["wheelbase"]
+        )
         if league is not None:
             league["aero_book"] = current
     packages = league.get("track_packages") if league is not None else None
@@ -231,12 +367,13 @@ def apply_aero_rule(league, key, value):
     elif key == "chrysler":
         book["chrysler"] = _truthy(value)
     elif key == "wheelbase":
-        try:
-            book["wheelbase"] = int(value)
-        except (TypeError, ValueError):
-            pass
+        wheel = normalize_wheelbase(value)
+        if wheel is not None:
+            book["wheelbase"] = wheel
     elif key == "homologation":
-        book["homologation"] = value
+        homo = normalize_homologation(value)
+        if homo is not None:
+            book["homologation"] = homo
     elif key in ("short_equalize", "st_equalize"):
         on = _truthy(value)
         book["short_equalize"] = on
@@ -627,6 +764,20 @@ def body_map_for(maker_name, track=None, era_book=None, book=None):
     raw = dict(spec.get("map") or _map(50, 50, 50, 50))
     if book.get("template") == "spec":
         raw = _flatten(raw, 0.30, 50)
+    homo = normalize_homologation(book.get("homologation"))
+    if homo == HOMOLOGATION_500:
+        raw = _flatten(raw, 0.88, 50)
+    elif homo == HOMOLOGATION_PER_DEALER:
+        raw = _flatten(raw, 0.72, 50)
+    wheel = normalize_wheelbase(book.get("wheelbase"))
+    if wheel == WHEELBASE_115:
+        raw["short_track"] = _bound(int(raw.get("short_track", 50)) + 4)
+        raw["road_course"] = _bound(int(raw.get("road_course", 50)) + 2)
+        raw["superspeedway"] = _bound(
+            int(round(54 + (int(raw.get("superspeedway", 50)) - 54) * 0.72))
+        )
+    elif wheel == WHEELBASE_MIXED:
+        raw = _flatten(raw, 0.84, 50)
     track_type = None
     if isinstance(track, dict):
         track_type = track.get("type")
@@ -690,6 +841,9 @@ def pack_heat(track, team=None):
     track_type = getattr(track, "type", "")
     if is_plate_track(track):
         extra += 4
+    if normalize_wheelbase(live_book().get("wheelbase")) == WHEELBASE_MIXED:
+        if track_type in ("Superspeedway", "Intermediate"):
+            extra += 2
     if team is not None and track_type == "Superspeedway":
         rating = body_rating(getattr(team, "manufacturer", None), track)
         if rating < 46:
@@ -1004,24 +1158,76 @@ def office_venue_kits(schedule=None, pool=None, book=None, packages=None):
     return rows
 
 
+def office_homologation_desk(book=None):
+    """Return the Rulebook homologation-count card."""
+
+    book = book or live_book()
+    current = normalize_homologation(book.get("homologation"))
+    if current is None:
+        current = HOMOLOGATION_200
+    choices = []
+    for option in HOMOLOGATION_OPTIONS:
+        choices.append(
+            {
+                "key": "homologation",
+                "value": str(option["value"]),
+                "label": option["label"],
+                "blurb": option["blurb"],
+                "selected": current == option["value"],
+            }
+        )
+    return {
+        "value": current,
+        "label": homologation_label(current),
+        "blurb": (
+            "Detroit must sell this many street coupes before the race body "
+            "is legal."
+        ),
+        "choices": choices,
+    }
+
+
+def office_wheelbase_desk(book=None):
+    """Return the Rulebook wheelbase-class card."""
+
+    book = book or live_book()
+    current = normalize_wheelbase(book.get("wheelbase"))
+    if current is None:
+        current = WHEELBASE_110
+    choices = []
+    for option in WHEELBASE_OPTIONS:
+        choices.append(
+            {
+                "key": "wheelbase",
+                "value": str(option["value"]),
+                "label": option["label"],
+                "blurb": option["blurb"],
+                "selected": current == option["value"],
+            }
+        )
+    return {
+        "value": current,
+        "label": wheelbase_label(current),
+        "blurb": (
+            "The Cup car's wheelbase. Downsizing in 1981 made aero the war."
+        ),
+        "choices": choices,
+    }
+
+
 def book_lines(book=None):
     """Return short winter-book lines for the desk."""
 
     book = book or live_book()
     specials = book.get("aero_specials") or SPECIALS_BANNED
     template = book.get("template") or "identity"
-    homologation = book.get("homologation")
-    if homologation == "per-dealer":
-        homo_line = "Per-dealership homologation"
-    else:
-        homo_line = "%s street units" % homologation
     plates = "Plates on the two biggest ovals" if book.get("plates") else "No restrictor plates"
     chrysler = "Chrysler invited" if book.get("chrysler") else "Chrysler out of the book"
     aero = "Aerocoupes legal" if book.get("aerocoupes") else "Aerocoupes parked"
     return [
         "Two-door coupes required" if book.get("coupe_only") else "Open body class",
-        "%s-inch wheelbase" % book.get("wheelbase"),
-        homo_line,
+        wheelbase_label(book.get("wheelbase")),
+        homologation_label(book.get("homologation")),
         "Aero specials %s" % specials,
         aero,
         "Template: %s" % ("manufacturer identity" if template == "identity" else "spec silhouette"),

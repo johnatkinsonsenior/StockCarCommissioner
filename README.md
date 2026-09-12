@@ -47,7 +47,9 @@ Each factory fields a homologated two-door coupe with a track map;
 driver skill still owns the short tracks, aero owns the superspeedways.
 Rulebook shows 16-bit body cards for this racing year — pick the legal
 coupe each factory fields. Named superspeedways can break from the type
-kit: plate this oval without plating every big track.
+kit: plate this oval without plating every big track. Homologation count
+(200 / 500 / per-dealer) and wheelbase class (110 / 115 / mixed) sit on
+Rulebook as winter-book levers.
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build
@@ -60,6 +62,7 @@ you want the zip somewhere else.
 ## Development status
 
 Era 4 ships Aero Wars: named coupes, track maps, and a commissioner-written
-winter book. Named venues can override the type kit. Next on the roadmap:
-homologation on the desk, then Detroit and garage lobby, then a playtest zip,
+winter book. Named venues can override the type kit. Homologation count
+and wheelbase class rewrite from the Rulebook desk. Next on the roadmap:
+homologate-to-run, then Detroit and garage lobby, then a playtest zip,
 then Beyond.
