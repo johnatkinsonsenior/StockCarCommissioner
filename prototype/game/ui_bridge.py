@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 UI_VERSION = "2.4"
@@ -515,17 +516,78 @@ def write_ui_snapshot_file(snapshot, path=None):
     return path
 
 
+def _godot_looks_runnable(path):
+    """Return whether this path is a Godot editor we can spawn."""
+
+    if path is None:
+        return False
+    path = Path(path)
+    if not path.is_file():
+        return False
+    if sys.platform.startswith("win"):
+        return path.suffix.lower() in (".exe", ".bat", ".cmd") or path.name.lower().startswith("godot")
+    return os.access(path, os.X_OK)
+
+
+def _windows_godot_candidates():
+    """Return common Windows download and install locations for Godot 4."""
+
+    home = Path.home()
+    local = Path(os.environ.get("LOCALAPPDATA") or "")
+    program_files = Path(os.environ.get("ProgramFiles") or r"C:\Program Files")
+    program_files_x86 = Path(os.environ.get("ProgramFiles(x86)") or r"C:\Program Files (x86)")
+    names = (
+        "Godot_v4.4-stable_win64.exe",
+        "Godot_v4.4.1-stable_win64.exe",
+        "Godot_v4.5-stable_win64.exe",
+        "Godot.exe",
+        "godot.exe",
+    )
+    folders = [
+        home / "Downloads",
+        home / "Desktop",
+        home / "Documents",
+        local / "Programs" / "Godot",
+        program_files / "Godot",
+        program_files_x86 / "Godot",
+    ]
+    rows = []
+    for folder in folders:
+        if not folder:
+            continue
+        for name in names:
+            rows.append(folder / name)
+        try:
+            for match in folder.glob("Godot*.exe"):
+                rows.append(match)
+        except OSError:
+            pass
+    return rows
+
+
 def find_godot_binary():
     """Return a Godot 4 editor binary if one is on disk or PATH."""
 
     env_bin = os.environ.get("GODOT_BIN")
     candidates = []
     if env_bin:
-        candidates.append(Path(env_bin))
-    for name in ("godot", "godot4", "Godot_v4.4-stable_linux.x86_64"):
+        candidates.append(Path(os.path.expandvars(env_bin)).expanduser())
+    names = (
+        "godot",
+        "godot4",
+        "Godot",
+        "Godot_v4.4-stable_linux.x86_64",
+        "Godot_v4.4-stable_win64.exe",
+        "Godot_v4.4.1-stable_win64.exe",
+        "godot.exe",
+        "Godot.exe",
+    )
+    for name in names:
         found = shutil.which(name)
         if found:
             candidates.append(Path(found))
+    if sys.platform.startswith("win"):
+        candidates.extend(_windows_godot_candidates())
     candidates.extend(
         [
             Path("/tmp/godot-engine/Godot_v4.4-stable_linux.x86_64"),
@@ -533,8 +595,16 @@ def find_godot_binary():
             Path("/usr/bin/godot"),
         ]
     )
+    seen = set()
     for candidate in candidates:
-        if candidate and candidate.is_file() and os.access(candidate, os.X_OK):
+        try:
+            resolved = candidate.resolve()
+        except OSError:
+            resolved = candidate
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        if _godot_looks_runnable(candidate):
             return candidate
     return None
 
@@ -545,9 +615,14 @@ def launch_godot_process(snapshot_path=None, headless=None, extra_args=None):
     binary = find_godot_binary()
     project = godot_project_dir()
     if headless is None:
-        headless = not (
-            os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
-        )
+        # Linux cloud boxes have no DISPLAY. Windows and macOS GUI sessions
+        # also omit DISPLAY, so do not treat that as headless there.
+        if sys.platform.startswith("win") or sys.platform == "darwin":
+            headless = False
+        else:
+            headless = not (
+                os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
+            )
     result = {
         "binary": str(binary) if binary else None,
         "project": str(project),
