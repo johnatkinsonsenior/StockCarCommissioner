@@ -208,11 +208,11 @@
 | 206 | Commissioner picks this year's coupe per factory | High | Completed |
 | 207 | Named-venue kit overrides | High | Completed |
 | 208 | Homologation count and wheelbase on the desk | High | Completed |
-| 209 | Homologate-to-run aero specials | High | Not Started |
-| 210 | Factory lobbying of the winter book | High | Not Started |
-| 211 | Owner and garage lobbying of per-track kits | High | Not Started |
-| 212 | One-make runaway and plate-pack hearings | High | Not Started |
-| 213 | Win-on-Sunday factory health on the desk | Medium | Not Started |
+| 209 | Homologate-to-run aero specials | High | Completed |
+| 210 | Factory lobbying of the winter book | High | Completed |
+| 211 | Owner and garage lobbying of per-track kits | High | Completed |
+| 212 | One-make runaway and plate-pack hearings | High | Completed |
+| 213 | Win-on-Sunday factory health on the desk | Medium | Completed |
 | 214 | Aero Wars playtest loop | High | Not Started |
 | 215 | Aero Wars desk bug pass | High | Not Started |
 | 216 | Packaged writable-book playtest zip | High | Not Started |

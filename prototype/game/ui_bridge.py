@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-UI_VERSION = "2.3"
+UI_VERSION = "2.4"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
@@ -27,6 +27,9 @@ HEARING_SENDERS = {
     "team-entry": "Charter Office",
     "team-closure": "Charter Office",
     "manufacturer-switch": "Factory Desk",
+    "factory-lobby": "Factory Desk",
+    "kit-lobby": "Paddock Lobby",
+    "victory-lane": "Competition Committee",
 }
 
 OFFICE_NAV = (
@@ -245,9 +248,15 @@ def build_office_inbox(payload=None):
     recap = payload.get("week_recap") or payload.get("recap")
     if recap:
         letters.append(recap_letter(recap))
-    decision = payload.get("decision")
-    if decision:
-        letters.append(hearing_letter(decision))
+    hearings = payload.get("hearings")
+    if hearings:
+        for item in hearings:
+            if item:
+                letters.append(hearing_letter(item))
+    else:
+        decision = payload.get("decision")
+        if decision:
+            letters.append(hearing_letter(decision))
     alerts = payload.get("inbox_alerts")
     if alerts is None:
         alerts = payload.get("alerts")
@@ -466,6 +475,7 @@ def compose_ui_snapshot(payload):
     },
         "dashboard": dashboard,
         "decision": payload.get("decision"),
+        "hearings": list(payload.get("hearings") or []),
         "drivers": list(payload.get("drivers") or []),
         "standings": list(
             payload.get("standings") or payload.get("drivers") or []

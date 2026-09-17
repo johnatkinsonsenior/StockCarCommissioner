@@ -48,8 +48,11 @@ driver skill still owns the short tracks, aero owns the superspeedways.
 Rulebook shows 16-bit body cards for this racing year — pick the legal
 coupe each factory fields. Named superspeedways can break from the type
 kit: plate this oval without plating every big track. Homologation count
-(200 / 500 / per-dealer) and wheelbase class (110 / 115 / mixed) sit on
-Rulebook as winter-book levers.
+(200 / 500 / per-dealer), wheelbase class (110 / 115 / mixed), and
+aero specials (banned / homologate-to-run / legal) sit on Rulebook as
+winter-book levers. Detroit, owners, and the garage lobby that book
+by mail. A one-make runaway or a plated wreck-fest files a hearing.
+Win on Sunday is a desk health line, not flavor text.
 Export templates are not required. Python still simulates the season.
 
 ## Package a playtest build
@@ -61,8 +64,7 @@ you want the zip somewhere else.
 
 ## Development status
 
-Era 4 ships Aero Wars: named coupes, track maps, and a commissioner-written
-winter book. Named venues can override the type kit. Homologation count
-and wheelbase class rewrite from the Rulebook desk. Next on the roadmap:
-homologate-to-run, then Detroit and garage lobby, then a playtest zip,
-then Beyond.
+Era 5 ships kit politics on top of Aero Wars: homologate-to-run as a
+winter-book radio, Detroit and garage lobby mail, victory-lane hearings,
+and Win-on-Sunday on the desk. Next on the roadmap: a playtest zip for
+the writable book, then Beyond.

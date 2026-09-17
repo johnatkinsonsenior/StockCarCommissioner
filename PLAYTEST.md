@@ -34,9 +34,12 @@ not travel inside the zip.
    body book: rewrite specials, template, plates, Chrysler, and the
    per-track kit. **Homologation count** (200 / 500 / per-dealer) and
    **wheelbase class** (110-inch downsized, 115-inch intermediates, or
-   mixed) sit on Rulebook as desk levers. **Named venues** can plate one
-   oval without plating every superspeedway. **Advance** then runs a week:
-   the next Cup race, a Race Control recap, and new mail.
+   mixed) sit on Rulebook as desk levers. **Aero specials** is a three-way
+   radio: banned, homologate-to-run, or legal. Detroit mail and a kit
+   lobby sit in the inbox beside the winter-book hearing. **Named venues**
+   can plate one oval without plating every superspeedway. Dashboard,
+   Board, and Rulebook show **Win on Sunday** factory health. **Advance**
+   then runs a week: the next Cup race, a Race Control recap, and new mail.
 3. Click a shop or driver for a full card. **History** is empty until a
    championship is filed. **Hall of Fame** hangs retirees who won a title,
    15 races, or 4,000 points.

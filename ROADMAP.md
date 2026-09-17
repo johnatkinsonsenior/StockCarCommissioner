@@ -20,8 +20,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–117 complete. Next coding day:
-**Day 118 — Homologate-to-run as a first-class aero-specials choice**.
+**Current position:** Days 1–122 complete. Next coding day:
+**Day 123 — Playtest loop for the writable book**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -180,7 +180,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 97 | Commissioner Office | ✅ Done |
 | 112 | Era Books | ✅ Done |
 | 114 | Aero Wars | ✅ Done |
-| 122 | Kit Politics | ⬜ Pending |
+| 122 | Kit Politics | ✅ Done |
 | 126 | Playable Aero Wars | ⬜ Pending |
 | 133 | Beyond the Peak | ⬜ Pending |
 
@@ -257,11 +257,11 @@ stakeholders — and lets the office *see* the cars it homologates.
 - [x] Day 115 — 16-bit homologated body portraits; commissioner picks this year's coupe per factory
 - [x] Day 116 — Named-venue kit overrides (plate this oval, not every superspeedway)
 - [x] Day 117 — Homologation count and wheelbase class on the Rulebook desk
-- [ ] Day 118 — Homologate-to-run as a first-class aero-specials choice
-- [ ] Day 119 — Factories lobby the winter book (Detroit mail; no auto-rebadge)
-- [ ] Day 120 — Owners and the garage lobby per-track kits (reuse proposal/lobby)
-- [ ] Day 121 — Victory-lane politics (one-make runaway hearing; plate-pack controversy)
-- [ ] Day 122 — Board and factories react on the desk (Win-on-Sunday as a health line)
+- [x] Day 118 — Homologate-to-run as a first-class aero-specials choice
+- [x] Day 119 — Factories lobby the winter book (Detroit mail; no auto-rebadge)
+- [x] Day 120 — Owners and the garage lobby per-track kits (reuse proposal/lobby)
+- [x] Day 121 — Victory-lane politics (one-make runaway hearing; plate-pack controversy)
+- [x] Day 122 — Board and factories react on the desk (Win-on-Sunday as a health line)
 
 > **Milestone — Day 122 Kit Politics:** the winter book and the per-track
 > kit have stakeholders, not only rewrite buttons. Each racing year shows

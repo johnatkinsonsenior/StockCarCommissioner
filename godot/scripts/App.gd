@@ -132,6 +132,7 @@ func _headless_tour() -> void:
 	_on_office_load("desk")
 	_show_section("rulebook")
 	_on_aero_rule("aero_specials", "legal")
+	_on_aero_rule("aero_specials", "homologate")
 	_on_aero_rule("body_pick", "Apex:torino")
 	_on_aero_rule("venue_plates", "Thunder Valley:on")
 	_on_aero_rule("homologation", "500")
@@ -781,6 +782,9 @@ func _fill_dashboard() -> void:
 	if str(dash.get("makers", "")) != "":
 		center_body.add_child(_muted(str(dash.get("makers", ""))))
 		print("MAKERS=", str(dash.get("makers", "")))
+	if str(dash.get("win_on_sunday", "")) != "":
+		center_body.add_child(_gold_line(str(dash.get("win_on_sunday", ""))))
+		print("WIN_ON_SUNDAY=", str(dash.get("win_on_sunday", "")))
 	if str(dash.get("factory", "")) != "":
 		center_body.add_child(_muted(str(dash.get("factory", ""))))
 	var alerts: Array = dash.get("alerts", [])
@@ -1201,6 +1205,7 @@ func _fill_rulebook() -> void:
 	var actions: Array = []
 	var homologation_card: Dictionary = {}
 	var wheelbase_card: Dictionary = {}
+	var specials_card: Dictionary = {}
 	if typeof(raw) == TYPE_DICTIONARY:
 		var book: Dictionary = raw
 		policies = _as_array(book.get("policies", []))
@@ -1211,7 +1216,8 @@ func _fill_rulebook() -> void:
 		actions = _as_array(book.get("actions", []))
 		homologation_card = _as_dict(book.get("homologation_count", {}))
 		wheelbase_card = _as_dict(book.get("wheelbase_class", {}))
-		print("AERO_SPECIALS=", str(book.get("specials", "")))
+		specials_card = _as_dict(book.get("aero_specials", {}))
+		print("AERO_SPECIALS=", str(book.get("specials", specials_card.get("value", ""))))
 		print("AERO_PLATES=", str(book.get("plates", false)))
 		print("AERO_TEMPLATE=", str(book.get("template", "")))
 		print("AERO_HOMOLOGATION=", str(book.get("homologation", homologation_card.get("value", ""))))
@@ -1221,8 +1227,10 @@ func _fill_rulebook() -> void:
 		print("AERO_VENUES=", str(venue_rows.size()))
 		print("HOMOLOGATION_CHOICES=", str(_as_array(homologation_card.get("choices", [])).size()))
 		print("WHEELBASE_CHOICES=", str(_as_array(wheelbase_card.get("choices", [])).size()))
+		print("SPECIALS_CHOICES=", str(_as_array(specials_card.get("choices", [])).size()))
 		print("AERO_SEASON=", str(book.get("season", "")))
 		print("AERO_ERA=", str(book.get("era_book", era_book)))
+		print("WIN_ON_SUNDAY=", str(book.get("win_on_sunday", "")))
 	else:
 		policies = _as_array(raw)
 	print("RULEBOOK=", str(policies.size()))
@@ -1231,10 +1239,14 @@ func _fill_rulebook() -> void:
 		center_body.add_child(_gold_line("Winter book"))
 		for line in book_lines:
 			center_body.add_child(_line(str(line)))
+		if typeof(raw) == TYPE_DICTIONARY and str(raw.get("win_on_sunday", "")) != "":
+			center_body.add_child(_muted(str(raw.get("win_on_sunday", ""))))
 	if not homologation_card.is_empty():
 		_add_count_card("Homologation count", homologation_card)
 	if not wheelbase_card.is_empty():
 		_add_count_card("Wheelbase class", wheelbase_card)
+	if not specials_card.is_empty():
+		_add_count_card("Aero specials", specials_card)
 	if not bodies.is_empty():
 		var year_label := "This year's bodies"
 		if typeof(raw) == TYPE_DICTIONARY:
@@ -1424,6 +1436,9 @@ func _fill_board() -> void:
 	var book := _as_dict(snapshot.get("board", {}))
 	var councils := _as_dict(snapshot.get("councils", {}))
 	print("BOARD_CONFIDENCE=", str(book.get("confidence_label", "")))
+	if str(book.get("win_on_sunday", "")) != "":
+		center_body.add_child(_gold_line(str(book.get("win_on_sunday", ""))))
+		print("WIN_ON_SUNDAY=", str(book.get("win_on_sunday", "")))
 	center_body.add_child(_line("Confidence: %s (%s)" % [
 		str(book.get("confidence_label", "—")),
 		str(book.get("confidence", "—")),

@@ -552,10 +552,10 @@ def penalty_standard_event(policies):
 def technical_rules_event(policies):
     """Preseason winter body book — the Aero Wars hearing."""
 
-    from game.aero_wars import live_book
+    from game.aero_wars import live_book, specials_label
 
     book = live_book()
-    specials = book.get("aero_specials") or "banned"
+    specials = specials_label(book.get("aero_specials"))
     template = book.get("template") or "identity"
     plates = "on" if book.get("plates") else "off"
     inherited = policy_label("technical_rules", policies.get("technical_rules"))
@@ -568,7 +568,7 @@ def technical_rules_event(policies):
         "prompt": (
             "The competition director wants a direction for the homologated "
             "coupes. This is the winter body book, not a generic aero cap. "
-            "Current book: aero specials %s, template %s, plates %s "
+            "Current book: %s, template %s, plates %s "
             "(legacy inspection: %s)."
             % (specials, template, plates, inherited)
         ),
@@ -655,6 +655,44 @@ def technical_rules_event(policies):
                     {
                         "weight": 35,
                         "text": "Garages quietly budget for extra compliance staff.",
+                        "effects": [
+                            {
+                                "type": "all_teams_budget",
+                                "delta": -40_000,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "4",
+                "label": "Homologate-to-run",
+                "effects": [
+                    {
+                        "type": "aero",
+                        "key": "aero_specials",
+                        "value": "homologate",
+                    },
+                    {"type": "league", "stat": "integrity", "delta": 3},
+                    {"type": "league", "stat": "fan_interest", "delta": 2},
+                    {"type": "league", "stat": "controversy", "delta": 3},
+                    {"type": "league", "stat": "owner_pressure", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 65,
+                        "text": (
+                            "Specials are legal only if Detroit sells the "
+                            "street count. Superbirds need paperwork, not a ban."
+                        ),
+                        "effects": [],
+                    },
+                    {
+                        "weight": 35,
+                        "text": (
+                            "Shops budget extra for homologation runs. "
+                            "The winged-car lobby calls it a half measure."
+                        ),
                         "effects": [
                             {
                                 "type": "all_teams_budget",
@@ -3643,3 +3681,489 @@ def board_confidence_events(season_number, teams, drivers, resolved_ids, league=
     if not security["review"]:
         return []
     return [board_confidence_event(season_number, security)]
+
+
+def _live_aero_book(league=None):
+    from game.aero_wars import ensure_aero_book, live_book
+
+    if league is not None:
+        return ensure_aero_book(league) or live_book()
+    return live_book()
+
+
+def factory_lobby_ask(book=None):
+    """Return what Detroit wants from the winter book this year."""
+
+    from game.aero_wars import normalize_specials, SPECIALS_BANNED, SPECIALS_HOMOLOGATE
+
+    book = book or _live_aero_book()
+    if not book.get("chrysler"):
+        return {
+            "factory": "Valiant",
+            "ask": "invite Chrysler back into the winter book",
+            "grant_key": "chrysler",
+            "grant_value": "on",
+            "grant_label": "Invite Chrysler — do not rebadge live shops",
+            "compromise_key": "aero_specials",
+            "compromise_value": "homologate",
+            "compromise_label": "Hold Chrysler out; homologate-to-run instead",
+        }
+    specials = normalize_specials(book.get("aero_specials")) or SPECIALS_BANNED
+    if specials == SPECIALS_BANNED:
+        return {
+            "factory": "Detroit",
+            "ask": "homologate aero specials to run",
+            "grant_key": "aero_specials",
+            "grant_value": "homologate",
+            "grant_label": "Homologate-to-run — Detroit sells the street count",
+            "compromise_key": "homologation",
+            "compromise_value": "200",
+            "compromise_label": "Keep specials banned; hold the 200-unit count",
+        }
+    if specials == SPECIALS_HOMOLOGATE:
+        return {
+            "factory": "Detroit",
+            "ask": "drop the street-count paperwork and legalize specials",
+            "grant_key": "aero_specials",
+            "grant_value": "legal",
+            "grant_label": "Legalize aero specials outright",
+            "compromise_key": "homologation",
+            "compromise_value": "200",
+            "compromise_label": "Keep homologate-to-run; cut the street count to 200",
+        }
+    return {
+        "factory": "the brick shops",
+        "ask": "pull specials back to homologate-to-run",
+        "grant_key": "aero_specials",
+        "grant_value": "homologate",
+        "grant_label": "Pull specials back to homologate-to-run",
+        "compromise_key": "homologation",
+        "compromise_value": "500",
+        "compromise_label": "Keep specials legal; raise the street count to 500",
+    }
+
+
+def factory_lobby_event(season_number, book=None):
+    """Preseason Detroit mail — factories lobby the winter book."""
+
+    ask = factory_lobby_ask(book)
+    return {
+        "id": "factory-lobby-s{0}".format(season_number),
+        "title": "Detroit Winter Book",
+        "category": "factory-lobby",
+        "phase": PRESEASON,
+        "prompt": (
+            "Factory desks land in the mail. {0} wants the winter book to "
+            "{1}. Granting Chrysler opens a factory card. It does not rebadge "
+            "shops already on the grid — Harbor keeps its current badge."
+        ).format(ask["factory"], ask["ask"]),
+        "choices": [
+            {
+                "id": "1",
+                "label": ask["grant_label"],
+                "effects": [
+                    {
+                        "type": "aero",
+                        "key": ask["grant_key"],
+                        "value": ask["grant_value"],
+                    },
+                    {"type": "league", "stat": "fan_interest", "delta": 3},
+                    {"type": "league", "stat": "controversy", "delta": 4},
+                    {"type": "league", "stat": "owner_pressure", "delta": -2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "Detroit gets the rewrite. Live shops keep the "
+                            "badges they already wear."
+                        ),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": ask["compromise_label"],
+                "effects": [
+                    {
+                        "type": "aero",
+                        "key": ask["compromise_key"],
+                        "value": ask["compromise_value"],
+                    },
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                    {"type": "league", "stat": "controversy", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "A half-measure. Both factory desks leak anyway.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Hold the inherited winter book",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                    {"type": "league", "stat": "owner_pressure", "delta": 4},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "The book stays put. Detroit files another memo "
+                            "for next winter."
+                        ),
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def factory_lobby_events(season_number, resolved_ids, league=None):
+    """Return Detroit's winter-book lobby when it has not been ruled."""
+
+    event_id = "factory-lobby-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    return [factory_lobby_event(season_number, _live_aero_book(league))]
+
+
+def kit_lobby_ask(book=None, packages=None):
+    """Return the owner vs garage kit ask for this winter."""
+
+    from game.aero_wars import PLATE_TRACKS, live_packages
+
+    book = book or _live_aero_book()
+    packages = packages if packages is not None else live_packages()
+    ss = packages.get("Superspeedway") or {}
+    plates_on = bool(book.get("plates")) and ss.get("plates") != "off"
+    venue = PLATE_TRACKS[0]
+    if plates_on:
+        return {
+            "sponsor": "the aero shops",
+            "headline": "pull restrictor plates",
+            "grant_key": "plates",
+            "grant_value": "off",
+            "grant_label": "Grant the owners — pull restrictor plates",
+            "garage_key": "venue_plates",
+            "garage_value": "%s:off" % venue,
+            "garage_label": "Side with the garage — open %s only" % venue,
+        }
+    return {
+        "sponsor": "the brick shops",
+        "headline": "plate the two biggest ovals",
+        "grant_key": "plates",
+        "grant_value": "on",
+        "grant_label": "Grant the owners — plate the two biggest ovals",
+        "garage_key": "venue_plates",
+        "garage_value": "%s:on" % venue,
+        "garage_label": "Side with the garage — plate %s only" % venue,
+    }
+
+
+def kit_lobby_event(season_number, book=None, packages=None):
+    """Owners and the garage lobby the per-track kit like a points paper."""
+
+    ask = kit_lobby_ask(book, packages)
+    return {
+        "id": "kit-lobby-s{0}".format(season_number),
+        "title": "Kit Lobby",
+        "category": "kit-lobby",
+        "phase": PRESEASON,
+        "prompt": (
+            "Owners and the garage work the per-track kit the same way they "
+            "work a points paper. {0} want the office to {1}. The garage "
+            "steward would rather carve a named venue than rewrite the whole "
+            "type kit."
+        ).format(ask["sponsor"], ask["headline"]),
+        "choices": [
+            {
+                "id": "1",
+                "label": ask["grant_label"],
+                "effects": [
+                    {
+                        "type": "aero",
+                        "key": ask["grant_key"],
+                        "value": ask["grant_value"],
+                    },
+                    {"type": "league", "stat": "owner_pressure", "delta": -4},
+                    {"type": "league", "stat": "driver_sentiment", "delta": -2},
+                    {"type": "league", "stat": "controversy", "delta": 3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "The owner bloc gets the kit. The garage mutters.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": ask["garage_label"],
+                "effects": [
+                    {
+                        "type": "aero",
+                        "key": ask["garage_key"],
+                        "value": ask["garage_value"],
+                    },
+                    {"type": "league", "stat": "driver_sentiment", "delta": 3},
+                    {"type": "league", "stat": "owner_pressure", "delta": 2},
+                    {"type": "league", "stat": "controversy", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "One oval breaks from the type kit. The rest of "
+                            "the calendar stays put."
+                        ),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Hold the current kit",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                    {"type": "league", "stat": "owner_pressure", "delta": 3},
+                    {"type": "league", "stat": "driver_sentiment", "delta": -1},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "The kit holds. Both blocs file another memo.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def kit_lobby_events(season_number, resolved_ids, league=None):
+    """Return the kit lobby when it has not been ruled this season."""
+
+    event_id = "kit-lobby-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    packages = None
+    if league is not None:
+        packages = league.get("track_packages")
+    return [kit_lobby_event(season_number, _live_aero_book(league), packages)]
+
+
+def runaway_hearing_event(season_number, family):
+    """In-season hearing when one factory owns victory lane."""
+
+    family = family or "one factory"
+    return {
+        "id": "runaway-s{0}".format(season_number),
+        "title": "One-Make Runaway",
+        "category": "victory-lane",
+        "phase": REGULAR_SEASON,
+        "prompt": (
+            "{0} just stacked victory lane. Fan interest is already sliding. "
+            "The board wants a kit answer, not a press quote."
+        ).format(family),
+        "choices": [
+            {
+                "id": "1",
+                "label": "Adopt a spec silhouette",
+                "effects": [
+                    {"type": "aero", "key": "template", "value": "spec"},
+                    {
+                        "type": "policy",
+                        "key": "technical_rules",
+                        "value": "inspection-heavy",
+                    },
+                    {"type": "league", "stat": "integrity", "delta": 3},
+                    {"type": "league", "stat": "fan_interest", "delta": -2},
+                    {"type": "league", "stat": "owner_pressure", "delta": 5},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "A common template flattens the runaway. "
+                            "Detroit calls it a kneecap."
+                        ),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": "Plate the two biggest ovals",
+                "effects": [
+                    {"type": "aero", "key": "plates", "value": "on"},
+                    {"type": "league", "stat": "controversy", "delta": 3},
+                    {"type": "league", "stat": "fan_interest", "delta": 2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "Plates go on the two biggest ovals. Packs bunch.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Let Detroit race",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 1},
+                    {"type": "league", "stat": "fan_interest", "delta": -4},
+                    {"type": "league", "stat": "owner_pressure", "delta": 3},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "The office lets the war run. The board files "
+                            "Win-on-Sunday as a health warning."
+                        ),
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def runaway_hearing_events(
+    season_number,
+    resolved_ids,
+    race_history=None,
+    teams=None,
+):
+    """Return a runaway hearing after one family stacks victory lane."""
+
+    from game.aero_wars import one_make_runaway
+
+    event_id = "runaway-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    teams_by_name = {team.name: team for team in teams or []}
+    family = one_make_runaway(race_history, teams_by_name)
+    if not family:
+        return []
+    return [runaway_hearing_event(season_number, family)]
+
+
+def plate_pack_event(season_number, kind, track_name):
+    """In-season hearing after a plated oval goes wreckfest or single-file."""
+
+    kind = kind or "wreckfest"
+    track_name = track_name or "the plated oval"
+    if kind == "single-file":
+        hook = (
+            "{0} ran single-file behind the plates. The show died. "
+            "Owners want the kit opened; the garage wants one named venue."
+        ).format(track_name)
+        grant_label = "Pull restrictor plates"
+        grant_key, grant_value = "plates", "off"
+        garage_label = "Open %s only" % track_name
+        garage_key, garage_value = "venue_plates", "%s:off" % track_name
+    else:
+        hook = (
+            "{0} turned into a wreck-fest behind the plates. The garage "
+            "wants the pack opened; owners want the type kit left alone."
+        ).format(track_name)
+        grant_label = "Pull restrictor plates"
+        grant_key, grant_value = "plates", "off"
+        garage_label = "Open %s only" % track_name
+        garage_key, garage_value = "venue_plates", "%s:off" % track_name
+    return {
+        "id": "plate-pack-s{0}".format(season_number),
+        "title": "Plate-Pack Hearing",
+        "category": "victory-lane",
+        "phase": REGULAR_SEASON,
+        "prompt": hook,
+        "choices": [
+            {
+                "id": "1",
+                "label": grant_label,
+                "effects": [
+                    {"type": "aero", "key": grant_key, "value": grant_value},
+                    {"type": "league", "stat": "controversy", "delta": -3},
+                    {"type": "league", "stat": "fan_interest", "delta": 3},
+                    {"type": "league", "stat": "owner_pressure", "delta": 4},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "Plates come off the winter book. Speed returns.",
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "2",
+                "label": garage_label,
+                "effects": [
+                    {
+                        "type": "aero",
+                        "key": garage_key,
+                        "value": garage_value,
+                    },
+                    {"type": "league", "stat": "driver_sentiment", "delta": 3},
+                    {"type": "league", "stat": "controversy", "delta": -2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": (
+                            "One plated oval breaks from the type kit. "
+                            "The rest of the calendar still follows the book."
+                        ),
+                        "effects": [],
+                    },
+                ],
+            },
+            {
+                "id": "3",
+                "label": "Hold the plate pack",
+                "effects": [
+                    {"type": "league", "stat": "integrity", "delta": 2},
+                    {"type": "league", "stat": "controversy", "delta": 3},
+                    {"type": "league", "stat": "fan_interest", "delta": -2},
+                ],
+                "outcomes": [
+                    {
+                        "weight": 100,
+                        "text": "The pack stays plated. The letters keep coming.",
+                        "effects": [],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def plate_pack_events(
+    season_number,
+    resolved_ids,
+    race_history=None,
+    league=None,
+):
+    """Return a plate-pack hearing after a wreckfest or single-file oval."""
+
+    from game.aero_wars import plate_pack_kind
+
+    event_id = "plate-pack-s{0}".format(season_number)
+    if event_id in (resolved_ids or []):
+        return []
+    record = (list(race_history or []) or [None])[-1]
+    kind = plate_pack_kind(record, _live_aero_book(league))
+    if not kind:
+        return []
+    track_name = (record or {}).get("track") or "the plated oval"
+    return [plate_pack_event(season_number, kind, track_name)]
+

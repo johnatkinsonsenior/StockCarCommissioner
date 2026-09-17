@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Rewrite one Aero Wars winter-book or package slot from the office.
 
-Day 117 prints homologation count and wheelbase class so the Rulebook
-desk can round-trip those levers.
+Day 118 prints aero-specials including homologate-to-run so the Rulebook
+desk can round-trip that lever.
 """
 
 import io

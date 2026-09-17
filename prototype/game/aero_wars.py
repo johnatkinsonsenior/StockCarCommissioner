@@ -7,7 +7,10 @@ Race pace mixes that map with driver track skill. Day 114 lets the
 commissioner rewrite the winter book and the per-track kit. Day 116
 lets a named venue break from its type kit — plate this oval, not
 every superspeedway. Day 117 puts homologation count and wheelbase
-class on the Rulebook desk as first-class winter-book levers.
+class on the Rulebook desk as first-class winter-book levers. Day 118
+makes homologate-to-run a real aero-specials choice. Days 119–122
+give that book stakeholders: Detroit mail, kit lobby, victory-lane
+hearings, and Win-on-Sunday on the desk.
 """
 
 from game.settings import (
@@ -103,6 +106,24 @@ WHEELBASE_OPTIONS = (
     },
 )
 
+SPECIALS_OPTIONS = (
+    {
+        "value": SPECIALS_BANNED,
+        "label": "Aero specials banned",
+        "blurb": "No Superbirds, no long-nose warriors. The 1971 kneecap holds.",
+    },
+    {
+        "value": SPECIALS_HOMOLOGATE,
+        "label": "Homologate-to-run",
+        "blurb": "Specials are legal only if Detroit sells the street count.",
+    },
+    {
+        "value": SPECIALS_LEGAL,
+        "label": "Aero specials legal",
+        "blurb": "Wings and long noses run if a factory will badge them.",
+    },
+)
+
 _LIVE = {"book": None, "packages": None}
 
 
@@ -189,6 +210,38 @@ def wheelbase_label(value):
     return "110-inch downsized"
 
 
+def normalize_specials(value):
+    """Return banned, legal, or homologate, else None."""
+
+    if value in (SPECIALS_BANNED, SPECIALS_LEGAL, SPECIALS_HOMOLOGATE):
+        return value
+    token = str(value or "").strip().lower().replace("_", "-")
+    token = token.replace(" ", "-")
+    if token in ("legal", "legalize", "allowed", "on"):
+        return SPECIALS_LEGAL
+    if token in (
+        "homologate",
+        "homologate-to-run",
+        "homologation",
+        "to-run",
+    ):
+        return SPECIALS_HOMOLOGATE
+    if token in ("banned", "ban", "off", "illegal"):
+        return SPECIALS_BANNED
+    return None
+
+
+def specials_label(value):
+    """Return the winter-book line for aero specials."""
+
+    token = normalize_specials(value) or SPECIALS_BANNED
+    if token == SPECIALS_LEGAL:
+        return "Aero specials legal"
+    if token == SPECIALS_HOMOLOGATE:
+        return "Homologate-to-run"
+    return "Aero specials banned"
+
+
 def homologation_operating_cost(book=None):
     """Return extra per-shop cost from the live homologation count."""
 
@@ -197,6 +250,15 @@ def homologation_operating_cost(book=None):
         return 25_000
     if token == HOMOLOGATION_PER_DEALER:
         return 75_000
+    return 0
+
+
+def specials_operating_cost(book=None):
+    """Return extra per-shop cost when specials must be homologated to run."""
+
+    token = normalize_specials((book or live_book()).get("aero_specials"))
+    if token == SPECIALS_HOMOLOGATE:
+        return 40_000
     return 0
 
 
@@ -295,6 +357,10 @@ def ensure_aero_book(league, era_book=None):
         current["wheelbase"] = (
             wheel if wheel is not None else defaults["wheelbase"]
         )
+        specials = normalize_specials(current.get("aero_specials"))
+        current["aero_specials"] = (
+            specials if specials is not None else defaults["aero_specials"]
+        )
         if league is not None:
             league["aero_book"] = current
     packages = league.get("track_packages") if league is not None else None
@@ -353,9 +419,10 @@ def apply_aero_rule(league, key, value):
             league["track_packages"] = packages
     key = str(key or "").strip()
     if key == "aero_specials":
-        if value in (SPECIALS_BANNED, SPECIALS_LEGAL, SPECIALS_HOMOLOGATE):
-            book["aero_specials"] = value
-            if value == SPECIALS_LEGAL:
+        specials = normalize_specials(value)
+        if specials is not None:
+            book["aero_specials"] = specials
+            if specials in (SPECIALS_LEGAL, SPECIALS_HOMOLOGATE):
                 book["aerocoupes"] = True
     elif key == "aerocoupes":
         book["aerocoupes"] = _truthy(value)
@@ -626,7 +693,7 @@ def _body_legal(entry, book):
     if entry is None:
         return False
     needs = entry.get("needs")
-    specials = (book or {}).get("aero_specials") or SPECIALS_BANNED
+    specials = normalize_specials((book or {}).get("aero_specials")) or SPECIALS_BANNED
     winged = specials in (SPECIALS_LEGAL, SPECIALS_HOMOLOGATE)
     aero = bool((book or {}).get("aerocoupes")) or winged
     if needs == "specials":
@@ -642,7 +709,7 @@ def default_body_id(maker_name, era_book=None, book=None):
     era = era_book or _era()
     book = book or live_book()
     maker = str(maker_name or "Independent")
-    specials = book.get("aero_specials") or SPECIALS_BANNED
+    specials = normalize_specials(book.get("aero_specials")) or SPECIALS_BANNED
     winged = specials in (SPECIALS_LEGAL, SPECIALS_HOMOLOGATE)
     aero = bool(book.get("aerocoupes")) or winged
     if maker == "Apex":
@@ -952,24 +1019,7 @@ def office_aero_actions(book=None, packages=None):
 
     book = book or live_book()
     packages = packages or live_packages()
-    specials = book.get("aero_specials") or SPECIALS_BANNED
     actions = []
-    if specials != SPECIALS_LEGAL:
-        actions.append(
-            {
-                "key": "aero_specials",
-                "value": SPECIALS_LEGAL,
-                "label": "Legalize aero specials",
-            }
-        )
-    else:
-        actions.append(
-            {
-                "key": "aero_specials",
-                "value": SPECIALS_BANNED,
-                "label": "Ban aero specials",
-            }
-        )
     if book.get("template") != "spec":
         actions.append(
             {
@@ -1215,11 +1265,39 @@ def office_wheelbase_desk(book=None):
     }
 
 
+def office_specials_desk(book=None):
+    """Return the Rulebook aero-specials card, including homologate-to-run."""
+
+    book = book or live_book()
+    current = normalize_specials(book.get("aero_specials"))
+    if current is None:
+        current = SPECIALS_BANNED
+    choices = []
+    for option in SPECIALS_OPTIONS:
+        choices.append(
+            {
+                "key": "aero_specials",
+                "value": str(option["value"]),
+                "label": option["label"],
+                "blurb": option["blurb"],
+                "selected": current == option["value"],
+            }
+        )
+    return {
+        "value": current,
+        "label": specials_label(current),
+        "blurb": (
+            "Winged cars and long noses. Homologate-to-run lets Detroit "
+            "field them only after the street count is sold."
+        ),
+        "choices": choices,
+    }
+
+
 def book_lines(book=None):
     """Return short winter-book lines for the desk."""
 
     book = book or live_book()
-    specials = book.get("aero_specials") or SPECIALS_BANNED
     template = book.get("template") or "identity"
     plates = "Plates on the two biggest ovals" if book.get("plates") else "No restrictor plates"
     chrysler = "Chrysler invited" if book.get("chrysler") else "Chrysler out of the book"
@@ -1228,12 +1306,35 @@ def book_lines(book=None):
         "Two-door coupes required" if book.get("coupe_only") else "Open body class",
         wheelbase_label(book.get("wheelbase")),
         homologation_label(book.get("homologation")),
-        "Aero specials %s" % specials,
+        specials_label(book.get("aero_specials")),
         aero,
         "Template: %s" % ("manufacturer identity" if template == "identity" else "spec silhouette"),
         plates,
         chrysler,
     ]
+
+
+def _winner_family(record, teams_by_name=None):
+    """Return the Detroit family that took victory lane in this race."""
+
+    record = record or {}
+    winner = None
+    maker = None
+    results = record.get("results") or record.get("feature") or []
+    if results:
+        first = results[0] if isinstance(results[0], dict) else None
+        if first:
+            winner = first.get("team") or first.get("team_name")
+            maker = first.get("manufacturer")
+    if not winner:
+        winner = record.get("winner_team") or record.get("team")
+    if teams_by_name and winner:
+        team = teams_by_name.get(winner)
+        if team is not None:
+            maker = getattr(team, "manufacturer", None) or maker
+    if not maker:
+        maker = record.get("manufacturer")
+    return family_for(maker)
 
 
 def one_make_runaway(race_history, teams_by_name=None, window=3):
@@ -1243,22 +1344,7 @@ def one_make_runaway(race_history, teams_by_name=None, window=3):
         return None
     families = []
     for record in list(race_history)[-window:]:
-        winner = None
-        results = record.get("results") or record.get("feature") or []
-        if results:
-            first = results[0] if isinstance(results[0], dict) else None
-            if first:
-                winner = first.get("team") or first.get("team_name")
-        if not winner:
-            winner = record.get("winner_team") or record.get("team")
-        maker = None
-        if teams_by_name and winner:
-            team = teams_by_name.get(winner)
-            if team is not None:
-                maker = getattr(team, "manufacturer", None)
-        if not maker:
-            maker = record.get("manufacturer")
-        family = family_for(maker)
+        family = _winner_family(record, teams_by_name)
         if family == FAMILY_INDEPENDENT:
             return None
         families.append(family)
@@ -1266,4 +1352,74 @@ def one_make_runaway(race_history, teams_by_name=None, window=3):
         return None
     if all(item == families[0] for item in families):
         return families[0]
+    return None
+
+
+def win_on_sunday(race_history, teams_by_name=None, window=6):
+    """Return the Win-on-Sunday health line from recent victory lanes."""
+
+    families = []
+    for record in list(race_history or [])[-window:]:
+        family = _winner_family(record, teams_by_name)
+        if family and family != FAMILY_INDEPENDENT:
+            families.append(family)
+    unique = []
+    for family in families:
+        if family not in unique:
+            unique.append(family)
+    runaway = one_make_runaway(race_history, teams_by_name)
+    if not families:
+        return {
+            "line": "Win on Sunday: no feature yet this year",
+            "health": "pending",
+            "families": [],
+            "runaway": None,
+        }
+    if runaway:
+        line = "Win on Sunday: %s monopoly — board is restless" % runaway
+        health = "poor"
+    elif len(unique) >= 3:
+        line = "Win on Sunday: %s families in victory lane" % len(unique)
+        health = "strong"
+    elif len(unique) == 2:
+        line = "Win on Sunday: two families splitting the lane"
+        health = "fair"
+    else:
+        line = "Win on Sunday: one-make Sundays — Detroit is restless"
+        health = "poor"
+    return {
+        "line": line,
+        "health": health,
+        "families": unique,
+        "runaway": runaway,
+    }
+
+
+def plate_pack_kind(race_record, book=None):
+    """Return wreckfest, single-file, or None for a plate-track feature."""
+
+    if not race_record:
+        return None
+    track = {
+        "name": race_record.get("track") or race_record.get("name"),
+        "type": race_record.get("track_type") or race_record.get("type"),
+    }
+    if not is_plate_track(track, book):
+        return None
+    cautions = int(race_record.get("cautions") or 0)
+    wrecks = race_record.get("wrecks") or []
+    wreck_size = 0
+    for wreck in wrecks:
+        if isinstance(wreck, dict):
+            wreck_size = max(
+                wreck_size,
+                int(wreck.get("cars") or wreck.get("size") or 0),
+                len(wreck.get("drivers") or []),
+            )
+        elif isinstance(wreck, (list, tuple)):
+            wreck_size = max(wreck_size, len(wreck))
+    if cautions >= 6 or wreck_size >= 6:
+        return "wreckfest"
+    if cautions <= 1:
+        return "single-file"
     return None

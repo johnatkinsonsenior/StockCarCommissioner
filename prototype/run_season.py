@@ -50,8 +50,12 @@ from game.event_catalog import (
     driver_council_mood,
     driver_council_seats,
     driver_council_tally,
+    factory_lobby_events,
+    kit_lobby_events,
     lobbying_events,
     owner_coalitions,
+    plate_pack_events,
+    runaway_hearing_events,
     owner_council_chair,
     owner_council_mood,
     owner_council_seats,
@@ -106,10 +110,14 @@ from game.aero_wars import (
     office_aero_actions,
     office_bodies_book,
     office_homologation_desk,
+    office_specials_desk,
     office_venue_kits,
     office_wheelbase_desk,
     one_make_runaway,
     package_lines,
+    plate_pack_kind,
+    specials_operating_cost,
+    win_on_sunday,
 )
 from game.policies import (
     current_policies,
@@ -349,6 +357,9 @@ league = {
     "season_factory_switches": [],
     "factory_history": [],
     "pending_factory_switch": None,
+    "runaway_flagged_season": None,
+    "plate_pack_flagged_season": None,
+    "plate_pack_kind": None,
     "last_office_week": None,
     "hall_of_fame": [],
 }
@@ -565,6 +576,9 @@ def reset_career_state(keep_settings=False):
     league["season_factory_switches"] = []
     league["factory_history"] = []
     league["pending_factory_switch"] = None
+    league["runaway_flagged_season"] = None
+    league["plate_pack_flagged_season"] = None
+    league["plate_pack_kind"] = None
     league["last_office_week"] = None
     league["last_office_hearing"] = None
     league["office_offseason_step"] = 0
@@ -4160,6 +4174,7 @@ def display_league_dashboard():
     print_team_closure_dashboard_line()
     print_manufacturer_dashboard_line()
     print_factory_dashboard_line()
+    print_win_on_sunday_line()
     print(
         f"Treasury: ${league.get('treasury', 0):,} | "
         f"Fines collected: ${league['fines_collected']:,}"
@@ -4436,6 +4451,9 @@ def apply_event_followups(result, event):
         record_team_closure(result, event)
     elif category == "manufacturer-switch":
         record_manufacturer_switch(result, event)
+    elif category == "factory-lobby":
+        if (league.get("aero_book") or {}).get("chrysler"):
+            _invite_valiant_factory()
     return result
 
 
@@ -4517,6 +4535,40 @@ def catalog_decision_events():
         )
         or []
     )
+    events.extend(
+        factory_lobby_events(
+            calendar.current_season,
+            events_resolved,
+            league,
+        )
+        or []
+    )
+    events.extend(
+        kit_lobby_events(
+            calendar.current_season,
+            events_resolved,
+            league,
+        )
+        or []
+    )
+    events.extend(
+        runaway_hearing_events(
+            calendar.current_season,
+            events_resolved,
+            race_history,
+            teams,
+        )
+        or []
+    )
+    events.extend(
+        plate_pack_events(
+            calendar.current_season,
+            events_resolved,
+            race_history,
+            league,
+        )
+        or []
+    )
     events.extend(offseason_events(current_policies, events_resolved) or [])
     return events
 
@@ -4590,10 +4642,17 @@ def _apply_aero_flavor(key, before, book):
     elif key == "aero_specials":
         now = book.get("aero_specials")
         was = before.get("aero_specials")
-        if now == "legal" and was != "legal":
+        if now == was:
+            return
+        if now == "legal":
             league["fan_interest"] = clamp(league.get("fan_interest", 0) + 5)
             league["controversy"] = clamp(league.get("controversy", 0) + 8)
-        elif was == "legal" and now != "legal":
+        elif now == "homologate":
+            league["integrity"] = clamp(league.get("integrity", 0) + 3)
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) + 2)
+            league["controversy"] = clamp(league.get("controversy", 0) + 3)
+            league["owner_pressure"] = clamp(league.get("owner_pressure", 0) + 2)
+        else:
             league["fan_interest"] = clamp(league.get("fan_interest", 0) - 3)
             league["controversy"] = clamp(league.get("controversy", 0) - 4)
     elif key == "template":
@@ -5682,6 +5741,47 @@ def print_factory_dashboard_line():
     """Print the last factory move and the next expiring deal."""
 
     print(factory_dashboard_text())
+
+
+def win_on_sunday_book():
+    """Return Win-on-Sunday health for the desk and CLI dashboard."""
+
+    teams_by_name = {team.name: team for team in teams or []}
+    return win_on_sunday(race_history, teams_by_name)
+
+
+def win_on_sunday_text():
+    """Return the compact Win-on-Sunday dashboard line."""
+
+    return win_on_sunday_book().get("line") or "Win on Sunday: no feature yet this year"
+
+
+def print_win_on_sunday_line():
+    """Print factory health from recent victory lanes."""
+
+    print(win_on_sunday_text())
+
+
+def tick_victory_lane_politics():
+    """Meter ticks when a runaway or plate-pack controversy first lands."""
+
+    teams_by_name = {team.name: team for team in teams or []}
+    season = calendar.current_season
+    runaway = one_make_runaway(race_history, teams_by_name)
+    if runaway and league.get("runaway_flagged_season") != season:
+        league["fan_interest"] = clamp(league.get("fan_interest", 0) - 4)
+        league["controversy"] = clamp(league.get("controversy", 0) + 3)
+        league["runaway_flagged_season"] = season
+    record = race_history[-1] if race_history else None
+    kind = plate_pack_kind(record)
+    if kind and league.get("plate_pack_flagged_season") != season:
+        if kind == "wreckfest":
+            league["controversy"] = clamp(league.get("controversy", 0) + 4)
+        else:
+            league["fan_interest"] = clamp(league.get("fan_interest", 0) - 3)
+            league["controversy"] = clamp(league.get("controversy", 0) + 2)
+        league["plate_pack_flagged_season"] = season
+        league["plate_pack_kind"] = kind
 
 
 def simulate_development_race(track, field):
@@ -7366,6 +7466,7 @@ def calculate_operating_expenses(team):
         + team.facility_level * FACILITY_MAINTENANCE_PER_LEVEL
         + get_policy_operating_cost()
         + homologation_operating_cost()
+        + specials_operating_cost()
     )
 
     if team.financial_distress_level >= 2:
@@ -8146,6 +8247,7 @@ def record_race_history(track, race_number, results, weekend, race_points=None):
     apply_race_gate(race_record, track, results, weekend)
     apply_race_media_stories(race_record, track, results, weekend)
     race_history.append(race_record)
+    tick_victory_lane_politics()
 
 
 def office_standings_book():
@@ -8410,6 +8512,7 @@ def office_rulebook_book():
         "actions": office_aero_actions(),
         "homologation_count": office_homologation_desk(),
         "wheelbase_class": office_wheelbase_desk(),
+        "aero_specials": office_specials_desk(),
         "homologation": aero.get("homologation"),
         "wheelbase": aero.get("wheelbase"),
         "specials": aero.get("aero_specials"),
@@ -8417,6 +8520,7 @@ def office_rulebook_book():
         "template": aero.get("template"),
         "chrysler": bool(aero.get("chrysler")),
         "short_equalize": bool(aero.get("short_equalize")),
+        "win_on_sunday": win_on_sunday_text(),
         "season": calendar.current_season,
         "era_book": current_settings.get("era_book"),
     }
@@ -8487,6 +8591,7 @@ def office_board_book():
         "owners": approval.get("owners"),
         "drivers": approval.get("drivers"),
         "dismissed": bool(league.get("dismissed")),
+        "win_on_sunday": win_on_sunday_text(),
     }
 
 
@@ -9812,6 +9917,7 @@ def display_commissioner_report():
     print_team_closure_dashboard_line()
     print_manufacturer_dashboard_line()
     print_factory_dashboard_line()
+    print_win_on_sunday_line()
 
 
 def save_season_report(season_number):
@@ -10340,6 +10446,9 @@ def initialize_season(season_number):
     league["last_factory_switch"] = None
     league["season_factory_switches"] = []
     league["pending_factory_switch"] = None
+    league["runaway_flagged_season"] = None
+    league["plate_pack_flagged_season"] = None
+    league["plate_pack_kind"] = None
 
     for team in teams:
         team.start_new_season()
@@ -10374,6 +10483,20 @@ def initialize_season(season_number):
     display_league_dashboard()
     present_events(
         preseason_events(current_policies, season_number)
+    )
+    present_events(
+        factory_lobby_events(
+            season_number,
+            events_resolved,
+            league,
+        )
+    )
+    present_events(
+        kit_lobby_events(
+            season_number,
+            events_resolved,
+            league,
+        )
     )
 
 
@@ -10525,6 +10648,22 @@ def run_regular_season():
                 league.get("last_press_conference"),
                 events_resolved,
                 controversy=league.get("controversy", 0),
+            )
+        )
+        present_events(
+            runaway_hearing_events(
+                calendar.current_season,
+                events_resolved,
+                race_history,
+                teams,
+            )
+        )
+        present_events(
+            plate_pack_events(
+                calendar.current_season,
+                events_resolved,
+                race_history,
+                league,
             )
         )
         maybe_autosave(AUTOSAVE_RACE)
@@ -11106,6 +11245,83 @@ def present_balance_menu():
     return report
 
 
+def office_hearing_payload(event):
+    """Turn a catalog event into the snapshot hearing the desk reads."""
+
+    event = event or {}
+    return {
+        "id": event.get("id"),
+        "title": event.get("title"),
+        "category": event.get("category"),
+        "prompt": event.get("prompt"),
+        "choices": [
+            {"id": choice["id"], "label": choice["label"]}
+            for choice in event.get("choices") or []
+            if isinstance(choice, dict)
+        ],
+    }
+
+
+def office_live_events():
+    """Return hearings the office should show for the live calendar phase."""
+
+    season = calendar.current_season
+    events = []
+    if calendar.phase == PRESEASON:
+        events.extend(preseason_events(current_policies, season) or [])
+        events.extend(factory_lobby_events(season, events_resolved, league) or [])
+        events.extend(kit_lobby_events(season, events_resolved, league) or [])
+    else:
+        events.extend(factory_lobby_events(season, events_resolved, league) or [])
+        events.extend(kit_lobby_events(season, events_resolved, league) or [])
+        if calendar.phase == REGULAR_SEASON:
+            raced = len(race_history) or 1
+            stories = league.get("last_media_stories") or []
+            events.extend(
+                regular_season_events(
+                    raced,
+                    teams,
+                    drivers,
+                    events_resolved,
+                    stories,
+                )
+                or []
+            )
+            events.extend(
+                runaway_hearing_events(
+                    season,
+                    events_resolved,
+                    race_history,
+                    teams,
+                )
+                or []
+            )
+            events.extend(
+                plate_pack_events(
+                    season,
+                    events_resolved,
+                    race_history,
+                    league,
+                )
+                or []
+            )
+    return events
+
+
+def pending_office_hearings():
+    """Return unresolved office hearings for the inbox."""
+
+    rows = []
+    seen = set()
+    for event in office_live_events():
+        event_id = event.get("id")
+        if not event_id or event_id in seen or event_id in events_resolved:
+            continue
+        seen.add(event_id)
+        rows.append(office_hearing_payload(event))
+    return rows
+
+
 def build_ui_snapshot():
     """Export the live career as a Godot UI snapshot."""
 
@@ -11148,22 +11364,9 @@ def build_ui_snapshot():
                 }
             )
     decision = None
-    if calendar.phase == PRESEASON:
-        events = preseason_events(current_policies, calendar.current_season)
-        for event in events:
-            if event.get("id") in events_resolved:
-                continue
-            decision = {
-                "id": event.get("id"),
-                "title": event.get("title"),
-                "category": event.get("category"),
-                "prompt": event.get("prompt"),
-                "choices": [
-                    {"id": choice["id"], "label": choice["label"]}
-                    for choice in event.get("choices") or []
-                ],
-            }
-            break
+    hearings = pending_office_hearings()
+    if hearings:
+        decision = hearings[0]
     driver_rows = office_standings_book()
     schedule_rows = office_schedule_book()
     recap = office_recap_book()
@@ -11273,6 +11476,7 @@ def build_ui_snapshot():
                 ),
                 "factory": factory_dashboard_text() if teams else "",
                 "makers": manufacturer_dashboard_text() if teams else "",
+                "win_on_sunday": win_on_sunday_text() if teams else "",
                 "alerts": alerts,
                 "teams": team_rows,
                 "policies": [
@@ -11280,6 +11484,7 @@ def build_ui_snapshot():
                 ],
             },
             "decision": decision,
+            "hearings": hearings,
         }
     )
     league["office_welcome_sent"] = True

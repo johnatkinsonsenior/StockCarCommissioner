@@ -13,6 +13,9 @@ CATEGORY_CHOICES = {
     "team-closure": "2",
     "manufacturer-switch": "2",
     "team-entry": "2",
+    "factory-lobby": "3",
+    "kit-lobby": "3",
+    "victory-lane": "3",
 }
 
 
