@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "2.3",
+    "ui_version": "2.4",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -64,6 +64,7 @@
         "development": "Development: National Development Series | 0 of 8",
         "factory": "Factory: last none | next Blue Ridge Racing Falcon 2 yrs",
         "makers": "Makers: Vanguard GM Monte Carlo Aerocoupe | Apex Ford Thunderbird | Falcon GM Grand Prix 2+2",
+        "win_on_sunday": "Win on Sunday: no feature yet this year",
         "alerts": [
             "No main sponsor: Ironwood Motorsports, Blue Ridge Racing",
             "A prospect is ready for a call-up",
@@ -191,6 +192,68 @@
             }
         ]
     },
+    "hearings": [
+        {
+            "id": "rule-points-system",
+            "title": "Championship Points Structure",
+            "category": "rule-change",
+            "prompt": "Competition committee asks whether the championship should keep rewarding consistent finishers or swing more toward race winners. Current policy: Standard points.",
+            "choices": [
+                {
+                    "id": "1",
+                    "label": "Keep the standard points table"
+                },
+                {
+                    "id": "2",
+                    "label": "Adopt winner-heavy scoring"
+                },
+                {
+                    "id": "3",
+                    "label": "Flatten the points so more finishers stay alive"
+                }
+            ]
+        },
+        {
+            "id": "factory-lobby-s1",
+            "title": "Detroit Winter Book",
+            "category": "factory-lobby",
+            "prompt": "Factory desks land in the mail. Valiant wants the winter book to invite Chrysler back into the winter book. Granting Chrysler opens a factory card. It does not rebadge shops already on the grid \u2014 Harbor keeps its current badge.",
+            "choices": [
+                {
+                    "id": "1",
+                    "label": "Invite Chrysler \u2014 do not rebadge live shops"
+                },
+                {
+                    "id": "2",
+                    "label": "Hold Chrysler out; homologate-to-run instead"
+                },
+                {
+                    "id": "3",
+                    "label": "Hold the inherited winter book"
+                }
+            ]
+        },
+        {
+            "id": "kit-lobby-s1",
+            "title": "Kit Lobby",
+            "category": "kit-lobby",
+            "prompt": "Owners and the garage work the per-track kit the same way they work a points paper. the aero shops want the office to pull restrictor plates. The garage steward would rather carve a named venue than rewrite the whole type kit.",
+            "choices": [
+                {
+                    "id": "1",
+                    "label": "Grant the owners \u2014 pull restrictor plates"
+                },
+                {
+                    "id": "2",
+                    "label": "Side with the garage \u2014 open Atlantic Speedway only"
+                },
+                {
+                    "id": "3",
+                    "label": "Hold the current kit"
+                }
+            ]
+        }
+    ],
     "drivers": [
         {
             "id": "austin-vale",
@@ -2615,11 +2678,6 @@
         ],
         "actions": [
             {
-                "key": "aero_specials",
-                "value": "legal",
-                "label": "Legalize aero specials"
-            },
-            {
                 "key": "template",
                 "value": "spec",
                 "label": "Adopt a spec silhouette"
@@ -2706,6 +2764,34 @@
                 }
             ]
         },
+        "aero_specials": {
+            "value": "banned",
+            "label": "Aero specials banned",
+            "blurb": "Winged cars and long noses. Homologate-to-run lets Detroit field them only after the street count is sold.",
+            "choices": [
+                {
+                    "key": "aero_specials",
+                    "value": "banned",
+                    "label": "Aero specials banned",
+                    "blurb": "No Superbirds, no long-nose warriors. The 1971 kneecap holds.",
+                    "selected": true
+                },
+                {
+                    "key": "aero_specials",
+                    "value": "homologate",
+                    "label": "Homologate-to-run",
+                    "blurb": "Specials are legal only if Detroit sells the street count.",
+                    "selected": false
+                },
+                {
+                    "key": "aero_specials",
+                    "value": "legal",
+                    "label": "Aero specials legal",
+                    "blurb": "Wings and long noses run if a factory will badge them.",
+                    "selected": false
+                }
+            ]
+        },
         "homologation": 200,
         "wheelbase": 110,
         "specials": "banned",
@@ -2713,6 +2799,7 @@
         "template": "identity",
         "chrysler": false,
         "short_equalize": false,
+        "win_on_sunday": "Win on Sunday: no feature yet this year",
         "season": 1,
         "era_book": "pinnacle"
     },
@@ -2744,7 +2831,8 @@
         "fans": 65,
         "owners": 70,
         "drivers": 62,
-        "dismissed": false
+        "dismissed": false,
+        "win_on_sunday": "Win on Sunday: no feature yet this year"
     },
     "history": {
         "seasons": [],
@@ -2817,6 +2905,56 @@
                 ]
             },
             {
+                "id": "hearing-factory-lobby-s1",
+                "kind": "hearing",
+                "from": "Factory Desk",
+                "subject": "Detroit Winter Book",
+                "body": "Factory desks land in the mail. Valiant wants the winter book to invite Chrysler back into the winter book. Granting Chrysler opens a factory card. It does not rebadge shops already on the grid \u2014 Harbor keeps its current badge.",
+                "unread": true,
+                "category": "factory-lobby",
+                "hearing_id": "factory-lobby-s1",
+                "prompt": "Factory desks land in the mail. Valiant wants the winter book to invite Chrysler back into the winter book. Granting Chrysler opens a factory card. It does not rebadge shops already on the grid \u2014 Harbor keeps its current badge.",
+                "choices": [
+                    {
+                        "id": "1",
+                        "label": "Invite Chrysler \u2014 do not rebadge live shops"
+                    },
+                    {
+                        "id": "2",
+                        "label": "Hold Chrysler out; homologate-to-run instead"
+                    },
+                    {
+                        "id": "3",
+                        "label": "Hold the inherited winter book"
+                    }
+                ]
+            },
+            {
+                "id": "hearing-kit-lobby-s1",
+                "kind": "hearing",
+                "from": "Paddock Lobby",
+                "subject": "Kit Lobby",
+                "body": "Owners and the garage work the per-track kit the same way they work a points paper. the aero shops want the office to pull restrictor plates. The garage steward would rather carve a named venue than rewrite the whole type kit.",
+                "unread": true,
+                "category": "kit-lobby",
+                "hearing_id": "kit-lobby-s1",
+                "prompt": "Owners and the garage work the per-track kit the same way they work a points paper. the aero shops want the office to pull restrictor plates. The garage steward would rather carve a named venue than rewrite the whole type kit.",
+                "choices": [
+                    {
+                        "id": "1",
+                        "label": "Grant the owners \u2014 pull restrictor plates"
+                    },
+                    {
+                        "id": "2",
+                        "label": "Side with the garage \u2014 open Atlantic Speedway only"
+                    },
+                    {
+                        "id": "3",
+                        "label": "Hold the current kit"
+                    }
+                ]
+            },
+            {
                 "id": "alert-no-main-sponsor-ironwood-motorsports-blue-ridge-",
                 "kind": "alert",
                 "from": "League Office",
@@ -2866,7 +3004,7 @@
             }
         ],
         "selected_mail_id": "hearing-rule-points-system",
-        "unread_count": 5,
+        "unread_count": 7,
         "checklist": [
             {
                 "id": "dashboard",
@@ -3005,72 +3143,10 @@
         "load_script": "/workspace/prototype/load_office.py",
         "new_script": "/workspace/prototype/new_career.py",
         "aero_script": "/workspace/prototype/apply_aero.py",
-        "saves": [
-            {
-                "name": "office",
-                "filename": "office.json",
-                "path": "/workspace/saves/office.json",
-                "label": "office.json \u2014 Season 1 of 3, Regular Season, 10 teams, Normal",
-                "office": true,
-                "season": 1,
-                "phase": "regular-season",
-                "difficulty": "normal"
-            },
-            {
-                "name": "desk",
-                "filename": "desk.json",
-                "path": "/workspace/saves/desk.json",
-                "label": "desk.json \u2014 Season 1 of 3, Regular Season, 10 teams, Normal",
-                "office": false,
-                "season": 1,
-                "phase": "regular-season",
-                "difficulty": "normal"
-            },
-            {
-                "name": "day117",
-                "filename": "day117.json",
-                "path": "/workspace/saves/day117.json",
-                "label": "day117.json \u2014 Season 1 of 3, Preseason, 10 teams, Normal",
-                "office": false,
-                "season": 1,
-                "phase": "preseason",
-                "difficulty": "normal"
-            }
-        ],
+        "saves": [],
         "ticker": [
             "Preseason quiet. Beat writers file after the green flag."
         ]
     },
-    "saves": [
-        {
-            "name": "office",
-            "filename": "office.json",
-            "path": "/workspace/saves/office.json",
-            "label": "office.json \u2014 Season 1 of 3, Regular Season, 10 teams, Normal",
-            "office": true,
-            "season": 1,
-            "phase": "regular-season",
-            "difficulty": "normal"
-        },
-        {
-            "name": "desk",
-            "filename": "desk.json",
-            "path": "/workspace/saves/desk.json",
-            "label": "desk.json \u2014 Season 1 of 3, Regular Season, 10 teams, Normal",
-            "office": false,
-            "season": 1,
-            "phase": "regular-season",
-            "difficulty": "normal"
-        },
-        {
-            "name": "day117",
-            "filename": "day117.json",
-            "path": "/workspace/saves/day117.json",
-            "label": "day117.json \u2014 Season 1 of 3, Preseason, 10 teams, Normal",
-            "office": false,
-            "season": 1,
-            "phase": "preseason",
-            "difficulty": "normal"
-        }
-    ]
+    "saves": []
 }
