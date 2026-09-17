@@ -4,7 +4,7 @@ Version-controlled progress tracker. Mirrors feature status in
 [`docs/Backlog.md`](docs/Backlog.md).
 
 - **Primary goal:** a deep, replayable stock car *commissioner* simulation.
-  The player runs the sanctioning body, not a race team.
+  The player runs the sanctioning body. There is no team-owner mode.
 - **Era and look:** default book is the **pinnacle** Winston Cup (late
   ’80s–early/mid ’90s). Also runnable: 1970s, 1980s, and settings to push
   **beyond** that peak. Crimson, gold, and white. 16-bit sports-sim desk.
@@ -12,9 +12,10 @@ Version-controlled progress tracker. Mirrors feature status in
   families) with strengths and holes per track type; the commissioner
   writes series-wide body rules and per-track packages, and can run a
   custom Winston Cup.
-- **Desk flow:** Football Commissioner layout (nav, mail, checklist,
-  Advance) plus the best of OOTP (era start, inspectable world, news,
-  history) and Front Office Football (weekly cadence between events).
+- **Desk flow:** commissioner office layout (nav, mail, checklist,
+  Advance). Take the best of **OOTP** (era start, inspectable world, news,
+  history), **Front Office Football** (weekly cadence between events), and
+  **Baseball Mogul** (readable reports, a season you can finish).
 - **Calendar:** a season and an offseason, Advanced **week by week** (race
   week, off week, offseason week). Godot is the office; Python simulates.
 - **Working method:** each day ends with a working build, a quick test, and a
@@ -183,20 +184,24 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 122 | Kit Politics | ✅ Done |
 | 126 | Playable Aero Wars | ⬜ Pending |
 | 133 | Beyond the Peak | ⬜ Pending |
+| 140 | League-Office Density | ⬜ Pending |
 
 ## Post-Alpha — Commissioner Office
 
 The 90-day plan proved the sim. This era turns it into a Winston Cup
 commissioner desk: the **pinnacle** late-’80s–mid-’90s book by default,
 with 1970s / 1980s / beyond as settings; crimson, gold, and white; 16-bit
-sports-sim chrome; Football Commissioner flow; OOTP-style era start and
-inspection; Front Office Football weeks; **Aero Wars** as the factory
-story the office actually manages. The player stays the commissioner.
-A team-owner career is a later era, not this one.
+sports-sim chrome; commissioner-office layout; OOTP era start and
+inspection; Front Office Football weeks; Baseball Mogul report density;
+**Aero Wars** as the factory story the office actually manages.
 
-Eras 5–7 follow product order after the body book lands: **deepen Aero
-Wars into politics**, **playtest that office**, then **push Beyond**.
-Do not skip to a team-owner career.
+**Product lock:** commissioner only. Shop owners are NPCs. There is no
+team-owner career, now or later.
+
+Eras 5–8 follow product order: **deepen Aero Wars into politics**,
+**playtest that office**, **push Beyond**, then **make the desk as dense
+and weekly as the design peers**. Do not add a franchise mode. From Day
+117 on, new desk screens prefer reports over dump lists.
 
 ### Era 1 — The Desk
 - [x] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
@@ -283,8 +288,8 @@ unpack it and run a career before the office grows another system.
 > plates, invite Chrysler — without Git.
 
 ### Era 7 — Beyond the peak
-Same commissioner brain, a later inherited world. Not a second game, and
-not a team-owner career.
+Same commissioner brain, a later inherited world. Not a second game.
+Not a franchise.
 
 - [ ] Day 127 — Beyond opening world: fatter commercial load, louder board
 - [ ] Day 128 — Tighter default templates in Beyond (identity remains a commissioner write)
@@ -297,4 +302,22 @@ not a team-owner career.
 > **Milestone — Day 133 Beyond the Peak:** a new career can start past the
 > pinnacle Winston Cup — tighter templates, heavier commerce, opt-in
 > four-door-as-coupe — without abandoning the office, the weekly Advance,
-> or the Aero Wars book. A team-owner career stays a later era.
+> or the Aero Wars book.
+
+### Era 8 — League-office density
+This is the OOTP / Front Office Football / Baseball Mogul bar. The sim
+already has the world. The desk still shows too much of it as short
+lists. Finish kit politics and a playtest before this era; do not skip
+it for a team-owner mode that will not exist.
+
+- [ ] Day 134 — Sortable report screens (standings, schedule, history, TV)
+- [ ] Day 135 — Race file you can reopen (running order, cautions, investigation)
+- [ ] Day 136 — Weekly desk inbox (this week's work, not a first-weekend tour)
+- [ ] Day 137 — News and records as an encyclopedia (leaders, splits, decades)
+- [ ] Day 138 — Commissioner writes the calendar (add, drop, or rotate a date)
+- [ ] Day 139 — Paddock density pass toward a real Cup field
+- [ ] Day 140 — Playable density career: finish a season at Mogul speed
+
+> **Milestone — Day 140 League-Office Density:** a commissioner can Advance
+> a week, read a race file, sort a table, and still care in year ten —
+> without ever sitting in a team owner's chair.

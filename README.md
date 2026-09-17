@@ -66,5 +66,7 @@ you want the zip somewhere else.
 
 Era 5 ships kit politics on top of Aero Wars: homologate-to-run as a
 winter-book radio, Detroit and garage lobby mail, victory-lane hearings,
-and Win-on-Sunday on the desk. Next on the roadmap: a playtest zip for
-the writable book, then Beyond.
+and Win-on-Sunday on the desk. This is a **commissioner-only** product
+(OOTP world, Front Office Football weeks, Baseball Mogul reports) — no
+team-owner career. Next on the roadmap: a playtest zip for the writable
+book, then Beyond, then league-office density.
