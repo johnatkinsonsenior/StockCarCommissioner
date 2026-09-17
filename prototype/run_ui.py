@@ -14,6 +14,9 @@ def main():
     rs.reset_career_state()
     result = rs.launch_godot_ui()
     if not result.get("binary"):
+        print(result.get("output") or "Godot 4.4 was not found.")
+        print("Install Godot 4.4 from https://godotengine.org/download")
+        print("or set GODOT_BIN to the editor .exe / binary.")
         sys.exit(2)
     if result.get("returncode") not in (0, None):
         sys.exit(result.get("returncode") or 1)

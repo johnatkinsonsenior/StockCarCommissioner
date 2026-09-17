@@ -15,6 +15,8 @@ Windows: double-click `play_ui.bat`, or from Command Prompt:
 
     play_ui.bat
 
+If the window flashes and closes, run `play_ui.bat` from Command Prompt
+so the error stays on screen. You need Python 3.10+ **and** Godot 4.4.
 Godot 4.4 editor or binary on `PATH` (or `GODOT_BIN`) opens the office.
 Export templates are not required. If Godot is missing, the terminal loop
 still works:
