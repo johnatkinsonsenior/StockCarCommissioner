@@ -222,3 +222,11 @@
 | 220 | Persistent custom sliders on Beyond | Medium | Not Started |
 | 221 | Later-era garage, media, and schedule flavor | Medium | Not Started |
 | 222 | Decade balance on the Beyond book | High | Not Started |
+| 223 | Commissioner-only product lock (no franchise mode) | High | Completed |
+| 224 | Design peers: OOTP, Front Office Football, Baseball Mogul | High | Completed |
+| 225 | Sortable report screens | High | Not Started |
+| 226 | Reopenable race file / box score | High | Not Started |
+| 227 | Weekly desk inbox of work | High | Not Started |
+| 228 | News and records encyclopedia | Medium | Not Started |
+| 229 | Commissioner-written calendar | High | Not Started |
+| 230 | Paddock density toward a Cup field | High | Not Started |

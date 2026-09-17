@@ -15,6 +15,10 @@ The player runs the league.
 • Competition Director
 • Business Executive
 
+There is no team-owner seat. There is no GM seat. There will not be one
+later. Named shop owners still exist as **NPCs** (councils, pressure,
+charters). The player never becomes them.
+
 ## Core Gameplay
 
 Build the schedule
@@ -43,8 +47,38 @@ Repeat
 
 The sim is a stock car **commissioner** desk. The player does not drive and
 does not run a single team. They run the sanctioning body the way a league
-office runs football or baseball: a season, an offseason, and a **weekly**
+office runs baseball or football: a season, an offseason, and a **weekly**
 cadence.
+
+This is a commissioner-only product. Not a racing game. Not a team-GM
+game. Not “OOTP but you own Hendrick.” It is the **league office** as the
+whole game — OOTP’s living world and era start, Front Office Football’s
+week, Baseball Mogul’s readable reports and a season you can finish —
+pointed at Winston Cup.
+
+### Design peers
+
+Take the best of each. Leave the GM fantasy on the table.
+
+- **Out of the Park Baseball** — start in an era and live forward.
+  Click the world: people, shops, seasons, news, history that piles up
+  for a decade. The encyclopedia is the toy. Do not take OOTP’s
+  play-as-franchise loop (drafts, 25-man roster, owner orders). This
+  game *is* the commissioner tools and the league sim.
+- **Front Office Football** — Advance is a week. Between events the
+  desk has work, then you go. Season and offseason feel like different
+  jobs. Do not take salary-cap GM construction as the core loop.
+- **Baseball Mogul** — sim-first speed. Reports you can read in one
+  sitting. A season that finishes. League health and standings without
+  five hundred nested screens. That is the “playable density” bar
+  (including how those games feel when the UI is smaller). Do not take
+  franchise ownership.
+
+Desk **layout** still follows a commissioner office (nav, mail,
+checklist, Advance). That is chrome, not a second fantasy.
+
+Owners, drivers, factories, and the board are the people who lobby
+**you**. You do not become them.
 
 ### The pinnacle era (default)
 
@@ -58,8 +92,9 @@ commissioner who can still feel the garage.
 The sim's **systems** are the full modern commissioner model (TV, sponsors,
 board, manufacturers, feeder, hearings). A career **rewinds** that model
 into the chosen era. You are not locked to one frozen year. You start in an
-era book, then live forward, the way Out of the Park starts in 1969 or 1994
-and Front Office Football starts in a given season.
+era book, then live forward, the way Out of the Park starts in 1969 or 1994,
+Front Office Football starts in a given season, and Baseball Mogul starts
+a league year and lets you play it.
 
 ### Era books and settings
 
@@ -98,9 +133,10 @@ Gold rules and crimson fills on a light or cream field, with white type and
 hard edges.
 
 The UI should feel like a late-’80s through early-to-mid-’90s cartridge
-sports game: chunky panels, a short palette, readable tables, no photoreal
-chrome. Layout still follows a commissioner office (Football Commissioner),
-with OOTP-style inspection and Front Office Football weeks.
+sports game: chunky panels, a short palette, **readable tables**, no
+photoreal chrome. Layout is a commissioner office (nav, mail, checklist,
+Advance). Inspection is OOTP-style. Cadence is Front Office Football
+weeks. Reports should play at Baseball Mogul speed: dense, not drowning.
 
 Python still simulates. Godot is the desk. Day 91 proved the shell; later
 days restyle to this look, Advance by the week, and expose era as a
@@ -573,8 +609,9 @@ deciding what kind of racing the sanctioning body will sell.
 
 **Days 123–126** package that office for playtesters. **Days 127–133**
 push the same commissioner brain **Beyond** the pinnacle book (fatter
-commerce, tighter default templates, an opt-in four-door-as-coupe). A
-team-owner career stays a later era.
+commerce, tighter default templates, an opt-in four-door-as-coupe).
+**Days 134–140** make the desk match the design peers: reports, a race
+file you reopen, a weekly inbox of work. There is no team-owner career.
 
 ## Team Finances and Offseason Spending
 
@@ -800,7 +837,9 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 ## Commissioner Office
 
-`godot/` is a Godot 4.4 office desk. The layout follows Football Commissioner: left navigation, a status bar with Advance, a mail pane, and a gated checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. Testers unpack `dist/stock-car-commissioner-0.3.0-aero.zip` (`python3 prototype/package_alpha.py`) and run the launchers; Git is not required. Python 3.10+ is required. Godot 4.4 is optional.
+`godot/` is a Godot 4.4 office desk. The layout is a commissioner office:
+left navigation, a status bar with Advance, a mail pane, and a gated
+checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. Testers unpack `dist/stock-car-commissioner-0.3.0-aero.zip` (`python3 prototype/package_alpha.py`) and run the launchers; Git is not required. Python 3.10+ is required. Godot 4.4 is optional.
 
 The office opens on series mail. Mail is a **live inbox**: the queued
 hearing sits as a letter from the Competition Committee (or Board, Owner

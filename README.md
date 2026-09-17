@@ -60,6 +60,8 @@ you want the zip somewhere else.
 ## Development status
 
 Era 4 ships Aero Wars: named coupes, track maps, and a commissioner-written
-winter book. Named venues can override the type kit. Next on the roadmap:
+winter book. Named venues can override the type kit. This is a
+**commissioner-only** product (OOTP world, Front Office Football weeks,
+Baseball Mogul reports) — no team-owner career. Next on the roadmap:
 homologation on the desk, then Detroit and garage lobby, then a playtest zip,
-then Beyond.
+then Beyond, then league-office density.

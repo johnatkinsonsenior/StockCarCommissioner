@@ -66,6 +66,7 @@ back onto Harbor, and fattens treasury and TV.
 ## What to evaluate
 
 - Does a full career feel like running a league, not just clicking events?
+- Did you ever want to “take over a team,” or did the office job hold?
 - Do the ten Cup shops stay distinct through expansion and closures?
 - Do money, contracts, TV, sponsors, and manufacturer deals matter?
 - Is job security real on Hard without feeling random on Normal?
