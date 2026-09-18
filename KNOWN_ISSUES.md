@@ -1,4 +1,4 @@
-# Known issues — Stock Car Commissioner 0.4.0-aero
+# Known issues — Stock Car Commissioner 0.4.1-aero
 
 Playtest zip for the **writable Aero Wars book** (Era 6, Days 123–126).
 Read this beside `PLAYTEST.md`. This is a commissioner-only office. There
@@ -6,11 +6,13 @@ is no team-owner or GM career.
 
 ## Launch
 
-- **Windows:** `play_ui.bat` needs Python 3.10+ *and* Godot 4.4. If the
-  window flashes, run it from Command Prompt — it now pauses on failure.
-  Set `GODOT_BIN` if Godot is not on `PATH` (Downloads of
-  `Godot_v4.4-stable_win64.exe` are searched automatically).
-- **Continue desk:** opening `play_ui` again resumes `saves/office.json`.
+- **Windows:** unpack the zip and double-click **Double-click to play.bat**.
+  First launch downloads a private Python 3.12 and Godot 4.4 into `tools/`
+  next to that file. The Microsoft Store `python.exe` shortcut is skipped
+  on purpose — it cannot run the office and used to make the window flash
+  closed. You need internet the first time. `play_ui.bat` is the same
+  launcher.
+- **Continue desk:** opening the office again resumes `saves/office.json`.
   It does not wipe a custom winter book. **New career** is the rewind.
 - Git is not required. Export templates are not required.
 - Headless Linux (no `DISPLAY`) opens Godot without a window and quits

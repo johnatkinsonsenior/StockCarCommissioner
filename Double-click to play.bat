@@ -2,8 +2,5 @@
 setlocal
 cd /d "%~dp0"
 title Stock Car Commissioner
-echo.
-echo  Double-click this file — or "Double-click to play.bat" in this folder.
-echo.
 call "%~dp0launch_office.cmd" %*
 exit /b %ERRORLEVEL%

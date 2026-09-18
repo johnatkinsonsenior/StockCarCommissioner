@@ -8,11 +8,17 @@ when the board meets.
 
 ## Current Version
 
-0.4.0-aero (Playable Aero Wars)
+0.4.1-aero (Playable Aero Wars)
 
 Save schema: 0.0.41
 
 ## Requirements
+
+Windows: unpack the zip and double-click **Double-click to play.bat**.
+The first launch installs a private Python and Godot 4.4 into `tools/`.
+You do not need to install either yourself.
+
+Mac / Linux / developers:
 
 - Python 3.10 or newer
 - Optional: [Godot 4.4](https://godotengine.org/download) for the graphical office desk
@@ -33,7 +39,8 @@ The Godot commissioner office (recommended for playtesters):
 
     ./play_ui.sh
 
-Windows: double-click `play_ui.bat`.
+**Windows: double-click `Double-click to play.bat`.** That is the play
+button. `play_ui.bat` does the same. First launch downloads Godot 4.4.
 
 Godot is the commissioner office (sidebar, mail, checklist, Advance). The
 look is Winston Cup crimson, gold, and white with a 16-bit sports-sim desk.
@@ -61,7 +68,7 @@ Export templates are not required. Python still simulates the season.
 
     python3 prototype/package_alpha.py
 
-Writes `dist/stock-car-commissioner-0.4.0-aero.zip`. Pass an output path if
+Writes `dist/stock-car-commissioner-0.4.1-aero.zip`. Pass an output path if
 you want the zip somewhere else. The zip includes `PLAYTEST.md` and
 `KNOWN_ISSUES.md`. Git is not required to play.
 

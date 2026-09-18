@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 GAME_NAME = "Stock Car Commissioner"
-GAME_VERSION = "0.4.0-aero"
+GAME_VERSION = "0.4.1-aero"
 SAVE_SCHEMA_VERSION = "0.0.41"
 PACKAGE_SLUG = "stock-car-commissioner"
 UI_ENGINE = "godot-4.4"
@@ -26,6 +26,9 @@ INCLUDE_PATHS = (
     "play_ui.sh",
     "play.bat",
     "play_ui.bat",
+    "Double-click to play.bat",
+    "launch_office.cmd",
+    "tools/README.txt",
 )
 
 REQUIRED_PATHS = (
@@ -35,6 +38,8 @@ REQUIRED_PATHS = (
     "play_ui.sh",
     "play.bat",
     "play_ui.bat",
+    "Double-click to play.bat",
+    "launch_office.cmd",
     "PLAYTEST.md",
     "KNOWN_ISSUES.md",
     "VERSION",
@@ -181,15 +186,14 @@ def build_manifest(root=None, file_count=0, version=None):
         "packaged_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "python": "3.10+",
         "career_loop": "./play.sh (Windows: play.bat)",
-        "optional_ui": "./play_ui.sh (Windows: play_ui.bat)",
+        "optional_ui": "Windows: Double-click to play.bat  |  ./play_ui.sh",
         "ui_engine": UI_ENGINE,
         "file_count": file_count,
         "notes": (
-            "Unpack the zip and run the launchers. Git is not required. "
-            "Python 3.10+ is required. Godot 4.4 is optional for the office desk. "
+            "Unpack the zip. Windows: double-click \"Double-click to play.bat\". "
+            "First launch downloads Python and Godot 4.4 into tools/. Git is not required. "
             "The desk is a 10-team Cup office with a writable Aero Wars book: "
             "legalize specials, pull plates, invite Chrysler, plate one oval. "
-            "Hearings, Advance, save/load, new career, History, and Hall of Fame. "
             "See PLAYTEST.md and KNOWN_ISSUES.md."
         ),
     }
