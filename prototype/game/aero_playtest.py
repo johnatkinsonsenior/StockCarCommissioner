@@ -50,16 +50,20 @@ def _meters(rs):
     }
 
 
-def _open_pinnacle(rs):
+def _open_era(rs, era):
     rs.apply_game_settings(
         {
-            "era_book": "pinnacle",
+            "era_book": era,
             "difficulty": "normal",
             "career_seasons": 3,
             "autosave": "off",
         }
     )
     rs.reset_career_state(keep_settings=True)
+
+
+def _open_pinnacle(rs):
+    _open_era(rs, "pinnacle")
 
 
 def write_custom_book(rs):
@@ -208,7 +212,7 @@ def save_load_book_pass(rs):
     _open_pinnacle(rs)
     write_custom_book(rs)
     rs.save_career(save_name=CUSTOM_SLOT)
-    rs.start_office_career({"era_book": "1970s"})
+    _open_era(rs, "1970s")
     assert_era_default(rs, errors, "1970s", "after-save-rewind")
     path = rs.resolve_office_save_path(CUSTOM_SLOT)
     if not rs.load_career(path):
@@ -220,6 +224,11 @@ def save_load_book_pass(rs):
         rs.current_settings.get("era_book") == "pinnacle",
         "loaded career should restore the pinnacle era book",
     )
+    rs.persist_office_career()
+    _open_era(rs, "1970s")
+    continued = rs.boot_office_session()
+    _fail(errors, continued is True, "play_ui should Continue office.json")
+    assert_custom_book(rs, errors, "continued-office")
     return errors
 
 
@@ -230,7 +239,7 @@ def era_rewind_vs_custom(rs):
     _open_pinnacle(rs)
     write_custom_book(rs)
     rs.save_career(save_name=CUSTOM_SLOT)
-    rs.start_office_career({"era_book": "1970s"})
+    _open_era(rs, "1970s")
     assert_era_default(rs, errors, "1970s", "new-1970s")
     bound = live_book() or {}
     _fail(
@@ -282,7 +291,7 @@ def tester_career_pass(rs, weeks=LOOP_WEEKS):
             "Harbor rebadged at week %s: %s" % (len(seen), _harbor(rs)),
         )
     rs.save_career(save_name=MID_SLOT)
-    rs.start_office_career({"era_book": "1970s"})
+    _open_era(rs, "1970s")
     path = rs.resolve_office_save_path(MID_SLOT)
     if not rs.load_career(path):
         errors.append("could not reload the tester career")
