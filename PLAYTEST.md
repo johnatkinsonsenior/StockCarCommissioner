@@ -1,8 +1,12 @@
-# Playtest guide — Stock Car Commissioner 0.3.0-aero
+# Playtest guide — Stock Car Commissioner 0.4.0-aero
 
-This build is a packaged **commissioner office**. Play it to judge whether
-running the sanctioning body from the desk is fun, whether a ten-team Cup
-field feels alive, and where balance breaks down across a career.
+This build is a packaged **commissioner office** with a writable Aero Wars
+book. Play it to judge whether running the sanctioning body from the desk
+is fun, whether a ten-team Cup field feels alive, and whether *your*
+Winston Cup — Superbirds, no plates, Chrysler invited — is the sport you
+meant to sell.
+
+Also read `KNOWN_ISSUES.md`.
 
 ## Setup
 
@@ -15,9 +19,12 @@ Windows: double-click `play_ui.bat`, or from Command Prompt:
 
     play_ui.bat
 
+If the window flashes and closes, run `play_ui.bat` from Command Prompt
+so the error stays on screen. You need Python 3.10+ **and** Godot 4.4.
 Godot 4.4 editor or binary on `PATH` (or `GODOT_BIN`) opens the office.
-Export templates are not required. If Godot is missing, the terminal loop
-still works:
+Export templates are not required. Opening the desk again **Continues**
+`saves/office.json`; it does not wipe a custom winter book. If Godot is
+missing, the terminal loop still works:
 
     ./play.sh
 
@@ -45,8 +52,9 @@ not travel inside the zip.
    15 races, or 4,000 points.
 4. Settings: **Save desk career** writes `desk.json`. **Load** restores a
    slot onto the office session. **New career** rewinds the desk (difficulty,
-   length, autosave, era book) — grid, factories, and TV change with the
-   book. **Continue desk** reloads `office.json`.
+   length, autosave, era book) — grid, factories, TV, *and the winter book*
+   change with the era. A custom Superbird book does not ride into a 1970s
+   rewind; Load the slot you saved. **Continue desk** reloads `office.json`.
 5. Hearing choices write back to the same sim as the terminal. The hearing
    leaves the inbox once it is resolved.
 
@@ -57,6 +65,26 @@ Creek, Lakeside, Prairie, Piedmont, and Bayou wait outside for a charter.
 thinner TV check. **1980s** opens nine; Valiant is fading at Harbor.
 **Beyond** seats twelve (Silver Creek and Lakeside join), invites Valiant
 back onto Harbor, and fattens treasury and TV.
+
+## Writable book (Era 6)
+
+This is the pass that decides whether the office is playable as a custom
+Winston Cup, not only as a frozen 1992 reprint.
+
+1. **Legalize specials** (or homologate-to-run) on Rulebook. Superbirds
+   become a legal Valiant coupe once Chrysler is in the book.
+2. **Pull restrictor plates** for a series-wide open superspeedway, or
+   plate **Thunder Valley** alone from Named venues.
+3. **Invite Chrysler**. Valiant joins the factory list. Harbor Racing
+   stays Vanguard on the pinnacle book — the invite is not a rebadge.
+4. Save the desk. Start a **1970s** New career. The inherited book comes
+   back (specials banned, Harbor on Valiant, no Thunder Valley override).
+5. **Load** the slot from step 4. Specials, plates, Chrysler, and the
+   venue kit should return with Valiant still on the roster.
+
+Developer check (optional):
+
+    python3 prototype/playtest_aero.py
 
 ## Terminal loop
 
@@ -72,6 +100,10 @@ back onto Harbor, and fattens treasury and TV.
 
 - Does a full career feel like running a league, not just clicking events?
 - Did you ever want to “take over a team,” or did the office job hold?
+- Can you tell your Winston Cup from the inherited era book?
+- Did Invite Chrysler rebadge Harbor? It should not.
+- Did Superbirds show once specials were legal and Chrysler was in?
+- Did Load restore a custom book after a 1970s New career?
 - Do the ten Cup shops stay distinct through expansion and closures?
 - Do money, contracts, TV, sponsors, and manufacturer deals matter?
 - Is job security real on Hard without feeling random on Normal?
@@ -80,6 +112,6 @@ back onto Harbor, and fattens treasury and TV.
 
 ## Notes
 
-- Game version `0.3.0-aero`. Save files are schema `0.0.41`.
+- Game version `0.4.0-aero`. Save files are schema `0.0.41`.
 - Balance simulation (main menu item 6) is for developers, not required play.
 - Item 7 launches the Godot commissioner office; item 8 exits.

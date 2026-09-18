@@ -213,9 +213,9 @@
 | 211 | Owner and garage lobbying of per-track kits | High | Completed |
 | 212 | One-make runaway and plate-pack hearings | High | Completed |
 | 213 | Win-on-Sunday factory health on the desk | Medium | Completed |
-| 214 | Aero Wars playtest loop | High | Not Started |
-| 215 | Aero Wars desk bug pass | High | Not Started |
-| 216 | Packaged writable-book playtest zip | High | Not Started |
+| 214 | Aero Wars playtest loop | High | Completed |
+| 215 | Aero Wars desk bug pass | High | Completed |
+| 216 | Packaged writable-book playtest zip | High | Completed |
 | 217 | Beyond opening world (commerce, board) | High | Not Started |
 | 218 | Beyond default template tightness | High | Not Started |
 | 219 | Four-door-as-coupe (Taurus analog) opt-in | High | Not Started |

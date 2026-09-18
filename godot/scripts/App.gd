@@ -129,8 +129,14 @@ func _headless_tour() -> void:
 	_show_section("rulebook")
 	print("ERA_HOMOLOGATION=", str(_as_dict(snapshot.get("rulebook", {})).get("homologation", "")))
 	print("ERA_WHEELBASE=", str(_as_dict(snapshot.get("rulebook", {})).get("wheelbase", "")))
+	print("ERA_SPECIALS=", str(_as_dict(snapshot.get("rulebook", {})).get("specials", "")))
+	print("ERA_CHRYSLER=", str(_as_dict(snapshot.get("rulebook", {})).get("chrysler", false)))
+	print("ERA_PLATES=", str(_as_dict(snapshot.get("rulebook", {})).get("plates", false)))
 	_on_office_load("desk")
 	_show_section("rulebook")
+	print("LOAD_SPECIALS=", str(_as_dict(snapshot.get("rulebook", {})).get("specials", "")))
+	print("LOAD_CHRYSLER=", str(_as_dict(snapshot.get("rulebook", {})).get("chrysler", false)))
+	print("LOAD_PLATES=", str(_as_dict(snapshot.get("rulebook", {})).get("plates", false)))
 	_on_aero_rule("aero_specials", "legal")
 	_on_aero_rule("aero_specials", "homologate")
 	_on_aero_rule("body_pick", "Apex:torino")
@@ -139,6 +145,27 @@ func _headless_tour() -> void:
 	_on_aero_rule("wheelbase", "115")
 	_on_aero_rule("wheelbase", "mixed")
 	_on_aero_rule("homologation", "per-dealer")
+	_on_aero_rule("chrysler", "on")
+	_on_aero_rule("plates", "off")
+	print("TOUR_SPECIALS=", str(_as_dict(snapshot.get("rulebook", {})).get("specials", "")))
+	print("TOUR_CHRYSLER=", str(_as_dict(snapshot.get("rulebook", {})).get("chrysler", false)))
+	print("TOUR_PLATES=", str(_as_dict(snapshot.get("rulebook", {})).get("plates", false)))
+	var tour_harbor := ""
+	for row in _as_array(snapshot.get("teams", [])):
+		if typeof(row) == TYPE_DICTIONARY and str(row.get("name", "")) == "Harbor Racing":
+			tour_harbor = str(row.get("manufacturer", ""))
+			break
+	print("TOUR_HARBOR=", tour_harbor)
+	_on_office_save("desk")
+	_on_new_career("1970s")
+	_show_section("rulebook")
+	print("REWIND_SPECIALS=", str(_as_dict(snapshot.get("rulebook", {})).get("specials", "")))
+	print("REWIND_CHRYSLER=", str(_as_dict(snapshot.get("rulebook", {})).get("chrysler", false)))
+	_on_office_load("desk")
+	_show_section("rulebook")
+	print("RESTORE_SPECIALS=", str(_as_dict(snapshot.get("rulebook", {})).get("specials", "")))
+	print("RESTORE_CHRYSLER=", str(_as_dict(snapshot.get("rulebook", {})).get("chrysler", false)))
+	print("RESTORE_PLATES=", str(_as_dict(snapshot.get("rulebook", {})).get("plates", false)))
 	call_deferred("_quit_headless")
 
 

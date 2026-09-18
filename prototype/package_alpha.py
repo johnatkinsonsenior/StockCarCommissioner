@@ -18,7 +18,8 @@ def main():
     print("Zip: %s" % result["zip_path"])
     print("Files: %s" % result["file_count"])
     print("Size: %s bytes" % result["size_bytes"])
-    print("Play the career loop with ./play.sh after unpacking.")
+    print("Play the office with ./play_ui.sh (Windows: play_ui.bat) after unpacking.")
+    print("Terminal loop: ./play.sh  |  Known issues: KNOWN_ISSUES.md")
     return result
 
 
