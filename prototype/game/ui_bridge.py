@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from game.desktop_runtime import bundled_godot_candidates, ensure_godot_binary
+
 UI_VERSION = "2.5"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
@@ -572,6 +574,7 @@ def find_godot_binary():
     candidates = []
     if env_bin:
         candidates.append(Path(os.path.expandvars(env_bin)).expanduser())
+    candidates.extend(bundled_godot_candidates())
     names = (
         "godot",
         "godot4",
@@ -613,6 +616,16 @@ def launch_godot_process(snapshot_path=None, headless=None, extra_args=None):
     """Spawn Godot against the UI project. Returns a result dict."""
 
     binary = find_godot_binary()
+    if binary is None:
+        try:
+            binary = ensure_godot_binary()
+        except Exception as error:
+            binary = None
+            download_error = str(error)
+        else:
+            download_error = ""
+    else:
+        download_error = ""
     project = godot_project_dir()
     if headless is None:
         # Linux cloud boxes have no DISPLAY. Windows and macOS GUI sessions
@@ -632,8 +645,9 @@ def launch_godot_process(snapshot_path=None, headless=None, extra_args=None):
         "output": "",
     }
     if binary is None:
-        result["output"] = (
-            "Godot 4 was not found. Install Godot 4.4+ and open godot/project.godot, "
+        result["output"] = download_error or (
+            "Godot 4 was not found. Double-click \"Double-click to play.bat\" "
+            "once with internet so it can download Godot 4.4 into tools/godot, "
             "or set GODOT_BIN."
         )
         return result
@@ -642,12 +656,13 @@ def launch_godot_process(snapshot_path=None, headless=None, extra_args=None):
         command.extend(["--headless", "--quit-after", "45"])
     if extra_args:
         command.extend(list(extra_args))
-    completed = subprocess.run(
-        command,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    run_kwargs = {"check": False}
+    if headless:
+        run_kwargs["capture_output"] = True
+        run_kwargs["text"] = True
+    completed = subprocess.run(command, **run_kwargs)
     result["returncode"] = completed.returncode
-    result["output"] = (completed.stdout or "") + (completed.stderr or "")
+    stdout = completed.stdout or ""
+    stderr = completed.stderr or ""
+    result["output"] = stdout + stderr
     return result

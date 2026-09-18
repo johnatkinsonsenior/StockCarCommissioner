@@ -1,4 +1,4 @@
-# Playtest guide — Stock Car Commissioner 0.4.0-aero
+# Playtest guide — Stock Car Commissioner 0.4.1-aero
 
 This build is a packaged **commissioner office** with a writable Aero Wars
 book. Play it to judge whether running the sanctioning body from the desk
@@ -10,27 +10,33 @@ Also read `KNOWN_ISSUES.md`.
 
 ## Setup
 
-You need Python 3.10+. Git is not required. Unpack the zip (or use this
-repository) and run the Godot desk:
+Git is not required.
+
+**Windows — this is the play button.** Unpack the zip and double-click:
+
+    Double-click to play.bat
+
+That is the whole setup. The first launch downloads a private Python and
+Godot 4.4 into a `tools` folder next to the bat file. The Microsoft Store
+`python.exe` shortcut is ignored (it cannot run the office). You do not
+need to install Python or Godot yourself. You need internet the first time.
+
+`play_ui.bat` does the same thing. A black window stays open with progress;
+it only waits for a key if something failed.
+
+Mac / Linux:
 
     ./play_ui.sh
 
-Windows: double-click `play_ui.bat`, or from Command Prompt:
+Godot 4.4 on `PATH` (or `GODOT_BIN`) opens the office. Export templates
+are not required. Opening the desk again **Continues** `saves/office.json`.
 
-    play_ui.bat
-
-If the window flashes and closes, run `play_ui.bat` from Command Prompt
-so the error stays on screen. You need Python 3.10+ **and** Godot 4.4.
-Godot 4.4 editor or binary on `PATH` (or `GODOT_BIN`) opens the office.
-Export templates are not required. Opening the desk again **Continues**
-`saves/office.json`; it does not wipe a custom winter book. If Godot is
-missing, the terminal loop still works:
+Terminal career (no office window):
 
     ./play.sh
 
-Windows: `play.bat` uses the `py` launcher when installed, otherwise
-`python`. Saves land in a `saves/` folder next to the launchers. They do
-not travel inside the zip.
+Windows terminal: `play.bat`. Saves land in a `saves/` folder next to the
+launchers. They do not travel inside the zip.
 
 ## Office loop
 
@@ -112,6 +118,6 @@ Developer check (optional):
 
 ## Notes
 
-- Game version `0.4.0-aero`. Save files are schema `0.0.41`.
+- Game version `0.4.1-aero`. Save files are schema `0.0.41`.
 - Balance simulation (main menu item 6) is for developers, not required play.
 - Item 7 launches the Godot commissioner office; item 8 exits.
