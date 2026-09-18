@@ -31,6 +31,7 @@ def main():
     print("LOAD_PATH=%s" % path)
     print("LOAD_NAME=%s" % (path.stem if path is not None else save_name))
     print("CALENDAR=%s" % rs.calendar.description())
+    rs.print_aero_desk_lines()
     return 0
 
 

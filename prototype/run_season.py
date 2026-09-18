@@ -107,6 +107,7 @@ from game.aero_wars import (
     coupe_spec,
     ensure_aero_book,
     homologation_operating_cost,
+    live_book,
     office_aero_actions,
     office_bodies_book,
     office_homologation_desk,
@@ -117,6 +118,7 @@ from game.aero_wars import (
     package_lines,
     plate_pack_kind,
     specials_operating_cost,
+    venue_plate_mode,
     win_on_sunday,
 )
 from game.policies import (
@@ -722,6 +724,8 @@ def apply_loaded_state(restored_state):
     load_policies(restored_state.get("policies"))
     load_settings(restored_state.get("settings"), replace=True)
     ensure_aero_book(league, current_settings.get("era_book"))
+    if (league.get("aero_book") or {}).get("chrysler"):
+        _invite_valiant_factory()
 
     championship_awarded = restored_state["championship_awarded"]
 
@@ -4606,7 +4610,12 @@ def apply_office_hearing(hearing_id, choice_id):
 
 
 def _invite_valiant_factory():
-    """Add Valiant to the factory list without rebadging live shops."""
+    """Add Valiant to the factory list without rebadging live shops.
+
+    Chrysler in the winter book is an invitation, not a Harbor rebadge.
+    Load must call this when the saved book has chrysler=True, or the
+    flag comes back without a Superbird factory on the roster.
+    """
 
     for maker in manufacturers:
         if maker.name == "Valiant":
@@ -11681,6 +11690,84 @@ def restore_office_career():
     if not path.is_file():
         return False
     return load_career(path)
+
+
+def boot_office_session():
+    """Continue the desk career if office.json exists, else open a new book.
+
+    Double-clicking play_ui.bat used to reset every launch and overwrite
+    the session slot, wiping a custom winter book. Testers Continue.
+    """
+
+    if office_save_path().is_file() and restore_office_career():
+        return True
+    reset_career_state()
+    persist_office_career()
+    return False
+
+
+def harbor_manufacturer():
+    """Return Harbor Racing's live factory badge, or blank."""
+
+    for team in teams:
+        if team.name == "Harbor Racing":
+            return str(team.manufacturer or "")
+    return ""
+
+
+def aero_desk_status():
+    """Return the live winter book, Harbor badge, and factory list."""
+
+    book = ensure_aero_book(league, current_settings.get("era_book")) or {}
+    packages = league.get("track_packages") if league else None
+    venues = []
+    venue_map = (packages or {}).get("venues") or {}
+    for name in sorted(venue_map):
+        venues.append("%s:%s" % (name, venue_plate_mode(name, packages)))
+    picks = book.get("body_picks") if isinstance(book.get("body_picks"), dict) else {}
+    makers = [maker.name for maker in manufacturers]
+    spec = coupe_spec("Valiant") if "Valiant" in makers else {}
+    return {
+        "specials": book.get("aero_specials"),
+        "plates": bool(book.get("plates")),
+        "chrysler": bool(book.get("chrysler")),
+        "template": book.get("template"),
+        "homologation": book.get("homologation"),
+        "wheelbase": book.get("wheelbase"),
+        "body_picks": dict(picks),
+        "venues": venues,
+        "harbor": harbor_manufacturer(),
+        "makers": makers,
+        "valiant": "Valiant" in makers,
+        "superbird": str((spec or {}).get("id") or ""),
+        "live_specials": (live_book() or {}).get("aero_specials"),
+        "live_plates": bool((live_book() or {}).get("plates")),
+        "era_book": current_settings.get("era_book"),
+    }
+
+
+def print_aero_desk_lines():
+    """Print winter-book lines for Godot scripts and the playtest loop."""
+
+    status = aero_desk_status()
+    picks = status.get("body_picks") or {}
+    print("AERO_SPECIALS=%s" % status.get("specials", ""))
+    print("AERO_PLATES=%s" % status.get("plates"))
+    print("AERO_CHRYSLER=%s" % status.get("chrysler"))
+    print("AERO_TEMPLATE=%s" % status.get("template", ""))
+    print("AERO_HOMOLOGATION=%s" % status.get("homologation", ""))
+    print("AERO_WHEELBASE=%s" % status.get("wheelbase", ""))
+    print(
+        "AERO_BODY_PICKS=%s"
+        % ",".join("%s:%s" % item for item in sorted(picks.items()))
+    )
+    print("AERO_VENUES=%s" % ",".join(status.get("venues") or []))
+    print("AERO_HARBOR=%s" % status.get("harbor", ""))
+    print("AERO_VALIANT=%s" % int(bool(status.get("valiant"))))
+    print("AERO_SUPERBIRD=%s" % status.get("superbird", ""))
+    print("AERO_LIVE_SPECIALS=%s" % status.get("live_specials", ""))
+    print("ERA_BOOK=%s" % status.get("era_book", ""))
+    return status
 
 
 def office_status_line():

@@ -8,7 +8,7 @@ when the board meets.
 
 ## Current Version
 
-0.3.0-aero (Aero Wars)
+0.4.0-aero (Playable Aero Wars)
 
 Save schema: 0.0.41
 
@@ -40,9 +40,11 @@ look is Winston Cup crimson, gold, and white with a 16-bit sports-sim desk.
 The pinnacle book opens on ten Cup shops and twenty drivers. Hearings,
 Advance, save/load, and new career all run from the desk. History reopens
 completed seasons; the Hall of Fame hangs retiree plaques; a gold ticker
-cycles beat-writer headlines. A new career rewinds the opening world:
-1970s (eight shops, Valiant still badging), 1980s (nine shops, Valiant
-fading), pinnacle (ten shops), or beyond (twelve shops, fatter TV).
+cycles beat-writer headlines. Opening the desk again Continues
+`saves/office.json`; it does not wipe a custom winter book. **New career**
+rewinds the opening world: 1970s (eight shops, Valiant still badging),
+1980s (nine shops, Valiant fading), pinnacle (ten shops), or beyond
+(twelve shops, fatter TV).
 Each factory fields a homologated two-door coupe with a track map;
 driver skill still owns the short tracks, aero owns the superspeedways.
 Rulebook shows 16-bit body cards for this racing year — pick the legal
@@ -59,14 +61,14 @@ Export templates are not required. Python still simulates the season.
 
     python3 prototype/package_alpha.py
 
-Writes `dist/stock-car-commissioner-0.3.0-aero.zip`. Pass an output path if
-you want the zip somewhere else.
+Writes `dist/stock-car-commissioner-0.4.0-aero.zip`. Pass an output path if
+you want the zip somewhere else. The zip includes `PLAYTEST.md` and
+`KNOWN_ISSUES.md`. Git is not required to play.
 
 ## Development status
 
-Era 5 ships kit politics on top of Aero Wars: homologate-to-run as a
-winter-book radio, Detroit and garage lobby mail, victory-lane hearings,
-and Win-on-Sunday on the desk. This is a **commissioner-only** product
-(OOTP world, Front Office Football weeks, Baseball Mogul reports) — no
-team-owner career. Next on the roadmap: a playtest zip for the writable
-book, then Beyond, then league-office density.
+Era 6 is the playable Aero Wars zip: legalize specials, pull plates,
+invite Chrysler, plate one oval, save, and load that book after an era
+rewind. This is a **commissioner-only** product (OOTP world, Front Office
+Football weeks, Baseball Mogul reports) — no team-owner career. Next on
+the roadmap: Beyond, then league-office density.

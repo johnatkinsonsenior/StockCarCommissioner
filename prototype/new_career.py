@@ -48,6 +48,7 @@ def main():
     print("DIFFICULTY=%s" % settings.get("difficulty", ""))
     print("CAREER_SEASONS=%s" % settings.get("career_seasons", ""))
     print("CALENDAR=%s" % rs.calendar.description())
+    rs.print_aero_desk_lines()
     return 0
 
 

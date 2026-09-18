@@ -336,7 +336,12 @@ def default_packages():
 
 
 def ensure_aero_book(league, era_book=None):
-    """Fill missing Aero Wars slots without wiping a custom book."""
+    """Fill missing Aero Wars slots without wiping a custom book.
+
+    Present keys stay as the commissioner wrote them. New career must
+    clear `aero_book` first so an era rewind does not keep Superbirds
+    or pulled plates from the previous desk.
+    """
 
     era = era_book or _era()
     defaults = default_aero_book(era)

@@ -21,8 +21,8 @@ Version-controlled progress tracker. Mirrors feature status in
 - **Working method:** each day ends with a working build, a quick test, and a
   Git commit.
 
-**Current position:** Days 1–122 complete. Next coding day:
-**Day 123 — Playtest loop for the writable book**.
+**Current position:** Days 1–126 complete. Next coding day:
+**Day 127 — Beyond opening world**.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
@@ -182,7 +182,7 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 112 | Era Books | ✅ Done |
 | 114 | Aero Wars | ✅ Done |
 | 122 | Kit Politics | ✅ Done |
-| 126 | Playable Aero Wars | ⬜ Pending |
+| 126 | Playable Aero Wars | ✅ Done |
 | 133 | Beyond the Peak | ⬜ Pending |
 | 140 | League-Office Density | ⬜ Pending |
 
@@ -278,14 +278,14 @@ stakeholders — and lets the office *see* the cars it homologates.
 The first build where era books *and* a writable body book exist. Testers
 unpack it and run a career before the office grows another system.
 
-- [ ] Day 123 — Playtest loop for the writable book (specials, plates, Chrysler, venue kits)
-- [ ] Day 124 — Bug pass from the Aero Wars desk (save/load book, era rewind vs custom book)
-- [ ] Day 125 — Packaged playtest zip with the writable book
-- [ ] Day 126 — Known-issues note and a tester career pass (meters, Superbirds, plates)
+- [x] Day 123 — Playtest loop for the writable book (specials, plates, Chrysler, venue kits)
+- [x] Day 124 — Bug pass from the Aero Wars desk (save/load book, era rewind vs custom book)
+- [x] Day 125 — Packaged playtest zip with the writable book
+- [x] Day 126 — Known-issues note and a tester career pass (meters, Superbirds, plates)
 
 > **Milestone — Day 126 Playable Aero Wars:** a playtester can unpack a zip,
 > sit at the desk, and run their own Winston Cup — legalize specials, pull
-> plates, invite Chrysler — without Git.
+> plates, invite Chrysler — without Git. ✅
 
 ### Era 7 — Beyond the peak
 Same commissioner brain, a later inherited world. Not a second game.

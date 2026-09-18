@@ -11,7 +11,8 @@ import run_season as rs
 
 
 def main():
-    rs.reset_career_state()
+    continued = rs.boot_office_session()
+    print("OFFICE_CONTINUE=%s" % (1 if continued else 0))
     result = rs.launch_godot_ui()
     if not result.get("binary"):
         print(result.get("output") or "Godot 4.4 was not found.")

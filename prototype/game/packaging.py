@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 GAME_NAME = "Stock Car Commissioner"
-GAME_VERSION = "0.3.0-aero"
+GAME_VERSION = "0.4.0-aero"
 SAVE_SCHEMA_VERSION = "0.0.41"
 PACKAGE_SLUG = "stock-car-commissioner"
 UI_ENGINE = "godot-4.4"
@@ -20,6 +20,7 @@ INCLUDE_PATHS = (
     "ROADMAP.md",
     "README.md",
     "PLAYTEST.md",
+    "KNOWN_ISSUES.md",
     "VERSION",
     "play.sh",
     "play_ui.sh",
@@ -35,6 +36,7 @@ REQUIRED_PATHS = (
     "play.bat",
     "play_ui.bat",
     "PLAYTEST.md",
+    "KNOWN_ISSUES.md",
     "VERSION",
     "README.md",
 )
@@ -62,6 +64,7 @@ EXECUTABLE_NAMES = {
     "package_alpha.py",
     "run_season.py",
     "run_ui.py",
+    "playtest_aero.py",
 }
 
 
@@ -184,8 +187,10 @@ def build_manifest(root=None, file_count=0, version=None):
         "notes": (
             "Unpack the zip and run the launchers. Git is not required. "
             "Python 3.10+ is required. Godot 4.4 is optional for the office desk. "
-            "The desk is a 10-team Cup office: hearings, Advance, save/load, "
-            "new career, History, and Hall of Fame."
+            "The desk is a 10-team Cup office with a writable Aero Wars book: "
+            "legalize specials, pull plates, invite Chrysler, plate one oval. "
+            "Hearings, Advance, save/load, new career, History, and Hall of Fame. "
+            "See PLAYTEST.md and KNOWN_ISSUES.md."
         ),
     }
 

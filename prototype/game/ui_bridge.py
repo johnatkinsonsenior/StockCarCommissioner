@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-UI_VERSION = "2.4"
+UI_VERSION = "2.5"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 
