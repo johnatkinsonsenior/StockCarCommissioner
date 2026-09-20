@@ -403,7 +403,7 @@ PROSPECT_POOL_TARGET = 10
 PROSPECT_READY_FLOOR = 80
 PROSPECT_RADAR_FLOOR = 70
 PROSPECT_DEVELOPING_FLOOR = 60
-DRIVERS_PER_TEAM = 2
+DRIVERS_PER_TEAM = 1
 BAILOUT_AMOUNT = 800_000
 FACTORY_MIN_INTEREST = 52
 FACTORY_SWITCH_GAP = 8
@@ -6193,7 +6193,7 @@ def staff_expansion_seat(team_name):
 
 
 def admit_expansion_team(applicant):
-    """Add a granted applicant as a premier team with a full driver roster."""
+    """Add a granted applicant as a premier team with one Cup driver."""
 
     owner = Owner(
         name=applicant["owner_name"],
@@ -7178,7 +7178,7 @@ def resign_incumbent_driver(driver, team):
 
 
 def repair_premier_rosters():
-    """Keep every live shop at two premier drivers and drop orphans."""
+    """Keep every live shop at one Cup driver and drop orphans."""
 
     team_names = {team.name for team in teams}
     repaired = []

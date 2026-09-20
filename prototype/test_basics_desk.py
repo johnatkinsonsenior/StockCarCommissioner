@@ -196,6 +196,9 @@ def main():
     with redirect_stdout(log):
         recap = rs.advance_office_week()
         raced = rs.build_ui_snapshot()
+        rs.persist_office_career()
+        rs.restore_office_career()
+        reloaded = rs.build_ui_snapshot()
     raced_reports = raced.get("reports") or {}
     if not raced_reports.get("races"):
         _fail(errors, "reports race log empty after Advance")
@@ -205,6 +208,12 @@ def main():
         _fail(errors, "reports missing gate after Advance")
     if recap and recap.get("tv_rating") is None:
         _fail(errors, "weekend recap missing TV rating")
+    if int((raced_reports.get("field_size") or 0)) != 40:
+        _fail(errors, "reports field_size is %s" % raced_reports.get("field_size"))
+    if len(reloaded.get("drivers") or []) != 40:
+        _fail(errors, "reload after Advance has %s drivers" % len(reloaded.get("drivers") or []))
+    if len(reloaded.get("teams") or []) != 40:
+        _fail(errors, "reload after Advance has %s entries" % len(reloaded.get("teams") or []))
 
     print("BASICS_OK=%s" % (1 if not errors else 0))
     print("DESK_MODE=%s" % DESK_MODE)

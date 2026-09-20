@@ -60,6 +60,12 @@ is no team-owner or GM career.
 - A 40-car field scales incident chance so a weekend does not become a
   40-car wreckfest every week. Big packs still happen; they are rarer
   than a naive 40× scale.
+- The annual TV and commercial checks post later in the career loop.
+  Treasury can read $0 in week 1 even while Television shows a live
+  rights deal. That is cash on hand, not unsigned rights.
+- Load used to restaff every shop to two drivers, doubling the Cup to
+  80 cars. That is fixed; one driver per entry. An old `office.json`
+  from before the fix should be replaced with **New career**.
 - Win on Sunday still prints on Dashboard and Rulebook after a Cup race
   has a winner.
 
