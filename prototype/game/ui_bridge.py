@@ -640,7 +640,7 @@ def compose_ui_snapshot(payload):
         "history": payload.get("history") or {},
         "hof": list(payload.get("hof") or []),
         "ticker": list(payload.get("ticker") or office.get("ticker") or []),
-        "palette": payload.get("palette") or "winston-cup",
+        "palette": payload.get("palette") or "cbs-broadcast-83",
         "office": office,
         "saves": list(payload.get("saves") or office.get("saves") or []),
     }

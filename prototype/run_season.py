@@ -11548,7 +11548,7 @@ def build_ui_snapshot():
             "saves": office_save_catalog(),
             "week_recap": recap,
             "recap": recap,
-            "palette": "winston-cup",
+            "palette": "cbs-broadcast-83",
             "mail": {
                 "title": "Welcome to %s" % series,
                 "from": "Series Office — %s" % calendar.phase_label(),

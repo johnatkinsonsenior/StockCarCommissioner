@@ -70,6 +70,8 @@ def main():
         _fail(errors, "UI_VERSION is %s" % UI_VERSION)
     if snapshot.get("desk_mode") != "basics":
         _fail(errors, "snapshot desk_mode is %s" % snapshot.get("desk_mode"))
+    if snapshot.get("palette") != "cbs-broadcast-83":
+        _fail(errors, "palette is %s" % snapshot.get("palette"))
 
     nav_ids = [item.get("id") for item in (snapshot.get("office") or {}).get("nav") or []]
     for hidden in sorted(HIDDEN_NAV):

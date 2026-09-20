@@ -140,16 +140,20 @@ shape, commercial heat, how loud the board is, how the garage talks, and
 
 ### Palette and look
 
-Crimson (or deep red), gold, and white. Wood-and-brass league office,
-race-week TV graphics, newspaper sports page — not a modern dark-blue app.
-Gold rules and crimson fills on a light or cream field, with white type and
-hard edges.
+Black field, broadcast yellow (`#f5c400`), and a thin Winston stripe
+(`#c4122e`). Early-80s network sports graphics — Ken Squier-era Cup
+Sundays — not a modern dark-blue app and not a cream wood-and-brass
+office. Hard rectangles, uppercase chyron type, LIVE / SPORTS ident
+plates, a news ticker, and a light scanline overlay. Palette id
+`cbs-broadcast-83`. Do not use a network eye or the letters CBS; evoke
+the package, do not reprint it.
 
-The UI should feel like a late-’80s through early-to-mid-’90s cartridge
-sports game: chunky panels, a short palette, **readable tables**, no
-photoreal chrome. Layout is a commissioner office (nav, mail, checklist,
-Advance). Inspection is OOTP-style. Cadence is Front Office Football
-weeks. Reports should play at Baseball Mogul speed: dense, not drowning.
+The UI should feel like an early-80s broadcast lower-third sitting on a
+late-’80s cartridge sports desk: chunky panels, a short palette,
+**readable tables**, no photoreal chrome. Layout is a commissioner office
+(nav, mail, checklist, Advance). Inspection is OOTP-style. Cadence is
+Front Office Football weeks. Reports should play at Baseball Mogul
+speed: dense, not drowning.
 
 Python still simulates. Godot is the desk. Day 91 proved the shell; later
 days restyle to this look, Advance by the week, and expose era as a
@@ -890,9 +894,10 @@ is empty. **Hall of Fame** hangs plaques for retirees who won a title,
 status bar cycles beat-writer headlines (preseason files a quiet line).
 Settings lists the same JSON career slots as the
 terminal menu: Save writes `desk.json`, Load restores a slot onto the
-desk. The desk uses Winston Cup crimson, gold, and white
-with sharp 16-bit chrome. Day 91's charcoal/blue shell was the layout
-prototype only. Era 2: rulings from the desk change the sim, and careers
+desk. The desk uses the early-80s broadcast package (black, yellow,
+Winston stripe, LIVE/SPORTS bugs, scanlines) with sharp 16-bit chrome.
+Day 91's charcoal/blue shell was the layout prototype only. Era 2:
+rulings from the desk change the sim, and careers
 save and load from Settings. **New career** rewinds the desk (difficulty,
 length, autosave, era book): who is on the grid, which factories badge it,
 and how fat the TV check is. **Continue desk** reloads the office session.

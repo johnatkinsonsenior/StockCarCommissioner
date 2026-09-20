@@ -43,8 +43,11 @@ The Godot commissioner office (recommended):
 button. `play_ui.bat` does the same. First launch downloads Godot 4.4.
 
 Godot is the commissioner office (sidebar, mail, checklist, Advance).
-The look is Winston Cup crimson, gold, and white with a 16-bit sports-sim
-desk. Every era book opens **forty Cup cars and forty named drivers** —
+The look is an early-80s network sports package: black field, hard
+yellow chyron bars, a thin Winston stripe, LIVE / SPORTS bugs, and a
+light scanline overlay. It evokes 1983–84 Cup broadcasts without a
+network mark. Every era book opens **forty Cup cars and forty named
+drivers** —
 one driver per entry. Multi-car team organizations come later.
 **New career** rewinds the opening world: 1970s, 1980s, or pinnacle
 (late ’80s–mid ’90s). Each factory fields a homologated two-door coupe

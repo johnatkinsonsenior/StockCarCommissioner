@@ -225,9 +225,10 @@ what comes back. Do not add a franchise mode.
 - [x] Day 96 — Business screens (treasury, TV, sponsors)
 - [x] Day 97 — Rulebook, councils, and board on the desk
 
-> Screens in this era use the Winston Cup palette (crimson, gold, white) and
-> 16-bit sports-sim chrome. Day 91's charcoal/blue shell is the layout
-> prototype only; later desk days restyle as they land.
+> Screens in this era use the early-80s broadcast package (black field,
+> yellow chyron bars, Winston stripe, LIVE/SPORTS bugs, scanlines).
+> Palette id `cbs-broadcast-83`. Day 91's charcoal/blue shell is the
+> layout prototype only.
 
 > **Milestone — Day 97 Commissioner Office:** the player sits in an office and
 > Advances a week at a time; they do not scroll a season log.

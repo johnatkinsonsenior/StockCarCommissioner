@@ -97,6 +97,8 @@ Developer check:
   Office Football / Baseball Mogul pointed at stock cars?
 - Do the Reports, Television, and Standings screens read like a league
   office — dense tables, TV, gate, wrecks — or like chrome?
+- Does the desk feel like an early-80s Cup broadcast (black, yellow
+  chyron, LIVE/SPORTS bugs) rather than a modern dark-blue app?
 - Can you tell Ford from Pontiac from Plymouth on the winter book, and
   see the car on the entry?
 - Did the rules package you wrote change ratings and attendance the way
