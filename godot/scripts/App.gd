@@ -347,11 +347,21 @@ func _build_header() -> Control:
 	var grow := Control.new()
 	grow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ident_row.add_child(grow)
+	var live_plate := PanelContainer.new()
+	var live_style := StyleBoxFlat.new()
+	live_style.bg_color = COL_INK
+	live_style.set_corner_radius_all(0)
+	live_style.content_margin_left = 10
+	live_style.content_margin_right = 10
+	live_style.content_margin_top = 2
+	live_style.content_margin_bottom = 2
+	live_plate.add_theme_stylebox_override("panel", live_style)
 	var live := Label.new()
 	live.text = "LIVE"
 	live.add_theme_font_size_override("font_size", 16)
-	live.add_theme_color_override("font_color", COL_INK)
-	ident_row.add_child(live)
+	live.add_theme_color_override("font_color", COL_YELLOW)
+	live_plate.add_child(live)
+	ident_row.add_child(live_plate)
 	wrap.add_child(ident)
 
 	var header := PanelContainer.new()
