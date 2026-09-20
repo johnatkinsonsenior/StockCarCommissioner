@@ -614,106 +614,84 @@ def set_venue_plates(packages, name, token):
     return venues
 
 
+def _body(body_id, maker, name, year, family, body_map, needs=None, years=None, street=None):
+    """Build one homologated coupe card with its street-release year."""
+
+    years = years or (year, year)
+    return {
+        "id": body_id,
+        "maker": maker,
+        "name": name,
+        "year": int(year),
+        "years": "%s–%s" % (years[0], years[1]),
+        "street": street or name,
+        "family": family,
+        "map": body_map,
+        "needs": needs,
+        "label": "%s %s" % (year, name),
+        "portrait": body_id,
+    }
+
+
 def body_catalog():
-    """Return every homologated coupe the commissioner can field."""
+    """Return every homologated coupe the commissioner can field.
+
+    Each card is a street-release year. The 16-bit portrait must match
+    that year's silhouette — 1980 Monte Carlo is the box G-body with the
+    opera window, not the 1983 downsized SS or the 1986 Aerocoupe.
+    """
 
     return [
-        {
-            "id": "torino",
-            "maker": "Apex",
-            "name": "Torino",
-            "family": FAMILY_FORD,
-            "map": _map(46, 56, 70, 48),
-            "needs": None,
-        },
-        {
-            "id": "thunderbird",
-            "maker": "Apex",
-            "name": "Thunderbird",
-            "family": FAMILY_FORD,
-            "map": _map(42, 60, 74, 52),
-            "needs": None,
-        },
-        {
-            "id": "chevelle",
-            "maker": "Vanguard",
-            "name": "Chevelle",
-            "family": FAMILY_GM,
-            "map": _map(66, 54, 46, 50),
-            "needs": None,
-        },
-        {
-            "id": "monte_carlo",
-            "maker": "Vanguard",
-            "name": "Monte Carlo",
-            "family": FAMILY_GM,
-            "map": _map(64, 54, 44, 50),
-            "needs": None,
-        },
-        {
-            "id": "monte_carlo_aerocoupe",
-            "maker": "Vanguard",
-            "name": "Monte Carlo Aerocoupe",
-            "family": FAMILY_GM,
-            "map": _map(56, 56, 66, 48),
-            "needs": "aerocoupes",
-        },
-        {
-            "id": "grand_prix",
-            "maker": "Falcon",
-            "name": "Grand Prix",
-            "family": FAMILY_GM,
-            "map": _map(58, 56, 52, 54),
-            "needs": None,
-        },
-        {
-            "id": "grand_prix_22",
-            "maker": "Falcon",
-            "name": "Grand Prix 2+2",
-            "family": FAMILY_GM,
-            "map": _map(54, 56, 64, 50),
-            "needs": "aerocoupes",
-        },
-        {
-            "id": "charger",
-            "maker": "Valiant",
-            "name": "Charger",
-            "family": FAMILY_CHRYSLER,
-            "map": _map(50, 52, 54, 46),
-            "needs": None,
-        },
-        {
-            "id": "superbird",
-            "maker": "Valiant",
-            "name": "Superbird",
-            "family": FAMILY_CHRYSLER,
-            "map": _map(38, 50, 88, 36),
-            "needs": "specials",
-        },
-        {
-            "id": "mirada",
-            "maker": "Valiant",
-            "name": "Mirada",
-            "family": FAMILY_CHRYSLER,
-            "map": _map(52, 50, 48, 48),
-            "needs": None,
-        },
-        {
-            "id": "magnum",
-            "maker": "Valiant",
-            "name": "Magnum",
-            "family": FAMILY_CHRYSLER,
-            "map": _map(50, 52, 56, 48),
-            "needs": None,
-        },
-        {
-            "id": "generic_coupe",
-            "maker": "Independent",
-            "name": "Generic coupe",
-            "family": FAMILY_INDEPENDENT,
-            "map": _map(48, 48, 48, 48),
-            "needs": None,
-        },
+        _body("torino", "Apex", "Torino", 1971, FAMILY_FORD, _map(46, 56, 70, 48), years=(1970, 1976)),
+        _body("thunderbird", "Apex", "Thunderbird", 1983, FAMILY_FORD, _map(42, 60, 74, 52), years=(1983, 1988)),
+        _body("thunderbird_aero", "Apex", "Thunderbird", 1989, FAMILY_FORD, _map(40, 62, 78, 54), years=(1989, 1997)),
+        _body("chevelle", "Vanguard", "Chevelle", 1970, FAMILY_GM, _map(66, 54, 46, 50), years=(1970, 1972)),
+        _body("monte_carlo", "Vanguard", "Monte Carlo", 1980, FAMILY_GM, _map(64, 54, 44, 50), years=(1978, 1980)),
+        _body("monte_carlo_gbody", "Vanguard", "Monte Carlo SS", 1983, FAMILY_GM, _map(60, 56, 50, 50), years=(1981, 1985)),
+        _body(
+            "monte_carlo_aerocoupe",
+            "Vanguard",
+            "Monte Carlo Aerocoupe",
+            1986,
+            FAMILY_GM,
+            _map(56, 56, 66, 48),
+            needs="aerocoupes",
+            years=(1986, 1988),
+        ),
+        _body("lumina", "Vanguard", "Lumina", 1989, FAMILY_GM, _map(52, 60, 70, 52), years=(1989, 1994)),
+        _body("grand_prix", "Falcon", "Grand Prix", 1981, FAMILY_GM, _map(58, 56, 52, 54), years=(1981, 1987)),
+        _body(
+            "grand_prix_22",
+            "Falcon",
+            "Grand Prix 2+2",
+            1986,
+            FAMILY_GM,
+            _map(54, 56, 64, 50),
+            needs="aerocoupes",
+            years=(1986, 1987),
+        ),
+        _body("charger", "Valiant", "Charger", 1971, FAMILY_CHRYSLER, _map(50, 52, 54, 46), years=(1971, 1974)),
+        _body(
+            "superbird",
+            "Valiant",
+            "Superbird",
+            1970,
+            FAMILY_CHRYSLER,
+            _map(38, 50, 88, 36),
+            needs="specials",
+            years=(1970, 1970),
+        ),
+        _body("magnum", "Valiant", "Magnum", 1978, FAMILY_CHRYSLER, _map(50, 52, 56, 48), years=(1978, 1979)),
+        _body("mirada", "Valiant", "Mirada", 1980, FAMILY_CHRYSLER, _map(52, 50, 48, 48), years=(1980, 1983)),
+        _body(
+            "generic_coupe",
+            "Independent",
+            "Generic coupe",
+            1984,
+            FAMILY_INDEPENDENT,
+            _map(48, 48, 48, 48),
+            years=(1981, 1988),
+        ),
     ]
 
 
@@ -761,11 +739,17 @@ def default_body_id(maker_name, era_book=None, book=None):
     winged = specials in (SPECIALS_LEGAL, SPECIALS_HOMOLOGATE)
     aero = bool(book.get("aerocoupes")) or winged
     if maker == "Apex":
-        return "torino" if era == ERA_1970S else "thunderbird"
+        if era == ERA_1970S:
+            return "torino"
+        if era == ERA_1980S:
+            return "thunderbird"
+        return "thunderbird_aero"
     if maker == "Vanguard":
         if era == ERA_1970S:
             return "chevelle"
-        return "monte_carlo_aerocoupe" if aero else "monte_carlo"
+        if era == ERA_1980S:
+            return "monte_carlo_aerocoupe" if aero else "monte_carlo_gbody"
+        return "monte_carlo_aerocoupe" if aero else "lumina"
     if maker == "Falcon":
         if era == ERA_1970S:
             return "grand_prix"
@@ -797,12 +781,19 @@ def legal_bodies(maker_name, era_book=None, book=None):
 
 
 def _spec_from_entry(entry):
+    year = int(entry.get("year") or 0)
+    name = str(entry.get("name") or "")
+    label = str(entry.get("label") or (("%s %s" % (year, name)).strip() if year else name))
     return {
         "id": entry.get("id"),
-        "name": entry.get("name"),
+        "name": name,
+        "label": label,
+        "year": year,
+        "years": entry.get("years") or "",
+        "street": entry.get("street") or name,
         "family": entry.get("family"),
         "map": dict(entry.get("map") or _map(50, 50, 50, 50)),
-        "portrait": entry.get("id"),
+        "portrait": entry.get("portrait") or entry.get("id"),
     }
 
 
@@ -827,6 +818,10 @@ def coupe_spec(maker_name, era_book=None, book=None):
     return {
         "id": "generic_coupe",
         "name": "Generic coupe",
+        "label": "1984 Generic coupe",
+        "year": 1984,
+        "years": "1981–1988",
+        "street": "Generic coupe",
         "family": FAMILY_INDEPENDENT,
         "map": _map(48, 48, 48, 48),
         "portrait": "generic_coupe",
@@ -1002,8 +997,10 @@ def office_bodies_book(makers=None, era_book=None, book=None):
             choices.append(
                 {
                     "id": entry.get("id"),
-                    "name": entry.get("name"),
-                    "portrait": entry.get("id"),
+                    "name": entry.get("label") or entry.get("name"),
+                    "year": int(entry.get("year") or 0),
+                    "years": entry.get("years") or "",
+                    "portrait": entry.get("portrait") or entry.get("id"),
                     "selected": entry.get("id") == spec.get("id"),
                     "short_track": int((entry.get("map") or {}).get("short_track") or 50),
                     "intermediate": int((entry.get("map") or {}).get("intermediate") or 50),
@@ -1015,7 +1012,9 @@ def office_bodies_book(makers=None, era_book=None, book=None):
             {
                 "maker": name,
                 "family": spec.get("family"),
-                "coupe": spec.get("name"),
+                "coupe": spec.get("label") or spec.get("name"),
+                "year": int(spec.get("year") or 0),
+                "years": spec.get("years") or "",
                 "portrait": spec.get("portrait") or spec.get("id"),
                 "choices": choices,
                 "short_track": int(body_map.get("short_track") or 50),

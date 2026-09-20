@@ -107,6 +107,16 @@ def main():
         _fail(errors, "welcome letter missing commissioner-only line")
     if "reports" not in body.lower():
         _fail(errors, "welcome letter missing Reports")
+    if "chair files" not in body.lower():
+        _fail(errors, "welcome letter missing chair files")
+    inbox_ids = [item.get("id") for item in inbox]
+    if "chair-files" not in inbox_ids:
+        _fail(errors, "inbox missing chair-files briefing")
+    chair = next((item for item in inbox if item.get("id") == "chair-files"), {})
+    if "product is the race" not in str(chair.get("body") or "").lower():
+        _fail(errors, "chair briefing missing Helton/France product line")
+    if not (snapshot.get("dashboard") or {}).get("chair_note"):
+        _fail(errors, "dashboard missing chair_note")
 
     dash = snapshot.get("dashboard") or {}
     if dash.get("approval"):
@@ -182,6 +192,27 @@ def main():
     ]
     if len(driver_portraits) < 20:
         _fail(errors, "too few driver portraits: %s" % len(driver_portraits))
+    from game.aero_wars import body_by_id, body_catalog, default_body_id
+
+    eighty = body_by_id("monte_carlo") or {}
+    if int(eighty.get("year") or 0) != 1980:
+        _fail(errors, "1980 Monte Carlo year is %s" % eighty.get("year"))
+    if not body_by_id("lumina"):
+        _fail(errors, "1989 Lumina missing from catalog")
+    if not body_by_id("monte_carlo_gbody"):
+        _fail(errors, "1983 Monte Carlo SS missing from catalog")
+    if default_body_id("Vanguard", "1970s") != "chevelle":
+        _fail(errors, "1970s Vanguard default is not the 1970 Chevelle")
+    eighties_default = default_body_id(
+        "Vanguard",
+        "1980s",
+        {"aerocoupes": False, "aero_specials": "banned"},
+    )
+    if eighties_default != "monte_carlo_gbody":
+        _fail(errors, "1980s Vanguard default is not the 1983 Monte Carlo SS")
+    years = {entry["id"]: entry.get("year") for entry in body_catalog()}
+    if years.get("chevelle") != 1970 or years.get("thunderbird") != 1983:
+        _fail(errors, "body years drifted: %s" % years)
     reports = snapshot.get("reports") or {}
     if not isinstance(reports, dict) or "package" not in reports:
         _fail(errors, "reports book missing")

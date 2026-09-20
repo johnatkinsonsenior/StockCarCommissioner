@@ -99,6 +99,10 @@ Developer check:
   office — dense tables, TV, gate, wrecks — or like chrome?
 - Does the desk feel like an early-80s Cup broadcast (black, yellow
   chyron, LIVE/SPORTS bugs) rather than a modern dark-blue app?
+- Do the chair files in Mail sound like the job France Sr., France Jr.,
+  and Helton actually sat in?
+- Do the coupe portraits match the street year on the card — 1980 Monte
+  Carlo vs 1983 SS vs 1986 Aerocoupe vs 1989 Lumina?
 - Can you tell Ford from Pontiac from Plymouth on the winter book, and
   see the car on the entry?
 - Did the rules package you wrote change ratings and attendance the way

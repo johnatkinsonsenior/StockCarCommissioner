@@ -7,6 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from game.commissioner_files import briefing_body, briefing_subject, welcome_addendum
 from game.desktop_runtime import bundled_godot_candidates, ensure_godot_binary
 
 UI_VERSION = "2.7"
@@ -279,6 +280,24 @@ def press_letter(index, story):
     )
 
 
+def briefing_letter(payload=None):
+    """Return the era briefing drawn from Winston Cup chair interviews."""
+
+    payload = payload or {}
+    series = payload.get("series") or "the series"
+    era = ""
+    settings = payload.get("settings") or {}
+    if isinstance(settings, dict):
+        era = settings.get("era_book") or ""
+    return make_letter(
+        letter_id="chair-files",
+        kind="letter",
+        from_name="Series Office — Chair files",
+        subject=payload.get("briefing_subject") or briefing_subject(era),
+        body=payload.get("briefing_body") or briefing_body(series, era),
+    )
+
+
 def welcome_letter(payload=None):
     """Return the series-office briefing that opens a career."""
 
@@ -370,6 +389,7 @@ def build_office_inbox(payload=None):
     for index, story in enumerate(headlines):
         letters.append(press_letter(index, story))
     letters.append(welcome_letter(payload))
+    letters.append(briefing_letter(payload))
     return letters
 
 
@@ -512,9 +532,10 @@ def default_welcome_body(series=None):
         "Entries, Reports, Television, Treasury, Sponsors, Drivers, Rulebook, "
         "and Mail. Reports is the race file: attendance, wrecks, TV, driver "
         "form. The winter book you write moves those numbers.\n\n"
+        "%s\n\n"
         "When the checklist is done, Advance runs the next race week.\n\n"
         "Python still simulates the races. This office is where you sit."
-        % series
+        % (series, welcome_addendum())
     )
 
 

@@ -47,9 +47,11 @@ def points_system_event(policies):
         "category": "rule-change",
         "phase": PRESEASON,
         "prompt": (
-            "Competition committee asks whether the championship should "
-            "keep rewarding consistent finishers or swing more toward race "
-            f"winners. Current policy: {current}."
+            "The men who sat in this chair built a national championship by "
+            "paying finishers who showed up every week — not just the race "
+            "winner. Competition committee asks whether to keep that table "
+            "or swing more toward winning. Current policy: %s."
+            % current
         ),
         "choices": [
             {
@@ -566,7 +568,9 @@ def technical_rules_event(policies):
         "category": "rule-change",
         "phase": PRESEASON,
         "prompt": (
-            "The competition director wants a direction for the homologated "
+            "France Jr. told the garage the series would follow Detroit — "
+            "but not so fast that last year's cars became scrap. The "
+            "competition director wants a direction for the homologated "
             "coupes. This is the winter body book, not a generic aero cap. "
             "Current book: %s, template %s, plates %s "
             "(legacy inspection: %s)."
@@ -717,9 +721,12 @@ def safety_mandate_event(policies):
         "category": "safety",
         "phase": OFFSEASON,
         "prompt": (
-            "The medical director and drivers' council ask for a ruling on "
-            "next season's safety equipment. Stronger mandates reduce crash "
-            f"risk but raise team costs. Current policy: {current}."
+            "The medical director asks for a ruling on next season's safety "
+            "equipment. The garage will not like plates, belts, or a "
+            "heavier car. The chair's line after Loudon was that you take "
+            "the heat in public: 'we're big boys.' Stronger mandates reduce "
+            "crash risk but raise shop costs. Current policy: %s."
+            % current
         ),
         "choices": [
             {

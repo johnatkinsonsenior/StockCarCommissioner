@@ -533,9 +533,13 @@ Rulebook, or from the preseason winter-body hearing.
 
 #### Bodies, not just badges
 
-Each factory on the grid fields a **homologated body** for the current
-era: a named coupe with an aero map, not only a speed/reliability/aero
-triple. The map is four numbers, one per track type:
+Each factory on the grid fields a **homologated body** for a **street-release
+year**: a named coupe with an aero map and a 16-bit portrait that matches
+that year's silhouette. The 1980 Chevrolet Monte Carlo is the box G-body
+with the opera window, not the 1983 downsized SS and not the 1986
+Aerocoupe. The 1971 Torino, 1983 Thunderbird, 1989 Thunderbird, 1989
+Lumina, 1970 Superbird, and the rest of the winter-book list follow the
+same rule. The map is four numbers, one per track type:
 
 - **Short track** — mechanical grip, brakes, driver. Aero is a small
   factor. GM bricks and a short-track ace belong here.

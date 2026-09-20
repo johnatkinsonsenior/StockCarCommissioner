@@ -886,6 +886,10 @@ func _fill_dashboard() -> void:
 	if str(dash.get("win_on_sunday", "")) != "":
 		center_body.add_child(_gold_line(str(dash.get("win_on_sunday", ""))))
 		print("WIN_ON_SUNDAY=", str(dash.get("win_on_sunday", "")))
+	if str(dash.get("chair_note", "")) != "":
+		center_body.add_child(_gold_line("From the chair"))
+		center_body.add_child(_muted(str(dash.get("chair_note", ""))))
+		print("CHAIR_NOTE=1")
 	if str(dash.get("factory", "")) != "":
 		center_body.add_child(_muted(str(dash.get("factory", ""))))
 	var alerts: Array = dash.get("alerts", [])
@@ -1593,6 +1597,11 @@ func _add_body_card(body: Dictionary) -> void:
 		str(body.get("family", "")),
 		str(body.get("coupe", "")),
 	]))
+	if _as_int(body.get("year", 0)) > 0:
+		copy.add_child(_muted("Street year %s  ·  ran %s" % [
+			str(_as_int(body.get("year", 0))),
+			str(body.get("years", "")),
+		]))
 	copy.add_child(_muted("ST %s  Int %s  SS %s  RC %s" % [
 		str(_as_int(body.get("short_track", 0))),
 		str(_as_int(body.get("intermediate", 0))),
