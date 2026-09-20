@@ -796,7 +796,7 @@ func _fill_dashboard() -> void:
 	center_body.add_child(_meter("Controversy", int(dash.get("controversy", 0)), Color("c44536")))
 	center_body.add_child(_meter("Owner pressure", int(dash.get("owner_pressure", 0)), Color("c44536")))
 	center_body.add_child(_meter("Driver sentiment", int(dash.get("driver_sentiment", 0)), Color("3d9b6e")))
-	center_body.add_child(_line("Grade %s (%s/100)" % [str(dash.get("grade", "—")), str(dash.get("score", 0))]))
+	center_body.add_child(_line("Grade %s (%s/100)" % [str(dash.get("grade", "—")), str(_as_int(dash.get("score", 0)))]))
 	if str(snapshot.get("desk_mode", "basics")) != "basics":
 		center_body.add_child(_line(str(dash.get("approval", ""))))
 		center_body.add_child(_line(str(dash.get("board", ""))))
@@ -1619,7 +1619,7 @@ func _fill_settings() -> void:
 	var settings: Dictionary = snapshot.get("settings", {})
 	center_body.add_child(_title("Settings"))
 	center_body.add_child(_line("Difficulty: %s" % str(settings.get("difficulty_label", "Normal"))))
-	center_body.add_child(_line("Career length: %s seasons" % str(settings.get("career_seasons", 3))))
+	center_body.add_child(_line("Career length: %s seasons" % str(_as_int(settings.get("career_seasons", 3)))))
 	center_body.add_child(_line("Autosave: %s" % str(settings.get("autosave_label", "Off"))))
 	center_body.add_child(_line("Era book: %s" % str(settings.get("era_book_label", "Pinnacle (late '80s–mid '90s)"))))
 	print("ERA_BOOK=", str(settings.get("era_book", era_book)))
@@ -1640,7 +1640,7 @@ func _fill_settings() -> void:
 			continue
 		var era_button := Button.new()
 		var mark := "●" if book == era_book else "○"
-		era_button.text = "%s  %s  (%s shops)" % [mark, str(row.get("label", book)), str(row.get("shops", 10))]
+		era_button.text = "%s  %s  (%s shops)" % [mark, str(row.get("label", book)), str(_as_int(row.get("shops", 10)))]
 		era_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		era_button.pressed.connect(_on_era_book.bind(book))
 		center_body.add_child(era_button)
