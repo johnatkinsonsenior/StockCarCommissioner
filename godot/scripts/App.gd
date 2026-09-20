@@ -54,6 +54,7 @@ func _ready() -> void:
 	print("OFFICE_READY")
 	print("PALETTE=", str(snapshot.get("palette", "")))
 	print("LAYOUT=commissioner-desk")
+	print("DESK_MODE=", str(snapshot.get("desk_mode", "")))
 	print("SERIES=", str(snapshot.get("series", "")))
 	print("SCREEN=", screen_name)
 	print("CHECKLIST=", str(_checklist().size()))
@@ -98,11 +99,6 @@ func _headless_tour() -> void:
 	_show_section("schedule")
 	_show_section("teams")
 	_show_section("drivers")
-	_show_section("prospects")
-	_show_section("treasury")
-	_show_section("television")
-	_show_section("sponsors")
-	_show_section("hearings")
 	_show_section("mail")
 	var shops: Array = _as_array(snapshot.get("teams", []))
 	if not shops.is_empty() and typeof(shops[0]) == TYPE_DICTIONARY:
@@ -120,8 +116,6 @@ func _headless_tour() -> void:
 		profile_season = str(seasons[0].get("id", seasons[0].get("season", "")))
 		_show_section("history")
 		print("HISTORY_SEASON=", profile_season)
-	_show_section("hof")
-	print("HOF=", str(_as_array(snapshot.get("hof", [])).size()))
 	print("TICKER=", str(_ticker_lines().size()))
 	_show_section("settings")
 	_on_office_save("desk")
@@ -803,9 +797,10 @@ func _fill_dashboard() -> void:
 	center_body.add_child(_meter("Owner pressure", int(dash.get("owner_pressure", 0)), Color("c44536")))
 	center_body.add_child(_meter("Driver sentiment", int(dash.get("driver_sentiment", 0)), Color("3d9b6e")))
 	center_body.add_child(_line("Grade %s (%s/100)" % [str(dash.get("grade", "—")), str(dash.get("score", 0))]))
-	center_body.add_child(_line(str(dash.get("approval", ""))))
-	center_body.add_child(_line(str(dash.get("board", ""))))
-	center_body.add_child(_line("Treasury $%s" % _comma(dash.get("treasury", 0))))
+	if str(snapshot.get("desk_mode", "basics")) != "basics":
+		center_body.add_child(_line(str(dash.get("approval", ""))))
+		center_body.add_child(_line(str(dash.get("board", ""))))
+		center_body.add_child(_line("Treasury $%s" % _comma(dash.get("treasury", 0))))
 	if str(dash.get("makers", "")) != "":
 		center_body.add_child(_muted(str(dash.get("makers", ""))))
 		print("MAKERS=", str(dash.get("makers", "")))
@@ -1629,12 +1624,23 @@ func _fill_settings() -> void:
 	center_body.add_child(_line("Era book: %s" % str(settings.get("era_book_label", "Pinnacle (late '80s–mid '90s)"))))
 	print("ERA_BOOK=", str(settings.get("era_book", era_book)))
 	center_body.add_child(_muted(str(snapshot.get("settings_line", ""))))
-	center_body.add_child(_muted("A new career rewinds the opening world: who is on the grid, which factories badge it, and how fat the TV check is."))
-	var era_shops := {"1970s": 8, "1980s": 9, "pinnacle": 10, "beyond": 12}
-	for book in ["1970s", "1980s", "pinnacle", "beyond"]:
+	center_body.add_child(_muted("A new career rewinds the opening world: who is on the grid, which factories badge it, and how the winter book starts."))
+	var era_rows: Array = _as_array(_as_dict(snapshot.get("settings", {})).get("era_books", []))
+	if era_rows.is_empty():
+		era_rows = [
+			{"id": "1970s", "label": "1970s Winston Cup", "shops": 8},
+			{"id": "1980s", "label": "1980s Winston Cup", "shops": 9},
+			{"id": "pinnacle", "label": "Pinnacle (late '80s–mid '90s)", "shops": 10},
+		]
+	for row in era_rows:
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var book := str(row.get("id", ""))
+		if book == "":
+			continue
 		var era_button := Button.new()
 		var mark := "●" if book == era_book else "○"
-		era_button.text = "%s  %s  (%s shops)" % [mark, book, str(era_shops.get(book, 10))]
+		era_button.text = "%s  %s  (%s shops)" % [mark, str(row.get("label", book)), str(row.get("shops", 10))]
 		era_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		era_button.pressed.connect(_on_era_book.bind(book))
 		center_body.add_child(era_button)

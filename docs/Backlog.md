@@ -216,17 +216,19 @@
 | 214 | Aero Wars playtest loop | High | Completed |
 | 215 | Aero Wars desk bug pass | High | Completed |
 | 216 | Packaged writable-book playtest zip | High | Completed |
-| 217 | Beyond opening world (commerce, board) | High | Not Started |
-| 218 | Beyond default template tightness | High | Not Started |
-| 219 | Four-door-as-coupe (Taurus analog) opt-in | High | Not Started |
-| 220 | Persistent custom sliders on Beyond | Medium | Not Started |
-| 221 | Later-era garage, media, and schedule flavor | Medium | Not Started |
-| 222 | Decade balance on the Beyond book | High | Not Started |
+| 217 | Beyond opening world (commerce, board) | High | Parked |
+| 218 | Beyond default template tightness | High | Parked |
+| 219 | Four-door-as-coupe (Taurus analog) opt-in | High | Parked |
+| 220 | Persistent custom sliders on Beyond | Medium | Parked |
+| 221 | Later-era garage, media, and schedule flavor | Medium | Parked |
+| 222 | Decade balance on the Beyond book | High | Parked |
 | 223 | Commissioner-only product lock (no franchise mode) | High | Completed |
 | 224 | Design peers: OOTP, Front Office Football, Baseball Mogul | High | Completed |
-| 225 | Sortable report screens | High | Not Started |
-| 226 | Reopenable race file / box score | High | Not Started |
-| 227 | Weekly desk inbox of work | High | Not Started |
-| 228 | News and records encyclopedia | Medium | Not Started |
-| 229 | Commissioner-written calendar | High | Not Started |
-| 230 | Paddock density toward a Cup field | High | Not Started |
+| 225 | Sortable report screens | High | Parked |
+| 226 | Reopenable race file / box score | High | Parked |
+| 227 | Weekly desk inbox of work | High | Parked |
+| 228 | News and records encyclopedia | Medium | Parked |
+| 229 | Commissioner-written calendar | High | Parked |
+| 230 | Paddock density toward a Cup field | High | Parked |
+| 231 | Commissioner basics desk (Cup roster, winter book, weekly Advance) | High | Completed |
+| 232 | Steam screenshot pack of the basics office | High | Completed |

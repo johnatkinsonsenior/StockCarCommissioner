@@ -148,8 +148,14 @@ from game.balance import (
     write_balance_report,
 )
 from game.ui_bridge import (
+    DESK_MODE,
+    basics_desk,
+    clamp_era_book,
     compose_ui_snapshot,
     default_snapshot_path,
+    era_start_books,
+    filter_basics_alerts,
+    filter_basics_hearings,
     find_godot_binary,
     godot_project_dir,
     launch_godot_process,
@@ -11278,11 +11284,13 @@ def office_live_events():
     events = []
     if calendar.phase == PRESEASON:
         events.extend(preseason_events(current_policies, season) or [])
-        events.extend(factory_lobby_events(season, events_resolved, league) or [])
-        events.extend(kit_lobby_events(season, events_resolved, league) or [])
+        if not basics_desk():
+            events.extend(factory_lobby_events(season, events_resolved, league) or [])
+            events.extend(kit_lobby_events(season, events_resolved, league) or [])
     else:
-        events.extend(factory_lobby_events(season, events_resolved, league) or [])
-        events.extend(kit_lobby_events(season, events_resolved, league) or [])
+        if not basics_desk():
+            events.extend(factory_lobby_events(season, events_resolved, league) or [])
+            events.extend(kit_lobby_events(season, events_resolved, league) or [])
         if calendar.phase == REGULAR_SEASON:
             raced = len(race_history) or 1
             stories = league.get("last_media_stories") or []
@@ -11296,24 +11304,25 @@ def office_live_events():
                 )
                 or []
             )
-            events.extend(
-                runaway_hearing_events(
-                    season,
-                    events_resolved,
-                    race_history,
-                    teams,
+            if not basics_desk():
+                events.extend(
+                    runaway_hearing_events(
+                        season,
+                        events_resolved,
+                        race_history,
+                        teams,
+                    )
+                    or []
                 )
-                or []
-            )
-            events.extend(
-                plate_pack_events(
-                    season,
-                    events_resolved,
-                    race_history,
-                    league,
+                events.extend(
+                    plate_pack_events(
+                        season,
+                        events_resolved,
+                        race_history,
+                        league,
+                    )
+                    or []
                 )
-                or []
-            )
     return events
 
 
@@ -11328,6 +11337,8 @@ def pending_office_hearings():
             continue
         seen.add(event_id)
         rows.append(office_hearing_payload(event))
+    if basics_desk():
+        rows = filter_basics_hearings(rows)
     return rows
 
 
@@ -11359,6 +11370,8 @@ def build_ui_snapshot():
             security.get("risk_label"),
         )
         alerts = list(collect_commissioner_alerts())
+        if basics_desk():
+            alerts = filter_basics_alerts(alerts)
         inbox_alerts = sync_office_alert_mail(alerts)
         for team in teams:
             team_rows.append(
@@ -11380,7 +11393,7 @@ def build_ui_snapshot():
     schedule_rows = office_schedule_book()
     recap = office_recap_book()
     team_book = office_team_book()
-    prospect_book = office_prospect_book()
+    prospect_book = [] if basics_desk() else office_prospect_book()
     treasury_book = office_treasury_book()
     television_book = office_television_book()
     sponsor_book = office_sponsor_book()
@@ -11394,12 +11407,14 @@ def build_ui_snapshot():
     week = office_week_preview()
     mail_body = (
         "Commissioner,\n\n"
-        "You run %s. You do not drive.\n\n"
-        "Television and naming rights pay the bills. Owners want wins. "
-        "Drivers want a fair garage. The board wants a league that still "
-        "exists next year.\n\n"
-        "Open every section on the left. Mail is your inbox. When the "
-        "checklist is done, Advance runs the next week.\n\n"
+        "You run %s. You do not drive. You do not own a shop.\n\n"
+        "This is the league office for a high-level stock car series in the "
+        "Winston Cup years. Each week you Advance the calendar. Between "
+        "weekends you read the mail, inspect the Cup roster, and write the "
+        "winter book: Ford, Pontiac, Plymouth, Chevrolet — which coupes are "
+        "legal, which factories get the aero edge, and how the big tracks run.\n\n"
+        "Open Dashboard, Standings, Teams, Drivers, Rulebook, and Mail. "
+        "When the checklist is done, Advance runs the next race week.\n\n"
         "Python still simulates the races. This office is where you sit."
         % series
     )
@@ -11407,6 +11422,7 @@ def build_ui_snapshot():
         {
             "screen": "mail",
             "series": series,
+            "desk_mode": DESK_MODE,
             "settings_line": settings_dashboard_text(),
             "calendar": calendar.description(),
             "status_line": office_status_line(),
@@ -11464,6 +11480,7 @@ def build_ui_snapshot():
                 "autosave_label": autosave_label(),
                 "era_book": current_settings.get("era_book") or ERA_PINNACLE,
                 "era_book_label": era_book_label(),
+                "era_books": era_start_books(),
             },
             "dashboard": {
                 "calendar": calendar.description(),
@@ -11474,13 +11491,15 @@ def build_ui_snapshot():
                 "driver_sentiment": league.get("driver_sentiment", 0),
                 "grade": grade,
                 "score": score,
-                "approval": approval_line,
-                "board": board_line,
+                "approval": "" if basics_desk() else approval_line,
+                "board": "" if basics_desk() else board_line,
                 "treasury": league.get("treasury", 0),
                 "naming_rights": league_deal_label(league.get("naming_rights")),
                 "tv_rights": tv_deal_label(league.get("tv_rights")),
-                "prospects": prospect_dashboard_text() if drivers else "",
-                "development": (
+                "prospects": "" if basics_desk() else (
+                    prospect_dashboard_text() if drivers else ""
+                ),
+                "development": "" if basics_desk() else (
                     development_dashboard_text() if drivers else ""
                 ),
                 "factory": factory_dashboard_text() if teams else "",
@@ -11549,13 +11568,16 @@ def start_office_career(data=None):
     """Reset a new commissioner career onto the desk."""
 
     data = dict(data or {})
+    era_book = data.get("era_book") or current_settings.get("era_book")
+    if basics_desk():
+        era_book = clamp_era_book(era_book)
     apply_game_settings(
         {
             "difficulty": data.get("difficulty") or current_settings.get("difficulty"),
             "career_seasons": data.get("career_seasons")
             or current_settings.get("career_seasons"),
             "autosave": data.get("autosave") or current_settings.get("autosave"),
-            "era_book": data.get("era_book") or current_settings.get("era_book"),
+            "era_book": era_book,
         }
     )
     reset_career_state(keep_settings=True)
@@ -11771,14 +11793,17 @@ def print_aero_desk_lines():
 
 
 def office_status_line():
-    """Return the desk header: calendar, next weekend, treasury, fans."""
+    """Return the desk header: calendar, next weekend, fans."""
 
     preview = office_week_preview()
     next_line = preview.get("next") or calendar.description()
+    fans = league.get("fan_interest") or 0
+    if basics_desk():
+        return "%s — %s fans" % (next_line, fans)
     return "%s — $%s — %s fans" % (
         next_line,
         "{:,}".format(int(league.get("treasury") or 0)),
-        league.get("fan_interest") or 0,
+        fans,
     )
 
 

@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 GAME_NAME = "Stock Car Commissioner"
-GAME_VERSION = "0.4.1-aero"
+GAME_VERSION = "0.5.0-basics"
 SAVE_SCHEMA_VERSION = "0.0.41"
 PACKAGE_SLUG = "stock-car-commissioner"
 UI_ENGINE = "godot-4.4"

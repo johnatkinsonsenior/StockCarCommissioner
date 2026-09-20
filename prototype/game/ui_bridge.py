@@ -9,9 +9,43 @@ from pathlib import Path
 
 from game.desktop_runtime import bundled_godot_candidates, ensure_godot_binary
 
-UI_VERSION = "2.5"
+UI_VERSION = "2.6"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
+DESK_MODE = "basics"
+
+# This version of the desk: Winston Cup commissioner. Current Cup roster,
+# weekly Advance, the winter book. No prospect pool, no council politics.
+BASICS_HEARING_CATEGORIES = {
+    "rule-change",
+    "safety",
+    "owner-complaint",
+    "driver-complaint",
+    "rivalry",
+}
+
+BASICS_ALERT_SKIP = (
+    "prospect",
+    "call-up",
+    "development series",
+    "board",
+    "dismissal",
+    "owner council",
+    "driver council",
+    "applied to enter",
+    "charter",
+    "rule proposal",
+    "docket",
+    "approval is slipping",
+)
+
+ERA_START_BOOKS = ("1970s", "1980s", "pinnacle")
+ERA_START_SHOPS = {"1970s": 8, "1980s": 9, "pinnacle": 10}
+ERA_START_LABELS = {
+    "1970s": "1970s Winston Cup",
+    "1980s": "1980s Winston Cup",
+    "pinnacle": "Pinnacle (late '80s–mid '90s)",
+}
 
 HEARING_SENDERS = {
     "rule-change": "Competition Committee",
@@ -40,17 +74,10 @@ OFFICE_NAV = (
     {"id": "mail", "label": "Mail", "group": ""},
     {"id": "standings", "label": "Standings", "group": "Competition"},
     {"id": "schedule", "label": "Schedule", "group": "Competition"},
-    {"id": "hearings", "label": "Hearings", "group": "Competition"},
     {"id": "teams", "label": "Teams", "group": "Paddock"},
     {"id": "drivers", "label": "Drivers", "group": "Paddock"},
-    {"id": "prospects", "label": "Prospects", "group": "Paddock"},
-    {"id": "treasury", "label": "Treasury", "group": "Business"},
-    {"id": "television", "label": "Television", "group": "Business"},
-    {"id": "sponsors", "label": "Sponsors", "group": "Business"},
     {"id": "rulebook", "label": "Rulebook", "group": "League"},
     {"id": "history", "label": "History", "group": "League"},
-    {"id": "hof", "label": "Hall of Fame", "group": "League"},
-    {"id": "board", "label": "Board", "group": "League"},
     {"id": "settings", "label": "Settings", "group": ""},
     {"id": "quit", "label": "Quit", "group": ""},
 )
@@ -58,13 +85,76 @@ OFFICE_NAV = (
 OFFICE_CHECKLIST = (
     {"id": "dashboard", "label": "Review the dashboard", "section": "dashboard"},
     {"id": "standings", "label": "View standings", "section": "standings"},
-    {"id": "teams", "label": "Review teams", "section": "teams"},
-    {"id": "television", "label": "Check television and naming rights", "section": "television"},
+    {"id": "teams", "label": "Review the Cup shops", "section": "teams"},
     {"id": "drivers", "label": "Review the grid", "section": "drivers"},
-    {"id": "rulebook", "label": "Open the rulebook", "section": "rulebook"},
-    {"id": "board", "label": "Check the board", "section": "board"},
+    {"id": "rulebook", "label": "Open the winter book", "section": "rulebook"},
     {"id": "mail", "label": "Read series mail", "section": "mail"},
 )
+
+
+def basics_desk():
+    """Return whether this build is the simplified commissioner desk."""
+
+    return DESK_MODE == "basics"
+
+
+def filter_basics_hearings(hearings):
+    """Keep only Cup-office hearings: rules, safety, garage complaints."""
+
+    rows = []
+    for item in hearings or []:
+        if not isinstance(item, dict):
+            continue
+        category = str(item.get("category") or "")
+        if category in BASICS_HEARING_CATEGORIES:
+            rows.append(item)
+    return rows
+
+
+def skip_basics_alert(text):
+    """Return whether a dashboard memo belongs to a parked system."""
+
+    lowered = str(text or "").lower()
+    return any(needle in lowered for needle in BASICS_ALERT_SKIP)
+
+
+def filter_basics_alerts(alerts):
+    """Drop prospect, council, board, and charter memos from the desk."""
+
+    rows = []
+    for alert in alerts or []:
+        if isinstance(alert, dict):
+            text = str(alert.get("text") or alert.get("subject") or "")
+        else:
+            text = str(alert)
+        if skip_basics_alert(text):
+            continue
+        rows.append(alert)
+    return rows
+
+
+def era_start_books():
+    """Return the era books this desk can open a career in."""
+
+    rows = []
+    for book in ERA_START_BOOKS:
+        rows.append(
+            {
+                "id": book,
+                "label": ERA_START_LABELS.get(book, book),
+                "shops": ERA_START_SHOPS.get(book, 10),
+            }
+        )
+    return rows
+
+
+def clamp_era_book(book):
+    """Return an era this desk can start, defaulting to pinnacle."""
+
+    text = str(book or "").strip()
+    if text in ERA_START_BOOKS:
+        return text
+    return "pinnacle"
 
 
 def office_slug(name):
@@ -252,6 +342,8 @@ def build_office_inbox(payload=None):
     if recap:
         letters.append(recap_letter(recap))
     hearings = payload.get("hearings")
+    if basics_desk():
+        hearings = filter_basics_hearings(hearings)
     if hearings:
         for item in hearings:
             if item:
@@ -259,12 +351,15 @@ def build_office_inbox(payload=None):
     else:
         decision = payload.get("decision")
         if decision:
-            letters.append(hearing_letter(decision))
+            if not basics_desk() or str(decision.get("category") or "") in BASICS_HEARING_CATEGORIES:
+                letters.append(hearing_letter(decision))
     alerts = payload.get("inbox_alerts")
     if alerts is None:
         alerts = payload.get("alerts")
         if alerts is None:
             alerts = (payload.get("dashboard") or {}).get("alerts") or []
+    if basics_desk():
+        alerts = filter_basics_alerts(alerts)
     for index, alert in enumerate(alerts):
         letters.append(alert_letter(index, alert))
     headlines = payload.get("headlines") or payload.get("media") or []
@@ -354,6 +449,17 @@ def default_office(payload=None):
     selected = selected_mail_id(inbox, payload.get("selected_mail_id"))
     opened = letter_by_id(inbox, selected)
     view = mail_view(opened)
+    if basics_desk():
+        status_line = payload.get("status_line") or "%s — %s fans" % (
+            calendar,
+            fans,
+        )
+    else:
+        status_line = payload.get("status_line") or "%s — $%s — %s fans" % (
+            calendar,
+            _comma(treasury),
+            fans,
+        )
     return {
         "layout": OFFICE_LAYOUT,
         "advance_label": payload.get("advance_label") or "Advance",
@@ -363,8 +469,7 @@ def default_office(payload=None):
             "calendar": calendar,
             "treasury": treasury,
             "fans": fans,
-            "status_line": payload.get("status_line")
-            or "%s — $%s — %s fans" % (calendar, _comma(treasury), fans),
+            "status_line": status_line,
         },
         "mail": view,
         "inbox": inbox,
@@ -396,14 +501,16 @@ def default_welcome_body(series=None):
     series = series or "the series"
     return (
         "Commissioner,\n\n"
-        "You run %s. You do not drive.\n\n"
-        "Revenue comes from television, naming rights, the gate, and fines. "
-        "Owners want wins and cheaper shops. Drivers want a fair garage. "
-        "Fans want a show. The board wants a league that still exists next year.\n\n"
-        "Use the left rail to inspect standings, teams, television, and the "
-        "rulebook. Mail is your inbox. When the checklist on the right is "
-        "done, Advance unlocks the next weekend.\n\n"
-        "The Python sim still runs the races. This office is where you sit."
+        "You run %s. You do not drive. You do not own a shop.\n\n"
+        "This is the league office for a high-level stock car series in the "
+        "Winston Cup years — the seventies, eighties, and nineties. Each "
+        "week you Advance the calendar. Between weekends you read the mail, "
+        "inspect the Cup roster, and write the winter book: which coupes "
+        "are legal, which factories get an aero edge, and how the superspeedways "
+        "run.\n\n"
+        "Open Dashboard, Standings, Teams, Drivers, Rulebook, and Mail. "
+        "When the checklist is done, Advance runs the next race week.\n\n"
+        "Python still simulates the races. This office is where you sit."
         % series
     )
 
@@ -426,7 +533,28 @@ def _comma(value):
 def compose_ui_snapshot(payload):
     """Build the JSON document the Godot office renders."""
 
-    payload = payload or {}
+    payload = dict(payload or {})
+    if basics_desk():
+        payload["hearings"] = filter_basics_hearings(payload.get("hearings") or [])
+        payload["alerts"] = filter_basics_alerts(payload.get("alerts") or [])
+        if payload.get("inbox_alerts") is not None:
+            payload["inbox_alerts"] = filter_basics_alerts(
+                payload.get("inbox_alerts") or []
+            )
+        dashboard = dict(payload.get("dashboard") or {})
+        dashboard["alerts"] = filter_basics_alerts(dashboard.get("alerts") or [])
+        dashboard["approval"] = ""
+        dashboard["board"] = ""
+        dashboard["prospects"] = ""
+        dashboard["development"] = ""
+        payload["dashboard"] = dashboard
+        payload["prospects"] = []
+        decision = payload.get("decision")
+        hearings = payload.get("hearings") or []
+        if decision and str(decision.get("category") or "") not in BASICS_HEARING_CATEGORIES:
+            payload["decision"] = hearings[0] if hearings else None
+        elif hearings and not decision:
+            payload["decision"] = hearings[0]
     dashboard = payload.get("dashboard") or {}
     settings = payload.get("settings") or {}
     menu_items = payload.get("menu_items") or []
@@ -475,7 +603,9 @@ def compose_ui_snapshot(payload):
         "era_book": settings.get("era_book") or "pinnacle",
         "era_book_label": settings.get("era_book_label")
         or "Pinnacle (late '80s–mid '90s)",
+        "era_books": list(settings.get("era_books") or era_start_books()),
     },
+        "desk_mode": payload.get("desk_mode") or DESK_MODE,
         "dashboard": dashboard,
         "decision": payload.get("decision"),
         "hearings": list(payload.get("hearings") or []),

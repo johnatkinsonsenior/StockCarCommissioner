@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "2.5",
+    "ui_version": "2.6",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -44,8 +44,26 @@
         "autosave": "off",
         "autosave_label": "Off",
         "era_book": "pinnacle",
-        "era_book_label": "Pinnacle (late '80s\u2013mid '90s)"
+        "era_book_label": "Pinnacle (late '80s\u2013mid '90s)",
+        "era_books": [
+            {
+                "id": "1970s",
+                "label": "1970s Winston Cup",
+                "shops": 8
+            },
+            {
+                "id": "1980s",
+                "label": "1980s Winston Cup",
+                "shops": 9
+            },
+            {
+                "id": "pinnacle",
+                "label": "Pinnacle (late '80s\u2013mid '90s)",
+                "shops": 10
+            }
+        ]
     },
+    "desk_mode": "basics",
     "dashboard": {
         "calendar": "Season 1 of 3 \u2014 Preseason",
         "integrity": 70,
@@ -55,20 +73,18 @@
         "driver_sentiment": 60,
         "grade": "B",
         "score": 70.2,
-        "approval": "Approval: 66 Accepted | Fans 65 | Owners 70 | Drivers 62",
-        "board": "Board: 70 Steady | Risk 30 Moderate",
+        "approval": "",
+        "board": "",
         "treasury": 0,
         "naming_rights": "Northstar Capital ($2,461,000/yr, 5 yrs) \u2014 content",
         "tv_rights": "Horizon Sports ($14,932,000/yr, 6 yrs) \u2014 content",
-        "prospects": "Prospects: 10 waiting | Headliner: Tessa Quinn (82 Super Late)",
-        "development": "Development: National Development Series | 0 of 8",
+        "prospects": "",
+        "development": "",
         "factory": "Factory: last none | next Blue Ridge Racing Falcon 2 yrs",
         "makers": "Makers: Vanguard GM Monte Carlo Aerocoupe | Apex Ford Thunderbird | Falcon GM Grand Prix 2+2",
         "win_on_sunday": "Win on Sunday: no feature yet this year",
         "alerts": [
-            "No main sponsor: Ironwood Motorsports, Blue Ridge Racing",
-            "A prospect is ready for a call-up",
-            "An owner has applied to enter"
+            "No main sponsor: Ironwood Motorsports, Blue Ridge Racing"
         ],
         "teams": [
             {
@@ -210,46 +226,6 @@
                 {
                     "id": "3",
                     "label": "Flatten the points so more finishers stay alive"
-                }
-            ]
-        },
-        {
-            "id": "factory-lobby-s1",
-            "title": "Detroit Winter Book",
-            "category": "factory-lobby",
-            "prompt": "Factory desks land in the mail. Valiant wants the winter book to invite Chrysler back into the winter book. Granting Chrysler opens a factory card. It does not rebadge shops already on the grid \u2014 Harbor keeps its current badge.",
-            "choices": [
-                {
-                    "id": "1",
-                    "label": "Invite Chrysler \u2014 do not rebadge live shops"
-                },
-                {
-                    "id": "2",
-                    "label": "Hold Chrysler out; homologate-to-run instead"
-                },
-                {
-                    "id": "3",
-                    "label": "Hold the inherited winter book"
-                }
-            ]
-        },
-        {
-            "id": "kit-lobby-s1",
-            "title": "Kit Lobby",
-            "category": "kit-lobby",
-            "prompt": "Owners and the garage work the per-track kit the same way they work a points paper. the aero shops want the office to pull restrictor plates. The garage steward would rather carve a named venue than rewrite the whole type kit.",
-            "choices": [
-                {
-                    "id": "1",
-                    "label": "Grant the owners \u2014 pull restrictor plates"
-                },
-                {
-                    "id": "2",
-                    "label": "Side with the garage \u2014 open Atlantic Speedway only"
-                },
-                {
-                    "id": "3",
-                    "label": "Hold the current kit"
                 }
             ]
         }
@@ -2157,128 +2133,7 @@
             ]
         }
     ],
-    "prospects": [
-        {
-            "name": "Tessa Quinn",
-            "team": "Heartland Super Lates",
-            "pathway": "Super Late",
-            "readiness": 82,
-            "readiness_label": "Premier-ready",
-            "age": 21,
-            "personality": "Popular",
-            "overall": 69,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Dane Holloway",
-            "team": "Carolina Late Models",
-            "pathway": "Late Model",
-            "readiness": 78,
-            "readiness_label": "On the radar",
-            "age": 20,
-            "personality": "Aggressive",
-            "overall": 66,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Micah Prado",
-            "team": "Lakeside Modifieds",
-            "pathway": "Modified",
-            "readiness": 74,
-            "readiness_label": "On the radar",
-            "age": 22,
-            "personality": "Professional",
-            "overall": 69,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Sloane Avery",
-            "team": "Red Clay Dirt",
-            "pathway": "Dirt Late Model",
-            "readiness": 71,
-            "readiness_label": "On the radar",
-            "age": 19,
-            "personality": "Temperamental",
-            "overall": 62,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Reid Langford",
-            "team": "Atlantic Touring",
-            "pathway": "Touring",
-            "readiness": 69,
-            "readiness_label": "Developing",
-            "age": 23,
-            "personality": "Professional",
-            "overall": 69,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Ivy Brennan",
-            "team": "Heartland Super Lates",
-            "pathway": "Super Late",
-            "readiness": 66,
-            "readiness_label": "Developing",
-            "age": 18,
-            "personality": "Rookie",
-            "overall": 61,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Colton Briggs",
-            "team": "Carolina Late Models",
-            "pathway": "Late Model",
-            "readiness": 64,
-            "readiness_label": "Developing",
-            "age": 21,
-            "personality": "Professional",
-            "overall": 63,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Maren Shaw",
-            "team": "Red Clay Dirt",
-            "pathway": "Dirt Late Model",
-            "readiness": 61,
-            "readiness_label": "Developing",
-            "age": 20,
-            "personality": "Aggressive",
-            "overall": 58,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Pax Ellison",
-            "team": "Lakeside Modifieds",
-            "pathway": "Modified",
-            "readiness": 58,
-            "readiness_label": "Raw",
-            "age": 19,
-            "personality": "Rookie",
-            "overall": 61,
-            "points": 0,
-            "wins": 0
-        },
-        {
-            "name": "Harlan Crowe",
-            "team": "Atlantic Touring",
-            "pathway": "Touring",
-            "readiness": 54,
-            "readiness_label": "Raw",
-            "age": 24,
-            "personality": "Veteran",
-            "overall": 64,
-            "points": 0,
-            "wins": 0
-        }
-    ],
+    "prospects": [],
     "treasury": {
         "balance": 0,
         "season_tv": 0,
@@ -2869,7 +2724,7 @@
             "calendar": "Season 1 of 3 \u2014 Preseason",
             "treasury": 0,
             "fans": 65,
-            "status_line": "Preseason \u2014 next: Atlantic Speedway \u2014 $0 \u2014 65 fans"
+            "status_line": "Preseason \u2014 next: Atlantic Speedway \u2014 65 fans"
         },
         "mail": {
             "id": "hearing-rule-points-system",
@@ -2905,56 +2760,6 @@
                 ]
             },
             {
-                "id": "hearing-factory-lobby-s1",
-                "kind": "hearing",
-                "from": "Factory Desk",
-                "subject": "Detroit Winter Book",
-                "body": "Factory desks land in the mail. Valiant wants the winter book to invite Chrysler back into the winter book. Granting Chrysler opens a factory card. It does not rebadge shops already on the grid \u2014 Harbor keeps its current badge.",
-                "unread": true,
-                "category": "factory-lobby",
-                "hearing_id": "factory-lobby-s1",
-                "prompt": "Factory desks land in the mail. Valiant wants the winter book to invite Chrysler back into the winter book. Granting Chrysler opens a factory card. It does not rebadge shops already on the grid \u2014 Harbor keeps its current badge.",
-                "choices": [
-                    {
-                        "id": "1",
-                        "label": "Invite Chrysler \u2014 do not rebadge live shops"
-                    },
-                    {
-                        "id": "2",
-                        "label": "Hold Chrysler out; homologate-to-run instead"
-                    },
-                    {
-                        "id": "3",
-                        "label": "Hold the inherited winter book"
-                    }
-                ]
-            },
-            {
-                "id": "hearing-kit-lobby-s1",
-                "kind": "hearing",
-                "from": "Paddock Lobby",
-                "subject": "Kit Lobby",
-                "body": "Owners and the garage work the per-track kit the same way they work a points paper. the aero shops want the office to pull restrictor plates. The garage steward would rather carve a named venue than rewrite the whole type kit.",
-                "unread": true,
-                "category": "kit-lobby",
-                "hearing_id": "kit-lobby-s1",
-                "prompt": "Owners and the garage work the per-track kit the same way they work a points paper. the aero shops want the office to pull restrictor plates. The garage steward would rather carve a named venue than rewrite the whole type kit.",
-                "choices": [
-                    {
-                        "id": "1",
-                        "label": "Grant the owners \u2014 pull restrictor plates"
-                    },
-                    {
-                        "id": "2",
-                        "label": "Side with the garage \u2014 open Atlantic Speedway only"
-                    },
-                    {
-                        "id": "3",
-                        "label": "Hold the current kit"
-                    }
-                ]
-            },
-            {
                 "id": "alert-no-main-sponsor-ironwood-motorsports-blue-ridge-",
                 "kind": "alert",
                 "from": "League Office",
@@ -2967,36 +2772,12 @@
                 "choices": []
             },
             {
-                "id": "alert-a-prospect-is-ready-for-a-call-up",
-                "kind": "alert",
-                "from": "League Office",
-                "subject": "A prospect is ready for a call-up",
-                "body": "Commissioner,\n\nA prospect is ready for a call-up\n\nThis memo arrived when the situation first appeared. It stays in the bag until the dashboard clears.",
-                "unread": true,
-                "category": "",
-                "hearing_id": "",
-                "prompt": "",
-                "choices": []
-            },
-            {
-                "id": "alert-an-owner-has-applied-to-enter",
-                "kind": "alert",
-                "from": "League Office",
-                "subject": "An owner has applied to enter",
-                "body": "Commissioner,\n\nAn owner has applied to enter\n\nThis memo arrived when the situation first appeared. It stays in the bag until the dashboard clears.",
-                "unread": true,
-                "category": "",
-                "hearing_id": "",
-                "prompt": "",
-                "choices": []
-            },
-            {
                 "id": "welcome",
                 "kind": "letter",
                 "from": "Series Office \u2014 Preseason",
                 "subject": "Welcome to Northstar Capital Stock Car Series",
-                "body": "Commissioner,\n\nYou run Northstar Capital Stock Car Series. You do not drive.\n\nTelevision and naming rights pay the bills. Owners want wins. Drivers want a fair garage. The board wants a league that still exists next year.\n\nOpen every section on the left. Mail is your inbox. When the checklist is done, Advance runs the next week.\n\nPython still simulates the races. This office is where you sit.",
-                "unread": true,
+                "body": "Commissioner,\n\nYou run Northstar Capital Stock Car Series. You do not drive. You do not own a shop.\n\nThis is the league office for a high-level stock car series in the Winston Cup years. Each week you Advance the calendar. Between weekends you read the mail, inspect the Cup roster, and write the winter book: Ford, Pontiac, Plymouth, Chevrolet \u2014 which coupes are legal, which factories get the aero edge, and how the big tracks run.\n\nOpen Dashboard, Standings, Teams, Drivers, Rulebook, and Mail. When the checklist is done, Advance runs the next race week.\n\nPython still simulates the races. This office is where you sit.",
+                "unread": false,
                 "category": "",
                 "hearing_id": "",
                 "prompt": "",
@@ -3004,7 +2785,7 @@
             }
         ],
         "selected_mail_id": "hearing-rule-points-system",
-        "unread_count": 7,
+        "unread_count": 3,
         "checklist": [
             {
                 "id": "dashboard",
@@ -3018,13 +2799,8 @@
             },
             {
                 "id": "teams",
-                "label": "Review teams",
+                "label": "Review the Cup shops",
                 "section": "teams"
-            },
-            {
-                "id": "television",
-                "label": "Check television and naming rights",
-                "section": "television"
             },
             {
                 "id": "drivers",
@@ -3033,13 +2809,8 @@
             },
             {
                 "id": "rulebook",
-                "label": "Open the rulebook",
+                "label": "Open the winter book",
                 "section": "rulebook"
-            },
-            {
-                "id": "board",
-                "label": "Check the board",
-                "section": "board"
             },
             {
                 "id": "mail",
@@ -3069,11 +2840,6 @@
                 "group": "Competition"
             },
             {
-                "id": "hearings",
-                "label": "Hearings",
-                "group": "Competition"
-            },
-            {
                 "id": "teams",
                 "label": "Teams",
                 "group": "Paddock"
@@ -3084,26 +2850,6 @@
                 "group": "Paddock"
             },
             {
-                "id": "prospects",
-                "label": "Prospects",
-                "group": "Paddock"
-            },
-            {
-                "id": "treasury",
-                "label": "Treasury",
-                "group": "Business"
-            },
-            {
-                "id": "television",
-                "label": "Television",
-                "group": "Business"
-            },
-            {
-                "id": "sponsors",
-                "label": "Sponsors",
-                "group": "Business"
-            },
-            {
                 "id": "rulebook",
                 "label": "Rulebook",
                 "group": "League"
@@ -3111,16 +2857,6 @@
             {
                 "id": "history",
                 "label": "History",
-                "group": "League"
-            },
-            {
-                "id": "hof",
-                "label": "Hall of Fame",
-                "group": "League"
-            },
-            {
-                "id": "board",
-                "label": "Board",
                 "group": "League"
             },
             {
