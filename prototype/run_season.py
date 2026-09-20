@@ -3051,6 +3051,8 @@ def compute_race_product(track, results, weekend):
         score -= 5
     elif condition == "hot":
         score += 1
+    show = aero_show_modifiers()
+    score += int(show.get("tv") or 0)
     return round(clamp(score))
 
 
@@ -3254,6 +3256,8 @@ def compute_gate_draw(track, results, weekend):
     elif controversy >= 40:
         score -= 2
     score += (integrity - 70) * 0.08
+    show = aero_show_modifiers()
+    score += int(show.get("gate") or 0)
     return round(clamp(score))
 
 
@@ -8305,8 +8309,41 @@ def office_standings_book():
                 "road_course": int(driver.road_course),
                 "intermediate": int(driver.intermediate),
                 "superspeedway": int(driver.superspeedway),
+                "manufacturer": "",
+                "coupe": "",
+                "portrait": "",
+                "family": "",
+                "avg_finish": None,
+                "dnfs": 0,
             }
         )
+    shop_by_name = {team.name: team for team in teams or []}
+    finishes = {}
+    dnfs = {}
+    for race in race_history or []:
+        for row in race.get("results") or []:
+            name = row.get("driver") or ""
+            pos = int(row.get("position") or 0)
+            if name and pos:
+                finishes.setdefault(name, []).append(pos)
+            status = str(row.get("status") or "").lower()
+            if row.get("dnf") or status in ("dnf", "crash", "mechanical"):
+                dnfs[name] = dnfs.get(name, 0) + 1
+    for row in rows:
+        shop = shop_by_name.get(row["team"])
+        if shop is not None:
+            spec = coupe_spec(shop.manufacturer)
+            body = body_map_for(shop.manufacturer)
+            row["manufacturer"] = shop.manufacturer
+            row["family"] = spec.get("family") or ""
+            row["coupe"] = spec.get("name") or ""
+            row["portrait"] = spec.get("portrait") or spec.get("id") or ""
+            row["short_track_body"] = int(body.get("short_track") or 50)
+            row["superspeedway_body"] = int(body.get("superspeedway") or 50)
+        places = finishes.get(row["name"]) or []
+        if places:
+            row["avg_finish"] = round(sum(places) / float(len(places)), 1)
+        row["dnfs"] = int(dnfs.get(row["name"], 0) or 0)
     return rows
 
 
@@ -8346,6 +8383,74 @@ def office_recap_book():
                     continue
                 week[key] = value
     return week
+
+
+def aero_show_modifiers():
+    """Return how the live winter book moves TV, gate, and wreck risk."""
+
+    from game.aero_wars import package_show_modifiers
+
+    return package_show_modifiers(league.get("aero_book") if league else None)
+
+
+def office_analytics_book():
+    """Return Baseball Mogul-style race, TV, gate, and wreck reports."""
+
+    package = aero_show_modifiers()
+    races = []
+    wreck_total = 0
+    caution_total = 0
+    for record in race_history or []:
+        wrecks = list(record.get("wrecks") or [])
+        wreck_total += len(wrecks)
+        caution_total += int(record.get("cautions") or 0)
+        races.append(
+            {
+                "race": int(record.get("race_number") or len(races) + 1),
+                "track": record.get("track") or "",
+                "type": record.get("track_type") or "",
+                "winner": race_winner_name(record, None),
+                "tv_rating": record.get("tv_rating"),
+                "tv_viewers": record.get("tv_viewers"),
+                "gate_attendance": record.get("gate_attendance"),
+                "gate_fill": record.get("gate_fill"),
+                "cautions": int(record.get("cautions") or 0),
+                "wrecks": len(wrecks),
+            }
+        )
+    driver_rows = office_standings_book()
+    leaders = sorted(
+        driver_rows,
+        key=lambda row: (-int(row.get("wins") or 0), -int(row.get("points") or 0)),
+    )[:8]
+    return {
+        "package": package,
+        "races": races,
+        "tv_last": league.get("last_tv_rating"),
+        "tv_viewers": league.get("last_tv_viewers"),
+        "tv_average": average_tv_rating() if race_history else None,
+        "tv_trend": int(league.get("tv_rating_trend") or 0),
+        "gate_last": league.get("last_gate_attendance"),
+        "gate_fill": league.get("last_gate_fill"),
+        "gate_average": average_gate_attendance() if race_history else None,
+        "wrecks": wreck_total,
+        "cautions": caution_total,
+        "field_size": len(list(drivers or [])),
+        "entries": len(list(teams or [])),
+        "leaders": [
+            {
+                "name": row.get("name"),
+                "team": row.get("team"),
+                "points": row.get("points"),
+                "wins": row.get("wins"),
+                "avg_finish": row.get("avg_finish"),
+                "dnfs": row.get("dnfs"),
+                "portrait": row.get("portrait"),
+                "coupe": row.get("coupe"),
+            }
+            for row in leaders
+        ],
+    }
 
 
 def office_team_book():
@@ -8469,6 +8574,9 @@ def office_television_book():
         "last_gate": league.get("last_gate_attendance"),
         "last_gate_fill": league.get("last_gate_fill"),
         "signed": bool(deal.get("network")),
+        "season_ratings": list(league.get("season_tv_ratings") or []),
+        "season_gates": list(league.get("season_gate_fill") or []),
+        "package": aero_show_modifiers(),
     }
 
 
@@ -11413,7 +11521,8 @@ def build_ui_snapshot():
         "weekends you read the mail, inspect the Cup roster, and write the "
         "winter book: Ford, Pontiac, Plymouth, Chevrolet — which coupes are "
         "legal, which factories get the aero edge, and how the big tracks run.\n\n"
-        "Open Dashboard, Standings, Teams, Drivers, Rulebook, and Mail. "
+        "Open Dashboard, Standings, Entries, Rulebook, Television, and Mail. "
+        "Reports is the race file: attendance, wrecks, TV, driver form. "
         "When the checklist is done, Advance runs the next race week.\n\n"
         "Python still simulates the races. This office is where you sit."
         % series
@@ -11457,6 +11566,7 @@ def build_ui_snapshot():
             "treasury": treasury_book,
             "television": television_book,
             "sponsors": sponsor_book,
+            "reports": office_analytics_book(),
             "rulebook": rulebook_book,
             "councils": councils_book,
             "board": board_book,
@@ -11496,6 +11606,9 @@ def build_ui_snapshot():
                 "treasury": league.get("treasury", 0),
                 "naming_rights": league_deal_label(league.get("naming_rights")),
                 "tv_rights": tv_deal_label(league.get("tv_rights")),
+                "tv_last": league.get("last_tv_rating"),
+                "gate_last": league.get("last_gate_attendance"),
+                "gate_fill": league.get("last_gate_fill"),
                 "prospects": "" if basics_desk() else (
                     prospect_dashboard_text() if drivers else ""
                 ),
@@ -11798,8 +11911,6 @@ def office_status_line():
     preview = office_week_preview()
     next_line = preview.get("next") or calendar.description()
     fans = league.get("fan_interest") or 0
-    if basics_desk():
-        return "%s — %s fans" % (next_line, fans)
     return "%s — $%s — %s fans" % (
         next_line,
         "{:,}".format(int(league.get("treasury") or 0)),
@@ -11940,13 +12051,26 @@ def weekend_card_from_record(record):
         "weather": record.get("weather") or "",
         "temperature": record.get("temperature"),
         "format": record.get("format") or "",
-        "tv_rating": record.get("tv_rating"),
         "gate": record.get("gate"),
         "podium": podium,
         "qualifying": qualifying[:8],
         "investigations": investigations,
         "wrecks": wreck_count,
         "biggest_wreck": biggest,
+        "tv_rating": record.get("tv_rating"),
+        "tv_viewers": record.get("tv_viewers"),
+        "gate_attendance": record.get("gate_attendance"),
+        "gate_fill": record.get("gate_fill"),
+        "gate_capacity": record.get("gate_capacity"),
+        "field": [
+            {
+                "position": int(row.get("position") or index),
+                "driver": row.get("driver") or "",
+                "team": row.get("team") or "",
+                "status": row.get("status") or "running",
+            }
+            for index, row in enumerate(results[:40], start=1)
+        ],
     }
 
 

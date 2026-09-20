@@ -9,7 +9,7 @@ from pathlib import Path
 
 from game.desktop_runtime import bundled_godot_candidates, ensure_godot_binary
 
-UI_VERSION = "2.6"
+UI_VERSION = "2.7"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 DESK_MODE = "basics"
@@ -40,7 +40,7 @@ BASICS_ALERT_SKIP = (
 )
 
 ERA_START_BOOKS = ("1970s", "1980s", "pinnacle")
-ERA_START_SHOPS = {"1970s": 8, "1980s": 9, "pinnacle": 10}
+ERA_START_SHOPS = {"1970s": 40, "1980s": 40, "pinnacle": 40}
 ERA_START_LABELS = {
     "1970s": "1970s Winston Cup",
     "1980s": "1980s Winston Cup",
@@ -74,8 +74,12 @@ OFFICE_NAV = (
     {"id": "mail", "label": "Mail", "group": ""},
     {"id": "standings", "label": "Standings", "group": "Competition"},
     {"id": "schedule", "label": "Schedule", "group": "Competition"},
-    {"id": "teams", "label": "Teams", "group": "Paddock"},
+    {"id": "reports", "label": "Reports", "group": "Competition"},
+    {"id": "teams", "label": "Entries", "group": "Paddock"},
     {"id": "drivers", "label": "Drivers", "group": "Paddock"},
+    {"id": "treasury", "label": "Treasury", "group": "Business"},
+    {"id": "television", "label": "Television", "group": "Business"},
+    {"id": "sponsors", "label": "Sponsors", "group": "Business"},
     {"id": "rulebook", "label": "Rulebook", "group": "League"},
     {"id": "history", "label": "History", "group": "League"},
     {"id": "settings", "label": "Settings", "group": ""},
@@ -85,9 +89,9 @@ OFFICE_NAV = (
 OFFICE_CHECKLIST = (
     {"id": "dashboard", "label": "Review the dashboard", "section": "dashboard"},
     {"id": "standings", "label": "View standings", "section": "standings"},
-    {"id": "teams", "label": "Review the Cup shops", "section": "teams"},
-    {"id": "drivers", "label": "Review the grid", "section": "drivers"},
+    {"id": "teams", "label": "Review the Cup entries", "section": "teams"},
     {"id": "rulebook", "label": "Open the winter book", "section": "rulebook"},
+    {"id": "television", "label": "Read television and the gate", "section": "television"},
     {"id": "mail", "label": "Read series mail", "section": "mail"},
 )
 
@@ -449,17 +453,11 @@ def default_office(payload=None):
     selected = selected_mail_id(inbox, payload.get("selected_mail_id"))
     opened = letter_by_id(inbox, selected)
     view = mail_view(opened)
-    if basics_desk():
-        status_line = payload.get("status_line") or "%s — %s fans" % (
-            calendar,
-            fans,
-        )
-    else:
-        status_line = payload.get("status_line") or "%s — $%s — %s fans" % (
-            calendar,
-            _comma(treasury),
-            fans,
-        )
+    status_line = payload.get("status_line") or "%s — $%s — %s fans" % (
+        calendar,
+        _comma(treasury),
+        fans,
+    )
     return {
         "layout": OFFICE_LAYOUT,
         "advance_label": payload.get("advance_label") or "Advance",
@@ -474,7 +472,9 @@ def default_office(payload=None):
         "mail": view,
         "inbox": inbox,
         "selected_mail_id": selected,
-        "unread_count": len(inbox),
+        "unread_count": sum(
+            1 for letter in inbox if letter.get("unread", True)
+        ),
         "checklist": list(checklist),
         "nav": list(nav),
         "advance_python": payload.get("advance_python") or "",
@@ -508,7 +508,10 @@ def default_welcome_body(series=None):
         "inspect the Cup roster, and write the winter book: which coupes "
         "are legal, which factories get an aero edge, and how the superspeedways "
         "run.\n\n"
-        "Open Dashboard, Standings, Teams, Drivers, Rulebook, and Mail. "
+        "Forty Cup cars. One driver per entry. Open Dashboard, Standings, "
+        "Entries, Reports, Television, Treasury, Sponsors, Drivers, Rulebook, "
+        "and Mail. Reports is the race file: attendance, wrecks, TV, driver "
+        "form. The winter book you write moves those numbers.\n\n"
         "When the checklist is done, Advance runs the next race week.\n\n"
         "Python still simulates the races. This office is where you sit."
         % series
@@ -583,7 +586,11 @@ def compose_ui_snapshot(payload):
         opened = letter_by_id(office.get("inbox") or [], selected)
         if opened:
             office["mail"] = mail_view(opened)
-        office["unread_count"] = len(office.get("inbox") or [])
+        office["unread_count"] = sum(
+            1
+            for letter in office.get("inbox") or []
+            if letter.get("unread", True)
+        )
     return {
         "game": "Stock Car Commissioner",
         "ui_version": UI_VERSION,
@@ -622,6 +629,7 @@ def compose_ui_snapshot(payload):
         "treasury": payload.get("treasury") or {},
         "television": payload.get("television") or {},
         "sponsors": payload.get("sponsors") or {},
+        "reports": payload.get("reports") or {},
         "rulebook": (
             payload.get("rulebook")
             if isinstance(payload.get("rulebook"), dict)

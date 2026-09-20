@@ -6,9 +6,7 @@ check is. Days 113–114 wrote the Aero Wars coupe book.
 """
 
 from data.cup_grid import (
-    BEYOND_DRIVER_COUNT,
     BEYOND_TEAM_COUNT,
-    PINNACLE_DRIVER_COUNT,
     PINNACLE_TEAM_COUNT,
     premier_drivers,
     premier_teams,
@@ -37,8 +35,8 @@ VALIANT = Manufacturer(
 
 
 ERA_FIELD = {
-    ERA_1970S: 8,
-    ERA_1980S: 9,
+    ERA_1970S: 40,
+    ERA_1980S: 40,
     ERA_PINNACLE: PINNACLE_TEAM_COUNT,
     ERA_BEYOND: BEYOND_TEAM_COUNT,
 }
@@ -47,12 +45,25 @@ ERA_FIELD = {
 ERA_BADGES = {
     ERA_1970S: {
         "Harbor Racing": "Valiant",
+        "Holt Racing": "Valiant",
+        "Vos Racing": "Valiant",
         "Ironwood Motorsports": "Valiant",
+        "Brooks Motorsports": "Valiant",
         "Redline Racing": "Apex",
+        "Ortiz Racing": "Apex",
         "Coastal Speed": "Falcon",
+        "Quill Racing": "Falcon",
         "Midland Racing": "Vanguard",
+        "Cho Racing": "Vanguard",
         "Crown Motorsports": "Apex",
+        "Patton Racing": "Apex",
         "Blue Ridge Racing": "Falcon",
+        "Rhodes Racing": "Falcon",
+        "Cedar Ridge Racing": "Valiant",
+        "Riverbend Speed": "Valiant",
+        "Bayou Speed": "Valiant",
+        "Copperhead Racing": "Apex",
+        "Red Clay Racing": "Apex",
     },
     ERA_1980S: {
         "Harbor Racing": "Valiant",
@@ -114,9 +125,9 @@ def era_team_count(era_book):
 
 
 def era_driver_count(era_book):
-    """Return how many Cup seats open this book."""
+    """Return how many Cup seats open this book (one driver per entry)."""
 
-    return era_team_count(era_book) * 2
+    return era_team_count(era_book)
 
 
 def uses_valiant(era_book):
@@ -208,11 +219,6 @@ def create_teams_for_era(era_book):
 def create_drivers_for_era(era_book):
     """Return the opening grid that sits on this era's charter."""
 
-    count = era_driver_count(era_book)
-    if count >= BEYOND_DRIVER_COUNT:
-        return premier_drivers()[:BEYOND_DRIVER_COUNT]
-    if count >= PINNACLE_DRIVER_COUNT:
-        return premier_drivers()[:PINNACLE_DRIVER_COUNT]
     names = {team.name for team in create_teams_for_era(era_book)}
     return [
         driver

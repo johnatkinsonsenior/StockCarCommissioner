@@ -229,6 +229,11 @@
 | 227 | Weekly desk inbox of work | High | Parked |
 | 228 | News and records encyclopedia | Medium | Parked |
 | 229 | Commissioner-written calendar | High | Parked |
-| 230 | Paddock density toward a Cup field | High | Parked |
+| 230 | Forty independent Cup entries | High | Completed |
 | 231 | Commissioner basics desk (Cup roster, winter book, weekly Advance) | High | Completed |
 | 232 | Steam screenshot pack of the basics office | High | Completed |
+| 233 | Restore TV, sponsors, treasury to the desk | High | Completed |
+| 234 | Reports: TV, gate, wrecks, driver form | High | Completed |
+| 235 | Winter-book rules swing TV / gate / wrecks | High | Completed |
+| 236 | 16-bit car portraits on standings / entries / drivers | High | Completed |
+| 237 | Multi-car team organizations | Medium | Parked |

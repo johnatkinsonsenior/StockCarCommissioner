@@ -23,9 +23,6 @@ from game.ui_bridge import (
 HIDDEN_NAV = {
     "prospects",
     "hearings",
-    "treasury",
-    "television",
-    "sponsors",
     "hof",
     "board",
     "councils",
@@ -69,7 +66,7 @@ def main():
 
     if DESK_MODE != "basics":
         _fail(errors, "DESK_MODE is %s" % DESK_MODE)
-    if UI_VERSION != "2.6":
+    if UI_VERSION != "2.7":
         _fail(errors, "UI_VERSION is %s" % UI_VERSION)
     if snapshot.get("desk_mode") != "basics":
         _fail(errors, "snapshot desk_mode is %s" % snapshot.get("desk_mode"))
@@ -78,7 +75,7 @@ def main():
     for hidden in sorted(HIDDEN_NAV):
         if hidden in nav_ids:
             _fail(errors, "nav still shows %s" % hidden)
-    for required in ("dashboard", "mail", "standings", "schedule", "teams", "drivers", "rulebook", "history", "settings"):
+    for required in ("dashboard", "mail", "standings", "schedule", "reports", "teams", "drivers", "treasury", "television", "sponsors", "rulebook", "history", "settings"):
         if required not in nav_ids:
             _fail(errors, "nav missing %s" % required)
 
@@ -106,6 +103,8 @@ def main():
         _fail(errors, "welcome letter still talks about the board")
     if "do not own a shop" not in body.lower():
         _fail(errors, "welcome letter missing commissioner-only line")
+    if "reports" not in body.lower():
+        _fail(errors, "welcome letter missing Reports")
 
     dash = snapshot.get("dashboard") or {}
     if dash.get("approval"):
@@ -157,6 +156,55 @@ def main():
     dash_alerts = (composed.get("dashboard") or {}).get("alerts") or []
     if dash_alerts:
         _fail(errors, "compose left board alert: %s" % dash_alerts)
+
+    if len(snapshot.get("teams") or []) != 40:
+        _fail(errors, "pinnacle entries are %s" % len(snapshot.get("teams") or []))
+    if len(snapshot.get("drivers") or []) != 40:
+        _fail(errors, "pinnacle drivers are %s" % len(snapshot.get("drivers") or []))
+    if len(seventies_snap.get("teams") or []) != 40:
+        _fail(errors, "1970s entries are %s" % len(seventies_snap.get("teams") or []))
+    shop_names = [row.get("name") for row in snapshot.get("teams") or []]
+    driver_names = [row.get("name") for row in snapshot.get("drivers") or []]
+    if len(set(shop_names)) != 40:
+        _fail(errors, "duplicate entries: %s" % len(set(shop_names)))
+    if len(set(driver_names)) != 40:
+        _fail(errors, "duplicate drivers: %s" % len(set(driver_names)))
+    seats = {(row.get("name"), row.get("team")) for row in snapshot.get("drivers") or []}
+    if len(seats) != 40:
+        _fail(errors, "driver-to-entry map is %s" % len(seats))
+    portraits = [row.get("portrait") for row in snapshot.get("teams") or [] if row.get("portrait")]
+    if len(portraits) < 20:
+        _fail(errors, "too few entry portraits: %s" % len(portraits))
+    driver_portraits = [
+        row.get("portrait") for row in snapshot.get("drivers") or [] if row.get("portrait")
+    ]
+    if len(driver_portraits) < 20:
+        _fail(errors, "too few driver portraits: %s" % len(driver_portraits))
+    reports = snapshot.get("reports") or {}
+    if not isinstance(reports, dict) or "package" not in reports:
+        _fail(errors, "reports book missing")
+    if not (reports.get("package") or {}).get("notes"):
+        _fail(errors, "reports package notes missing")
+    treasury = snapshot.get("treasury") or {}
+    if "balance" not in treasury:
+        _fail(errors, "treasury book missing")
+    if "television" not in snapshot:
+        _fail(errors, "television book missing")
+    if "sponsors" not in snapshot:
+        _fail(errors, "sponsors book missing")
+
+    with redirect_stdout(log):
+        recap = rs.advance_office_week()
+        raced = rs.build_ui_snapshot()
+    raced_reports = raced.get("reports") or {}
+    if not raced_reports.get("races"):
+        _fail(errors, "reports race log empty after Advance")
+    if raced_reports.get("tv_last") is None:
+        _fail(errors, "reports missing TV after Advance")
+    if raced_reports.get("gate_last") is None:
+        _fail(errors, "reports missing gate after Advance")
+    if recap and recap.get("tv_rating") is None:
+        _fail(errors, "weekend recap missing TV rating")
 
     print("BASICS_OK=%s" % (1 if not errors else 0))
     print("DESK_MODE=%s" % DESK_MODE)

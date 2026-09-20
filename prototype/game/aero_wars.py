@@ -400,6 +400,49 @@ def live_book():
     return default_aero_book()
 
 
+def package_show_modifiers(book=None):
+    """Return how the live winter book moves TV, gate, and wreck risk."""
+
+    book = book if isinstance(book, dict) and book else live_book() or {}
+    specials = normalize_specials(book.get("aero_specials"))
+    plates = bool(book.get("plates"))
+    tv = 0
+    gate = 0
+    wrecks = 0
+    notes = []
+    if specials == SPECIALS_LEGAL:
+        tv += 6
+        gate += 4
+        wrecks += 3
+        notes.append("Legal aero specials sell the show and raise wreck risk.")
+    elif specials == SPECIALS_HOMOLOGATE:
+        tv += 3
+        gate += 2
+        wrecks += 1
+        notes.append(
+            "Homologate-to-run specials add a little product without opening the barn door."
+        )
+    else:
+        notes.append("Banned specials keep the field even and the houses quieter.")
+    if plates:
+        tv -= 2
+        wrecks -= 2
+        notes.append("Restrictor plates pack the superspeedways and cap the show.")
+    else:
+        tv += 4
+        gate += 2
+        wrecks += 2
+        notes.append("Open superspeedways lift ratings and the wreck book.")
+    return {
+        "tv": tv,
+        "gate": gate,
+        "wrecks": wrecks,
+        "notes": notes,
+        "specials": specials or "banned",
+        "plates": plates,
+    }
+
+
 def live_packages():
     packages = _LIVE.get("packages")
     if isinstance(packages, dict) and packages:

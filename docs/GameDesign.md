@@ -11,18 +11,21 @@ a current Cup roster, a weekly calendar, and a winter book you write —
 which factories get the aero edge, which coupes are legal, how the
 superspeedways run.
 
-## This version (0.5.0-basics)
+## This version (0.6.0-cup)
 
 The desk is the job. Left rail: Dashboard, Mail, Standings, Schedule,
-Teams, Drivers, Rulebook, History, Settings. Advance a week at a time.
-Hearings that belong to a league office (rules, safety, owner and driver
-complaints, rivalries) arrive as mail.
+Reports, Entries, Drivers, Treasury, Television, Sponsors, Rulebook,
+History, Settings. Advance a week at a time. Forty Cup cars. Forty
+named drivers. One driver per entry. Hearings that belong to a league
+office (rules, safety, owner and driver complaints, rivalries) arrive
+as mail. Reports is the race file: attendance, TV, wrecks, driver
+form. The winter book you write moves those numbers.
 
 Parked off this desk until players ask: prospect pool and development
 series, owner/driver councils, board politics, charter expansion,
-treasury / television / sponsor screens, Hall of Fame, and the Beyond
-era. Those systems still live in the sim. They are not the game you
-sit down to play.
+Hall of Fame, multi-car team organizations, and the Beyond era. Those
+systems still live in the sim. They are not the game you sit down to
+play.
 
 ## Player Fantasy
 
@@ -48,7 +51,7 @@ Read the mail and rule on the garage
 
 ↓
 
-Inspect the Cup roster, shops, and standings
+Inspect the Cup field, reports, and standings
 
 ↓
 
@@ -102,7 +105,8 @@ commissioner who can still feel the garage.
 
 The sim's **systems** include the full commissioner model (TV, sponsors,
 board, manufacturers, feeder, hearings). **This version's desk** shows
-the Cup roster, the winter book, and the weekly calendar. A career
+the forty-car Cup, the winter book, the weekly calendar, Reports, and
+the commercial books (treasury, television, sponsors). A career
 **rewinds** the model into 1970s, 1980s, or pinnacle Winston Cup.
 You start in an era book, then live forward, the way Out of the Park
 starts in 1969 or 1994.
@@ -854,19 +858,23 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 `godot/` is a Godot 4.4 office desk. The layout is a commissioner office:
 left navigation, a status bar with Advance, a mail pane, and a gated
-checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `Double-click to play.bat`) writes `godot/data/ui_snapshot.json` and opens the editor. On Windows the bat downloads Godot 4.4 into `tools/godot` on first play. `play_ui` Continues `saves/office.json` when that slot exists. Testers unpack `dist/stock-car-commissioner-0.5.0-basics.zip` (`python3 prototype/package_alpha.py`) and double-click the launcher; Git is not required. See `PLAYTEST.md` and `KNOWN_ISSUES.md`.
+checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `Double-click to play.bat`) writes `godot/data/ui_snapshot.json` and opens the editor. On Windows the bat downloads Godot 4.4 into `tools/godot` on first play. `play_ui` Continues `saves/office.json` when that slot exists. Testers unpack `dist/stock-car-commissioner-0.6.0-cup.zip` (`python3 prototype/package_alpha.py`) and double-click the launcher; Git is not required. See `PLAYTEST.md` and `KNOWN_ISSUES.md`.
 
 The office opens on series mail. Mail is a **live inbox**: the queued
 hearing sits as a letter from the Competition Committee (or Safety,
 an owner's office, the garage steward). Dashboard alerts **arrive** as
 league-office memos. Weekend headlines land as press clippings.
 Hearing letters display choices; picking a ruling writes it back to the
-career. Visiting Dashboard, Standings, Teams, Drivers, Rulebook, and
+career. Visiting Dashboard, Standings, Entries, Rulebook, Television, and
 Mail fills the checklist. Advance stays locked until that tour is done.
-The next Advance **runs a week**. **Standings** is a ranked Cup table.
-**Schedule** marks DONE and NEXT weekends. **Teams** and **Drivers**
-inspect the current Cup roster. This version does not show Prospects,
-Treasury, Television, Sponsors, Board, or Hall of Fame.
+The next Advance **runs a week**. **Standings** is a ranked Cup table
+with 16-bit car portraits, wins, average finish, and DNFs.
+**Schedule** marks DONE and NEXT weekends. **Reports** is the race file
+(TV, gate, wrecks, driver form). **Entries** and **Drivers** inspect
+the forty-car Cup — one driver per entry — with the homologated coupe
+on the row. **Treasury**, **Television**, and **Sponsors** are the
+commercial books. This version does not show Prospects, Board, or Hall
+of Fame.
 **Rulebook** is the Aero Wars winter book:
 homologated bodies, per-track kits, named-venue plate overrides (this
 oval, not every superspeedway), homologation count (200 / 500 /

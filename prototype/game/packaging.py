@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 GAME_NAME = "Stock Car Commissioner"
-GAME_VERSION = "0.5.0-basics"
+GAME_VERSION = "0.6.0-cup"
 SAVE_SCHEMA_VERSION = "0.0.41"
 PACKAGE_SLUG = "stock-car-commissioner"
 UI_ENGINE = "godot-4.4"
@@ -192,8 +192,9 @@ def build_manifest(root=None, file_count=0, version=None):
         "notes": (
             "Unpack the zip. Windows: double-click \"Double-click to play.bat\". "
             "First launch downloads Python and Godot 4.4 into tools/. Git is not required. "
-            "The desk is a 10-team Cup office with a writable Aero Wars book: "
+            "The desk is a 40-car Cup office with a writable Aero Wars book: "
             "legalize specials, pull plates, invite Chrysler, plate one oval. "
+            "Reports tracks TV, attendance, wrecks, and driver form. "
             "See PLAYTEST.md and KNOWN_ISSUES.md."
         ),
     }
