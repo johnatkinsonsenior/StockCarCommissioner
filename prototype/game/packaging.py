@@ -17,6 +17,7 @@ INCLUDE_PATHS = (
     "prototype",
     "godot",
     "docs",
+    "windows",
     "ROADMAP.md",
     "README.md",
     "PLAYTEST.md",
@@ -28,6 +29,7 @@ INCLUDE_PATHS = (
     "play_ui.bat",
     "Double-click to play.bat",
     "launch_office.cmd",
+    "StockCarCommissioner.exe",
     "tools/README.txt",
 )
 
@@ -40,6 +42,7 @@ REQUIRED_PATHS = (
     "play_ui.bat",
     "Double-click to play.bat",
     "launch_office.cmd",
+    "StockCarCommissioner.exe",
     "PLAYTEST.md",
     "KNOWN_ISSUES.md",
     "VERSION",
@@ -186,12 +189,14 @@ def build_manifest(root=None, file_count=0, version=None):
         "packaged_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "python": "3.10+",
         "career_loop": "./play.sh (Windows: play.bat)",
-        "optional_ui": "Windows: Double-click to play.bat  |  ./play_ui.sh",
+        "optional_ui": "Windows: StockCarCommissioner.exe  |  ./play_ui.sh",
         "ui_engine": UI_ENGINE,
         "file_count": file_count,
         "notes": (
-            "Unpack the zip. Windows: double-click \"Double-click to play.bat\". "
-            "First launch downloads Python and Godot 4.4 into tools/. Git is not required. "
+            "Unpack the zip. Windows: double-click StockCarCommissioner.exe. "
+            "The .bat launchers still work. A zip built with --windows-runtime "
+            "already has Python and Godot 4.4 under tools/; otherwise first "
+            "launch downloads them. Git is not required. "
             "The desk is a 40-car Cup office with a writable Aero Wars book: "
             "legalize specials, pull plates, invite Chrysler, plate one oval. "
             "Reports tracks TV, attendance, wrecks, and driver form. "
@@ -200,8 +205,25 @@ def build_manifest(root=None, file_count=0, version=None):
     }
 
 
-def package_playable_alpha(destination=None, root=None):
-    """Copy the career-mode tree into a playtester zip under dist/."""
+def iter_runtime_files(staging_root):
+    """Yield tools/ files vendored for an offline Windows zip."""
+
+    staging_root = Path(staging_root)
+    tools = staging_root / "tools"
+    if not tools.is_dir():
+        return
+    for path in sorted(tools.rglob("*")):
+        if not path.is_file() or _should_skip_file(path):
+            continue
+        yield path, path.relative_to(staging_root).as_posix()
+
+
+def package_playable_alpha(destination=None, root=None, include_windows_runtime=False):
+    """Copy the career-mode tree into a playtester zip under dist/.
+
+    include_windows_runtime downloads embeddable Python 3.12 and Godot 4.4
+    into the zip so Windows first launch does not need the internet.
+    """
 
     root = Path(root) if root else project_root()
     version = read_game_version(root)
@@ -214,6 +236,15 @@ def package_playable_alpha(destination=None, root=None):
         )
 
     files = list(iter_package_files(root))
+    staging = None
+    if include_windows_runtime:
+        import tempfile
+
+        from game.desktop_runtime import vendor_windows_runtime
+
+        staging = Path(tempfile.mkdtemp(prefix="scc-winrt-"))
+        vendor_windows_runtime(root=staging)
+        files.extend(iter_runtime_files(staging))
     zip_path = resolve_zip_path(destination, root, version)
     zip_path.parent.mkdir(parents=True, exist_ok=True)
     if zip_path.exists():
@@ -222,6 +253,8 @@ def package_playable_alpha(destination=None, root=None):
     prefix = package_prefix(version)
     stamped = datetime.now().timetuple()[:6]
     manifest = build_manifest(root, file_count=len(files) + 1, version=version)
+    if include_windows_runtime:
+        manifest["windows_runtime"] = "bundled"
 
     with zipfile.ZipFile(zip_path, "w") as archive:
         for src, arc in files:
@@ -242,6 +275,11 @@ def package_playable_alpha(destination=None, root=None):
             json.dumps(manifest, indent=4) + "\n",
         )
 
+    if staging is not None:
+        import shutil
+
+        shutil.rmtree(staging, ignore_errors=True)
+
     return {
         "game": GAME_NAME,
         "version": version,
@@ -251,4 +289,5 @@ def package_playable_alpha(destination=None, root=None):
         "file_count": len(files) + 1,
         "size_bytes": zip_path.stat().st_size,
         "included": [arc for _src, arc in files] + ["MANIFEST.json"],
+        "windows_runtime": bool(include_windows_runtime),
     }

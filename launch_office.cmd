@@ -17,7 +17,7 @@ set "ROOT=%~dp0"
 if not exist "%ROOT%prototype\run_ui.py" (
   echo.
   echo This launcher has to stay inside the Stock Car Commissioner folder.
-  echo Unzip the whole folder, then double-click "Double-click to play.bat".
+  echo Unzip the whole folder, then double-click StockCarCommissioner.exe.
   echo.
   pause
   exit /b 1
@@ -38,7 +38,7 @@ if not defined PYLAUNCH (
 if not defined PYLAUNCH goto :fail_python
 
 echo Starting the commissioner office...
-echo First launch may download Godot 4.4 into tools\godot. That is one time.
+echo If tools\python and tools\godot are missing, first launch downloads them once.
 echo.
 if /i "%PYLAUNCH%"=="py -3" (
   py -3 "%ROOT%prototype\run_ui.py" %*

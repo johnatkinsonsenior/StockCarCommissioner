@@ -807,7 +807,7 @@ def launch_godot_process(snapshot_path=None, headless=None, extra_args=None):
     }
     if binary is None:
         result["output"] = download_error or (
-            "Godot 4 was not found. Double-click \"Double-click to play.bat\" "
+            "Godot 4 was not found. Double-click StockCarCommissioner.exe "
             "once with internet so it can download Godot 4.4 into tools/godot, "
             "or set GODOT_BIN."
         )

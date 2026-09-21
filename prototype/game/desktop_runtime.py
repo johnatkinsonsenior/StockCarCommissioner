@@ -170,6 +170,36 @@ def should_download_godot():
     return os.environ.get("SCC_DOWNLOAD_GODOT") == "1"
 
 
+def install_embedded_python(root=None, fetch=None, url=None):
+    """Download Windows embeddable Python 3.12 into tools/python."""
+
+    root = project_root(root)
+    folder = bundled_python_dir(root)
+    folder.mkdir(parents=True, exist_ok=True)
+    url = url or PYTHON_EMBED_URL
+    archive = tools_dir(root) / "python-embed.zip"
+    print("Downloading Python 3.12 into tools/python (one time)...")
+    fetch_url(url, archive, fetch=fetch)
+    extract_zip(archive, folder)
+    try:
+        archive.unlink()
+    except OSError:
+        pass
+    enable_embedded_python(folder)
+    binary = folder / "python.exe"
+    if not binary.is_file():
+        raise FileNotFoundError("Python zip extracted but python.exe was not inside.")
+    return binary
+
+
+def vendor_windows_runtime(root=None, fetch=None):
+    """Install private Python and Godot under tools/ for an offline Windows play."""
+
+    python = install_embedded_python(root=root, fetch=fetch)
+    godot = install_godot(root=root, fetch=fetch)
+    return {"python": python, "godot": godot}
+
+
 def install_godot(root=None, fetch=None, url=None):
     """Download Godot 4.4 into tools/godot. Return the binary path."""
 

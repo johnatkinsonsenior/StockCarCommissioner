@@ -8,12 +8,12 @@ is no team-owner or GM career.
 
 ### Launch and packaging
 
-- **Windows:** unpack the zip and double-click **Double-click to play.bat**.
-  First launch downloads a private Python 3.12 and Godot 4.4 into `tools/`
-  next to that file. The Microsoft Store `python.exe` shortcut is skipped
-  on purpose — it cannot run the office and used to make the window flash
-  closed. You need internet the first time. `play_ui.bat` is the same
-  launcher.
+- **Windows:** unpack the zip and double-click **StockCarCommissioner.exe**.
+  `Double-click to play.bat` still works. A zip built with
+  `--windows-runtime` already has Python 3.12 and Godot 4.4 in `tools/`.
+  Otherwise first launch downloads them. The Microsoft Store `python.exe`
+  shortcut is skipped on purpose — it cannot run the office. SmartScreen
+  may warn on the unsigned `.exe`; More info → Run anyway.
 - Git is not required. Export templates are not required.
 - Headless Linux (no `DISPLAY`) opens Godot without a window and quits
   after a short tour. That is expected on a cloud box, not on a desktop.
