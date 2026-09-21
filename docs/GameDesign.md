@@ -884,7 +884,7 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 `godot/` is a Godot 4.4 office desk. The layout is a commissioner office:
 left navigation, a status bar with Advance, a mail pane, and a gated
-checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `Double-click to play.bat`) writes `godot/data/ui_snapshot.json` and opens the editor. On Windows the bat downloads Godot 4.4 into `tools/godot` on first play. `play_ui` Continues `saves/office.json` when that slot exists. Testers unpack `dist/stock-car-commissioner-0.6.0-cup.zip` (`python3 prototype/package_alpha.py`) and double-click the launcher; Git is not required. See `PLAYTEST.md` and `KNOWN_ISSUES.md`.
+checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `StockCarCommissioner.exe`) writes `godot/data/ui_snapshot.json` and opens the editor. On Windows the exe starts `launch_office.cmd`; a zip built with `--windows-runtime` already has Godot 4.4 and Python under `tools/`, otherwise first play downloads them. `play_ui` Continues `saves/office.json` when that slot exists. Testers unpack `dist/stock-car-commissioner-0.6.0-cup.zip` (`python3 prototype/package_alpha.py`) and double-click the exe; Git is not required. See `PLAYTEST.md` and `KNOWN_ISSUES.md`.
 
 The office opens on series mail. Mail is a **live inbox**: the queued
 hearing sits as a letter from the Competition Committee (or Safety,

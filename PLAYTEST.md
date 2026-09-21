@@ -16,15 +16,14 @@ Git is not required.
 
 **Windows — this is the play button.** Unpack the zip and double-click:
 
-    Double-click to play.bat
+    StockCarCommissioner.exe
 
-That is the whole setup. The first launch downloads a private Python and
-Godot 4.4 into a `tools` folder next to the bat file. The Microsoft Store
-`python.exe` shortcut is ignored (it cannot run the office). You do not
-need to install Python or Godot yourself. You need internet the first time.
-
-`play_ui.bat` does the same thing. A black window stays open with progress;
-it only waits for a key if something failed.
+That is the whole setup. `Double-click to play.bat` still works. A
+console window stays open with progress. If the zip was built with
+`--windows-runtime`, Python and Godot 4.4 are already in `tools/` and
+you do not need internet. Otherwise the first launch downloads them.
+The Microsoft Store `python.exe` shortcut is ignored (it cannot run
+the office). You do not need to install Python or Godot yourself.
 
 Mac / Linux:
 

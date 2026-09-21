@@ -26,8 +26,8 @@ def main():
     result = rs.launch_godot_ui()
     if not result.get("binary"):
         print(result.get("output") or "Godot 4.4 was not found.")
-        print("Double-click \"Double-click to play.bat\" with internet once.")
-        print("It downloads Godot 4.4 into tools\\godot.")
+        print("Double-click StockCarCommissioner.exe (or Double-click to play.bat).")
+        print("It uses Godot 4.4 from tools\\godot.")
         sys.exit(2)
     if result.get("returncode") not in (0, None):
         sys.exit(result.get("returncode") or 1)

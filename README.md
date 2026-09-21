@@ -16,9 +16,11 @@ Save schema: 0.0.41
 
 ## Requirements
 
-Windows: unpack the zip and double-click **Double-click to play.bat**.
-The first launch installs a private Python and Godot 4.4 into `tools/`.
-You do not need to install either yourself.
+Windows: unpack the zip and double-click **StockCarCommissioner.exe**.
+That is the play button. `Double-click to play.bat` still works. A zip
+built with `--windows-runtime` already has Python and Godot 4.4 in
+`tools/`; otherwise the first launch downloads them. You do not need to
+install either yourself.
 
 Mac / Linux / developers:
 
@@ -39,8 +41,8 @@ The Godot commissioner office (recommended):
 
     ./play_ui.sh
 
-**Windows: double-click `Double-click to play.bat`.** That is the play
-button. `play_ui.bat` does the same. First launch downloads Godot 4.4.
+**Windows: double-click `StockCarCommissioner.exe`.** That is the play
+button. `Double-click to play.bat` and `play_ui.bat` do the same.
 
 Godot is the commissioner office (sidebar, mail, checklist, Advance).
 The look is an early-80s network sports package: black field, hard
@@ -69,8 +71,10 @@ The sim still has them; the desk does not. There is no team-owner career.
     python3 prototype/package_alpha.py
 
 Writes `dist/stock-car-commissioner-0.6.0-cup.zip`. Pass an output
-path if you want the zip somewhere else. The zip includes `PLAYTEST.md`
-and `KNOWN_ISSUES.md`. Git is not required to play.
+path if you want the zip somewhere else. Add `--windows-runtime` to
+bundle Python 3.12 and Godot 4.4 so Windows first launch is offline.
+The zip includes `PLAYTEST.md` and `KNOWN_ISSUES.md`. Git is not
+required to play.
 
 ## Development status
 

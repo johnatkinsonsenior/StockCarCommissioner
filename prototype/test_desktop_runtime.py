@@ -19,6 +19,7 @@ from game.desktop_runtime import (
     is_windows_apps_alias,
     install_godot,
     tools_dir,
+    vendor_windows_runtime,
 )
 
 
@@ -101,16 +102,75 @@ def test_tools_dir(errors, tmp):
     )
 
 
+def test_vendor_runtime(errors, tmp):
+    godot_archive = tmp / "godot.zip"
+    with zipfile.ZipFile(godot_archive, "w") as bundle:
+        bundle.writestr(GODOT_WIN_EXE, b"fake-godot")
+    python_archive = tmp / "python.zip"
+    with zipfile.ZipFile(python_archive, "w") as bundle:
+        bundle.writestr("python.exe", b"fake-python")
+        bundle.writestr("python312._pth", "python312.zip\n.\n#import site\n")
+
+    def fetch(url):
+        if "python" in url:
+            return python_archive.read_bytes()
+        return godot_archive.read_bytes()
+
+    staging = tmp / "stage"
+    installed = vendor_windows_runtime(root=staging, fetch=fetch)
+    _fail(errors, installed["python"].is_file(), "vendored python.exe missing")
+    _fail(errors, installed["godot"].is_file(), "vendored Godot missing")
+    pth = staging / "tools" / "python" / "python312._pth"
+    _fail(
+        errors,
+        pth.is_file() and "import site" in pth.read_text(encoding="utf-8"),
+        "vendored Python must enable import site",
+    )
+
+
+def test_windows_exe(errors):
+    exe = ROOT.parent / "StockCarCommissioner.exe"
+    _fail(errors, exe.is_file(), "StockCarCommissioner.exe missing from repo root")
+    if exe.is_file():
+        header = exe.read_bytes()[:2]
+        _fail(errors, header == b"MZ", "Windows exe should start with MZ")
+
+
+def test_package_contains_exe(errors, tmp):
+    from game.packaging import package_playable_alpha
+
+    zip_path = tmp / "play.zip"
+    result = package_playable_alpha(destination=zip_path)
+    _fail(errors, zip_path.is_file(), "package_playable_alpha should write a zip")
+    names = result.get("included") or []
+    _fail(
+        errors,
+        "StockCarCommissioner.exe" in names,
+        "play zip should include StockCarCommissioner.exe",
+    )
+    if zip_path.is_file():
+        with zipfile.ZipFile(zip_path) as bundle:
+            members = bundle.namelist()
+        _fail(
+            errors,
+            any(name.endswith("StockCarCommissioner.exe") for name in members),
+            "zip members should include the Windows exe",
+        )
+
+
 def main():
     import tempfile
 
     errors = []
     test_store_stub(errors)
+    test_windows_exe(errors)
     with tempfile.TemporaryDirectory() as raw:
         tmp = Path(raw)
         test_extract_and_ensure(errors, tmp)
         test_embed_pth(errors, tmp)
         test_tools_dir(errors, tmp)
+        test_vendor_runtime(errors, tmp)
+        test_package_contains_exe(errors, tmp)
     if errors:
         print("LAUNCHER_OK=0")
         for item in errors:
@@ -120,6 +180,8 @@ def main():
     print("STUB_SKIP=1")
     print("GODOT_EXTRACT=1")
     print("EMBED_SITE=1")
+    print("WINDOWS_EXE=1")
+    print("WINDOWS_RUNTIME=1")
     return 0
 
 

@@ -1,5 +1,6 @@
-This folder is created on first play.
+This folder holds a private Python and Godot 4.4.
 
-Double-click "Double-click to play.bat". The launcher puts a private
-Python and Godot 4.4 here so you do not have to install either one
-yourself. You can delete this folder; the next launch will download again.
+Double-click StockCarCommissioner.exe (or Double-click to play.bat).
+A zip built with --windows-runtime already has both tools here. Otherwise
+the first launch downloads them. You can delete this folder; the next
+launch will download again if the zip did not bundle them.
