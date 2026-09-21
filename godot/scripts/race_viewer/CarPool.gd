@@ -39,6 +39,7 @@ func setup_pool() -> void:
 		var sprite := Sprite2D.new()
 		sprite.texture = texture
 		sprite.centered = true
+		sprite.scale = Vector2(2.4, 2.4)
 		sprite.name = "Sprite"
 		car.add_child(sprite)
 		car.visible = false

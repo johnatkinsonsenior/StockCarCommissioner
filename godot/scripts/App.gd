@@ -1033,6 +1033,7 @@ func _fill_reports() -> void:
 	var week: Dictionary = _as_dict(book.get("week", {}))
 	if str(week.get("copy", "")) != "":
 		center_body.add_child(_muted(str(week.get("copy", ""))))
+	_fill_watchable_block()
 	print("REPORTS_RACES=", str(_as_array(book.get("races", [])).size()))
 	print("REPORTS_FIELD=", str(_as_int(book.get("field_size", 0))))
 	print("REPORTS_ENTRIES=", str(_as_int(book.get("entries", 0))))
@@ -1135,7 +1136,6 @@ func _fill_reports() -> void:
 					str(item.get("team", "")),
 					str(item.get("value", "")),
 				]))
-	_fill_watchable_block()
 	_fill_unique_stats(_as_dict(book.get("unique", {})))
 	center_body.add_child(_gold_line("Driver form"))
 	for row in _as_array(book.get("leaders", [])):

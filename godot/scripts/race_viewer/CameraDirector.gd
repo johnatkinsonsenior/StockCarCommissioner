@@ -23,7 +23,7 @@ func apply(camera: Camera2D, layout: Dictionary, timing: Dictionary, pool: Node2
 	var zoom := Vector2(0.72, 0.72)
 	if mode == "FULL_FIELD":
 		target = center
-		zoom = Vector2(0.70, 0.70)
+		zoom = Vector2(0.86, 0.86)
 	else:
 		var order: Array = timing.get("order", [])
 		var focus_id := selected_entry_id
