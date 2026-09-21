@@ -1,0 +1,7589 @@
+{
+  "bundle_hash": "e8af8e964b908ac3e1a19b216d713d8ac28bb8094a47074b28c2b45e4cea8b62",
+  "classification": [
+    {
+      "entry_id": "entry_pit_early",
+      "laps_completed": 20,
+      "position": 1,
+      "status": "FINISHED"
+    },
+    {
+      "entry_id": "entry_restart",
+      "laps_completed": 20,
+      "position": 2,
+      "status": "FINISHED"
+    },
+    {
+      "entry_id": "entry_pace",
+      "laps_completed": 20,
+      "position": 3,
+      "status": "FINISHED"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "laps_completed": 20,
+      "position": 4,
+      "status": "FINISHED"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "laps_completed": 20,
+      "position": 5,
+      "status": "FINISHED"
+    },
+    {
+      "entry_id": "entry_steady",
+      "laps_completed": 20,
+      "position": 6,
+      "status": "FINISHED"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "laps_completed": 20,
+      "position": 7,
+      "status": "FINISHED"
+    },
+    {
+      "entry_id": "entry_engine",
+      "laps_completed": 8,
+      "position": 8,
+      "status": "MECHANICAL"
+    }
+  ],
+  "duration_ms": 448060,
+  "engine_version": "fixture-v1",
+  "entries": [
+    {
+      "body_id": "generic_coupe",
+      "car_number": "3",
+      "driver_id": "drv_cole_hart",
+      "driver_name": "Cole Hart",
+      "entry_id": "entry_pace",
+      "manufacturer_id": "mfr_apex",
+      "primary_color": "f5c400",
+      "secondary_color": "101010",
+      "sprite_id": "stock_car_topdown",
+      "team_id": "team_hart",
+      "team_name": "Hart Racing"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car_number": "21",
+      "driver_id": "drv_ray_dunham",
+      "driver_name": "Ray Dunham",
+      "entry_id": "entry_restart",
+      "manufacturer_id": "mfr_summit",
+      "primary_color": "c4122e",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "team_id": "team_dunham",
+      "team_name": "Dunham Motor Co."
+    },
+    {
+      "body_id": "generic_coupe",
+      "car_number": "7",
+      "driver_id": "drv_bud_keene",
+      "driver_name": "Bud Keene",
+      "entry_id": "entry_engine",
+      "manufacturer_id": "mfr_apex",
+      "primary_color": "1f4e8c",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "team_id": "team_keene",
+      "team_name": "Keene Garage"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car_number": "18",
+      "driver_id": "drv_lane_vickers",
+      "driver_name": "Lane Vickers",
+      "entry_id": "entry_agg_a",
+      "manufacturer_id": "mfr_ridge",
+      "primary_color": "0a7a32",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "team_id": "team_vickers",
+      "team_name": "Vickers Racing"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car_number": "88",
+      "driver_id": "drv_tex_moran",
+      "driver_name": "Tex Moran",
+      "entry_id": "entry_agg_b",
+      "manufacturer_id": "mfr_summit",
+      "primary_color": "7a1f8c",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "team_id": "team_moran",
+      "team_name": "Moran Speed"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car_number": "12",
+      "driver_id": "drv_cal_brooks",
+      "driver_name": "Cal Brooks",
+      "entry_id": "entry_pit_early",
+      "manufacturer_id": "mfr_ridge",
+      "primary_color": "d46500",
+      "secondary_color": "101010",
+      "sprite_id": "stock_car_topdown",
+      "team_id": "team_brooks",
+      "team_name": "Brooks & Son"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car_number": "43",
+      "driver_id": "drv_ned_parrish",
+      "driver_name": "Ned Parrish",
+      "entry_id": "entry_pit_late",
+      "manufacturer_id": "mfr_apex",
+      "primary_color": "3d5a80",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "team_id": "team_parrish",
+      "team_name": "Parrish Motors"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car_number": "9",
+      "driver_id": "drv_wally_pike",
+      "driver_name": "Wally Pike",
+      "entry_id": "entry_steady",
+      "manufacturer_id": "mfr_ridge",
+      "primary_color": "5c4033",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "team_id": "team_pike",
+      "team_name": "Pike Racing"
+    }
+  ],
+  "input_hash": "88ad3c5916ab622326c1493002889852485f7df064399cf13c5ceecc1ca00ecf",
+  "keyframes": [
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 0,
+      "segment_index": 0,
+      "sim_time_ms": 2500,
+      "source_event_seq": 2,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 0,
+      "segment_index": 0,
+      "sim_time_ms": 5000,
+      "source_event_seq": 3,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 0,
+      "segment_index": 0,
+      "sim_time_ms": 7500,
+      "source_event_seq": 4,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 0,
+      "segment_index": 0,
+      "sim_time_ms": 10000,
+      "source_event_seq": 5,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 0,
+      "segment_index": 0,
+      "sim_time_ms": 12500,
+      "source_event_seq": 6,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 0,
+      "segment_index": 0,
+      "sim_time_ms": 15000,
+      "source_event_seq": 7,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 0,
+      "segment_index": 0,
+      "sim_time_ms": 17500,
+      "source_event_seq": 8,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 0,
+      "segment_index": 0,
+      "sim_time_ms": 20000,
+      "source_event_seq": 9,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 977500,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 970000,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 985000,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 1,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 962500,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 955000,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 992500,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 947500,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 0,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 0,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 96000,
+      "source_event_seq": 13,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 96220,
+      "source_event_seq": 14,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 96440,
+      "source_event_seq": 15,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 96660,
+      "source_event_seq": 16,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 96880,
+      "source_event_seq": 17,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 1,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 97100,
+      "source_event_seq": 18,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 97320,
+      "source_event_seq": 19,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 20,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 1,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 1,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 113540,
+      "source_event_seq": 22,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 113760,
+      "source_event_seq": 23,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 113980,
+      "source_event_seq": 24,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 114200,
+      "source_event_seq": 25,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 114420,
+      "source_event_seq": 26,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 1,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 114640,
+      "source_event_seq": 27,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 114860,
+      "source_event_seq": 28,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 29,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 2,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 374999,
+      "progress_mm": 80000,
+      "race_lap": 3,
+      "running_position": 1,
+      "segment_index": 2,
+      "sim_time_ms": 119880,
+      "source_event_seq": 31,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 374999,
+      "progress_mm": 80000,
+      "race_lap": 3,
+      "running_position": 1,
+      "segment_index": 2,
+      "sim_time_ms": 119880,
+      "source_event_seq": 31,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 387499,
+      "progress_mm": 90000,
+      "race_lap": 3,
+      "running_position": 1,
+      "segment_index": 2,
+      "sim_time_ms": 119900,
+      "source_event_seq": 32,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 2,
+      "path": "RACING",
+      "path_progress_ppm": 387499,
+      "progress_mm": 90000,
+      "race_lap": 3,
+      "running_position": 1,
+      "segment_index": 2,
+      "sim_time_ms": 119900,
+      "source_event_seq": 32,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 131080,
+      "source_event_seq": 33,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 131300,
+      "source_event_seq": 34,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 131520,
+      "source_event_seq": 35,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 131740,
+      "source_event_seq": 36,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 131960,
+      "source_event_seq": 37,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 1,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 132180,
+      "source_event_seq": 38,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 132400,
+      "source_event_seq": 39,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 40,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 3,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 3,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 148620,
+      "source_event_seq": 42,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 148840,
+      "source_event_seq": 43,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 149060,
+      "source_event_seq": 44,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 149280,
+      "source_event_seq": 45,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 149500,
+      "source_event_seq": 46,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 1,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 149720,
+      "source_event_seq": 47,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 149940,
+      "source_event_seq": 48,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 49,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 4,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 374999,
+      "progress_mm": 80000,
+      "race_lap": 5,
+      "running_position": 3,
+      "segment_index": 2,
+      "sim_time_ms": 156360,
+      "source_event_seq": 51,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 1,
+      "laps_completed": 4,
+      "path": "RACING",
+      "path_progress_ppm": 374999,
+      "progress_mm": 80000,
+      "race_lap": 5,
+      "running_position": 3,
+      "segment_index": 2,
+      "sim_time_ms": 156360,
+      "source_event_seq": 51,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 166160,
+      "source_event_seq": 52,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 166380,
+      "source_event_seq": 53,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 166600,
+      "source_event_seq": 54,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 1,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 166820,
+      "source_event_seq": 55,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 167040,
+      "source_event_seq": 56,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 1,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 167260,
+      "source_event_seq": 57,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 167480,
+      "source_event_seq": 58,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 59,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 5,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 5,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 183700,
+      "source_event_seq": 61,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 183920,
+      "source_event_seq": 62,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 184140,
+      "source_event_seq": 63,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 1,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 184360,
+      "source_event_seq": 64,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 184580,
+      "source_event_seq": 65,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 1,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 184800,
+      "source_event_seq": 66,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 185020,
+      "source_event_seq": 67,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 68,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 6,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "PIT",
+      "path_progress_ppm": 47058,
+      "progress_mm": 8000,
+      "race_lap": 7,
+      "running_position": 4,
+      "segment_index": 5,
+      "sim_time_ms": 186840,
+      "source_event_seq": 75,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "PIT",
+      "path_progress_ppm": 47058,
+      "progress_mm": 8000,
+      "race_lap": 7,
+      "running_position": 6,
+      "segment_index": 5,
+      "sim_time_ms": 186840,
+      "source_event_seq": 71,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "PIT",
+      "path_progress_ppm": 470587,
+      "progress_mm": 40000,
+      "race_lap": 7,
+      "running_position": 4,
+      "segment_index": 6,
+      "sim_time_ms": 189640,
+      "source_event_seq": 76,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "PIT",
+      "path_progress_ppm": 470587,
+      "progress_mm": 40000,
+      "race_lap": 7,
+      "running_position": 6,
+      "segment_index": 6,
+      "sim_time_ms": 189640,
+      "source_event_seq": 72,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "PIT",
+      "path_progress_ppm": 941176,
+      "progress_mm": 30000,
+      "race_lap": 7,
+      "running_position": 4,
+      "segment_index": 7,
+      "sim_time_ms": 192840,
+      "source_event_seq": 77,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 6,
+      "path": "PIT",
+      "path_progress_ppm": 941176,
+      "progress_mm": 30000,
+      "race_lap": 7,
+      "running_position": 6,
+      "segment_index": 7,
+      "sim_time_ms": 192840,
+      "source_event_seq": 73,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 201240,
+      "source_event_seq": 78,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 201460,
+      "source_event_seq": 79,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 201680,
+      "source_event_seq": 80,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 1,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 201900,
+      "source_event_seq": 81,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 202120,
+      "source_event_seq": 82,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 202340,
+      "source_event_seq": 83,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 202560,
+      "source_event_seq": 84,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 1,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 85,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 7,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 7,
+      "path": "RACING",
+      "path_progress_ppm": 149999,
+      "progress_mm": 40000,
+      "race_lap": 8,
+      "running_position": 8,
+      "segment_index": 1,
+      "sim_time_ms": 209780,
+      "source_event_seq": 87,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 218780,
+      "source_event_seq": 88,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 219000,
+      "source_event_seq": 89,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 219220,
+      "source_event_seq": 90,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 1,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 219440,
+      "source_event_seq": 91,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 219660,
+      "source_event_seq": 92,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 219880,
+      "source_event_seq": 93,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 220100,
+      "source_event_seq": 94,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 1,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 95,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 8,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 8,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 574999,
+      "progress_mm": 20000,
+      "race_lap": 9,
+      "running_position": 8,
+      "segment_index": 3,
+      "sim_time_ms": 223320,
+      "source_event_seq": 97,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_engine",
+      "lane_index": 0,
+      "laps_completed": 8,
+      "path": "RACING",
+      "path_progress_ppm": 587499,
+      "progress_mm": 30000,
+      "race_lap": 9,
+      "running_position": 8,
+      "segment_index": 3,
+      "sim_time_ms": 223720,
+      "source_event_seq": 98,
+      "status": "RETIRED"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 236320,
+      "source_event_seq": 99,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 236540,
+      "source_event_seq": 100,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 236760,
+      "source_event_seq": 101,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 1,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 236980,
+      "source_event_seq": 102,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 237200,
+      "source_event_seq": 103,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 237420,
+      "source_event_seq": 104,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 237640,
+      "source_event_seq": 106,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 237640,
+      "source_event_seq": 106,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 237640,
+      "source_event_seq": 106,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 237640,
+      "source_event_seq": 105,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 237640,
+      "source_event_seq": 106,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 237640,
+      "source_event_seq": 106,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 237640,
+      "source_event_seq": 106,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 9,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 9,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 237640,
+      "source_event_seq": 106,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 253640,
+      "source_event_seq": 107,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 253860,
+      "source_event_seq": 108,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 254080,
+      "source_event_seq": 109,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 1,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 254300,
+      "source_event_seq": 110,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 254520,
+      "source_event_seq": 111,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 254740,
+      "source_event_seq": 112,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 254960,
+      "source_event_seq": 114,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 254960,
+      "source_event_seq": 114,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 254960,
+      "source_event_seq": 114,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 254960,
+      "source_event_seq": 113,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 254960,
+      "source_event_seq": 114,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 254960,
+      "source_event_seq": 114,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 254960,
+      "source_event_seq": 114,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 10,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 254960,
+      "source_event_seq": 114,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 47058,
+      "progress_mm": 8000,
+      "race_lap": 11,
+      "running_position": 1,
+      "segment_index": 5,
+      "sim_time_ms": 256160,
+      "source_event_seq": 116,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 47058,
+      "progress_mm": 8000,
+      "race_lap": 11,
+      "running_position": 2,
+      "segment_index": 5,
+      "sim_time_ms": 256340,
+      "source_event_seq": 120,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 47058,
+      "progress_mm": 8000,
+      "race_lap": 11,
+      "running_position": 3,
+      "segment_index": 5,
+      "sim_time_ms": 256520,
+      "source_event_seq": 124,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 47058,
+      "progress_mm": 8000,
+      "race_lap": 11,
+      "running_position": 4,
+      "segment_index": 5,
+      "sim_time_ms": 256700,
+      "source_event_seq": 128,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 47058,
+      "progress_mm": 8000,
+      "race_lap": 11,
+      "running_position": 6,
+      "segment_index": 5,
+      "sim_time_ms": 256880,
+      "source_event_seq": 132,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 470587,
+      "progress_mm": 40000,
+      "race_lap": 11,
+      "running_position": 1,
+      "segment_index": 6,
+      "sim_time_ms": 258960,
+      "source_event_seq": 117,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 470587,
+      "progress_mm": 40000,
+      "race_lap": 11,
+      "running_position": 2,
+      "segment_index": 6,
+      "sim_time_ms": 259140,
+      "source_event_seq": 121,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 470587,
+      "progress_mm": 40000,
+      "race_lap": 11,
+      "running_position": 3,
+      "segment_index": 6,
+      "sim_time_ms": 259320,
+      "source_event_seq": 125,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 470587,
+      "progress_mm": 40000,
+      "race_lap": 11,
+      "running_position": 4,
+      "segment_index": 6,
+      "sim_time_ms": 259500,
+      "source_event_seq": 129,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 470587,
+      "progress_mm": 40000,
+      "race_lap": 11,
+      "running_position": 6,
+      "segment_index": 6,
+      "sim_time_ms": 259680,
+      "source_event_seq": 133,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 941176,
+      "progress_mm": 30000,
+      "race_lap": 11,
+      "running_position": 1,
+      "segment_index": 7,
+      "sim_time_ms": 262160,
+      "source_event_seq": 118,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 941176,
+      "progress_mm": 30000,
+      "race_lap": 11,
+      "running_position": 2,
+      "segment_index": 7,
+      "sim_time_ms": 262340,
+      "source_event_seq": 122,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 941176,
+      "progress_mm": 30000,
+      "race_lap": 11,
+      "running_position": 3,
+      "segment_index": 7,
+      "sim_time_ms": 262520,
+      "source_event_seq": 126,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 941176,
+      "progress_mm": 30000,
+      "race_lap": 11,
+      "running_position": 4,
+      "segment_index": 7,
+      "sim_time_ms": 262700,
+      "source_event_seq": 130,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 10,
+      "path": "PIT",
+      "path_progress_ppm": 941176,
+      "progress_mm": 30000,
+      "race_lap": 11,
+      "running_position": 6,
+      "segment_index": 7,
+      "sim_time_ms": 262880,
+      "source_event_seq": 134,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 271040,
+      "source_event_seq": 135,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 1,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 271260,
+      "source_event_seq": 136,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 271480,
+      "source_event_seq": 137,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 1,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 271700,
+      "source_event_seq": 138,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 271920,
+      "source_event_seq": 139,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 1,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 272140,
+      "source_event_seq": 140,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 272360,
+      "source_event_seq": 142,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 272360,
+      "source_event_seq": 142,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 272360,
+      "source_event_seq": 142,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 272360,
+      "source_event_seq": 142,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 272360,
+      "source_event_seq": 142,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 272360,
+      "source_event_seq": 142,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 272360,
+      "source_event_seq": 141,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 11,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 272360,
+      "source_event_seq": 142,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "PIT",
+      "path_progress_ppm": 47058,
+      "progress_mm": 8000,
+      "race_lap": 12,
+      "running_position": 1,
+      "segment_index": 5,
+      "sim_time_ms": 273760,
+      "source_event_seq": 144,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "PIT",
+      "path_progress_ppm": 470587,
+      "progress_mm": 40000,
+      "race_lap": 12,
+      "running_position": 1,
+      "segment_index": 6,
+      "sim_time_ms": 276560,
+      "source_event_seq": 145,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 11,
+      "path": "PIT",
+      "path_progress_ppm": 941176,
+      "progress_mm": 30000,
+      "race_lap": 12,
+      "running_position": 1,
+      "segment_index": 7,
+      "sim_time_ms": 279760,
+      "source_event_seq": 146,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 288440,
+      "source_event_seq": 147,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 288660,
+      "source_event_seq": 148,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 288880,
+      "source_event_seq": 149,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 289100,
+      "source_event_seq": 150,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 289320,
+      "source_event_seq": 151,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 289540,
+      "source_event_seq": 152,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 289760,
+      "source_event_seq": 154,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 289760,
+      "source_event_seq": 154,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 289760,
+      "source_event_seq": 154,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 289760,
+      "source_event_seq": 154,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 289760,
+      "source_event_seq": 153,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 289760,
+      "source_event_seq": 154,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 289760,
+      "source_event_seq": 154,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 12,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 289760,
+      "source_event_seq": 154,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 187500,
+      "progress_mm": 70000,
+      "race_lap": 13,
+      "running_position": 4,
+      "segment_index": 1,
+      "sim_time_ms": 295260,
+      "source_event_seq": 155,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 1,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 187500,
+      "progress_mm": 70000,
+      "race_lap": 13,
+      "running_position": 5,
+      "segment_index": 1,
+      "sim_time_ms": 295260,
+      "source_event_seq": 155,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 189999,
+      "progress_mm": 72000,
+      "race_lap": 13,
+      "running_position": 4,
+      "segment_index": 1,
+      "sim_time_ms": 295460,
+      "source_event_seq": 156,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 12,
+      "path": "RACING",
+      "path_progress_ppm": 189999,
+      "progress_mm": 72000,
+      "race_lap": 13,
+      "running_position": 5,
+      "segment_index": 1,
+      "sim_time_ms": 295460,
+      "source_event_seq": 156,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 311760,
+      "source_event_seq": 158,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 311980,
+      "source_event_seq": 159,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 312200,
+      "source_event_seq": 160,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 312420,
+      "source_event_seq": 161,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 312640,
+      "source_event_seq": 162,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 312860,
+      "source_event_seq": 163,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 313080,
+      "source_event_seq": 165,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 313080,
+      "source_event_seq": 165,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 313080,
+      "source_event_seq": 165,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 313080,
+      "source_event_seq": 165,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 313080,
+      "source_event_seq": 164,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 313080,
+      "source_event_seq": 165,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 313080,
+      "source_event_seq": 165,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 13,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 13,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 313080,
+      "source_event_seq": 165,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 335080,
+      "source_event_seq": 166,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 335300,
+      "source_event_seq": 167,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 335520,
+      "source_event_seq": 168,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 335740,
+      "source_event_seq": 169,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 335960,
+      "source_event_seq": 170,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 336180,
+      "source_event_seq": 171,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 336400,
+      "source_event_seq": 173,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 336400,
+      "source_event_seq": 173,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 336400,
+      "source_event_seq": 173,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 336400,
+      "source_event_seq": 173,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 336400,
+      "source_event_seq": 172,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 336400,
+      "source_event_seq": 173,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 336400,
+      "source_event_seq": 173,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 14,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 14,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 336400,
+      "source_event_seq": 173,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 358400,
+      "source_event_seq": 176,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 358620,
+      "source_event_seq": 177,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 358840,
+      "source_event_seq": 178,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 359060,
+      "source_event_seq": 179,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 359280,
+      "source_event_seq": 180,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 359500,
+      "source_event_seq": 181,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 359720,
+      "source_event_seq": 183,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 359720,
+      "source_event_seq": 183,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 359720,
+      "source_event_seq": 183,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 359720,
+      "source_event_seq": 183,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 359720,
+      "source_event_seq": 182,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 359720,
+      "source_event_seq": 183,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 359720,
+      "source_event_seq": 183,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 15,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 359720,
+      "source_event_seq": 183,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 360320,
+      "source_event_seq": 184,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 15,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 360320,
+      "source_event_seq": 184,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 375800,
+      "source_event_seq": 186,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 376020,
+      "source_event_seq": 187,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 376240,
+      "source_event_seq": 188,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 376460,
+      "source_event_seq": 189,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 376680,
+      "source_event_seq": 190,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 376900,
+      "source_event_seq": 191,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 377120,
+      "source_event_seq": 193,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 377120,
+      "source_event_seq": 193,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 377120,
+      "source_event_seq": 193,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 377120,
+      "source_event_seq": 193,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 377120,
+      "source_event_seq": 192,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 377120,
+      "source_event_seq": 193,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 377120,
+      "source_event_seq": 193,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 16,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 16,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 377120,
+      "source_event_seq": 193,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 393200,
+      "source_event_seq": 195,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 393420,
+      "source_event_seq": 196,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 393640,
+      "source_event_seq": 197,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 393860,
+      "source_event_seq": 198,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 394080,
+      "source_event_seq": 199,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 394300,
+      "source_event_seq": 200,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 394520,
+      "source_event_seq": 202,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 394520,
+      "source_event_seq": 202,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 394520,
+      "source_event_seq": 202,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 394520,
+      "source_event_seq": 202,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 394520,
+      "source_event_seq": 201,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 394520,
+      "source_event_seq": 202,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 394520,
+      "source_event_seq": 202,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 17,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 17,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 394520,
+      "source_event_seq": 202,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 410600,
+      "source_event_seq": 203,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 410820,
+      "source_event_seq": 204,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 411040,
+      "source_event_seq": 205,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 411260,
+      "source_event_seq": 206,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 411480,
+      "source_event_seq": 207,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 411700,
+      "source_event_seq": 208,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 411920,
+      "source_event_seq": 210,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 411920,
+      "source_event_seq": 210,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 411920,
+      "source_event_seq": 210,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 411920,
+      "source_event_seq": 210,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 411920,
+      "source_event_seq": 209,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 411920,
+      "source_event_seq": 210,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 411920,
+      "source_event_seq": 210,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 18,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 18,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 411920,
+      "source_event_seq": 210,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 428000,
+      "source_event_seq": 211,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 428220,
+      "source_event_seq": 212,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 428440,
+      "source_event_seq": 213,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 428660,
+      "source_event_seq": 214,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 428880,
+      "source_event_seq": 215,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 429100,
+      "source_event_seq": 216,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 429320,
+      "source_event_seq": 218,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 429320,
+      "source_event_seq": 218,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 429320,
+      "source_event_seq": 218,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 429320,
+      "source_event_seq": 218,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 429320,
+      "source_event_seq": 217,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 429320,
+      "source_event_seq": 218,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 429320,
+      "source_event_seq": 218,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 19,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 19,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 429320,
+      "source_event_seq": 218,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 445400,
+      "source_event_seq": 219,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 445620,
+      "source_event_seq": 220,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 445840,
+      "source_event_seq": 221,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 446060,
+      "source_event_seq": 222,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 446280,
+      "source_event_seq": 223,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 446500,
+      "source_event_seq": 224,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 446720,
+      "source_event_seq": 226,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 446720,
+      "source_event_seq": 226,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 446720,
+      "source_event_seq": 226,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 446720,
+      "source_event_seq": 226,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 446720,
+      "source_event_seq": 225,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 446720,
+      "source_event_seq": 226,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 446720,
+      "source_event_seq": 226,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 446720,
+      "source_event_seq": 226,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_early",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 1,
+      "segment_index": 0,
+      "sim_time_ms": 446800,
+      "source_event_seq": 227,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_restart",
+      "lane_index": 1,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 2,
+      "segment_index": 0,
+      "sim_time_ms": 446980,
+      "source_event_seq": 228,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pace",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 3,
+      "segment_index": 0,
+      "sim_time_ms": 447160,
+      "source_event_seq": 229,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_a",
+      "lane_index": 1,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 4,
+      "segment_index": 0,
+      "sim_time_ms": 447340,
+      "source_event_seq": 230,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_agg_b",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 5,
+      "segment_index": 0,
+      "sim_time_ms": 447520,
+      "source_event_seq": 231,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_steady",
+      "lane_index": 1,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 6,
+      "segment_index": 0,
+      "sim_time_ms": 447700,
+      "source_event_seq": 232,
+      "status": "RUNNING"
+    },
+    {
+      "entry_id": "entry_pit_late",
+      "lane_index": 0,
+      "laps_completed": 20,
+      "path": "RACING",
+      "path_progress_ppm": 0,
+      "progress_mm": 0,
+      "race_lap": 20,
+      "running_position": 7,
+      "segment_index": 0,
+      "sim_time_ms": 447880,
+      "source_event_seq": 233,
+      "status": "RUNNING"
+    }
+  ],
+  "markers": [
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pace",
+        "entry_restart",
+        "entry_engine",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_early",
+        "entry_pit_late",
+        "entry_steady"
+      ],
+      "event_seq": 12,
+      "kind": "START",
+      "label_code": "race-start",
+      "sim_time_ms": 80000
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_restart",
+        "entry_pace"
+      ],
+      "event_seq": 31,
+      "kind": "PASS",
+      "label_code": "pass",
+      "sim_time_ms": 119880
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_restart",
+        "entry_pace"
+      ],
+      "event_seq": 32,
+      "kind": "LEAD_CHANGE",
+      "label_code": "lead-change",
+      "sim_time_ms": 119900
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_agg_a",
+        "entry_engine"
+      ],
+      "event_seq": 51,
+      "kind": "PASS",
+      "label_code": "pass",
+      "sim_time_ms": 156360
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_early"
+      ],
+      "event_seq": 71,
+      "kind": "PIT",
+      "label_code": "pit-entry",
+      "sim_time_ms": 186840
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_early"
+      ],
+      "event_seq": 72,
+      "kind": "PIT",
+      "label_code": "pit-service",
+      "sim_time_ms": 189640
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_engine"
+      ],
+      "event_seq": 75,
+      "kind": "PIT",
+      "label_code": "pit-entry",
+      "sim_time_ms": 186840
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_engine"
+      ],
+      "event_seq": 76,
+      "kind": "PIT",
+      "label_code": "pit-service",
+      "sim_time_ms": 189640
+    },
+    {
+      "detail_values": {
+        "component_code": "ENGINE",
+        "severity": 40
+      },
+      "entry_ids": [
+        "entry_engine"
+      ],
+      "event_seq": 87,
+      "kind": "MECHANICAL",
+      "label_code": "mechanical",
+      "sim_time_ms": 209780
+    },
+    {
+      "detail_values": {
+        "reason_code": "ENGINE"
+      },
+      "entry_ids": [
+        "entry_engine"
+      ],
+      "event_seq": 98,
+      "kind": "RETIREMENT",
+      "label_code": "retirement",
+      "sim_time_ms": 223720
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_restart"
+      ],
+      "event_seq": 116,
+      "kind": "PIT",
+      "label_code": "pit-entry",
+      "sim_time_ms": 256160
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_restart"
+      ],
+      "event_seq": 117,
+      "kind": "PIT",
+      "label_code": "pit-service",
+      "sim_time_ms": 258960
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pace"
+      ],
+      "event_seq": 120,
+      "kind": "PIT",
+      "label_code": "pit-entry",
+      "sim_time_ms": 256340
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pace"
+      ],
+      "event_seq": 121,
+      "kind": "PIT",
+      "label_code": "pit-service",
+      "sim_time_ms": 259140
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_agg_a"
+      ],
+      "event_seq": 124,
+      "kind": "PIT",
+      "label_code": "pit-entry",
+      "sim_time_ms": 256520
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_agg_a"
+      ],
+      "event_seq": 125,
+      "kind": "PIT",
+      "label_code": "pit-service",
+      "sim_time_ms": 259320
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_agg_b"
+      ],
+      "event_seq": 128,
+      "kind": "PIT",
+      "label_code": "pit-entry",
+      "sim_time_ms": 256700
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_agg_b"
+      ],
+      "event_seq": 129,
+      "kind": "PIT",
+      "label_code": "pit-service",
+      "sim_time_ms": 259500
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_steady"
+      ],
+      "event_seq": 132,
+      "kind": "PIT",
+      "label_code": "pit-entry",
+      "sim_time_ms": 256880
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_steady"
+      ],
+      "event_seq": 133,
+      "kind": "PIT",
+      "label_code": "pit-service",
+      "sim_time_ms": 259680
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_late"
+      ],
+      "event_seq": 144,
+      "kind": "PIT",
+      "label_code": "pit-entry",
+      "sim_time_ms": 273760
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_late"
+      ],
+      "event_seq": 145,
+      "kind": "PIT",
+      "label_code": "pit-service",
+      "sim_time_ms": 276560
+    },
+    {
+      "detail_values": {
+        "severity": 62
+      },
+      "entry_ids": [
+        "entry_agg_a",
+        "entry_agg_b"
+      ],
+      "event_seq": 155,
+      "kind": "CONTACT",
+      "label_code": "contact",
+      "sim_time_ms": 295260
+    },
+    {
+      "detail_values": {
+        "reason_code": "CONTACT"
+      },
+      "entry_ids": [
+        "entry_agg_a",
+        "entry_agg_b"
+      ],
+      "event_seq": 156,
+      "kind": "CAUTION",
+      "label_code": "caution",
+      "sim_time_ms": 295460
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_early",
+        "entry_restart"
+      ],
+      "event_seq": 184,
+      "kind": "LEAD_CHANGE",
+      "label_code": "lead-change",
+      "sim_time_ms": 360320
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "event_seq": 185,
+      "kind": "RESTART",
+      "label_code": "restart",
+      "sim_time_ms": 359920
+    },
+    {
+      "detail_values": {
+        "new_weather": "CLOUDY"
+      },
+      "entry_ids": [],
+      "event_seq": 194,
+      "kind": "CONDITION",
+      "label_code": "condition",
+      "sim_time_ms": 379120
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_early"
+      ],
+      "event_seq": 227,
+      "kind": "FINISH",
+      "label_code": "finish",
+      "sim_time_ms": 446800
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_restart"
+      ],
+      "event_seq": 228,
+      "kind": "FINISH",
+      "label_code": "finish",
+      "sim_time_ms": 446980
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pace"
+      ],
+      "event_seq": 229,
+      "kind": "FINISH",
+      "label_code": "finish",
+      "sim_time_ms": 447160
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_agg_a"
+      ],
+      "event_seq": 230,
+      "kind": "FINISH",
+      "label_code": "finish",
+      "sim_time_ms": 447340
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_agg_b"
+      ],
+      "event_seq": 231,
+      "kind": "FINISH",
+      "label_code": "finish",
+      "sim_time_ms": 447520
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_steady"
+      ],
+      "event_seq": 232,
+      "kind": "FINISH",
+      "label_code": "finish",
+      "sim_time_ms": 447700
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_late"
+      ],
+      "event_seq": 233,
+      "kind": "FINISH",
+      "label_code": "finish",
+      "sim_time_ms": 447880
+    },
+    {
+      "detail_values": {},
+      "entry_ids": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "event_seq": 234,
+      "kind": "FINISH",
+      "label_code": "checkered",
+      "sim_time_ms": 448060
+    }
+  ],
+  "output_hash": "2cbf295cfdf5b2f1657dd2c1a0314abce611ad821e7a47d38e5acadd69e3b9df",
+  "phase_timeline": [
+    {
+      "caution_id": null,
+      "phase": "QUALIFYING",
+      "race_lap": 0,
+      "sim_time_ms": 0,
+      "source_event_seq": 1
+    },
+    {
+      "caution_id": null,
+      "phase": "FORMATION",
+      "race_lap": 0,
+      "sim_time_ms": 21200,
+      "source_event_seq": 11
+    },
+    {
+      "caution_id": null,
+      "phase": "GREEN",
+      "race_lap": 0,
+      "sim_time_ms": 80000,
+      "source_event_seq": 12
+    },
+    {
+      "caution_id": "caution_riverside_1",
+      "phase": "CAUTION",
+      "race_lap": 13,
+      "sim_time_ms": 295460,
+      "source_event_seq": 156
+    },
+    {
+      "caution_id": "caution_riverside_1",
+      "phase": "RESTART",
+      "race_lap": 15,
+      "sim_time_ms": 347400,
+      "source_event_seq": 175
+    },
+    {
+      "caution_id": null,
+      "phase": "CAUTION",
+      "race_lap": 15,
+      "sim_time_ms": 358400,
+      "source_event_seq": 176
+    },
+    {
+      "caution_id": null,
+      "phase": "RESTART",
+      "race_lap": 16,
+      "sim_time_ms": 360320,
+      "source_event_seq": 184
+    },
+    {
+      "caution_id": "caution_riverside_1",
+      "phase": "GREEN",
+      "race_lap": 16,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185
+    },
+    {
+      "caution_id": null,
+      "phase": "FINISHED",
+      "race_lap": 20,
+      "sim_time_ms": 446800,
+      "source_event_seq": 227
+    }
+  ],
+  "race": {
+    "caution_count": 1,
+    "lead_changes": 2,
+    "pole_entry_id": "entry_pace",
+    "title": "Riverside 200",
+    "weather": "CLOUDY",
+    "winner_entry_id": "entry_pit_early"
+  },
+  "race_contract_version": "scc-race-v1",
+  "race_id": "race_riverside_200_s1r1",
+  "timing_frames": [
+    {
+      "gaps_ms": [
+        [
+          "entry_pace",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_engine",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_pit_early",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ],
+        [
+          "entry_steady",
+          1400
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pace",
+          1
+        ],
+        [
+          "entry_restart",
+          1
+        ],
+        [
+          "entry_engine",
+          1
+        ],
+        [
+          "entry_agg_a",
+          1
+        ],
+        [
+          "entry_agg_b",
+          1
+        ],
+        [
+          "entry_pit_early",
+          1
+        ],
+        [
+          "entry_pit_late",
+          1
+        ],
+        [
+          "entry_steady",
+          1
+        ]
+      ],
+      "leader_entry_id": "entry_pace",
+      "order": [
+        "entry_pace",
+        "entry_restart",
+        "entry_engine",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_early",
+        "entry_pit_late",
+        "entry_steady"
+      ],
+      "race_lap": 1,
+      "sim_time_ms": 97540,
+      "source_event_seq": 21
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pace",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_engine",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_pit_early",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ],
+        [
+          "entry_steady",
+          1400
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pace",
+          2
+        ],
+        [
+          "entry_restart",
+          2
+        ],
+        [
+          "entry_engine",
+          2
+        ],
+        [
+          "entry_agg_a",
+          2
+        ],
+        [
+          "entry_agg_b",
+          2
+        ],
+        [
+          "entry_pit_early",
+          2
+        ],
+        [
+          "entry_pit_late",
+          2
+        ],
+        [
+          "entry_steady",
+          2
+        ]
+      ],
+      "leader_entry_id": "entry_pace",
+      "order": [
+        "entry_pace",
+        "entry_restart",
+        "entry_engine",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_early",
+        "entry_pit_late",
+        "entry_steady"
+      ],
+      "race_lap": 2,
+      "sim_time_ms": 115080,
+      "source_event_seq": 30
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_restart",
+          null
+        ],
+        [
+          "entry_pace",
+          200
+        ],
+        [
+          "entry_engine",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_pit_early",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ],
+        [
+          "entry_steady",
+          1400
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_restart",
+          3
+        ],
+        [
+          "entry_pace",
+          3
+        ],
+        [
+          "entry_engine",
+          3
+        ],
+        [
+          "entry_agg_a",
+          3
+        ],
+        [
+          "entry_agg_b",
+          3
+        ],
+        [
+          "entry_pit_early",
+          3
+        ],
+        [
+          "entry_pit_late",
+          3
+        ],
+        [
+          "entry_steady",
+          3
+        ]
+      ],
+      "leader_entry_id": "entry_restart",
+      "order": [
+        "entry_restart",
+        "entry_pace",
+        "entry_engine",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_early",
+        "entry_pit_late",
+        "entry_steady"
+      ],
+      "race_lap": 3,
+      "sim_time_ms": 132620,
+      "source_event_seq": 41
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_restart",
+          null
+        ],
+        [
+          "entry_pace",
+          200
+        ],
+        [
+          "entry_engine",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_pit_early",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ],
+        [
+          "entry_steady",
+          1400
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_restart",
+          4
+        ],
+        [
+          "entry_pace",
+          4
+        ],
+        [
+          "entry_engine",
+          4
+        ],
+        [
+          "entry_agg_a",
+          4
+        ],
+        [
+          "entry_agg_b",
+          4
+        ],
+        [
+          "entry_pit_early",
+          4
+        ],
+        [
+          "entry_pit_late",
+          4
+        ],
+        [
+          "entry_steady",
+          4
+        ]
+      ],
+      "leader_entry_id": "entry_restart",
+      "order": [
+        "entry_restart",
+        "entry_pace",
+        "entry_engine",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_early",
+        "entry_pit_late",
+        "entry_steady"
+      ],
+      "race_lap": 4,
+      "sim_time_ms": 150160,
+      "source_event_seq": 50
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_restart",
+          null
+        ],
+        [
+          "entry_pace",
+          200
+        ],
+        [
+          "entry_agg_a",
+          400
+        ],
+        [
+          "entry_engine",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_pit_early",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ],
+        [
+          "entry_steady",
+          1400
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_restart",
+          5
+        ],
+        [
+          "entry_pace",
+          5
+        ],
+        [
+          "entry_agg_a",
+          5
+        ],
+        [
+          "entry_engine",
+          5
+        ],
+        [
+          "entry_agg_b",
+          5
+        ],
+        [
+          "entry_pit_early",
+          5
+        ],
+        [
+          "entry_pit_late",
+          5
+        ],
+        [
+          "entry_steady",
+          5
+        ]
+      ],
+      "leader_entry_id": "entry_restart",
+      "order": [
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_engine",
+        "entry_agg_b",
+        "entry_pit_early",
+        "entry_pit_late",
+        "entry_steady"
+      ],
+      "race_lap": 5,
+      "sim_time_ms": 167700,
+      "source_event_seq": 60
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_restart",
+          null
+        ],
+        [
+          "entry_pace",
+          200
+        ],
+        [
+          "entry_agg_a",
+          400
+        ],
+        [
+          "entry_engine",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_pit_early",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ],
+        [
+          "entry_steady",
+          1400
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_restart",
+          6
+        ],
+        [
+          "entry_pace",
+          6
+        ],
+        [
+          "entry_agg_a",
+          6
+        ],
+        [
+          "entry_engine",
+          6
+        ],
+        [
+          "entry_agg_b",
+          6
+        ],
+        [
+          "entry_pit_early",
+          6
+        ],
+        [
+          "entry_pit_late",
+          6
+        ],
+        [
+          "entry_steady",
+          6
+        ]
+      ],
+      "leader_entry_id": "entry_restart",
+      "order": [
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_engine",
+        "entry_agg_b",
+        "entry_pit_early",
+        "entry_pit_late",
+        "entry_steady"
+      ],
+      "race_lap": 6,
+      "sim_time_ms": 185240,
+      "source_event_seq": 69
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_restart",
+          null
+        ],
+        [
+          "entry_pace",
+          200
+        ],
+        [
+          "entry_agg_a",
+          400
+        ],
+        [
+          "entry_agg_b",
+          600
+        ],
+        [
+          "entry_pit_late",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_early",
+          1200
+        ],
+        [
+          "entry_engine",
+          1400
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_restart",
+          7
+        ],
+        [
+          "entry_pace",
+          7
+        ],
+        [
+          "entry_agg_a",
+          7
+        ],
+        [
+          "entry_agg_b",
+          7
+        ],
+        [
+          "entry_pit_late",
+          7
+        ],
+        [
+          "entry_steady",
+          7
+        ],
+        [
+          "entry_pit_early",
+          7
+        ],
+        [
+          "entry_engine",
+          7
+        ]
+      ],
+      "leader_entry_id": "entry_restart",
+      "order": [
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_late",
+        "entry_steady",
+        "entry_pit_early",
+        "entry_engine"
+      ],
+      "race_lap": 7,
+      "sim_time_ms": 202780,
+      "source_event_seq": 86
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_restart",
+          null
+        ],
+        [
+          "entry_pace",
+          200
+        ],
+        [
+          "entry_agg_a",
+          400
+        ],
+        [
+          "entry_agg_b",
+          600
+        ],
+        [
+          "entry_pit_late",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_early",
+          1200
+        ],
+        [
+          "entry_engine",
+          1400
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_restart",
+          8
+        ],
+        [
+          "entry_pace",
+          8
+        ],
+        [
+          "entry_agg_a",
+          8
+        ],
+        [
+          "entry_agg_b",
+          8
+        ],
+        [
+          "entry_pit_late",
+          8
+        ],
+        [
+          "entry_steady",
+          8
+        ],
+        [
+          "entry_pit_early",
+          8
+        ],
+        [
+          "entry_engine",
+          8
+        ]
+      ],
+      "leader_entry_id": "entry_restart",
+      "order": [
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_late",
+        "entry_steady",
+        "entry_pit_early",
+        "entry_engine"
+      ],
+      "race_lap": 8,
+      "sim_time_ms": 220320,
+      "source_event_seq": 96
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_restart",
+          null
+        ],
+        [
+          "entry_pace",
+          200
+        ],
+        [
+          "entry_agg_a",
+          400
+        ],
+        [
+          "entry_agg_b",
+          600
+        ],
+        [
+          "entry_pit_late",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_early",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_restart",
+          9
+        ],
+        [
+          "entry_pace",
+          9
+        ],
+        [
+          "entry_agg_a",
+          9
+        ],
+        [
+          "entry_agg_b",
+          9
+        ],
+        [
+          "entry_pit_late",
+          9
+        ],
+        [
+          "entry_steady",
+          9
+        ],
+        [
+          "entry_pit_early",
+          9
+        ],
+        [
+          "entry_engine",
+          8
+        ]
+      ],
+      "leader_entry_id": "entry_restart",
+      "order": [
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_late",
+        "entry_steady",
+        "entry_pit_early"
+      ],
+      "race_lap": 9,
+      "sim_time_ms": 237640,
+      "source_event_seq": 106
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_restart",
+          null
+        ],
+        [
+          "entry_pace",
+          200
+        ],
+        [
+          "entry_agg_a",
+          400
+        ],
+        [
+          "entry_agg_b",
+          600
+        ],
+        [
+          "entry_pit_late",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_early",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_restart",
+          10
+        ],
+        [
+          "entry_pace",
+          10
+        ],
+        [
+          "entry_agg_a",
+          10
+        ],
+        [
+          "entry_agg_b",
+          10
+        ],
+        [
+          "entry_pit_late",
+          10
+        ],
+        [
+          "entry_steady",
+          10
+        ],
+        [
+          "entry_pit_early",
+          10
+        ],
+        [
+          "entry_engine",
+          8
+        ]
+      ],
+      "leader_entry_id": "entry_restart",
+      "order": [
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_pit_late",
+        "entry_steady",
+        "entry_pit_early"
+      ],
+      "race_lap": 10,
+      "sim_time_ms": 254960,
+      "source_event_seq": 114
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_late",
+          null
+        ],
+        [
+          "entry_pit_early",
+          200
+        ],
+        [
+          "entry_restart",
+          400
+        ],
+        [
+          "entry_pace",
+          600
+        ],
+        [
+          "entry_agg_a",
+          800
+        ],
+        [
+          "entry_agg_b",
+          1000
+        ],
+        [
+          "entry_steady",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_late",
+          11
+        ],
+        [
+          "entry_pit_early",
+          11
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_restart",
+          11
+        ],
+        [
+          "entry_pace",
+          11
+        ],
+        [
+          "entry_agg_a",
+          11
+        ],
+        [
+          "entry_agg_b",
+          11
+        ],
+        [
+          "entry_steady",
+          11
+        ]
+      ],
+      "leader_entry_id": "entry_pit_late",
+      "order": [
+        "entry_pit_late",
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady"
+      ],
+      "race_lap": 11,
+      "sim_time_ms": 272360,
+      "source_event_seq": 142
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          12
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_restart",
+          12
+        ],
+        [
+          "entry_pace",
+          12
+        ],
+        [
+          "entry_agg_a",
+          12
+        ],
+        [
+          "entry_agg_b",
+          12
+        ],
+        [
+          "entry_steady",
+          12
+        ],
+        [
+          "entry_pit_late",
+          12
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 12,
+      "sim_time_ms": 289760,
+      "source_event_seq": 154
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          12
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 13,
+      "sim_time_ms": 295660,
+      "source_event_seq": 157
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          13
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_restart",
+          13
+        ],
+        [
+          "entry_pace",
+          13
+        ],
+        [
+          "entry_agg_a",
+          13
+        ],
+        [
+          "entry_agg_b",
+          13
+        ],
+        [
+          "entry_steady",
+          13
+        ],
+        [
+          "entry_pit_late",
+          13
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 13,
+      "sim_time_ms": 313080,
+      "source_event_seq": 165
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          14
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_restart",
+          14
+        ],
+        [
+          "entry_pace",
+          14
+        ],
+        [
+          "entry_agg_a",
+          14
+        ],
+        [
+          "entry_agg_b",
+          14
+        ],
+        [
+          "entry_steady",
+          14
+        ],
+        [
+          "entry_pit_late",
+          14
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 14,
+      "sim_time_ms": 336400,
+      "source_event_seq": 173
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          14
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 15,
+      "sim_time_ms": 347400,
+      "source_event_seq": 175
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          15
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_restart",
+          15
+        ],
+        [
+          "entry_pace",
+          15
+        ],
+        [
+          "entry_agg_a",
+          15
+        ],
+        [
+          "entry_agg_b",
+          15
+        ],
+        [
+          "entry_steady",
+          15
+        ],
+        [
+          "entry_pit_late",
+          15
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 15,
+      "sim_time_ms": 359720,
+      "source_event_seq": 183
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          15
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 16,
+      "sim_time_ms": 359920,
+      "source_event_seq": 185
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          16
+        ],
+        [
+          "entry_restart",
+          16
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_pace",
+          16
+        ],
+        [
+          "entry_agg_a",
+          16
+        ],
+        [
+          "entry_agg_b",
+          16
+        ],
+        [
+          "entry_steady",
+          16
+        ],
+        [
+          "entry_pit_late",
+          16
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 16,
+      "sim_time_ms": 377120,
+      "source_event_seq": 193
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          17
+        ],
+        [
+          "entry_restart",
+          17
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_pace",
+          17
+        ],
+        [
+          "entry_agg_a",
+          17
+        ],
+        [
+          "entry_agg_b",
+          17
+        ],
+        [
+          "entry_steady",
+          17
+        ],
+        [
+          "entry_pit_late",
+          17
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 17,
+      "sim_time_ms": 394520,
+      "source_event_seq": 202
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          18
+        ],
+        [
+          "entry_restart",
+          18
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_pace",
+          18
+        ],
+        [
+          "entry_agg_a",
+          18
+        ],
+        [
+          "entry_agg_b",
+          18
+        ],
+        [
+          "entry_steady",
+          18
+        ],
+        [
+          "entry_pit_late",
+          18
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 18,
+      "sim_time_ms": 411920,
+      "source_event_seq": 210
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          19
+        ],
+        [
+          "entry_restart",
+          19
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_pace",
+          19
+        ],
+        [
+          "entry_agg_a",
+          19
+        ],
+        [
+          "entry_agg_b",
+          19
+        ],
+        [
+          "entry_steady",
+          19
+        ],
+        [
+          "entry_pit_late",
+          19
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 19,
+      "sim_time_ms": 429320,
+      "source_event_seq": 218
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ],
+        [
+          "entry_restart",
+          200
+        ],
+        [
+          "entry_pace",
+          400
+        ],
+        [
+          "entry_agg_a",
+          600
+        ],
+        [
+          "entry_agg_b",
+          800
+        ],
+        [
+          "entry_steady",
+          1000
+        ],
+        [
+          "entry_pit_late",
+          1200
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          20
+        ],
+        [
+          "entry_restart",
+          20
+        ],
+        [
+          "entry_engine",
+          8
+        ],
+        [
+          "entry_pace",
+          20
+        ],
+        [
+          "entry_agg_a",
+          20
+        ],
+        [
+          "entry_agg_b",
+          20
+        ],
+        [
+          "entry_steady",
+          20
+        ],
+        [
+          "entry_pit_late",
+          20
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 20,
+      "sim_time_ms": 446720,
+      "source_event_seq": 226
+    },
+    {
+      "gaps_ms": [
+        [
+          "entry_pit_early",
+          null
+        ]
+      ],
+      "laps_completed": [
+        [
+          "entry_pit_early",
+          20
+        ]
+      ],
+      "leader_entry_id": "entry_pit_early",
+      "order": [
+        "entry_pit_early",
+        "entry_restart",
+        "entry_pace",
+        "entry_agg_a",
+        "entry_agg_b",
+        "entry_steady",
+        "entry_pit_late"
+      ],
+      "race_lap": 20,
+      "sim_time_ms": 448060,
+      "source_event_seq": 234
+    }
+  ],
+  "track": {
+    "lap_length_mm": 800000,
+    "name": "Riverside Motor Speedway",
+    "official_distance_laps": 20,
+    "scheduled_laps": 20,
+    "track_id": "trk_riverside_short",
+    "track_layout_id": "riverside_short_v1",
+    "track_layout_version": 1,
+    "track_type": "SHORT"
+  },
+  "viewer_contract_version": "scc-viewer-v1"
+}
