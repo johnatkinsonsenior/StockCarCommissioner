@@ -42,6 +42,7 @@ var era_book := "pinnacle"
 var profile_team := ""
 var profile_driver := ""
 var profile_season := ""
+var profile_race := ""
 var _portrait_cache: Dictionary = {}
 var _portrait_logged: Dictionary = {}
 
@@ -109,6 +110,12 @@ func _headless_tour() -> void:
 	_show_section("teams")
 	_show_section("drivers")
 	_show_section("reports")
+	var race_rows: Array = _as_array(_as_dict(snapshot.get("reports", {})).get("races", []))
+	if not race_rows.is_empty() and typeof(race_rows[0]) == TYPE_DICTIONARY:
+		profile_race = str(race_rows[0].get("id", race_rows[0].get("race", "")))
+		_show_section("reports")
+		print("REPORTS_WEEKEND=", profile_race)
+		profile_race = ""
 	_show_section("treasury")
 	_show_section("television")
 	_show_section("sponsors")
@@ -472,6 +479,8 @@ func _on_nav(section_id: String) -> void:
 		profile_driver = ""
 	if section_id == "history":
 		profile_season = ""
+	if section_id == "reports":
+		profile_race = ""
 	_show_section(section_id)
 
 
@@ -863,6 +872,11 @@ func _fill_dashboard() -> void:
 	center_body.add_child(_bug_plate("LEAGUE OFFICE"))
 	center_body.add_child(_title("Commissioner Dashboard"))
 	center_body.add_child(_muted(str(dash.get("calendar", snapshot.get("calendar", ""))).to_upper()))
+	if str(dash.get("era_line", "")) != "":
+		center_body.add_child(_gold_line(str(dash.get("era_line", ""))))
+		print("ERA_LINE=1")
+	if str(dash.get("week_copy", "")) != "":
+		center_body.add_child(_muted(str(dash.get("week_copy", ""))))
 	center_body.add_child(_meter("Integrity", int(dash.get("integrity", 0)), COL_YELLOW))
 	center_body.add_child(_meter("Fan interest", int(dash.get("fan_interest", 0)), COL_GOLD))
 	center_body.add_child(_meter("Controversy", int(dash.get("controversy", 0)), COL_STRIPE))
@@ -996,45 +1010,67 @@ func _fill_schedule() -> void:
 
 
 func _fill_reports() -> void:
+	if profile_race != "":
+		_fill_weekend_box()
+		return
+	var book := _as_dict(snapshot.get("reports", {}))
 	center_body.add_child(_title("Reports"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("The race file: TV, the gate, wrecks, and driver form. Winter-book rules move these numbers."))
-	var book := _as_dict(snapshot.get("reports", {}))
+	var plates := HBoxContainer.new()
+	plates.add_theme_constant_override("separation", 8)
+	for plate in _as_array(book.get("plates", [])):
+		if typeof(plate) != TYPE_DICTIONARY:
+			continue
+		plates.add_child(_bug_plate(str(plate.get("label", ""))))
+	if plates.get_child_count() == 0:
+		plates.add_child(_bug_plate("STATS"))
+		plates.add_child(_bug_plate("BOX"))
+		plates.add_child(_bug_plate("LEADERS"))
+	center_body.add_child(plates)
+	if str(book.get("era_line", "")) != "":
+		center_body.add_child(_gold_line(str(book.get("era_line", ""))))
+		print("REPORTS_ERA=1")
+	var week: Dictionary = _as_dict(book.get("week", {}))
+	if str(week.get("copy", "")) != "":
+		center_body.add_child(_muted(str(week.get("copy", ""))))
 	print("REPORTS_RACES=", str(_as_array(book.get("races", [])).size()))
 	print("REPORTS_FIELD=", str(_as_int(book.get("field_size", 0))))
 	print("REPORTS_ENTRIES=", str(_as_int(book.get("entries", 0))))
-	center_body.add_child(_line("Field: %s cars  ·  %s entries" % [
+	print("REPORTS_BOX=", str(_as_array(_as_dict(book.get("box", {})).get("finish", [])).size()))
+	print("REPORTS_SPLITS=", str(_as_array(book.get("splits", [])).size()))
+	print("REPORTS_BOARDS=", str(_as_array(book.get("boards", [])).size()))
+	center_body.add_child(_gold_line("STATS"))
+	var stats_row := HBoxContainer.new()
+	stats_row.add_theme_constant_override("separation", 8)
+	for tile in _as_array(book.get("stats", [])):
+		if typeof(tile) != TYPE_DICTIONARY:
+			continue
+		stats_row.add_child(_stat_tile(str(tile.get("label", "")), tile.get("value", "—")))
+	if stats_row.get_child_count() == 0:
+		stats_row.add_child(_stat_tile("FIELD", book.get("field_size", 0)))
+		stats_row.add_child(_stat_tile("WRECKS", book.get("wrecks", 0)))
+		stats_row.add_child(_stat_tile("CAUTIONS", book.get("cautions", 0)))
+	center_body.add_child(stats_row)
+	center_body.add_child(_muted("Field: %s cars  ·  %s entries" % [
 		str(_as_int(book.get("field_size", 0))),
 		str(_as_int(book.get("entries", 0))),
 	]))
-	var package: Dictionary = _as_dict(book.get("package", {}))
-	center_body.add_child(_gold_line("Winter book vs the show"))
-	for note in _as_array(package.get("notes", [])):
-		center_body.add_child(_muted(str(note)))
-	center_body.add_child(_line("TV swing %s  ·  gate swing %s  ·  wreck swing %s" % [
-		str(_as_int(package.get("tv", 0))),
-		str(_as_int(package.get("gate", 0))),
-		str(_as_int(package.get("wrecks", 0))),
-	]))
 	if book.get("tv_last", null) != null:
-		center_body.add_child(_line("Last TV: %s  ·  season avg %s  ·  trend %s" % [
-			str(_as_int(book.get("tv_last", 0))),
+		center_body.add_child(_muted("Season TV avg %s  ·  trend %s  ·  last gate fill %s%%" % [
 			str(_as_int(book.get("tv_average", 0))),
 			str(_as_int(book.get("tv_trend", 0))),
-		]))
-	else:
-		center_body.add_child(_muted("No TV rating yet. Advance a race."))
-	if book.get("gate_last", null) != null:
-		center_body.add_child(_line("Last gate: %s  ·  fill %s%%" % [
-			_comma(book.get("gate_last", 0)),
 			str(_as_int(book.get("gate_fill", 0))),
 		]))
-	center_body.add_child(_line("Season wrecks: %s  ·  cautions: %s" % [
-		str(_as_int(book.get("wrecks", 0))),
-		str(_as_int(book.get("cautions", 0))),
-	]))
+	center_body.add_child(_gold_line("What the winter book did"))
+	if str(book.get("why_it_matters", "")) != "":
+		center_body.add_child(_line(str(book.get("why_it_matters", ""))))
+	var package: Dictionary = _as_dict(book.get("package", {}))
+	for note in _as_array(package.get("notes", [])):
+		center_body.add_child(_muted(str(note)))
+	center_body.add_child(_gold_line("BOX"))
+	_fill_box_card(_as_dict(book.get("box", {})), true)
 	center_body.add_child(_gold_line("Race log"))
-	center_body.add_child(_muted("R    Track                    Winner            TV   Gate      Fill  Cau  Wreck"))
+	center_body.add_child(_muted("Click a weekend for the box score and incident log."))
 	var races: Array = _as_array(book.get("races", []))
 	if races.is_empty():
 		center_body.add_child(_muted("Empty until you Advance a Cup weekend."))
@@ -1043,16 +1079,59 @@ func _fill_reports() -> void:
 			if typeof(row) != TYPE_DICTIONARY:
 				continue
 			var race: Dictionary = row
-			center_body.add_child(_line("R%s  %s  ·  %s  ·  TV %s  ·  gate %s (%s%%)  ·  C %s  ·  W %s" % [
-				str(_as_int(race.get("race", 0))),
-				str(race.get("track", "")),
-				str(race.get("winner", "")),
+			var race_id := str(race.get("id", race.get("race", "")))
+			center_body.add_child(_profile_button(
+				"R%s  %s  ·  %s" % [
+					str(_as_int(race.get("race", 0))),
+					str(race.get("track", "")),
+					str(race.get("winner", "")),
+				],
+				_open_weekend_file.bind(race_id)
+			))
+			center_body.add_child(_muted("TV %s  ·  gate %s (%s%%)  ·  C %s  ·  W %s  ·  pole %s" % [
 				str(_as_int(race.get("tv_rating", 0))),
 				_comma(race.get("gate_attendance", 0)),
 				str(_as_int(race.get("gate_fill", 0))),
 				str(_as_int(race.get("cautions", 0))),
 				str(_as_int(race.get("wrecks", 0))),
+				str(race.get("pole", "—")),
 			]))
+	var splits: Array = _as_array(book.get("splits", []))
+	if not splits.is_empty():
+		center_body.add_child(_gold_line("Track-type splits"))
+		for row in splits:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			var split: Dictionary = row
+			center_body.add_child(_line("%s  ·  %s races  ·  TV %s  ·  C %s  ·  W %s" % [
+				str(split.get("type", "")),
+				str(_as_int(split.get("races", 0))),
+				"—" if split.get("tv_avg", null) == null else str(_as_int(split.get("tv_avg", 0))),
+				str(_as_int(split.get("cautions", 0))),
+				str(_as_int(split.get("wrecks", 0))),
+			]))
+			if str(split.get("top_winner", "")) != "":
+				center_body.add_child(_muted("Top winner: %s" % str(split.get("top_winner", ""))))
+	center_body.add_child(_gold_line("LEADERS"))
+	var boards: Array = _as_array(book.get("boards", []))
+	if boards.is_empty():
+		center_body.add_child(_muted("Leaderboards fill after the first Cup weekend."))
+	else:
+		for board_row in boards:
+			if typeof(board_row) != TYPE_DICTIONARY:
+				continue
+			var board: Dictionary = board_row
+			center_body.add_child(_muted(str(board.get("label", "")).to_upper()))
+			for entry in _as_array(board.get("rows", [])):
+				if typeof(entry) != TYPE_DICTIONARY:
+					continue
+				var item: Dictionary = entry
+				center_body.add_child(_line("%s  ·  %s  ·  %s" % [
+					str(item.get("name", "")),
+					str(item.get("team", "")),
+					str(item.get("value", "")),
+				]))
+	_fill_unique_stats(_as_dict(book.get("unique", {})))
 	center_body.add_child(_gold_line("Driver form"))
 	for row in _as_array(book.get("leaders", [])):
 		if typeof(row) != TYPE_DICTIONARY:
@@ -1072,13 +1151,183 @@ func _fill_reports() -> void:
 			str(_as_int(item.get("wins", 0))),
 		]))
 		var avg = item.get("avg_finish", null)
-		copy.add_child(_muted("%s  ·  avg %s  ·  DNF %s" % [
+		copy.add_child(_muted("%s  ·  avg %s  ·  DNF %s  ·  poles %s  ·  +%s" % [
 			str(item.get("coupe", "")),
 			"—" if avg == null else str(avg),
 			str(_as_int(item.get("dnfs", 0))),
+			str(_as_int(item.get("poles", 0))),
+			str(_as_int(item.get("gained", 0))),
 		]))
 		form.add_child(copy)
 		center_body.add_child(form)
+
+
+func _fill_weekend_box() -> void:
+	var book := _as_dict(snapshot.get("reports", {}))
+	var races: Array = _as_array(book.get("races", []))
+	var item := _row_by_id(races, profile_race)
+	if item.is_empty():
+		for row in races:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			var race: Dictionary = row
+			if str(race.get("race", "")) == profile_race:
+				item = race
+				break
+	center_body.add_child(_title("Weekend box"))
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_profile_button("Race log", _open_weekend_file.bind("")))
+	if item.is_empty():
+		center_body.add_child(_muted("That weekend is not on file."))
+		print("REPORTS_WEEKEND=")
+		return
+	print("REPORTS_WEEKEND=", str(item.get("id", item.get("race", ""))))
+	_fill_box_card(item, false)
+
+
+func _fill_box_card(box: Dictionary, compact: bool) -> void:
+	if box.is_empty() or _as_int(box.get("race", 0)) < 1:
+		center_body.add_child(_muted("No box score yet. Advance a Cup weekend."))
+		return
+	center_body.add_child(_line("Race %s  ·  %s  ·  %s" % [
+		str(_as_int(box.get("race", 0))),
+		str(box.get("track", "")),
+		str(box.get("type", "")),
+	]))
+	center_body.add_child(_line("%s wins. Pole: %s. Weather: %s." % [
+		str(box.get("winner", "")),
+		str(box.get("pole", "—")),
+		str(box.get("weather", "")),
+	]))
+	center_body.add_child(_muted("TV %s  ·  gate %s (%s%%)  ·  C %s  ·  W %s  ·  %s cars" % [
+		str(_as_int(box.get("tv_rating", 0))),
+		_comma(box.get("gate_attendance", 0)),
+		str(_as_int(box.get("gate_fill", 0))),
+		str(_as_int(box.get("cautions", 0))),
+		str(_as_int(box.get("wrecks", 0))),
+		str(_as_int(box.get("field", 0))),
+	]))
+	var finish: Array = _as_array(box.get("finish", []))
+	if finish.is_empty():
+		return
+	center_body.add_child(_muted("P   Driver                  Start  +/-   Status"))
+	var shown := 5 if compact else finish.size()
+	var index := 0
+	for row in finish:
+		if index >= shown:
+			break
+		index += 1
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = row
+		var gained := _as_int(item.get("gained", 0))
+		var gained_text := "+%s" % str(gained) if gained >= 0 else str(gained)
+		center_body.add_child(_line("%s  %s    S%s  %s  %s" % [
+			str(_as_int(item.get("position", 0))).pad_zeros(2),
+			str(item.get("driver", "")),
+			str(_as_int(item.get("start", 0))),
+			gained_text,
+			str(item.get("status", "")),
+		]))
+	if compact and finish.size() > shown:
+		center_body.add_child(_muted("Open the weekend for the rest of the box."))
+	var incidents: Array = _as_array(box.get("incidents", []))
+	if incidents.is_empty():
+		return
+	center_body.add_child(_gold_line("Incident log"))
+	var incident_limit := 4 if compact else incidents.size()
+	var count := 0
+	for row in incidents:
+		if count >= incident_limit:
+			break
+		count += 1
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var line: Dictionary = row
+		center_body.add_child(_line(str(line.get("label", ""))))
+		if str(line.get("detail", "")) != "":
+			center_body.add_child(_muted(str(line.get("detail", ""))))
+	if compact and incidents.size() > incident_limit:
+		center_body.add_child(_muted("Open the weekend for the full incident log."))
+
+
+func _fill_unique_stats(book: Dictionary) -> void:
+	if book.is_empty():
+		return
+	center_body.add_child(_gold_line("Unique stats"))
+	var come: Dictionary = _as_dict(book.get("come_from_behind", {}))
+	if str(come.get("driver", "")) != "":
+		center_body.add_child(_line("Come-from-behind: %s from %s at %s" % [
+			str(come.get("driver", "")),
+			str(_as_int(come.get("start", 0))),
+			str(come.get("track", "")),
+		]))
+	var gained: Dictionary = _as_dict(book.get("most_gained", {}))
+	if str(gained.get("driver", "")) != "":
+		center_body.add_child(_line("Most gained: %s  +%s  (%s → %s) at %s" % [
+			str(gained.get("driver", "")),
+			str(_as_int(gained.get("gained", 0))),
+			str(_as_int(gained.get("start", 0))),
+			str(_as_int(gained.get("finish", 0))),
+			str(gained.get("track", "")),
+		]))
+	if str(book.get("most_poles", "")) != "":
+		center_body.add_child(_line("Poles: %s  ·  %s" % [
+			str(book.get("most_poles", "")),
+			str(_as_int(book.get("pole_count", 0))),
+		]))
+	center_body.add_child(_muted("Pole-sitter wins: %s" % str(_as_int(book.get("polesitter_wins", 0)))))
+	var avg: Dictionary = _as_dict(book.get("avg_start", {}))
+	if str(avg.get("driver", "")) != "":
+		center_body.add_child(_muted("Best avg start: %s  ·  %s" % [
+			str(avg.get("driver", "")),
+			str(avg.get("avg_start", "")),
+		]))
+	if str(book.get("cleanest", "")) != "":
+		center_body.add_child(_muted("Cleanest: %s  ·  %s DNF" % [
+			str(book.get("cleanest", "")),
+			str(_as_int(book.get("cleanest_dnfs", 0))),
+		]))
+
+
+func _open_weekend_file(race_id: String) -> void:
+	profile_race = race_id
+	print("OPEN_WEEKEND=", race_id)
+	_show_section("reports")
+
+
+func _stat_tile(label: String, value: Variant) -> Control:
+	var plate := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = COL_BG
+	style.border_color = COL_YELLOW
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(0)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 6
+	style.content_margin_bottom = 6
+	plate.add_theme_stylebox_override("panel", style)
+	var copy := VBoxContainer.new()
+	copy.add_theme_constant_override("separation", 2)
+	var caption := Label.new()
+	caption.text = str(label).to_upper()
+	caption.add_theme_font_size_override("font_size", 11)
+	caption.add_theme_color_override("font_color", COL_YELLOW)
+	var number := Label.new()
+	if typeof(value) == TYPE_INT or typeof(value) == TYPE_FLOAT:
+		if str(label).to_upper() == "GATE":
+			number.text = _comma(value)
+		else:
+			number.text = str(_as_int(value))
+	else:
+		number.text = str(value)
+	number.add_theme_font_size_override("font_size", 18)
+	number.add_theme_color_override("font_color", COL_TEXT)
+	copy.add_child(caption)
+	copy.add_child(number)
+	plate.add_child(copy)
+	return plate
 
 
 func _fill_hearings() -> void:
@@ -1756,7 +2005,7 @@ func _fill_history() -> void:
 	var book := _as_dict(snapshot.get("history", {}))
 	var seasons: Array = _as_array(book.get("seasons", []))
 	print("HISTORY=", str(seasons.size()))
-	center_body.add_child(_muted("Reopen a completed season. Preseason of year one is an empty file."))
+	center_body.add_child(_muted(str(book.get("copy", "Dynasty files. Reopen a completed season. Preseason of year one is an empty file."))))
 	var records: Array = _as_array(book.get("records", []))
 	if not records.is_empty():
 		center_body.add_child(_gold_line("All-time records"))
@@ -2023,9 +2272,9 @@ func _on_new_career(book: String) -> void:
 func _refresh_checklist() -> void:
 	for child in checklist_box.get_children():
 		child.queue_free()
-	checklist_box.add_child(_bug_plate("PRE-RACE"))
-	checklist_box.add_child(_title("Before You Begin"))
-	checklist_box.add_child(_muted("Visit each section to unlock the first weekend."))
+	checklist_box.add_child(_bug_plate("THIS WEEK"))
+	checklist_box.add_child(_title("This Week's Desk"))
+	checklist_box.add_child(_muted("Mail. Winter book. Race file. Then Advance."))
 	for item in _checklist():
 		var row: Dictionary = item
 		var section := str(row.get("section", row.get("id", "")))

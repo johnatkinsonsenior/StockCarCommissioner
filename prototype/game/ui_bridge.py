@@ -10,7 +10,7 @@ from pathlib import Path
 from game.commissioner_files import briefing_body, briefing_subject, welcome_addendum
 from game.desktop_runtime import bundled_godot_candidates, ensure_godot_binary
 
-UI_VERSION = "2.7"
+UI_VERSION = "2.8"
 GODOT_MAJOR = 4
 OFFICE_LAYOUT = "commissioner-desk"
 DESK_MODE = "basics"
@@ -93,6 +93,7 @@ OFFICE_CHECKLIST = (
     {"id": "teams", "label": "Review the Cup entries", "section": "teams"},
     {"id": "rulebook", "label": "Open the winter book", "section": "rulebook"},
     {"id": "television", "label": "Read television and the gate", "section": "television"},
+    {"id": "reports", "label": "Open the race file", "section": "reports"},
     {"id": "mail", "label": "Read series mail", "section": "mail"},
 )
 
@@ -482,7 +483,7 @@ def default_office(payload=None):
         "layout": OFFICE_LAYOUT,
         "advance_label": payload.get("advance_label") or "Advance",
         "advance_hint": payload.get("advance_hint")
-        or "Visit each section to unlock the first weekend.",
+        or "This week's desk: mail, winter book, race file, then Advance.",
         "header": {
             "calendar": calendar,
             "treasury": treasury,
@@ -530,8 +531,9 @@ def default_welcome_body(series=None):
         "run.\n\n"
         "Forty Cup cars. One driver per entry. Open Dashboard, Standings, "
         "Entries, Reports, Television, Treasury, Sponsors, Drivers, Rulebook, "
-        "and Mail. Reports is the race file: attendance, wrecks, TV, driver "
-        "form. The winter book you write moves those numbers.\n\n"
+        "and Mail. Reports is the race file — STATS, BOX, LEADERS — TV, the "
+        "gate, wrecks, and driver form. The winter book you write moves those "
+        "numbers. Advance when this week's desk is done.\n\n"
         "%s\n\n"
         "When the checklist is done, Advance runs the next race week.\n\n"
         "Python still simulates the races. This office is where you sit."
