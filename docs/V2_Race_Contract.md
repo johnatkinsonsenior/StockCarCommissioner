@@ -226,6 +226,10 @@ Required car and team ratings:
 - braking
 - aero efficiency
 - mechanical grip
+- fuel capacity in milliliters
+- starting fuel in milliliters
+- baseline fuel burn in milliliters per lap
+- tire durability
 - pit crew speed
 - pit crew consistency
 - engineering
@@ -240,6 +244,7 @@ preselected final strategy label.
 RaceResult
   contract_version: "scc-race-v1"
   engine_version: semantic version
+  rng_provider_version: "pcg32-v1"
   race_id: RaceId
   seed: uint64
   input_hash: lowercase SHA-256 hex
@@ -412,6 +417,45 @@ Every caution period must have exactly one `CautionCalled`, one
 `FieldFrozen`, zero or more incident/cleanup events, one
 `RestartOrderSet`, and either `RaceRestarted` or `RaceFinished`.
 
+### 8.6 Minimum payload requirements
+
+Payload schemas may gain optional fields in a compatible contract revision,
+but version 1 requires these facts:
+
+| Event | Required payload facts |
+| --- | --- |
+| `QualifyingLapCompleted` | entry, elapsed time, valid/invalid state |
+| `GridSet` | complete ordered grid and applied penalties |
+| `RaceStarted` | complete starting order |
+| `LapCompleted` | leader, running order, laps by entry, gaps |
+| `PassCompleted` | passing entry, passed entry, old and new positions |
+| `LeadChanged` | previous leader, new leader |
+| `DriverError` | entry, error code, severity, time or positions lost |
+| `ConditionChanged` | old/new weather, temperature, and grip |
+| `PitStopPlanned` | entry, reason code, requested fuel and tires |
+| `PitRoadEntered` | entry, running position, fuel, tire wear |
+| `PitServiceCompleted` | entry, service time, fuel added, tires changed, resulting state |
+| `PitRoadExited` | entry, running position, total pit-lane time |
+| `PitRoadViolation` | entry, violation code, assessed race penalty |
+| `MechanicalProblemDetected` | entry, component code, severity |
+| `MechanicalProblemWorsened` | entry, component code, old/new severity |
+| `MechanicalRepairCompleted` | entry, component code, repair time, resulting health |
+| `EntryRetired` | entry, reason code, laps completed |
+| `OutOfFuel` | entry, location code, laps completed |
+| `ContactOccurred` | involved entries, track zone, severity |
+| `SpinOccurred` | entry, triggering event sequence, continued/terminal state |
+| `CrashOccurred` | involved entries, triggering event sequence, terminal states |
+| `CautionCalled` | reason code and triggering event sequence |
+| `FieldFrozen` | complete eligible running order |
+| `CleanupCompleted` | caution identifier and elapsed caution laps |
+| `RestartOrderSet` | complete eligible order and restart lap |
+| `RaceRestarted` | complete order at green and restart lap |
+| `RaceFinished` | finish crossing order and scheduled/overtime state |
+
+Component codes in version 1 are `ENGINE`, `TRANSMISSION`, `BRAKES`,
+`SUSPENSION`, and `ELECTRICAL`. Reason, error, violation, and location codes
+are closed versioned enumerations, not display text.
+
 ## 9. Internal simulation state
 
 The implementation may simulate in efficient green-flag segments, but it
@@ -432,6 +476,9 @@ EntryRaceState
   penalty_state
   traffic_state
 ```
+
+`tire_wear_bp` is accumulated wear: `0` is a fresh set and `10_000` is fully
+worn. Starting fuel may not exceed the entrant's fuel capacity.
 
 At each lap boundary the engine resolves, in this order:
 
