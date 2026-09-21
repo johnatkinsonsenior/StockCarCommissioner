@@ -1065,7 +1065,11 @@ func _fill_reports() -> void:
 	if str(book.get("why_it_matters", "")) != "":
 		center_body.add_child(_line(str(book.get("why_it_matters", ""))))
 	var package: Dictionary = _as_dict(book.get("package", {}))
+	var skip_first := str(book.get("why_it_matters", "")) != ""
 	for note in _as_array(package.get("notes", [])):
+		if skip_first:
+			skip_first = false
+			continue
 		center_body.add_child(_muted(str(note)))
 	center_body.add_child(_gold_line("BOX"))
 	_fill_box_card(_as_dict(book.get("box", {})), true)
