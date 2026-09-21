@@ -9,13 +9,15 @@ Version-controlled progress tracker. Mirrors feature status in
   one driver per entry.** Weekly Advance. The winter book (Ford,
   Pontiac, Plymouth, Chevrolet and the rest — homologated coupes, aero
   edges, plates). Mail, standings, entries, drivers, rulebook. Reports
-  (TV, gate, wrecks, driver form). Treasury, television, sponsors.
-  That is the game.
+  (TV, gate, wrecks, weekend box, leaders, driver form). Treasury,
+  television, sponsors. That is the game.
 - **Primary goal:** a stock car *commissioner* simulation in the same
   family as **Out of the Park Baseball**, **Front Office Football**, and
-  **Baseball Mogul** — league office, not franchise owner. There is no
-  team-owner mode. Steam shots should look like those games: dense
-  tables, box scores, financials — not chrome alone.
+  **Baseball Mogul** — with Football Coach: College Dynasty's weekly
+  desk, Golden Lap's golden-era plates, and Pro Strategy Football /
+  Action PC Football's true-sim logs. League office, not franchise
+  owner. There is no team-owner mode. Steam shots should look like those
+  games: dense tables, box scores, financials — not chrome alone.
 - **Parked for this build:** prospect pool / development series, owner
   and driver councils, board politics, charter expansion, Hall of Fame,
   multi-car team organizations, and the **Beyond** era picker. Those

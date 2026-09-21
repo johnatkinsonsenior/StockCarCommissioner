@@ -66,7 +66,7 @@ def main():
 
     if DESK_MODE != "basics":
         _fail(errors, "DESK_MODE is %s" % DESK_MODE)
-    if UI_VERSION != "2.7":
+    if UI_VERSION != "2.8":
         _fail(errors, "UI_VERSION is %s" % UI_VERSION)
     if snapshot.get("desk_mode") != "basics":
         _fail(errors, "snapshot desk_mode is %s" % snapshot.get("desk_mode"))
@@ -107,6 +107,11 @@ def main():
         _fail(errors, "welcome letter missing commissioner-only line")
     if "reports" not in body.lower():
         _fail(errors, "welcome letter missing Reports")
+    if "stats" not in body.lower() or "box" not in body.lower():
+        _fail(errors, "welcome letter missing STATS/BOX race-file language")
+    checklist_ids = [item.get("id") for item in (snapshot.get("office") or {}).get("checklist") or []]
+    if "reports" not in checklist_ids:
+        _fail(errors, "checklist missing reports")
     if "chair files" not in body.lower():
         _fail(errors, "welcome letter missing chair files")
     inbox_ids = [item.get("id") for item in inbox]
@@ -117,6 +122,12 @@ def main():
         _fail(errors, "chair briefing missing Helton/France product line")
     if not (snapshot.get("dashboard") or {}).get("chair_note"):
         _fail(errors, "dashboard missing chair_note")
+    if not (snapshot.get("dashboard") or {}).get("era_line"):
+        _fail(errors, "dashboard missing era_line")
+    if "golden era" not in str((snapshot.get("dashboard") or {}).get("era_line") or "").lower():
+        _fail(errors, "pinnacle era_line missing golden era")
+    if "this week's desk" not in str((snapshot.get("dashboard") or {}).get("week_copy") or "").lower():
+        _fail(errors, "dashboard missing week_copy")
 
     dash = snapshot.get("dashboard") or {}
     if dash.get("approval"):
@@ -218,6 +229,14 @@ def main():
         _fail(errors, "reports book missing")
     if not (reports.get("package") or {}).get("notes"):
         _fail(errors, "reports package notes missing")
+    if not reports.get("era_line"):
+        _fail(errors, "reports missing era_line")
+    if not (reports.get("week") or {}).get("copy"):
+        _fail(errors, "reports missing weekly desk copy")
+    if not reports.get("why_it_matters"):
+        _fail(errors, "reports missing why_it_matters")
+    if not reports.get("stats") or not reports.get("plates"):
+        _fail(errors, "reports missing STATS plates")
     treasury = snapshot.get("treasury") or {}
     if "balance" not in treasury:
         _fail(errors, "treasury book missing")
@@ -239,6 +258,38 @@ def main():
         _fail(errors, "reports missing TV after Advance")
     if raced_reports.get("gate_last") is None:
         _fail(errors, "reports missing gate after Advance")
+    box = raced_reports.get("box") or {}
+    if not (box.get("finish") or []):
+        _fail(errors, "reports box empty after Advance")
+    if not box.get("winner"):
+        _fail(errors, "reports box missing winner")
+    if not (raced_reports.get("boards") or []):
+        _fail(errors, "reports leaders empty after Advance")
+    if not (raced_reports.get("splits") or []):
+        _fail(errors, "reports track splits empty after Advance")
+    unique = raced_reports.get("unique") or {}
+    if not unique:
+        _fail(errors, "reports unique stats missing after Advance")
+    first_race = (raced_reports.get("races") or [{}])[0]
+    if not first_race.get("id") or not first_race.get("finish"):
+        _fail(errors, "reports weekend file missing finish rows")
+    with redirect_stdout(log):
+        rs.start_office_career(
+            {
+                "difficulty": "normal",
+                "career_seasons": 3,
+                "autosave": "off",
+                "era_book": "pinnacle",
+            }
+        )
+        pinnacle_week = rs.advance_office_week()
+        pinnacle_reports = rs.build_ui_snapshot().get("reports") or {}
+    if not pinnacle_week:
+        _fail(errors, "pinnacle Advance returned nothing")
+    if not (pinnacle_reports.get("box") or {}).get("finish"):
+        _fail(errors, "pinnacle Reports box empty after Advance")
+    if not (pinnacle_reports.get("splits") or []):
+        _fail(errors, "pinnacle Reports missing track splits")
     if recap and recap.get("tv_rating") is None:
         _fail(errors, "weekend recap missing TV rating")
     if int((raced_reports.get("field_size") or 0)) != 40:

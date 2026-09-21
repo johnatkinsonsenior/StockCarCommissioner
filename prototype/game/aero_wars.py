@@ -1458,9 +1458,15 @@ def plate_pack_kind(race_record, book=None):
     wreck_size = 0
     for wreck in wrecks:
         if isinstance(wreck, dict):
+            cars = wreck.get("cars")
+            if isinstance(cars, (list, tuple)):
+                car_count = len(cars)
+            else:
+                car_count = int(cars or 0)
             wreck_size = max(
                 wreck_size,
-                int(wreck.get("cars") or wreck.get("size") or 0),
+                int(wreck.get("size") or 0),
+                car_count,
                 len(wreck.get("drivers") or []),
             )
         elif isinstance(wreck, (list, tuple)):

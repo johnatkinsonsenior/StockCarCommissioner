@@ -18,8 +18,9 @@ Reports, Entries, Drivers, Treasury, Television, Sponsors, Rulebook,
 History, Settings. Advance a week at a time. Forty Cup cars. Forty
 named drivers. One driver per entry. Hearings that belong to a league
 office (rules, safety, owner and driver complaints, rivalries) arrive
-as mail. Reports is the race file: attendance, TV, wrecks, driver
-form. The winter book you write moves those numbers.
+as mail. Reports is the race file: STATS, BOX, LEADERS — attendance,
+TV, wrecks, weekend box scores, track-type splits, and driver form.
+The winter book you write moves those numbers.
 
 Parked off this desk until players ask: prospect pool and development
 series, owner/driver councils, board politics, charter expansion,
@@ -68,7 +69,9 @@ This is a commissioner-only product. Not a racing game. Not a team-GM
 game. Not “OOTP but you own Hendrick.” It is the **league office** as the
 whole game — OOTP’s living world and era start, Front Office Football’s
 week, Baseball Mogul’s readable reports and a season you can finish —
-pointed at Winston Cup.
+plus the weekly desk of Football Coach: College Dynasty, the golden-era
+minimalism of Golden Lap, and the true-sim logs of Pro Strategy Football
+and Action PC Football — pointed at Winston Cup.
 
 ### Design peers
 
@@ -87,6 +90,20 @@ Take the best of each. Leave the GM fantasy on the table.
   five hundred nested screens. That is the “playable density” bar
   (including how those games feel when the UI is smaller). Do not take
   franchise ownership.
+- **Football Coach: College Dynasty** — a weekly gameplan: open the
+  mail, write the book, inspect the file, Advance. Dynasty files you
+  can reopen. Clickable weekend logs. Do not take recruiting, play
+  calling, or a coach career.
+- **Golden Lap** — go back to a golden era. Essential numbers, not a
+  spreadsheet. Minimalist charm: STATS / BOX / LEADERS plates that say
+  what the last decision did. Keep the CBS 83–84 broadcast chrome on
+  the shell. Do not take pit strategy or driving as player actions.
+- **Pro Strategy Football** — the sim is the product. Watch or Advance,
+  same result. Game logs, season logs, record books, a commissioner
+  desk. Do not take play-calling or coaching.
+- **Action PC Football** — box scores, an incident log you can search
+  with your eyes, unique stats (come-from-behind, poles, positions
+  gained), league leaders. Do not take franchise ownership.
 
 Desk **layout** still follows a commissioner office (nav, mail,
 checklist, Advance). That is chrome, not a second fantasy.
@@ -153,7 +170,8 @@ late-’80s cartridge sports desk: chunky panels, a short palette,
 **readable tables**, no photoreal chrome. Layout is a commissioner office
 (nav, mail, checklist, Advance). Inspection is OOTP-style. Cadence is
 Front Office Football weeks. Reports should play at Baseball Mogul
-speed: dense, not drowning.
+speed with Golden Lap plates: dense, not drowning — STATS, BOX,
+LEADERS, then a weekend you can reopen.
 
 Python still simulates. Godot is the desk. Day 91 proved the shell; later
 days restyle to this look, Advance by the week, and expose era as a
@@ -873,12 +891,15 @@ hearing sits as a letter from the Competition Committee (or Safety,
 an owner's office, the garage steward). Dashboard alerts **arrive** as
 league-office memos. Weekend headlines land as press clippings.
 Hearing letters display choices; picking a ruling writes it back to the
-career. Visiting Dashboard, Standings, Entries, Rulebook, Television, and
-Mail fills the checklist. Advance stays locked until that tour is done.
+career. Visiting Dashboard, Standings, Entries, Rulebook, Television,
+Reports, and Mail fills this week's desk. Advance stays locked until
+that tour is done.
 The next Advance **runs a week**. **Standings** is a ranked Cup table
 with 16-bit car portraits, wins, average finish, and DNFs.
 **Schedule** marks DONE and NEXT weekends. **Reports** is the race file
-(TV, gate, wrecks, driver form). **Entries** and **Drivers** inspect
+(STATS, BOX, LEADERS — TV, gate, wrecks, a weekend box and incident
+log you can reopen, track-type splits, unique stats, driver form).
+**Entries** and **Drivers** inspect
 the forty-car Cup — one driver per entry — with the homologated coupe
 on the row. **Treasury**, **Television**, and **Sponsors** are the
 commercial books. This version does not show Prospects, Board, or Hall

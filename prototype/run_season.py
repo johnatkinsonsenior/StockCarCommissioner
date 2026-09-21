@@ -36,7 +36,9 @@ from game.commissioner_files import (
     briefing_body,
     briefing_subject,
     chair_note,
+    golden_era_line,
     ticker_chair_line,
+    week_desk_copy,
     welcome_addendum,
 )
 from game.event_catalog import (
@@ -8333,8 +8335,7 @@ def office_standings_book():
             pos = int(row.get("position") or 0)
             if name and pos:
                 finishes.setdefault(name, []).append(pos)
-            status = str(row.get("status") or "").lower()
-            if row.get("dnf") or status in ("dnf", "crash", "mechanical"):
+            if _result_is_dnf(row):
                 dnfs[name] = dnfs.get(name, 0) + 1
     for row in rows:
         shop = shop_by_name.get(row["team"])
@@ -8400,39 +8401,412 @@ def aero_show_modifiers():
     return package_show_modifiers(league.get("aero_book") if league else None)
 
 
+def _result_is_dnf(row):
+    """Return whether a results row left the race before the checkered flag."""
+
+    row = row or {}
+    if row.get("dnf"):
+        return True
+    status = str(row.get("status") or "").lower()
+    if status in ("dnf", "crash"):
+        return True
+    if "mechanical" in status or "out of fuel" in status:
+        return True
+    return False
+
+
+def _result_start(row):
+    """Return starting spot from a results row, or 0 if unknown."""
+
+    row = row or {}
+    for key in ("start", "qualifying_position"):
+        try:
+            value = int(row.get(key) or 0)
+        except (TypeError, ValueError):
+            value = 0
+        if value > 0:
+            return value
+    return 0
+
+
+def _result_gained(row):
+    """Return positions gained (start minus finish)."""
+
+    row = row or {}
+    start = _result_start(row)
+    try:
+        finish = int(row.get("position") or 0)
+    except (TypeError, ValueError):
+        finish = 0
+    if start < 1 or finish < 1:
+        return 0
+    return start - finish
+
+
+def _why_it_matters(package):
+    """Return a Golden Lap-style line for what the winter book did."""
+
+    package = package or {}
+    notes = [str(item) for item in (package.get("notes") or []) if item]
+    tv = int(package.get("tv") or 0)
+    gate = int(package.get("gate") or 0)
+    wrecks = int(package.get("wrecks") or 0)
+    swing = "TV %+d · gate %+d · wrecks %+d." % (tv, gate, wrecks)
+    if notes:
+        return "%s %s" % (notes[0], swing)
+    return "The winter book has not moved the show yet. %s" % swing
+
+
+def _incident_lines(record):
+    """Return Action PC-style wreck and DNF lines for one weekend."""
+
+    record = record or {}
+    lines = []
+    for wreck in record.get("wrecks") or []:
+        cars = list(wreck.get("cars") or [])
+        size = int(wreck.get("size") or len(cars) or 0)
+        label = "Big one" if wreck.get("major") or size >= 3 else "Wreck"
+        cars_text = ", ".join(str(name) for name in cars[:6] if name)
+        lines.append(
+            {
+                "kind": "wreck",
+                "label": "%s · %s-car · %s" % (
+                    label,
+                    size,
+                    wreck.get("initiator") or "the field",
+                ),
+                "detail": cars_text,
+                "size": size,
+            }
+        )
+    for row in record.get("results") or []:
+        if not _result_is_dnf(row):
+            continue
+        cause = str(row.get("cause") or row.get("status") or "DNF")
+        lines.append(
+            {
+                "kind": "dnf",
+                "label": "P%s  %s  ·  %s" % (
+                    int(row.get("position") or 0),
+                    row.get("driver") or "",
+                    cause,
+                ),
+                "detail": row.get("team") or "",
+                "size": 1,
+            }
+        )
+    return lines
+
+
+def _weekend_box(record):
+    """Return a reopenable weekend box score from one race_history row."""
+
+    record = record or {}
+    results = list(record.get("results") or [])
+    race_number = int(record.get("race_number") or 0)
+    finish = []
+    for row in results[:10]:
+        start = _result_start(row)
+        finish.append(
+            {
+                "position": int(row.get("position") or 0),
+                "driver": row.get("driver") or "",
+                "team": row.get("team") or "",
+                "start": start,
+                "gained": _result_gained(row),
+                "status": row.get("status") or "",
+                "cause": row.get("cause") or "",
+            }
+        )
+    return {
+        "id": "race-%s" % race_number,
+        "race": race_number,
+        "track": record.get("track") or "",
+        "type": record.get("track_type") or "",
+        "winner": race_winner_name(record, None),
+        "pole": record.get("pole") or "",
+        "weather": record.get("weather") or "",
+        "temperature": record.get("temperature"),
+        "tv_rating": record.get("tv_rating"),
+        "tv_viewers": record.get("tv_viewers"),
+        "gate_attendance": record.get("gate_attendance"),
+        "gate_fill": record.get("gate_fill"),
+        "cautions": int(record.get("cautions") or 0),
+        "wrecks": len(list(record.get("wrecks") or [])),
+        "field": len(results),
+        "finish": finish,
+        "incidents": _incident_lines(record),
+    }
+
+
+def _track_type_splits(records):
+    """Return PSF-style track-type splits for the season file."""
+
+    buckets = {}
+    order = []
+    for record in records or []:
+        kind = str(record.get("track_type") or "Oval")
+        if kind not in buckets:
+            buckets[kind] = {
+                "type": kind,
+                "races": 0,
+                "tv": 0,
+                "tv_n": 0,
+                "gate": 0,
+                "gate_n": 0,
+                "cautions": 0,
+                "wrecks": 0,
+                "winners": [],
+            }
+            order.append(kind)
+        bucket = buckets[kind]
+        bucket["races"] += 1
+        rating = record.get("tv_rating")
+        if rating is not None:
+            bucket["tv"] += int(rating)
+            bucket["tv_n"] += 1
+        gate = record.get("gate_attendance")
+        if gate is not None:
+            bucket["gate"] += int(gate)
+            bucket["gate_n"] += 1
+        bucket["cautions"] += int(record.get("cautions") or 0)
+        bucket["wrecks"] += len(list(record.get("wrecks") or []))
+        winner = race_winner_name(record, None)
+        if winner:
+            bucket["winners"].append(winner)
+    rows = []
+    for kind in order:
+        bucket = buckets[kind]
+        tv_avg = None
+        if bucket["tv_n"]:
+            tv_avg = int(round(bucket["tv"] / float(bucket["tv_n"])))
+        gate_avg = None
+        if bucket["gate_n"]:
+            gate_avg = int(round(bucket["gate"] / float(bucket["gate_n"])))
+        winner_counts = {}
+        for name in bucket["winners"]:
+            winner_counts[name] = winner_counts.get(name, 0) + 1
+        top = sorted(winner_counts.items(), key=lambda item: (-item[1], item[0]))
+        rows.append(
+            {
+                "type": kind,
+                "races": bucket["races"],
+                "tv_avg": tv_avg,
+                "gate_avg": gate_avg,
+                "cautions": bucket["cautions"],
+                "wrecks": bucket["wrecks"],
+                "top_winner": top[0][0] if top else "",
+            }
+        )
+    return rows
+
+
+def _unique_stats(records, driver_rows):
+    """Return Action PC-style unique season lines."""
+
+    records = list(records or [])
+    come_from = None
+    most_gained = None
+    polesitter_wins = 0
+    poles = {}
+    starts = {}
+    for record in records:
+        results = list(record.get("results") or [])
+        pole = str(record.get("pole") or "")
+        if pole:
+            poles[pole] = poles.get(pole, 0) + 1
+        winner_row = results[0] if results else {}
+        winner = race_winner_name(record, None)
+        if pole and winner and pole == winner:
+            polesitter_wins += 1
+        if winner_row:
+            start = _result_start(winner_row)
+            if start > 1:
+                gain = start - 1
+                if come_from is None or gain > come_from["gained"]:
+                    come_from = {
+                        "driver": winner,
+                        "gained": gain,
+                        "start": start,
+                        "track": record.get("track") or "",
+                    }
+        for row in results:
+            name = row.get("driver") or ""
+            if not name:
+                continue
+            delta = _result_gained(row)
+            start = _result_start(row)
+            if start:
+                starts.setdefault(name, []).append(start)
+            if most_gained is None or delta > most_gained["gained"]:
+                most_gained = {
+                    "driver": name,
+                    "gained": delta,
+                    "start": start,
+                    "finish": int(row.get("position") or 0),
+                    "track": record.get("track") or "",
+                }
+    avg_start_leader = None
+    best_avg = None
+    for name, spots in starts.items():
+        if len(spots) < 1:
+            continue
+        avg = round(sum(spots) / float(len(spots)), 1)
+        if best_avg is None or avg < best_avg:
+            best_avg = avg
+            avg_start_leader = {"driver": name, "avg_start": avg}
+    most_poles = ""
+    pole_count = 0
+    if poles:
+        name, pole_count = max(poles.items(), key=lambda item: (item[1], item[0]))
+        most_poles = name
+    cleanest = ""
+    fewest = None
+    for row in driver_rows or []:
+        if int(row.get("wins") or 0) < 1 and int(row.get("points") or 0) < 1:
+            continue
+        dnfs = int(row.get("dnfs") or 0)
+        if fewest is None or dnfs < fewest:
+            fewest = dnfs
+            cleanest = row.get("name") or ""
+    return {
+        "come_from_behind": come_from,
+        "most_gained": most_gained,
+        "polesitter_wins": polesitter_wins,
+        "most_poles": most_poles,
+        "pole_count": pole_count,
+        "avg_start": avg_start_leader,
+        "cleanest": cleanest,
+        "cleanest_dnfs": fewest,
+    }
+
+
+def _leader_board(rows, key, label, reverse=True, limit=5, lower_better=False):
+    """Return a compact leaderboard from standings-style rows."""
+
+    scored = []
+    for row in rows or []:
+        value = row.get(key)
+        if value is None:
+            continue
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            continue
+        scored.append((number, row))
+    if lower_better:
+        scored.sort(key=lambda item: (item[0], str(item[1].get("name") or "")))
+    elif reverse:
+        scored.sort(key=lambda item: (-item[0], str(item[1].get("name") or "")))
+    else:
+        scored.sort(key=lambda item: (item[0], str(item[1].get("name") or "")))
+    board = []
+    for number, row in scored[:limit]:
+        if isinstance(number, float) and not number.is_integer():
+            shown = number
+        else:
+            shown = int(number)
+        board.append(
+            {
+                "name": row.get("name") or row.get("team") or "",
+                "team": row.get("team") or row.get("manufacturer") or "",
+                "value": shown,
+            }
+        )
+    return {"id": key, "label": label, "rows": board}
+
+
 def office_analytics_book():
-    """Return Baseball Mogul-style race, TV, gate, and wreck reports."""
+    """Return Baseball Mogul / PSF / Action PC race, TV, gate, and wreck reports."""
 
     package = aero_show_modifiers()
     races = []
     wreck_total = 0
     caution_total = 0
+    poles = {}
+    gained = {}
     for record in race_history or []:
         wrecks = list(record.get("wrecks") or [])
         wreck_total += len(wrecks)
         caution_total += int(record.get("cautions") or 0)
-        races.append(
-            {
-                "race": int(record.get("race_number") or len(races) + 1),
-                "track": record.get("track") or "",
-                "type": record.get("track_type") or "",
-                "winner": race_winner_name(record, None),
-                "tv_rating": record.get("tv_rating"),
-                "tv_viewers": record.get("tv_viewers"),
-                "gate_attendance": record.get("gate_attendance"),
-                "gate_fill": record.get("gate_fill"),
-                "cautions": int(record.get("cautions") or 0),
-                "wrecks": len(wrecks),
-            }
-        )
+        races.append(_weekend_box(record))
+        pole = str(record.get("pole") or "")
+        if pole:
+            poles[pole] = poles.get(pole, 0) + 1
+        for row in record.get("results") or []:
+            name = row.get("driver") or ""
+            if name:
+                gained[name] = gained.get(name, 0) + _result_gained(row)
     driver_rows = office_standings_book()
+    for row in driver_rows:
+        row["poles"] = int(poles.get(row.get("name") or "", 0) or 0)
+        row["gained"] = int(gained.get(row.get("name") or "", 0) or 0)
     leaders = sorted(
         driver_rows,
         key=lambda row: (-int(row.get("wins") or 0), -int(row.get("points") or 0)),
     )[:8]
+    makers = {}
+    for row in driver_rows:
+        maker = str(row.get("manufacturer") or "")
+        if not maker:
+            continue
+        slot = makers.setdefault(
+            maker,
+            {"name": maker, "team": maker, "manufacturer": maker, "wins": 0, "points": 0},
+        )
+        slot["wins"] += int(row.get("wins") or 0)
+        slot["points"] += int(row.get("points") or 0)
+    maker_rows = list(makers.values())
+    boards = []
+    if race_history:
+        boards = [
+            _leader_board(driver_rows, "wins", "Wins"),
+            _leader_board(driver_rows, "poles", "Poles"),
+            _leader_board(driver_rows, "avg_finish", "Avg finish", lower_better=True),
+            _leader_board(driver_rows, "gained", "Positions gained"),
+            _leader_board(driver_rows, "dnfs", "DNFs"),
+            _leader_board(maker_rows, "wins", "Factory wins"),
+        ]
+        boards = [board for board in boards if board.get("rows")]
+    stats = [
+        {
+            "id": "tv",
+            "label": "TV",
+            "value": league.get("last_tv_rating")
+            if league.get("last_tv_rating") is not None
+            else "—",
+        },
+        {
+            "id": "gate",
+            "label": "GATE",
+            "value": league.get("last_gate_attendance")
+            if league.get("last_gate_attendance") is not None
+            else "—",
+        },
+        {"id": "wrecks", "label": "WRECKS", "value": wreck_total},
+        {"id": "cautions", "label": "CAUTIONS", "value": caution_total},
+        {"id": "field", "label": "FIELD", "value": len(list(drivers or []))},
+    ]
+    last_box = races[-1] if races else {}
     return {
         "package": package,
         "races": races,
+        "box": last_box,
+        "boards": boards,
+        "splits": _track_type_splits(race_history),
+        "unique": _unique_stats(race_history, driver_rows) if race_history else {},
+        "stats": stats,
+        "plates": [
+            {"id": "stats", "label": "STATS"},
+            {"id": "box", "label": "BOX"},
+            {"id": "leaders", "label": "LEADERS"},
+        ],
+        "era_line": golden_era_line(),
+        "why_it_matters": _why_it_matters(package),
+        "week": {
+            "title": "This week's desk",
+            "copy": week_desk_copy(),
+        },
         "tv_last": league.get("last_tv_rating"),
         "tv_viewers": league.get("last_tv_viewers"),
         "tv_average": average_tv_rating() if race_history else None,
@@ -8452,6 +8826,8 @@ def office_analytics_book():
                 "wins": row.get("wins"),
                 "avg_finish": row.get("avg_finish"),
                 "dnfs": row.get("dnfs"),
+                "poles": row.get("poles"),
+                "gained": row.get("gained"),
                 "portrait": row.get("portrait"),
                 "coupe": row.get("coupe"),
             }
@@ -8801,6 +9177,7 @@ def office_history_book():
         "seasons": seasons,
         "records": record_rows,
         "empty": not seasons,
+        "copy": "Dynasty files. Reopen a finished championship. Preseason of year one is empty.",
     }
 
 
@@ -11531,11 +11908,11 @@ def build_ui_snapshot():
         "weekends you read the mail, inspect the Cup roster, and write the "
         "winter book: Ford, Pontiac, Plymouth, Chevrolet — which coupes are "
         "legal, which factories get the aero edge, and how the big tracks run.\n\n"
-        "Open Dashboard, Standings, Entries, Rulebook, Television, and Mail. "
-        "Reports is the race file: attendance, wrecks, TV, driver form. "
+        "Open Dashboard, Standings, Entries, Rulebook, Television, Reports, "
+        "and Mail. Reports is the race file — STATS, BOX, LEADERS. "
         "The winter book you write moves those numbers.\n\n"
         "%s\n\n"
-        "When the checklist is done, Advance runs the next race week.\n\n"
+        "When this week's desk is done, Advance runs the next race week.\n\n"
         "Python still simulates the races. This office is where you sit."
         % (series, welcome_addendum())
     )
@@ -11633,6 +12010,8 @@ def build_ui_snapshot():
                 "makers": manufacturer_dashboard_text() if teams else "",
                 "win_on_sunday": win_on_sunday_text() if teams else "",
                 "chair_note": chair_note(),
+                "era_line": golden_era_line(),
+                "week_copy": week_desk_copy(),
                 "alerts": alerts,
                 "teams": team_rows,
                 "policies": [

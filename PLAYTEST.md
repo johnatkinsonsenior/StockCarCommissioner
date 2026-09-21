@@ -4,7 +4,9 @@ This build is a packaged **commissioner office** for a Winston Cup-style
 series. You are the lead commissioner. You do not drive. You do not own
 a shop. Play it to judge the weekly desk — mail, a forty-car Cup,
 winter book, TV and the gate, Advance — and whether the reports feel
-like OOTP / Baseball Mogul pointed at stock cars.
+like OOTP / Baseball Mogul / Football Coach: College Dynasty pointed at
+stock cars. Reports should feel like Golden Lap plates on a PSF / Action
+PC box score: essential numbers, a weekend you can reopen, leaders.
 
 Also read `KNOWN_ISSUES.md`.
 
@@ -49,10 +51,11 @@ launchers. They do not travel inside the zip.
    kit. Homologation count, wheelbase class, and aero specials (banned /
    homologate-to-run / legal) sit as desk levers. Named venues can plate
    one oval without plating every superspeedway.
-3. **Reports** is the race file. Empty until you Advance. After a weekend
-   it shows TV, gate attendance and fill, cautions, wrecks, and driver
-   form. The winter-book notes at the top tell you how specials and
-   plates are swinging the show.
+3. **Reports** is the race file. Empty until you Advance — then STATS,
+   BOX, and LEADERS fill: TV, gate, cautions, wrecks, a weekend box with
+   an incident log, track-type splits, unique stats, and driver form.
+   Click a race in the log to reopen the box. The winter-book notes tell
+   you what the last package did to the show.
 4. **Entries** and **Drivers** show the 16-bit car for that seat. Forty
    cars, forty named drivers, one driver per entry. Click a name for the
    card. **Treasury**, **Television**, and **Sponsors** are the commercial
@@ -94,9 +97,11 @@ Developer check:
 ## What to evaluate
 
 - Does sitting as commissioner of a forty-car Cup feel like OOTP / Front
-  Office Football / Baseball Mogul pointed at stock cars?
-- Do the Reports, Television, and Standings screens read like a league
-  office — dense tables, TV, gate, wrecks — or like chrome?
+  Office Football / Baseball Mogul / Football Coach: College Dynasty
+  pointed at stock cars?
+- Do the Reports plates (STATS, BOX, LEADERS) read like a league office
+  — dense tables, TV, gate, wrecks, a weekend box you can reopen — or
+  like chrome?
 - Does the desk feel like an early-80s Cup broadcast (black, yellow
   chyron, LIVE/SPORTS bugs) rather than a modern dark-blue app?
 - Do the chair files in Mail sound like the job France Sr., France Jr.,

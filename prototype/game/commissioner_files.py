@@ -137,8 +137,8 @@ def briefing_body(series=None, era=None):
         "Owners are independent contractors. You do not set a tire-changer's "
         "pay. You write the winter book, you sell the house, and you keep "
         "the factories from turning Sunday into a spec silhouette.\n\n"
-        "You run %s. Reports is the race file. Advance when the checklist "
-        "is done."
+        "You run %s. Reports is the race file — STATS, BOX, LEADERS. "
+        "Advance when this week's desk is done."
         % series
     )
 
@@ -175,3 +175,32 @@ def ticker_chair_line(era=None):
     if era == ERA_1980S:
         return "CHAIR FILES: follow Detroit — 110 inches — and sell the air as one package."
     return "CHAIR FILES: the product is the race. Take the heat on plates. Do not spec the coupes."
+
+
+def golden_era_line(era=None):
+    """Return a one-line golden-era sting for Reports and the dashboard."""
+
+    era = era_book_id(era)
+    if era == ERA_1970S:
+        return (
+            "Go back to the modern era: one book, a paid purse, "
+            "and a national point fund."
+        )
+    if era == ERA_1980S:
+        return (
+            "Go back to the downsizing years: 110-inch coupes, "
+            "a patchwork of TV, Detroit still in the fight."
+        )
+    return (
+        "Go back to the golden era: packed houses, plates at the big ovals, "
+        "and coupes you can name from the grandstand."
+    )
+
+
+def week_desk_copy(_era=None):
+    """Return Football Coach-style weekly desk copy."""
+
+    return (
+        "This week's desk: read the mail, write the winter book, "
+        "inspect the race file, then Advance."
+    )

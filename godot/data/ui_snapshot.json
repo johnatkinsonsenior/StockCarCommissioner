@@ -1,6 +1,6 @@
 {
     "game": "Stock Car Commissioner",
-    "ui_version": "2.7",
+    "ui_version": "2.8",
     "engine": "godot-4",
     "layout": "commissioner-desk",
     "screen": "mail",
@@ -87,6 +87,8 @@
         "makers": "Makers: Vanguard GM 1986 Monte Carlo Aerocoupe | Apex Ford 1989 Thunderbird | Falcon GM 1986 Grand Prix 2+2 | Independent Independent 1984 Generic coupe",
         "win_on_sunday": "Win on Sunday: no feature yet this year",
         "chair_note": "The product is the race. Quality of competition first; the economics follow. A national TV package beats a Saturday cable scramble. Plates at the two big ovals are not a knee-jerk \u2014 if you slow the cars you take the heat, and you take it in public. Owners are independent contractors. You write the book; they run the shops.",
+        "era_line": "Go back to the golden era: packed houses, plates at the big ovals, and coupes you can name from the grandstand.",
+        "week_copy": "This week's desk: read the mail, write the winter book, inspect the race file, then Advance.",
         "alerts": [
             "No main sponsor: Harbor Racing, Ironwood Motorsports, Midland Racing, Blue Ridge Racing, Silver Creek Racing, Lakeside Motorsports, Vos Racing, Brooks Motorsports, Ortiz Racing, Quill Racing, Cho Racing, Rhodes Racing, Adler Racing, York Motors, Cedar Ridge Racing, Pine Hollow Racing, Riverbend Speed, High Plains Racing, Bayou Speed, Piedmont Racing, Prairie Outfitters Racing, Stone Mill Racing, Copperhead Racing, White Oak Motors, Blackwater Racing, Sunset Ridge Racing, Iron Bridge Racing, Maple Creek Racing, Red Clay Racing, Lake County Speed",
             "Teams have no factory deal"
@@ -5653,6 +5655,57 @@
             "plates": true
         },
         "races": [],
+        "box": {},
+        "boards": [],
+        "splits": [],
+        "unique": {},
+        "stats": [
+            {
+                "id": "tv",
+                "label": "TV",
+                "value": "\u2014"
+            },
+            {
+                "id": "gate",
+                "label": "GATE",
+                "value": "\u2014"
+            },
+            {
+                "id": "wrecks",
+                "label": "WRECKS",
+                "value": 0
+            },
+            {
+                "id": "cautions",
+                "label": "CAUTIONS",
+                "value": 0
+            },
+            {
+                "id": "field",
+                "label": "FIELD",
+                "value": 40
+            }
+        ],
+        "plates": [
+            {
+                "id": "stats",
+                "label": "STATS"
+            },
+            {
+                "id": "box",
+                "label": "BOX"
+            },
+            {
+                "id": "leaders",
+                "label": "LEADERS"
+            }
+        ],
+        "era_line": "Go back to the golden era: packed houses, plates at the big ovals, and coupes you can name from the grandstand.",
+        "why_it_matters": "Banned specials keep the field even and the houses quieter. TV -2 \u00b7 gate +0 \u00b7 wrecks -2.",
+        "week": {
+            "title": "This week's desk",
+            "copy": "This week's desk: read the mail, write the winter book, inspect the race file, then Advance."
+        },
         "tv_last": null,
         "tv_viewers": null,
         "tv_average": null,
@@ -5672,6 +5725,8 @@
                 "wins": 0,
                 "avg_finish": null,
                 "dnfs": 0,
+                "poles": 0,
+                "gained": 0,
                 "portrait": "grand_prix_22",
                 "coupe": "1986 Grand Prix 2+2"
             },
@@ -5682,6 +5737,8 @@
                 "wins": 0,
                 "avg_finish": null,
                 "dnfs": 0,
+                "poles": 0,
+                "gained": 0,
                 "portrait": "monte_carlo_aerocoupe",
                 "coupe": "1986 Monte Carlo Aerocoupe"
             },
@@ -5692,6 +5749,8 @@
                 "wins": 0,
                 "avg_finish": null,
                 "dnfs": 0,
+                "poles": 0,
+                "gained": 0,
                 "portrait": "grand_prix_22",
                 "coupe": "1986 Grand Prix 2+2"
             },
@@ -5702,6 +5761,8 @@
                 "wins": 0,
                 "avg_finish": null,
                 "dnfs": 0,
+                "poles": 0,
+                "gained": 0,
                 "portrait": "thunderbird_aero",
                 "coupe": "1989 Thunderbird"
             },
@@ -5712,6 +5773,8 @@
                 "wins": 0,
                 "avg_finish": null,
                 "dnfs": 0,
+                "poles": 0,
+                "gained": 0,
                 "portrait": "monte_carlo_aerocoupe",
                 "coupe": "1986 Monte Carlo Aerocoupe"
             },
@@ -5722,6 +5785,8 @@
                 "wins": 0,
                 "avg_finish": null,
                 "dnfs": 0,
+                "poles": 0,
+                "gained": 0,
                 "portrait": "thunderbird_aero",
                 "coupe": "1989 Thunderbird"
             },
@@ -5732,6 +5797,8 @@
                 "wins": 0,
                 "avg_finish": null,
                 "dnfs": 0,
+                "poles": 0,
+                "gained": 0,
                 "portrait": "generic_coupe",
                 "coupe": "1984 Generic coupe"
             },
@@ -5742,6 +5809,8 @@
                 "wins": 0,
                 "avg_finish": null,
                 "dnfs": 0,
+                "poles": 0,
+                "gained": 0,
                 "portrait": "grand_prix_22",
                 "coupe": "1986 Grand Prix 2+2"
             }
@@ -6304,7 +6373,8 @@
                 "text": "Organization titles: Liberty Racing \u2014 0"
             }
         ],
-        "empty": true
+        "empty": true,
+        "copy": "Dynasty files. Reopen a finished championship. Preseason of year one is empty."
     },
     "hof": [],
     "ticker": [
@@ -6315,7 +6385,7 @@
     "office": {
         "layout": "commissioner-desk",
         "advance_label": "Advance \u2014 Opening weekend",
-        "advance_hint": "Visit each section to unlock the first weekend.",
+        "advance_hint": "This week's desk: mail, winter book, race file, then Advance.",
         "header": {
             "calendar": "Season 1 of 3 \u2014 Preseason",
             "treasury": 0,
@@ -6384,7 +6454,7 @@
                 "kind": "letter",
                 "from": "Series Office \u2014 Preseason",
                 "subject": "Welcome to Northstar Capital Stock Car Series",
-                "body": "Commissioner,\n\nYou run Northstar Capital Stock Car Series. You do not drive. You do not own a shop.\n\nThis is the league office for a high-level stock car series in the Winston Cup years. Each week you Advance the calendar. Between weekends you read the mail, inspect the Cup roster, and write the winter book: Ford, Pontiac, Plymouth, Chevrolet \u2014 which coupes are legal, which factories get the aero edge, and how the big tracks run.\n\nOpen Dashboard, Standings, Entries, Rulebook, Television, and Mail. Reports is the race file: attendance, wrecks, TV, driver form. The winter book you write moves those numbers.\n\nThe chair files from the pinnacle years: the race is the product, a national TV package is the business, and plates at the big ovals are the heat you take in public. Read the briefing in this bag.\n\nWhen the checklist is done, Advance runs the next race week.\n\nPython still simulates the races. This office is where you sit.",
+                "body": "Commissioner,\n\nYou run Northstar Capital Stock Car Series. You do not drive. You do not own a shop.\n\nThis is the league office for a high-level stock car series in the Winston Cup years. Each week you Advance the calendar. Between weekends you read the mail, inspect the Cup roster, and write the winter book: Ford, Pontiac, Plymouth, Chevrolet \u2014 which coupes are legal, which factories get the aero edge, and how the big tracks run.\n\nOpen Dashboard, Standings, Entries, Rulebook, Television, Reports, and Mail. Reports is the race file \u2014 STATS, BOX, LEADERS. The winter book you write moves those numbers.\n\nThe chair files from the pinnacle years: the race is the product, a national TV package is the business, and plates at the big ovals are the heat you take in public. Read the briefing in this bag.\n\nWhen this week's desk is done, Advance runs the next race week.\n\nPython still simulates the races. This office is where you sit.",
                 "unread": true,
                 "category": "",
                 "hearing_id": "",
@@ -6396,7 +6466,7 @@
                 "kind": "letter",
                 "from": "Series Office \u2014 Chair files",
                 "subject": "Files from the chair \u2014 national TV years",
-                "body": "Commissioner,\n\nThe files from this chair in the late eighties and nineties say the same thing in different words: the product is the race. Mike Helton, taking the presidency in 2000, put it on the record \u2014 quality of competition first. France Jr. called it controlled growth: everyone in the sport has to win, or the deal dies.\n\nSuccesses already on the shelf: a title sponsor that paid for a national series; the 500 on network television; plates at the two superspeedways after the cars got too fast to race; Detroit still badge-engineering coupes the fans can name from the grandstand.\n\nThe live fights: a national TV contract instead of every track selling its own race; how the money splits among tracks, owners, and the sanctioning body; restrictor-plate racing that nobody in the garage likes and that the office will not drop just to please them. Helton's line after Loudon was 'we're big boys \u2014 we'll take the heat.' That is the safety file. It is also the TV file.\n\nOwners are independent contractors. You do not set a tire-changer's pay. You write the winter book, you sell the house, and you keep the factories from turning Sunday into a spec silhouette.\n\nYou run Northstar Capital Stock Car Series. Reports is the race file. Advance when the checklist is done.",
+                "body": "Commissioner,\n\nThe files from this chair in the late eighties and nineties say the same thing in different words: the product is the race. Mike Helton, taking the presidency in 2000, put it on the record \u2014 quality of competition first. France Jr. called it controlled growth: everyone in the sport has to win, or the deal dies.\n\nSuccesses already on the shelf: a title sponsor that paid for a national series; the 500 on network television; plates at the two superspeedways after the cars got too fast to race; Detroit still badge-engineering coupes the fans can name from the grandstand.\n\nThe live fights: a national TV contract instead of every track selling its own race; how the money splits among tracks, owners, and the sanctioning body; restrictor-plate racing that nobody in the garage likes and that the office will not drop just to please them. Helton's line after Loudon was 'we're big boys \u2014 we'll take the heat.' That is the safety file. It is also the TV file.\n\nOwners are independent contractors. You do not set a tire-changer's pay. You write the winter book, you sell the house, and you keep the factories from turning Sunday into a spec silhouette.\n\nYou run Northstar Capital Stock Car Series. Reports is the race file \u2014 STATS, BOX, LEADERS. Advance when this week's desk is done.",
                 "unread": true,
                 "category": "",
                 "hearing_id": "",
@@ -6431,6 +6501,11 @@
                 "id": "television",
                 "label": "Read television and the gate",
                 "section": "television"
+            },
+            {
+                "id": "reports",
+                "label": "Open the race file",
+                "section": "reports"
             },
             {
                 "id": "mail",
@@ -6519,11 +6594,53 @@
         "load_script": "/workspace/prototype/load_office.py",
         "new_script": "/workspace/prototype/new_career.py",
         "aero_script": "/workspace/prototype/apply_aero.py",
-        "saves": [],
+        "saves": [
+            {
+                "name": "office",
+                "filename": "office.json",
+                "path": "/workspace/saves/office.json",
+                "label": "office.json \u2014 Season 1 of 3, Preseason, 40 teams, Normal",
+                "office": true,
+                "season": 1,
+                "phase": "preseason",
+                "difficulty": "normal"
+            },
+            {
+                "name": "desk",
+                "filename": "desk.json",
+                "path": "/workspace/saves/desk.json",
+                "label": "desk.json \u2014 Season 1 of 3, Regular Season, 40 teams, Normal",
+                "office": false,
+                "season": 1,
+                "phase": "regular-season",
+                "difficulty": "normal"
+            }
+        ],
         "ticker": [
             "CHAIR FILES: the product is the race. Take the heat on plates. Do not spec the coupes.",
             "Preseason quiet. Beat writers file after the green flag."
         ]
     },
-    "saves": []
+    "saves": [
+        {
+            "name": "office",
+            "filename": "office.json",
+            "path": "/workspace/saves/office.json",
+            "label": "office.json \u2014 Season 1 of 3, Preseason, 40 teams, Normal",
+            "office": true,
+            "season": 1,
+            "phase": "preseason",
+            "difficulty": "normal"
+        },
+        {
+            "name": "desk",
+            "filename": "desk.json",
+            "path": "/workspace/saves/desk.json",
+            "label": "desk.json \u2014 Season 1 of 3, Regular Season, 40 teams, Normal",
+            "office": false,
+            "season": 1,
+            "phase": "regular-season",
+            "difficulty": "normal"
+        }
+    ]
 }
