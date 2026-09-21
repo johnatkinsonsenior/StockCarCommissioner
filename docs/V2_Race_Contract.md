@@ -41,8 +41,8 @@ The race engine is a pure application service:
 RaceEngine.simulate(RaceInput) -> RaceResult
 ```
 
-For identical canonical input and contract version, the engine must return
-byte-equivalent canonical output.
+For identical canonical input, contract version, engine version, and random
+provider version, the engine must return byte-equivalent canonical output.
 
 The engine:
 
@@ -76,6 +76,12 @@ Required IDs:
 - `team_id`
 - `manufacturer_id`
 
+`entry_id` identifies one persistent licensed competitive entry in a career,
+not a driver, team, season, or single-race result. A substitute driver may
+occupy the same entry. A multi-car organization owns multiple entry IDs.
+Participation in one race is identified by the composite `(race_id,
+entry_id)`.
+
 Scalar rules:
 
 - Distances use integer meters.
@@ -85,6 +91,7 @@ Scalar rules:
 - Tire wear uses integer basis points from `0` through `10_000`.
 - Ratings use integers from `0` through `100`.
 - Probabilities are represented as integer parts per million.
+- On-track location uses `(race_lap, segment_index, progress_mm)`.
 - Currency, standings points, and commissioner state are outside this
   contract.
 - Floating-point values must not appear in canonical persisted race output.
@@ -126,8 +133,27 @@ TrackSnapshot
   incident_risk: 0..100
   pit_lane_loss_ms: int >= 0
   caution_laps: int >= 1
-  restart_zone: track-specific immutable value
+  restart_zone_start_segment: int >= 0
+  restart_zone_end_segment: int >= start
+  segments: non-empty tuple[TrackSegment]
 ```
+
+```text
+TrackSegment
+  segment_index: contiguous int starting at 0
+  length_mm: int > 0
+  kind: STRAIGHT | CORNER | PIT_ENTRY | PIT_LANE | PIT_EXIT | START_FINISH
+  lane_count: int >= 1
+  passing_factor: 0..100
+  contact_factor: 0..100
+  pit_speed_limit_mms: optional int
+```
+
+Segment lengths must sum to `lap_length_m * 1_000`. Exactly one segment
+contains the start/finish line; pit entry, lane, and exit segments must form
+one ordered path. Segment detail is intentionally tactical rather than
+geometric: it supplies causal location without becoming a vehicle-physics
+model.
 
 ### 5.2 RaceRulesSnapshot
 
@@ -137,22 +163,53 @@ The rules snapshot freezes every rule that can affect this race.
 RaceRulesSnapshot
   rules_version: string
   field_limit: int > 0
-  qualifying_format: SINGLE_CAR
-  race_format: SINGLE_FEATURE
+  qualifying_format: SINGLE_CAR | HEAT_QUALIFYING
+  race_format: SINGLE_FEATURE | STAGE_RACE | HEAT_AND_FEATURE
+  stage_end_laps: tuple[int]
+  heat_count: int >= 0
+  heat_laps: int >= 0
+  heat_transfer_count: int >= 0
   overtime_enabled: bool
   maximum_overtime_attempts: int >= 0
-  caution_policy: immutable policy value
+  overtime_laps_per_attempt: int >= 2
+  finish_under_caution: bool
+  caution_laps_count: bool
   pit_road_speed_limit_mms: int > 0
-  pit_penalty_policy: immutable policy value
+  pit_penalty_policy: DRIVE_THROUGH | STOP_AND_GO | TAIL_OF_FIELD
+  restart_lane_rule: SINGLE_FILE | DOUBLE_FILE
   minimum_fuel_reserve_ml: int >= 0
   tire_sets_available: int >= 1
   safety_level: 0..100
   technical_package: TechnicalPackageSnapshot
 ```
 
-Version 1 deliberately supports one qualifying format and one race format.
-Additional formats require a contract revision and must not be simulated by
-unrelated special cases.
+Stage and heat formats use the same segment, resource, incident, and event
+model as a single feature. They are sessions within one weekend result, not
+alternate race engines. Empty stage/heat fields are required when the chosen
+format does not use them.
+
+For `STAGE_RACE`, each configured stage boundary emits `StageEnded`, freezes
+that stage's order, and then emits the next `StageStarted`; stage scoring is
+performed later by the application from the frozen order. For
+`HEAT_AND_FEATURE`, every heat emits its own result and `FeatureGridSet`
+records exactly which heat positions transferred.
+
+Overtime is deterministic:
+
+1. If scheduled distance is reached while a caution is active,
+   `finish_under_caution` decides whether the race ends.
+2. Otherwise the next green starts an overtime attempt and extends official
+   distance by `overtime_laps_per_attempt`.
+3. A caution before the leader starts the final lap aborts the attempt.
+4. A caution after the leader starts the final lap ends the race under the
+   configured caution procedure.
+5. An aborted attempt may be replaced until
+   `maximum_overtime_attempts` is exhausted.
+6. After the final permitted aborted attempt, the race finishes under
+   caution.
+
+Every extension updates `official_distance_laps` and is represented by
+overtime lifecycle events.
 
 ### 5.3 TechnicalPackageSnapshot
 
@@ -183,6 +240,20 @@ ConditionsSpec
   change_windows: tuple[ConditionChangeWindow]
 ```
 
+```text
+ConditionChangeWindow
+  earliest_race_lap: int >= 0
+  latest_race_lap: int >= earliest
+  probability_ppm: 0..1_000_000
+  alternatives: non-empty tuple[ConditionAlternative]
+
+ConditionAlternative
+  weather
+  temperature_delta_c: int
+  grip_delta_bp: int
+  weight: int > 0
+```
+
 A change window states when a condition may change and the deterministic
 weighted alternatives. The engine records every realized change as an event.
 
@@ -194,49 +265,69 @@ RaceEntrantSnapshot
   driver_id: DriverId
   team_id: TeamId
   manufacturer_id: ManufacturerId
+  body_id: stable homologated body ID
   car_number: display-only string
   driver: DriverRaceRatings
   car: CarRaceRatings
   crew: CrewRaceRatings
   strategy: StrategyProfile
   penalties: PreRacePenaltySnapshot
+  effective_package: EntrantPackageSnapshot
 ```
 
-Required driver ratings:
+```text
+DriverRaceRatings
+  pace: 0..100
+  consistency: 0..100
+  aggression: 0..100
+  racecraft: 0..100
+  restart_skill: 0..100
+  tire_management: 0..100
+  fuel_management: 0..100
+  wet_skill: 0..100
+  track_affinity: map[track_type, 0..100]
 
-- raw speed
-- consistency
-- aggression
-- racecraft
-- restart skill
-- tire management
-- fuel management
-- wet-weather skill
-- short-track skill
-- intermediate skill
-- superspeedway skill
-- road-course skill
-- error resistance
+CarRaceRatings
+  base_pace: 0..100
+  reliability: 0..100
+  power: 0..100
+  braking: 0..100
+  aero_efficiency: 0..100
+  mechanical_grip: 0..100
+  fuel_capacity_ml: int > 0
+  starting_fuel_ml: 0..fuel_capacity_ml
+  baseline_fuel_burn_ml_per_lap: int > 0
+  tire_durability: 0..100
 
-Required car and team ratings:
+CrewRaceRatings
+  pit_speed: 0..100
+  pit_consistency: 0..100
 
-- base pace
-- reliability
-- power
-- braking
-- aero efficiency
-- mechanical grip
-- fuel capacity in milliliters
-- starting fuel in milliliters
-- baseline fuel burn in milliliters per lap
-- tire durability
-- pit crew speed
-- pit crew consistency
-- engineering
+StrategyProfile
+  aggression: 0..100
+  fuel_risk: 0..100
+  undercut_preference: 0..100
+  tire_conservation: 0..100
+  caution_reaction: 0..100
 
-`StrategyProfile` expresses AI tendencies such as aggression, fuel risk,
-undercut preference, tire conservation, and caution reaction. It is not a
-preselected final strategy label.
+PreRacePenaltySnapshot
+  grid_positions: int >= 0
+  start_from_pit_lane: bool
+  reason_code: optional closed enumeration
+
+EntrantPackageSnapshot
+  body_id
+  source_rulebook_version
+  pace_modifier: signed int
+  reliability_modifier: signed int
+  aero_modifier: signed int
+  pack_modifier: signed int
+```
+
+These are effective race inputs. Manufacturer, body, and rulebook provenance
+remain attached so historical reports can explain what the winter book did.
+`StrategyProfile` contains AI tendencies, not a preselected final strategy
+label.
 
 ## 6. Canonical output
 
@@ -259,10 +350,13 @@ RaceResult
   review_packets: tuple[IncidentReviewPacket]
 ```
 
-`RaceResult` is the complete on-track truth. Human-readable recaps, box
-scores, and leaderboards are projections and are not stored as competing
-facts. `output_hash` is SHA-256 over canonical UTF-8 JSON of the complete
-result with the `output_hash` field omitted.
+The immutable input and ordered events are canonical on-track facts.
+Classification, entrant summaries, and review packets are validated,
+rebuildable projections bundled with `RaceResult` for transaction integrity
+and fast reads. Human-readable recaps, box scores, and leaderboards are
+additional projections and are not stored as competing facts. `output_hash`
+is SHA-256 over canonical UTF-8 JSON of the complete result with the
+`output_hash` field omitted.
 
 ### 6.1 GridPosition
 
@@ -276,22 +370,35 @@ GridPosition
   penalty_reason_code: optional string
 ```
 
+`RaceResult.grid` is the final feature starting grid. Qualifying and heat
+session grids remain available in their lifecycle events.
+
 ### 6.2 OnTrackClassification
 
 ```text
 OnTrackClassification
   position: int >= 1
   entry_id: EntryId
-  status: FINISHED | RUNNING | CRASH | MECHANICAL | OUT_OF_FUEL
+  status: FINISHED | RUNNING | CRASH | MECHANICAL | OUT_OF_FUEL | DISQUALIFIED
   laps_completed: int >= 0
   elapsed_ms: optional int
   gap_ms: optional int
+  laps_down: int >= 0
+  finish_crossing_event_seq: optional int
   retirement_event_seq: optional int
 ```
 
 This is the on-track result before post-race commissioner sanctions. A later
 sanction may create a separate official-classification revision, but must
 never rewrite the original event stream.
+
+`FINISHED` means the entry crossed the finish line after the checkered flag.
+`RUNNING` means the event ended before that entry crossed, including a finish
+under caution. Lead-lap finishers have `laps_down = 0`; lapped entries use
+`laps_down` rather than encoding a multi-lap deficit in `gap_ms`.
+`elapsed_ms` is required for finishers. `gap_ms` is required only when a
+same-lap time gap is meaningful. Ties are broken by the order of
+`FinishLineCrossed` events.
 
 ### 6.3 EntrantRaceSummary
 
@@ -328,8 +435,12 @@ RaceEvent
   race_id: RaceId
   seq: int >= 1
   event_id: "{race_id}:{seq}"
-  phase: QUALIFYING | FORMATION | GREEN | CAUTION | RESTART | FINISHED
-  lap: int >= 0
+  session_kind: QUALIFYING | HEAT | FEATURE
+  session_index: int >= 0
+  phase: QUALIFYING | FORMATION | GREEN | CAUTION | RESTART | STAGE_BREAK | OVERTIME | FINISHED
+  session_lap: int >= 0
+  race_lap: optional int >= 0
+  location: optional RaceLocation
   sim_time_ms: int >= 0
   kind: RaceEventKind
   entry_ids: tuple[EntryId]
@@ -338,6 +449,17 @@ RaceEvent
 
 Ordering is canonical by `seq`. `sim_time_ms` must be nondecreasing but is
 not an identity or tie-breaker.
+
+```text
+RaceLocation
+  segment_index: valid TrackSegment index
+  progress_mm: 0..segment.length_mm
+  lane_index: 0..segment.lane_count-1
+```
+
+`session_lap` resets at the start of each qualifying, heat, or feature
+session. `race_lap` is absent outside the feature and never decreases within
+the feature.
 
 ## 8. Required event kinds
 
@@ -348,21 +470,47 @@ Version 1 must support the following kinds.
 - `QualifyingStarted`
 - `QualifyingLapCompleted`
 - `GridSet`
+- `HeatStarted`
+- `HeatFinished`
+- `FeatureGridSet`
 - `RaceStarted`
 - `LapCompleted`
+- `RunningOrderRecorded`
+- `StageStarted`
+- `StageEnded`
+- `OvertimeAttemptStarted`
+- `OvertimeAttemptEnded`
+- `FinishLineCrossed`
 - `RaceFinished`
 
 `LapCompleted` contains:
 
 ```text
+  entry_id
+  completed_lap
+  lap_time_ms
+  running_position
+  fuel_ml
+  tire_wear_bp
+```
+
+One `LapCompleted` is emitted whenever an entry crosses the start/finish line.
+It is the source of individual lap times, completed distance, and fastest
+laps.
+
+`RunningOrderRecorded` contains:
+
+```text
+  race_lap
   leader_entry_id
   running_order: tuple[EntryId]
   laps_completed_by_entry: tuple[(EntryId, int)]
   gaps_ms: tuple[(EntryId, optional int)]
 ```
 
-One `LapCompleted` event is emitted for every official race lap. This is the
-canonical replay checkpoint and the source of running-position statistics.
+One `RunningOrderRecorded` checkpoint is emitted after the leader completes
+every official feature lap. Significant actions carry segment locations
+between checkpoints. Together they are the canonical replay source.
 
 ### 8.2 Competition
 
@@ -381,6 +529,10 @@ A `LeadChanged` event is mandatory whenever the leader changes under green.
 - `PitServiceCompleted`
 - `PitRoadExited`
 - `PitRoadViolation`
+- `PenaltyIssued`
+- `PenaltyServed`
+- `PenaltyCleared`
+- `EntryDisqualified`
 - `FuelConservationStarted`
 - `FuelConservationEnded`
 
@@ -414,8 +566,11 @@ Contact identifies the involved entries without automatically assigning
 blame. Evidence and responsibility are derived into a review packet.
 
 Every caution period must have exactly one `CautionCalled`, one
-`FieldFrozen`, zero or more incident/cleanup events, one
-`RestartOrderSet`, and either `RaceRestarted` or `RaceFinished`.
+`FieldFrozen`, zero or more incident/cleanup events, and then either
+`RestartOrderSet` followed by `RaceRestarted`, or `RaceFinished`.
+All lifecycle events carry the same stable `caution_id`. Cautions cannot
+overlap. Every caution triggered by debris, a stopped entry, or a crash must
+include `CleanupCompleted`; a competition caution may omit cleanup.
 
 ### 8.6 Minimum payload requirements
 
@@ -425,9 +580,15 @@ but version 1 requires these facts:
 | Event | Required payload facts |
 | --- | --- |
 | `QualifyingLapCompleted` | entry, elapsed time, valid/invalid state |
-| `GridSet` | complete ordered grid and applied penalties |
+| `GridSet` | session, complete ordered grid, applied penalties |
+| `HeatStarted` / `HeatFinished` | heat index, entrants, ordered result |
+| `FeatureGridSet` | complete feature grid and heat-transfer provenance |
 | `RaceStarted` | complete starting order |
-| `LapCompleted` | leader, running order, laps by entry, gaps |
+| `LapCompleted` | entry, completed lap, lap time, position, fuel, tire wear |
+| `RunningOrderRecorded` | race lap, leader, running order, laps by entry, gaps |
+| `StageStarted` / `StageEnded` | stage index, boundary lap, ordered result |
+| `OvertimeAttemptStarted` / `OvertimeAttemptEnded` | attempt index, start/end lap, outcome code |
+| `FinishLineCrossed` | entry, crossing order, elapsed time, completed laps |
 | `PassCompleted` | passing entry, passed entry, old and new positions |
 | `LeadChanged` | previous leader, new leader |
 | `DriverError` | entry, error code, severity, time or positions lost |
@@ -436,20 +597,24 @@ but version 1 requires these facts:
 | `PitRoadEntered` | entry, running position, fuel, tire wear |
 | `PitServiceCompleted` | entry, service time, fuel added, tires changed, resulting state |
 | `PitRoadExited` | entry, running position, total pit-lane time |
-| `PitRoadViolation` | entry, violation code, assessed race penalty |
+| `PitRoadViolation` | entry, violation code, measured value, limit |
+| `PenaltyIssued` | entry, source event sequence, penalty code |
+| `PenaltyServed` | entry, penalty event sequence, service facts |
+| `PenaltyCleared` | entry, penalty event sequence |
+| `EntryDisqualified` | entry, source event sequence, reason code |
 | `MechanicalProblemDetected` | entry, component code, severity |
 | `MechanicalProblemWorsened` | entry, component code, old/new severity |
 | `MechanicalRepairCompleted` | entry, component code, repair time, resulting health |
 | `EntryRetired` | entry, reason code, laps completed |
 | `OutOfFuel` | entry, location code, laps completed |
-| `ContactOccurred` | involved entries, track zone, severity |
-| `SpinOccurred` | entry, triggering event sequence, continued/terminal state |
-| `CrashOccurred` | involved entries, triggering event sequence, terminal states |
-| `CautionCalled` | reason code and triggering event sequence |
-| `FieldFrozen` | complete eligible running order |
-| `CleanupCompleted` | caution identifier and elapsed caution laps |
-| `RestartOrderSet` | complete eligible order and restart lap |
-| `RaceRestarted` | complete order at green and restart lap |
+| `ContactOccurred` | incident ID, involved entries, location, severity |
+| `SpinOccurred` | incident ID, entry, triggering event sequence, continued/terminal state |
+| `CrashOccurred` | incident ID, involved entries, triggering event sequence, terminal states |
+| `CautionCalled` | caution ID, reason code, triggering event sequence |
+| `FieldFrozen` | caution ID, complete eligible running order |
+| `CleanupCompleted` | caution ID and elapsed caution laps |
+| `RestartOrderSet` | caution ID, complete eligible order, restart lap |
+| `RaceRestarted` | caution ID, complete order at green, restart lap |
 | `RaceFinished` | finish crossing order and scheduled/overtime state |
 
 Component codes in version 1 are `ENGINE`, `TRANSMISSION`, `BRAKES`,
@@ -467,6 +632,9 @@ EntryRaceState
   status
   position
   laps_completed
+  segment_index
+  progress_mm
+  lane_index
   elapsed_ms
   current_lap_time_ms
   fuel_ml
@@ -480,22 +648,21 @@ EntryRaceState
 `tire_wear_bp` is accumulated wear: `0` is a fresh set and `10_000` is fully
 worn. Starting fuel may not exceed the entrant's fuel capacity.
 
-At each lap boundary the engine resolves, in this order:
+The implementation may resolve fixed-distance segments, variable green-flag
+chunks, or another deterministic internal step. Only observable causality is
+contractual:
 
-1. active conditions and track state;
-2. pending race-control state;
-3. AI pit and conservation decisions;
-4. pace and traffic interactions;
-5. attempted passes;
-6. driver errors, mechanical failures, and contact;
-7. pit-lane service and violations;
-8. lap completion and running order;
-9. caution trigger and field freeze;
-10. finish or overtime state.
+- an entry must reach a location before an event can occur there;
+- a pit plan precedes pit entry, service, and exit;
+- contact or a race-control cause precedes its caution;
+- field freeze precedes cleanup and restart ordering;
+- restart order precedes return to green;
+- a lap crossing precedes its lap-time and running-order projection;
+- finish crossings precede final classification;
+- no event may depend on state from a later sequence.
 
-An implementation may optimize calculations, but it may not reorder these
-semantic phases in a way that makes an event depend on information from the
-future.
+This permits optimization without allowing post-hoc cautions, incidents, or
+strategy.
 
 ## 10. Determinism
 
@@ -565,14 +732,18 @@ An implementation is nonconforming if any invariant fails.
 ### Lifecycle
 
 5. Exactly one `RaceStarted` and one `RaceFinished` exist.
-6. No race event occurs before `RaceStarted` except qualifying/grid events.
+6. No feature-race event occurs before `RaceStarted` except qualifying,
+   heat, and grid events.
 7. No event occurs after `RaceFinished`.
-8. Event `sim_time_ms` and `lap` never decrease.
+8. Event `sim_time_ms` never decreases; `session_lap` resets only at a new
+   session, and `race_lap` never decreases within the feature.
 
 ### Running order
 
-9. Each official lap has exactly one `LapCompleted` checkpoint.
-10. Running order contains every non-retired entry exactly once.
+9. Every entry crossing emits one `LapCompleted`; every leader lap emits
+   exactly one `RunningOrderRecorded`.
+10. Each recorded running order contains every non-retired entry exactly
+    once.
 11. Positions are unique and contiguous.
 12. The checkpoint leader equals running order position one.
 13. Every leader change under green has a corresponding `LeadChanged`.
@@ -586,23 +757,32 @@ An implementation is nonconforming if any invariant fails.
 16. Fuel and component health never become negative.
 17. A retired entry cannot pass, pit, restart, or return to running.
 18. Every non-finishing status is supported by a terminal event.
+19. Segment and lane locations always reference the current track snapshot.
 
 ### Cautions and restarts
 
-19. A caution has one complete race-control lifecycle.
-20. No green-flag pass is recorded during caution.
-21. Restart order includes every eligible running entry exactly once.
-22. `RaceRestarted` order equals the preceding `RestartOrderSet`.
+20. A caution ID has one complete race-control lifecycle and caution periods
+    never overlap.
+21. No green-flag pass is recorded during caution.
+22. Restart order includes every eligible running entry exactly once.
+23. `RaceRestarted` order equals the preceding `RestartOrderSet`.
+
+### Penalties
+
+24. Every race penalty cites its source event.
+25. A penalty is issued before it is served or cleared.
+26. A disqualification has exactly one supporting `EntryDisqualified` event.
 
 ### Classification and summaries
 
-23. Classification reconciles with the final lap checkpoint and terminal
-    events.
-24. Finishing order follows finish-line crossing order.
-25. Retired entries rank by laps completed, then terminal event time, then
+27. Classification reconciles with lap crossings, finish crossings, and
+    terminal events.
+28. `FINISHED` entries follow `FinishLineCrossed` sequence; a race ending
+    under caution uses the final frozen order for entries still `RUNNING`.
+29. Retired entries rank by laps completed, then terminal event time, then
     starting position.
-26. Laps led, pit stops, contact, and failures in entrant summaries equal
-    event-derived totals.
+30. Fastest lap, laps led, average position, pit stops, contact, and failures
+    in entrant summaries equal event-derived totals.
 
 ## 12. Commissioner evidence contract
 
@@ -617,14 +797,22 @@ IncidentReviewPacket
   involved_entry_ids: tuple[EntryId]
   alleged_responsible_entry_id: optional EntryId
   confidence: LOW | MODERATE | HIGH
-  evidence_codes: tuple[string]
+  evidence: non-empty tuple[EvidenceItem]
   severity: MINOR | SIGNIFICANT | MAJOR
   recommended_review: bool
+
+EvidenceItem
+  evidence_code: closed versioned enumeration
+  event_seqs: non-empty tuple[int]
+  measured_entry_id: optional EntryId
+  measured_value: optional int
+  measurement_unit: optional closed enumeration
 ```
 
 Evidence must cite event sequence numbers or measurable race state. Driver
 aggression may influence the simulation, but an aggression rating alone is
-not evidence of blame.
+not evidence of blame. Every contact, spin, and crash event carries the same
+`incident_id` used by its review packet.
 
 Commissioner rulings are separate application events:
 
@@ -705,9 +893,9 @@ At minimum, persistence stores:
 
 - immutable canonical `RaceInput`;
 - immutable ordered `RaceEvent` rows;
-- on-track classification;
-- entrant summaries;
-- incident review packets;
+- rebuildable on-track classification cache;
+- rebuildable entrant-summary cache;
+- rebuildable incident-review cache;
 - engine, contract, and RNG-provider versions;
 - input and output hashes;
 - later sanctions and official-classification revisions as linked records.
@@ -715,6 +903,9 @@ At minimum, persistence stores:
 Events are append-only within the transaction that commits a completed race.
 A race is either fully committed or absent. Partial event streams are never
 visible as completed races.
+
+Dropping and rebuilding all three caches from input and events must reproduce
+their canonical serialized values and the stored `output_hash`.
 
 Storage may compress lap checkpoints, but decompression must restore the
 canonical event payload exactly.
@@ -783,9 +974,12 @@ The names are descriptive only; IDs are authoritative.
 - Every invariant in section 11 passes.
 - Classification can be rebuilt from the event stream.
 - Entrant summaries can be rebuilt from the event stream.
+- Every finisher's lap times and finish crossing can be rebuilt.
+- Contact and pit actions carry valid segment locations.
 - The winner, pole sitter, laps led, lead changes, pit stops, DNFs, and
   caution count match their projections.
-- The review packet cites the contact and caution event sequence numbers.
+- The review packet contains structured evidence citing the contact and
+  caution event sequence numbers and at least one measured race-state value.
 - No season points, treasury, approval, TV, or sponsor state appears in the
   engine output.
 
@@ -809,26 +1003,34 @@ Before the race engine can support gameplay, it must have:
 11. statistics projection tests;
 12. seeded statistical balance tests;
 13. 30-season throughput and storage tests;
-14. schema round-trip and migration tests.
+14. schema round-trip and migration tests;
+15. segment location and finish-crossing tests;
+16. heat, stage, and overtime lifecycle tests;
 
 Statistical tests use broad, documented bounds and fixed seed sets. They must
 not assert one hand-tuned winner.
 
 ## 20. Performance budgets
 
-On the supported baseline development machine:
+The first engine milestone must create a fixed benchmark suite containing
+40-entry races of 50, 200, and 500 laps plus one 30-season universe. The
+benchmark record identifies CPU, memory, operating system, runtime version,
+database settings, whether validation and persistence are included, event
+counts, and compressed and uncompressed sizes.
 
-- One 40-entry, 500-lap race completes in at most 250 milliseconds at the
-  95th percentile.
-- One 24-race season completes in at most 6 seconds without UI rendering.
-- Thirty 24-race seasons complete in at most 180 seconds.
-- Persisted canonical race data averages no more than 2 MiB per race before
-  optional compression.
-- Historical queries for one driver, team, track, or season return in at
-  most 100 milliseconds for a 30-season career.
+Measured results establish quantitative release gates in a dedicated
+benchmark ADR. Until that baseline exists, this contract requires:
 
-These are acceptance budgets, not permission to create an alternate quick
-engine.
+- no alternate reduced-fidelity quick engine;
+- approximately linear growth with entrants, segments, laps, and races;
+- no full-career scan to render one race, driver, team, track, or season;
+- bounded-memory streaming of completed event batches into persistence;
+- completion of the fixed 30-season benchmark without timeout, corruption,
+  or loss of canonical events;
+- interactive historical queries backed by database indexes.
+
+Performance is a release criterion, but invented machine-independent
+millisecond or byte limits are not.
 
 ## 21. Migration policy
 
@@ -860,7 +1062,10 @@ The contract is implemented only when:
 - `RaceEngine` accepts immutable snapshots and has no universe globals;
 - production randomness is versioned and injected;
 - the event stream covers qualifying through finish;
+- heat, stage, and single-feature formats use the same event model;
+- events identify segment location where on-track actions occur;
 - every official lap has a replay checkpoint;
+- every entrant crossing records an individual lap time;
 - cautions, restarts, pits, fuel, tires, failures, errors, contact, and
   changing conditions are causal;
 - classification and required statistics rebuild from canonical facts;
