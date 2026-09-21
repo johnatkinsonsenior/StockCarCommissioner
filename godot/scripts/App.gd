@@ -1,19 +1,26 @@
 extends Control
 
 const SNAPSHOT_PATH := "res://data/ui_snapshot.json"
-const COL_BG := Color("1a0c0e")
-const COL_SIDE := Color("140808")
-const COL_PANEL := Color("2a1418")
-const COL_CRIMSON := Color("8b1e2d")
-const COL_CRIMSON_ON := Color("c4283a")
-const COL_BLUE := Color("8b1e2d")
-const COL_BLUE_ON := Color("c4283a")
-const COL_GREEN := Color("c9a227")
-const COL_GREEN_DIM := Color("5c4a18")
-const COL_TEXT := Color("f7f4ee")
-const COL_MUTED := Color("c4b8a8")
-const COL_GOLD := Color("d4a017")
-const COL_LINE := Color("8a5a28")
+# Early-80s network sports package: black field, hard yellow bars,
+# a thin Winston stripe. Evokes 1983–84 Cup broadcasts without a network mark.
+const COL_BG := Color("0a0a0a")
+const COL_SIDE := Color("000000")
+const COL_PANEL := Color("101010")
+const COL_YELLOW := Color("f5c400")
+const COL_YELLOW_DIM := Color("8a6a00")
+const COL_STRIPE := Color("c4122e")
+const COL_NAVY := Color("071028")
+const COL_CRIMSON := Color("c4122e")
+const COL_CRIMSON_ON := Color("f5c400")
+const COL_BLUE := Color("000000")
+const COL_BLUE_ON := Color("f5c400")
+const COL_GREEN := Color("f5c400")
+const COL_GREEN_DIM := Color("3a3208")
+const COL_TEXT := Color("f4f4f4")
+const COL_MUTED := Color("b8b8b8")
+const COL_GOLD := Color("f5c400")
+const COL_LINE := Color("f5c400")
+const COL_INK := Color("0a0a0a")
 
 var snapshot: Dictionary = {}
 var screen_name := "mail"
@@ -225,20 +232,34 @@ func _build_office() -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 
+	var shell := VBoxContainer.new()
+	shell.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shell.add_theme_constant_override("separation", 0)
+	add_child(shell)
+
+	var yellow := ColorRect.new()
+	yellow.color = COL_YELLOW
+	yellow.custom_minimum_size = Vector2(0, 8)
+	shell.add_child(yellow)
+	var red := ColorRect.new()
+	red.color = COL_STRIPE
+	red.custom_minimum_size = Vector2(0, 3)
+	shell.add_child(red)
+
 	var root := HBoxContainer.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_theme_constant_override("separation", 0)
-	add_child(root)
+	shell.add_child(root)
 
 	sidebar = VBoxContainer.new()
-	sidebar.custom_minimum_size = Vector2(220, 0)
+	sidebar.custom_minimum_size = Vector2(228, 0)
 	sidebar.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sidebar.add_theme_constant_override("separation", 6)
 	var side_panel := PanelContainer.new()
-	side_panel.add_theme_stylebox_override("panel", _panel(COL_SIDE, COL_LINE))
-	side_panel.custom_minimum_size = Vector2(220, 0)
+	side_panel.add_theme_stylebox_override("panel", _panel(COL_SIDE, COL_YELLOW))
+	side_panel.custom_minimum_size = Vector2(228, 0)
 	side_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var side_margin := _padded(sidebar, 12, 12)
+	var side_margin := _padded(sidebar, 10, 10)
 	side_panel.add_child(side_margin)
 	root.add_child(side_panel)
 	_build_sidebar()
@@ -251,16 +272,24 @@ func _build_office() -> void:
 
 	main.add_child(_build_header())
 	main.add_child(_build_workspace())
+	_add_scanlines()
 
 
 func _build_sidebar() -> void:
+	sidebar.add_child(_bug_plate("SPORTS"))
 	var title := Label.new()
 	title.text = "STOCK CAR\nCOMMISSIONER"
-	title.add_theme_font_size_override("font_size", 16)
-	title.add_theme_color_override("font_color", COL_GOLD)
+	title.add_theme_font_size_override("font_size", 15)
+	title.add_theme_color_override("font_color", COL_YELLOW)
 	sidebar.add_child(title)
 	sidebar.add_child(_gold_rule())
-	sidebar.add_child(_muted(str(snapshot.get("series", ""))))
+	var series := Label.new()
+	series.text = str(snapshot.get("series", "")).to_upper()
+	series.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	series.add_theme_font_size_override("font_size", 11)
+	series.add_theme_color_override("font_color", COL_TEXT)
+	sidebar.add_child(series)
+	sidebar.add_child(_muted("WINSTON CUP  ·  1983–84 PACKAGE"))
 
 	var nav_list := VBoxContainer.new()
 	nav_list.add_theme_constant_override("separation", 4)
@@ -292,8 +321,8 @@ func _build_sidebar() -> void:
 
 func _make_nav_button(row: Dictionary) -> Button:
 	var button := Button.new()
-	button.text = str(row.get("label", ""))
-	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.text = str(row.get("label", "")).to_upper()
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_style_nav(button, false)
 	var section_id := str(row.get("id", ""))
 	button.pressed.connect(_on_nav.bind(section_id))
@@ -304,34 +333,57 @@ func _make_nav_button(row: Dictionary) -> Button:
 func _build_header() -> Control:
 	var wrap := VBoxContainer.new()
 	wrap.add_theme_constant_override("separation", 0)
+
+	var ident := PanelContainer.new()
+	ident.add_theme_stylebox_override("panel", _panel(COL_YELLOW, COL_YELLOW))
+	var ident_row := HBoxContainer.new()
+	ident_row.add_theme_constant_override("separation", 12)
+	ident.add_child(ident_row)
+	var cup := Label.new()
+	cup.text = "WINSTON CUP SERIES"
+	cup.add_theme_font_size_override("font_size", 16)
+	cup.add_theme_color_override("font_color", COL_INK)
+	ident_row.add_child(cup)
+	var grow := Control.new()
+	grow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ident_row.add_child(grow)
+	var live_plate := PanelContainer.new()
+	var live_style := StyleBoxFlat.new()
+	live_style.bg_color = COL_INK
+	live_style.set_corner_radius_all(0)
+	live_style.content_margin_left = 10
+	live_style.content_margin_right = 10
+	live_style.content_margin_top = 2
+	live_style.content_margin_bottom = 2
+	live_plate.add_theme_stylebox_override("panel", live_style)
+	var live := Label.new()
+	live.text = "LIVE"
+	live.add_theme_font_size_override("font_size", 16)
+	live.add_theme_color_override("font_color", COL_YELLOW)
+	live_plate.add_child(live)
+	ident_row.add_child(live_plate)
+	wrap.add_child(ident)
+
 	var header := PanelContainer.new()
-	header.add_theme_stylebox_override("panel", _panel(COL_PANEL, COL_LINE))
+	header.add_theme_stylebox_override("panel", _panel(COL_NAVY, COL_YELLOW))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	header.add_child(row)
 
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(spacer)
-
 	status_label = Label.new()
-	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	status_label.add_theme_font_size_override("font_size", 20)
-	status_label.add_theme_color_override("font_color", COL_TEXT)
+	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status_label.add_theme_font_size_override("font_size", 18)
+	status_label.add_theme_color_override("font_color", COL_YELLOW)
 	var header_info: Variant = _office().get("header", {})
-	var status_text := str(snapshot.get("calendar", ""))
+	var status_text := str(snapshot.get("calendar", "")).to_upper()
 	if typeof(header_info) == TYPE_DICTIONARY:
-		status_text = str(header_info.get("status_line", status_text))
+		status_text = str(header_info.get("status_line", status_text)).to_upper()
 	status_label.text = status_text
 	row.add_child(status_label)
 
-	var spacer2 := Control.new()
-	spacer2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(spacer2)
-
 	advance_button = Button.new()
-	advance_button.text = str(_office().get("advance_label", "Advance"))
-	advance_button.custom_minimum_size = Vector2(160, 40)
+	advance_button.text = str(_office().get("advance_label", "Advance")).to_upper()
+	advance_button.custom_minimum_size = Vector2(188, 36)
 	advance_button.pressed.connect(_on_advance)
 	_style_advance(false)
 	row.add_child(advance_button)
@@ -349,18 +401,18 @@ func _ticker_lines() -> Array:
 
 func _build_ticker() -> Control:
 	var bar := PanelContainer.new()
-	bar.add_theme_stylebox_override("panel", _panel(Color("140808"), COL_GOLD))
+	bar.add_theme_stylebox_override("panel", _panel(Color("000000"), COL_YELLOW))
 	ticker_label = Label.new()
 	ticker_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	ticker_label.add_theme_font_size_override("font_size", 14)
-	ticker_label.add_theme_color_override("font_color", COL_GOLD)
+	ticker_label.add_theme_font_size_override("font_size", 13)
+	ticker_label.add_theme_color_override("font_color", COL_YELLOW)
 	ticker_lines = _ticker_lines()
 	ticker_index = 0
 	if ticker_lines.is_empty():
-		ticker_label.text = "Preseason quiet. Beat writers file after the green flag."
+		ticker_label.text = "PRESEASON QUIET. BEAT WRITERS FILE AFTER THE GREEN FLAG."
 	else:
-		ticker_label.text = str(ticker_lines[0])
-	bar.add_child(_padded(ticker_label, 10, 6))
+		ticker_label.text = str(ticker_lines[0]).to_upper()
+	bar.add_child(_padded(ticker_label, 10, 5))
 	var timer := Timer.new()
 	timer.wait_time = 4.0
 	timer.autostart = true
@@ -374,7 +426,7 @@ func _tick_ticker() -> void:
 	if ticker_label == null or ticker_lines.size() <= 1:
 		return
 	ticker_index = (ticker_index + 1) % ticker_lines.size()
-	ticker_label.text = str(ticker_lines[ticker_index])
+	ticker_label.text = str(ticker_lines[ticker_index]).to_upper()
 
 
 func _build_workspace() -> Control:
@@ -385,7 +437,7 @@ func _build_workspace() -> Control:
 	var center_panel := PanelContainer.new()
 	center_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center_panel.size_flags_stretch_ratio = 1.6
-	center_panel.add_theme_stylebox_override("panel", _panel(COL_PANEL, COL_LINE))
+	center_panel.add_theme_stylebox_override("panel", _panel(COL_PANEL, COL_YELLOW))
 	center_body = VBoxContainer.new()
 	center_body.add_theme_constant_override("separation", 10)
 	var center_scroll := ScrollContainer.new()
@@ -401,7 +453,7 @@ func _build_workspace() -> Control:
 	right_panel.custom_minimum_size = Vector2(280, 0)
 	right_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right_panel.size_flags_stretch_ratio = 0.7
-	right_panel.add_theme_stylebox_override("panel", _panel(Color("1a1a1a"), COL_LINE))
+	right_panel.add_theme_stylebox_override("panel", _panel(COL_NAVY, COL_YELLOW))
 	checklist_box = VBoxContainer.new()
 	checklist_box.add_theme_constant_override("separation", 8)
 	right_panel.add_child(_padded(checklist_box, 16, 16))
@@ -533,17 +585,17 @@ func _reload_office() -> void:
 		var header_info: Variant = _office().get("header", {})
 		var status_text := str(snapshot.get("calendar", ""))
 		if typeof(header_info) == TYPE_DICTIONARY:
-			status_text = str(header_info.get("status_line", status_text))
-		status_label.text = status_text
+			status_text = str(header_info.get("status_line", status_text)).to_upper()
+		status_label.text = status_text.to_upper()
 	ticker_lines = _ticker_lines()
 	ticker_index = 0
 	if ticker_label != null:
 		if ticker_lines.is_empty():
-			ticker_label.text = "Preseason quiet. Beat writers file after the green flag."
+			ticker_label.text = "PRESEASON QUIET. BEAT WRITERS FILE AFTER THE GREEN FLAG."
 		else:
-			ticker_label.text = str(ticker_lines[0])
+			ticker_label.text = str(ticker_lines[0]).to_upper()
 	if advance_button != null:
-		advance_button.text = str(_office().get("advance_label", "Advance"))
+		advance_button.text = str(_office().get("advance_label", "Advance")).to_upper()
 	selected_mail_id = str(_office().get("selected_mail_id", ""))
 	mail_read.clear()
 
@@ -654,23 +706,31 @@ func _make_inbox_button(letter: Dictionary) -> Button:
 
 func _style_inbox_button(button: Button, active: bool, kind: String) -> void:
 	var style := StyleBoxFlat.new()
-	if active:
-		style.bg_color = COL_BLUE_ON
-	elif kind == "hearing":
-		style.bg_color = Color("3d2b1f")
-	elif kind == "recap":
-		style.bg_color = COL_GREEN_DIM
-	else:
-		style.bg_color = COL_PANEL
-	style.set_corner_radius_all(2)
+	style.set_corner_radius_all(0)
+	style.set_border_width_all(2)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
 	style.content_margin_top = 8
 	style.content_margin_bottom = 8
+	if active:
+		style.bg_color = COL_YELLOW
+		style.border_color = COL_YELLOW
+		button.add_theme_color_override("font_color", COL_INK)
+	elif kind == "hearing":
+		style.bg_color = COL_INK
+		style.border_color = COL_YELLOW
+		button.add_theme_color_override("font_color", COL_YELLOW)
+	elif kind == "recap":
+		style.bg_color = COL_NAVY
+		style.border_color = COL_YELLOW
+		button.add_theme_color_override("font_color", COL_YELLOW)
+	else:
+		style.bg_color = COL_PANEL
+		style.border_color = COL_YELLOW_DIM
+		button.add_theme_color_override("font_color", COL_TEXT)
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", style)
 	button.add_theme_stylebox_override("pressed", style)
-	button.add_theme_color_override("font_color", Color.WHITE)
 
 
 func _fill_letter_into(container: VBoxContainer, letter: Dictionary) -> void:
@@ -698,6 +758,7 @@ func _fill_letter_into(container: VBoxContainer, letter: Dictionary) -> void:
 			var button := Button.new()
 			button.text = "%s. %s" % [str(row.get("id", "")), str(row.get("label", ""))]
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			_style_choice_button(button)
 			button.pressed.connect(_on_hearing_choice.bind(
 				str(letter.get("hearing_id", "")),
 				str(row.get("id", "")),
@@ -736,7 +797,7 @@ func _refresh_mail_badge() -> void:
 	if not nav_buttons.has("mail"):
 		return
 	var unread := _unread_count()
-	nav_buttons["mail"].text = "Mail (%s)" % str(unread) if unread > 0 else "Mail"
+	nav_buttons["mail"].text = "MAIL (%s)" % str(unread) if unread > 0 else "MAIL"
 
 
 func _dash() -> Dictionary:
@@ -753,6 +814,7 @@ func _fill_mail() -> void:
 		var raw: Variant = _office().get("mail", {})
 		if typeof(raw) == TYPE_DICTIONARY:
 			mail = raw
+		center_body.add_child(_bug_plate("INBOX"))
 		center_body.add_child(_title(str(mail.get("title", "Mail"))))
 		center_body.add_child(_muted("From: %s" % str(mail.get("from", "Series Office"))))
 		var body := Label.new()
@@ -776,6 +838,7 @@ func _fill_mail() -> void:
 	var list_col := VBoxContainer.new()
 	list_col.custom_minimum_size = Vector2(280, 0)
 	list_col.add_theme_constant_override("separation", 6)
+	list_col.add_child(_bug_plate("INBOX"))
 	list_col.add_child(_title("Inbox"))
 	list_col.add_child(_muted("%s letters · %s unread" % [str(letters.size()), str(_unread_count())]))
 	for letter in letters:
@@ -797,13 +860,14 @@ func _fill_mail() -> void:
 
 func _fill_dashboard() -> void:
 	var dash := _dash()
+	center_body.add_child(_bug_plate("LEAGUE OFFICE"))
 	center_body.add_child(_title("Commissioner Dashboard"))
-	center_body.add_child(_muted(str(dash.get("calendar", snapshot.get("calendar", "")))))
-	center_body.add_child(_meter("Integrity", int(dash.get("integrity", 0)), Color("3d9b6e")))
+	center_body.add_child(_muted(str(dash.get("calendar", snapshot.get("calendar", ""))).to_upper()))
+	center_body.add_child(_meter("Integrity", int(dash.get("integrity", 0)), COL_YELLOW))
 	center_body.add_child(_meter("Fan interest", int(dash.get("fan_interest", 0)), COL_GOLD))
-	center_body.add_child(_meter("Controversy", int(dash.get("controversy", 0)), Color("c44536")))
-	center_body.add_child(_meter("Owner pressure", int(dash.get("owner_pressure", 0)), Color("c44536")))
-	center_body.add_child(_meter("Driver sentiment", int(dash.get("driver_sentiment", 0)), Color("3d9b6e")))
+	center_body.add_child(_meter("Controversy", int(dash.get("controversy", 0)), COL_STRIPE))
+	center_body.add_child(_meter("Owner pressure", int(dash.get("owner_pressure", 0)), COL_STRIPE))
+	center_body.add_child(_meter("Driver sentiment", int(dash.get("driver_sentiment", 0)), COL_YELLOW))
 	center_body.add_child(_line("Grade %s (%s/100)" % [str(dash.get("grade", "—")), str(_as_int(dash.get("score", 0)))]))
 	if str(snapshot.get("desk_mode", "basics")) != "basics":
 		center_body.add_child(_line(str(dash.get("approval", ""))))
@@ -822,6 +886,10 @@ func _fill_dashboard() -> void:
 	if str(dash.get("win_on_sunday", "")) != "":
 		center_body.add_child(_gold_line(str(dash.get("win_on_sunday", ""))))
 		print("WIN_ON_SUNDAY=", str(dash.get("win_on_sunday", "")))
+	if str(dash.get("chair_note", "")) != "":
+		center_body.add_child(_gold_line("From the chair"))
+		center_body.add_child(_muted(str(dash.get("chair_note", ""))))
+		print("CHAIR_NOTE=1")
 	if str(dash.get("factory", "")) != "":
 		center_body.add_child(_muted(str(dash.get("factory", ""))))
 	var alerts: Array = dash.get("alerts", [])
@@ -1529,6 +1597,11 @@ func _add_body_card(body: Dictionary) -> void:
 		str(body.get("family", "")),
 		str(body.get("coupe", "")),
 	]))
+	if _as_int(body.get("year", 0)) > 0:
+		copy.add_child(_muted("Street year %s  ·  ran %s" % [
+			str(_as_int(body.get("year", 0))),
+			str(body.get("years", "")),
+		]))
 	copy.add_child(_muted("ST %s  Int %s  SS %s  RC %s" % [
 		str(_as_int(body.get("short_track", 0))),
 		str(_as_int(body.get("intermediate", 0))),
@@ -1634,7 +1707,7 @@ func _fill_board() -> void:
 	]))
 	if book.get("confidence") != null:
 		center_body.add_child(_meter("Board confidence", _as_int(book.get("confidence", 0)), COL_GOLD))
-		center_body.add_child(_meter("Dismissal risk", _as_int(book.get("risk", 0)), Color("c44536")))
+		center_body.add_child(_meter("Dismissal risk", _as_int(book.get("risk", 0)), COL_STRIPE))
 	center_body.add_child(_title("Approval"))
 	center_body.add_child(_line("%s (%s)" % [
 		str(book.get("approval_label", "—")),
@@ -1643,7 +1716,7 @@ func _fill_board() -> void:
 	if book.get("fans") != null:
 		center_body.add_child(_meter("Fans", _as_int(book.get("fans", 0)), COL_GOLD))
 		center_body.add_child(_meter("Owners", _as_int(book.get("owners", 0)), COL_CRIMSON))
-		center_body.add_child(_meter("Drivers", _as_int(book.get("drivers", 0)), Color("3d9b6e")))
+		center_body.add_child(_meter("Drivers", _as_int(book.get("drivers", 0)), COL_YELLOW))
 	var owners := _as_dict(councils.get("owners", {}))
 	var garage := _as_dict(councils.get("drivers", {}))
 	print("COUNCIL_OWNER=", str(owners.get("chair", "")))
@@ -1950,13 +2023,14 @@ func _on_new_career(book: String) -> void:
 func _refresh_checklist() -> void:
 	for child in checklist_box.get_children():
 		child.queue_free()
+	checklist_box.add_child(_bug_plate("PRE-RACE"))
 	checklist_box.add_child(_title("Before You Begin"))
 	checklist_box.add_child(_muted("Visit each section to unlock the first weekend."))
 	for item in _checklist():
 		var row: Dictionary = item
 		var section := str(row.get("section", row.get("id", "")))
 		var mark := "●" if visited.get(section, false) else "○"
-		checklist_box.add_child(_line("%s  %s" % [mark, str(row.get("label", ""))]))
+		checklist_box.add_child(_line("%s  %s" % [mark, str(row.get("label", "")).to_upper()]))
 	checklist_progress = _muted("%s / %s completed" % [_completed_count(), _checklist().size()])
 	checklist_box.add_child(checklist_progress)
 	_refresh_mail_badge()
@@ -1978,9 +2052,9 @@ func _checklist_complete() -> bool:
 
 func _title(text: String) -> Label:
 	var label := Label.new()
-	label.text = text
-	label.add_theme_font_size_override("font_size", 22)
-	label.add_theme_color_override("font_color", COL_GOLD)
+	label.text = str(text).to_upper()
+	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_color_override("font_color", COL_YELLOW)
 	return label
 
 
@@ -2065,6 +2139,39 @@ func _gold_rule() -> ColorRect:
 	return rule
 
 
+func _bug_plate(text: String) -> Control:
+	var plate := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = COL_YELLOW
+	style.border_color = COL_YELLOW
+	style.set_border_width_all(0)
+	style.set_corner_radius_all(0)
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	style.content_margin_top = 3
+	style.content_margin_bottom = 3
+	plate.add_theme_stylebox_override("panel", style)
+	var label := Label.new()
+	label.text = str(text).to_upper()
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", COL_INK)
+	plate.add_child(label)
+	return plate
+
+
+func _add_scanlines() -> void:
+	var overlay := ColorRect.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.color = Color(1, 1, 1, 1)
+	var shader: Shader = load("res://shaders/scanlines.gdshader")
+	if shader != null:
+		var mat := ShaderMaterial.new()
+		mat.shader = shader
+		overlay.material = mat
+	add_child(overlay)
+
+
 func _as_int(value: Variant) -> int:
 	return int(float(str(value)))
 
@@ -2090,7 +2197,8 @@ func _fill_recap_card() -> void:
 	if recap.is_empty() or str(recap.get("title", "")) == "":
 		print("RECAP_WINNER=")
 		return
-	center_body.add_child(_line(str(recap.get("title", "Week recap"))))
+	center_body.add_child(_bug_plate("RACE CONTROL"))
+	center_body.add_child(_gold_line(str(recap.get("title", "Week recap")).to_upper()))
 	var winner := str(recap.get("winner", ""))
 	print("RECAP_WINNER=", winner)
 	print("RECAP_TRACK=", str(recap.get("track", "")))
@@ -2155,14 +2263,14 @@ func _fill_recap_card() -> void:
 func _group_label(text: String) -> Control:
 	var wrap := HBoxContainer.new()
 	var left := ColorRect.new()
-	left.color = COL_LINE
+	left.color = COL_YELLOW
 	left.custom_minimum_size = Vector2(16, 1)
 	left.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var label := Label.new()
-	label.text = "  %s  " % text
-	label.add_theme_color_override("font_color", COL_MUTED)
+	label.text = "  %s  " % str(text).to_upper()
+	label.add_theme_color_override("font_color", COL_YELLOW)
 	var right := ColorRect.new()
-	right.color = COL_LINE
+	right.color = COL_YELLOW
 	right.custom_minimum_size = Vector2(16, 1)
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -2175,16 +2283,23 @@ func _group_label(text: String) -> Control:
 func _meter(label_text: String, value: int, fill: Color) -> VBoxContainer:
 	var wrap := VBoxContainer.new()
 	var caption := Label.new()
-	caption.text = "%s  %s/100" % [label_text, str(value)]
-	caption.add_theme_color_override("font_color", COL_TEXT)
+	caption.text = "%s  %s/100" % [str(label_text).to_upper(), str(value)]
+	caption.add_theme_color_override("font_color", COL_YELLOW)
 	wrap.add_child(caption)
 	var bar := ProgressBar.new()
 	bar.max_value = 100
 	bar.value = clamp(value, 0, 100)
 	bar.show_percentage = false
-	bar.custom_minimum_size = Vector2(0, 12)
+	bar.custom_minimum_size = Vector2(0, 10)
+	var bg_style := StyleBoxFlat.new()
+	bg_style.bg_color = COL_INK
+	bg_style.set_corner_radius_all(0)
+	bg_style.set_border_width_all(1)
+	bg_style.border_color = COL_YELLOW
+	bar.add_theme_stylebox_override("background", bg_style)
 	var fill_style := StyleBoxFlat.new()
 	fill_style.bg_color = fill
+	fill_style.set_corner_radius_all(0)
 	bar.add_theme_stylebox_override("fill", fill_style)
 	wrap.add_child(bar)
 	return wrap
@@ -2192,32 +2307,62 @@ func _meter(label_text: String, value: int, fill: Color) -> VBoxContainer:
 
 func _style_nav(button: Button, active: bool) -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = COL_BLUE_ON if active else COL_BLUE
-	style.set_corner_radius_all(2)
-	style.content_margin_left = 8
-	style.content_margin_right = 8
-	style.content_margin_top = 5
-	style.content_margin_bottom = 5
+	style.set_corner_radius_all(0)
+	style.set_border_width_all(2)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 6
+	style.content_margin_bottom = 6
+	if active:
+		style.bg_color = COL_YELLOW
+		style.border_color = COL_YELLOW
+		button.add_theme_color_override("font_color", COL_INK)
+	else:
+		style.bg_color = COL_INK
+		style.border_color = COL_YELLOW
+		button.add_theme_color_override("font_color", COL_YELLOW)
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", style)
 	button.add_theme_stylebox_override("pressed", style)
-	button.add_theme_color_override("font_color", Color.WHITE)
 
 
 func _style_advance(unlocked: bool) -> void:
 	if advance_button == null:
 		return
 	var style := StyleBoxFlat.new()
-	style.bg_color = COL_GREEN if unlocked else COL_GREEN_DIM
-	style.set_corner_radius_all(2)
-	style.content_margin_left = 16
-	style.content_margin_right = 16
-	style.content_margin_top = 10
-	style.content_margin_bottom = 10
+	style.set_corner_radius_all(0)
+	style.set_border_width_all(2)
+	style.content_margin_left = 14
+	style.content_margin_right = 14
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	if unlocked:
+		style.bg_color = COL_YELLOW
+		style.border_color = COL_INK
+		advance_button.add_theme_color_override("font_color", COL_INK)
+	else:
+		style.bg_color = COL_GREEN_DIM
+		style.border_color = COL_YELLOW_DIM
+		advance_button.add_theme_color_override("font_color", COL_YELLOW_DIM)
 	advance_button.add_theme_stylebox_override("normal", style)
 	advance_button.add_theme_stylebox_override("hover", style)
 	advance_button.add_theme_stylebox_override("pressed", style)
-	advance_button.add_theme_color_override("font_color", Color.WHITE)
+
+
+func _style_choice_button(button: Button) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = COL_INK
+	style.border_color = COL_YELLOW
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(0)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 6
+	style.content_margin_bottom = 6
+	button.add_theme_stylebox_override("normal", style)
+	button.add_theme_stylebox_override("hover", style)
+	button.add_theme_stylebox_override("pressed", style)
+	button.add_theme_color_override("font_color", COL_YELLOW)
 
 
 func _panel(bg: Color, border: Color) -> StyleBoxFlat:
@@ -2226,10 +2371,10 @@ func _panel(bg: Color, border: Color) -> StyleBoxFlat:
 	style.border_color = border
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(0)
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	style.content_margin_top = 10
-	style.content_margin_bottom = 10
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
 	return style
 
 

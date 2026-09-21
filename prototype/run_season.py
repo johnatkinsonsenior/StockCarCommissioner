@@ -32,6 +32,13 @@ from game.calendar import (
     PRESEASON,
     REGULAR_SEASON,
 )
+from game.commissioner_files import (
+    briefing_body,
+    briefing_subject,
+    chair_note,
+    ticker_chair_line,
+    welcome_addendum,
+)
 from game.event_catalog import (
     APPROVAL_SLIP_FLOOR,
     BOARD_CONFIDENCE_TILT,
@@ -5709,7 +5716,7 @@ def manufacturer_dashboard_text():
         parts.append("{0} {1} {2}".format(
             maker.name,
             spec.get("family") or maker.identity,
-            spec.get("name") or "",
+            spec.get("label") or spec.get("name") or "",
         ).strip())
     if not parts:
         return "Makers: none"
@@ -8336,7 +8343,7 @@ def office_standings_book():
             body = body_map_for(shop.manufacturer)
             row["manufacturer"] = shop.manufacturer
             row["family"] = spec.get("family") or ""
-            row["coupe"] = spec.get("name") or ""
+            row["coupe"] = spec.get("label") or spec.get("name") or ""
             row["portrait"] = spec.get("portrait") or spec.get("id") or ""
             row["short_track_body"] = int(body.get("short_track") or 50)
             row["superspeedway_body"] = int(body.get("superspeedway") or 50)
@@ -8496,7 +8503,7 @@ def office_team_book():
                 "morale": morale,
                 "trust": trust,
                 "family": spec.get("family") or "",
-                "coupe": spec.get("name") or "",
+                "coupe": spec.get("label") or spec.get("name") or "",
                 "portrait": spec.get("portrait") or spec.get("id") or "",
                 "short_track": int(body.get("short_track") or 50),
                 "intermediate": int(body.get("intermediate") or 50),
@@ -8823,9 +8830,12 @@ def office_ticker_book():
             if text:
                 lines.append(text)
     if not lines:
+        lines.append(ticker_chair_line())
         lines.append(
             "Preseason quiet. Beat writers file after the green flag."
         )
+    elif calendar.phase == PRESEASON:
+        lines.insert(0, ticker_chair_line())
     return lines
 
 
@@ -11523,9 +11533,11 @@ def build_ui_snapshot():
         "legal, which factories get the aero edge, and how the big tracks run.\n\n"
         "Open Dashboard, Standings, Entries, Rulebook, Television, and Mail. "
         "Reports is the race file: attendance, wrecks, TV, driver form. "
+        "The winter book you write moves those numbers.\n\n"
+        "%s\n\n"
         "When the checklist is done, Advance runs the next race week.\n\n"
         "Python still simulates the races. This office is where you sit."
-        % series
+        % (series, welcome_addendum())
     )
     snapshot = compose_ui_snapshot(
         {
@@ -11548,7 +11560,9 @@ def build_ui_snapshot():
             "saves": office_save_catalog(),
             "week_recap": recap,
             "recap": recap,
-            "palette": "winston-cup",
+            "palette": "cbs-broadcast-83",
+            "briefing_subject": briefing_subject(),
+            "briefing_body": briefing_body(series),
             "mail": {
                 "title": "Welcome to %s" % series,
                 "from": "Series Office — %s" % calendar.phase_label(),
@@ -11618,6 +11632,7 @@ def build_ui_snapshot():
                 "factory": factory_dashboard_text() if teams else "",
                 "makers": manufacturer_dashboard_text() if teams else "",
                 "win_on_sunday": win_on_sunday_text() if teams else "",
+                "chair_note": chair_note(),
                 "alerts": alerts,
                 "teams": team_rows,
                 "policies": [

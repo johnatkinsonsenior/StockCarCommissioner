@@ -34,6 +34,9 @@ is no team-owner or GM career.
   Advance a Cup weekend.
 - Forty-row lists (Standings, Entries, Drivers, Sponsors) are long on
   purpose. Sortable columns are not in this zip.
+- The desk chrome is the 1983–84 broadcast package (black field, yellow
+  chyron bars, Winston stripe, LIVE / SPORTS bugs, scanlines). Palette
+  id `cbs-broadcast-83`. It evokes that look; it is not a network mark.
 
 ### Winter book
 
