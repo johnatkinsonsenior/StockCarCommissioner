@@ -17,7 +17,7 @@ var viewport: SubViewport
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var host := SubViewportContainer.new()
-	host.stretch = true
+	host.stretch = false
 	host.set_anchors_preset(Control.PRESET_FULL_RECT)
 	host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	host.size_flags_vertical = Control.SIZE_EXPAND_FILL

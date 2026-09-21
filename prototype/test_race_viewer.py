@@ -191,6 +191,18 @@ def test_scale_and_performance(errors):
     print("VIEWER_PERF_40=%.1f" % elapsed_ms)
     print("VIEWER_PERF_40x50=%.1f" % long_ms)
     print("VIEWER_PERF_40x50_FRAMES=%s" % len(long_bundle["keyframes"]))
+    five_start = time.perf_counter()
+    five_fix = build_riverside_fixture(40, scheduled_laps=500)
+    five_bundle = project_race_viewer_bundle(
+        five_fix["input"], five_fix["result"], five_fix["layout"]
+    )
+    validate_bundle(five_bundle, five_fix["layout"])
+    reconstruct(five_bundle, five_bundle["duration_ms"] // 2)
+    five_ms = (time.perf_counter() - five_start) * 1000
+    _fail(errors, len(five_bundle["entries"]) == 40, "500-lap fixture field size")
+    _fail(errors, five_ms < 15_000, "40x500 projection exceeded 15s (%s)" % round(five_ms, 1))
+    print("VIEWER_PERF_40x500=%.1f" % five_ms)
+    print("VIEWER_PERF_40x500_FRAMES=%s" % len(five_bundle["keyframes"]))
 
 
 def test_watchable_snapshot(errors):

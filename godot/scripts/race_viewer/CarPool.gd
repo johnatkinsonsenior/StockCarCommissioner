@@ -1,22 +1,43 @@
 extends Node2D
 
 const POOL_SIZE := 40
-const CAR_TEXTURE := preload("res://assets/cars/stock_car_topdown.png")
 
 var _cars: Array[Node2D] = []
 var _by_entry := {}
+var _texture: Texture2D
+
+
+func _car_texture() -> Texture2D:
+	if _texture:
+		return _texture
+	if ResourceLoader.exists("res://assets/cars/stock_car_topdown.svg"):
+		var loaded: Resource = load("res://assets/cars/stock_car_topdown.svg")
+		if loaded is Texture2D:
+			_texture = loaded
+			return _texture
+	var image := Image.create(48, 24, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
+	for y in range(5, 19):
+		for x in range(8, 44):
+			image.set_pixel(x, y, Color("f0f0f0"))
+	for y in range(8, 16):
+		for x in range(4, 14):
+			image.set_pixel(x, y, Color("d0d0d0"))
+	_texture = ImageTexture.create_from_image(image)
+	return _texture
 
 
 func setup_pool() -> void:
 	if not _cars.is_empty():
 		return
 	var marker_script := preload("res://scripts/race_viewer/CarMarker.gd")
+	var texture := _car_texture()
 	for index in range(POOL_SIZE):
 		var car := Node2D.new()
 		car.name = "Car_%02d" % index
 		car.set_script(marker_script)
 		var sprite := Sprite2D.new()
-		sprite.texture = CAR_TEXTURE
+		sprite.texture = texture
 		sprite.centered = true
 		sprite.name = "Sprite"
 		car.add_child(sprite)
