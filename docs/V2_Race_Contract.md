@@ -91,7 +91,8 @@ Scalar rules:
 - Tire wear uses integer basis points from `0` through `10_000`.
 - Ratings use integers from `0` through `100`.
 - Probabilities are represented as integer parts per million.
-- On-track location uses `(race_lap, segment_index, progress_mm)`.
+- On-track location uses `(session_kind, session_lap, segment_index,
+  progress_mm)`.
 - Currency, standings points, and commissioner state are outside this
   contract.
 - Floating-point values must not appear in canonical persisted race output.
@@ -142,16 +143,19 @@ TrackSnapshot
 TrackSegment
   segment_index: contiguous int starting at 0
   length_mm: int > 0
+  path: RACING | PIT
   kind: STRAIGHT | CORNER | PIT_ENTRY | PIT_LANE | PIT_EXIT | START_FINISH
   lane_count: int >= 1
   passing_factor: 0..100
   contact_factor: 0..100
   pit_speed_limit_mms: optional int
+  joins_racing_segment_index: optional int
 ```
 
-Segment lengths must sum to `lap_length_m * 1_000`. Exactly one segment
-contains the start/finish line; pit entry, lane, and exit segments must form
-one ordered path. Segment detail is intentionally tactical rather than
+Racing-path segment lengths must sum to `lap_length_m * 1_000`. Exactly one
+racing segment contains the start/finish line. Pit entry, lane, and exit
+segments form one ordered alternate path and identify where they leave and
+rejoin the racing path. Segment detail is intentionally tactical rather than
 geometric: it supplies causal location without becoming a vehicle-physics
 model.
 
