@@ -17,6 +17,7 @@ from game.aero_wars import (
     body_pace_tick,
     mechanical_heat,
     pack_heat,
+    package_show_modifiers,
     skill_pace_tick,
 )
 
@@ -80,9 +81,10 @@ def clamp(value, minimum=0, maximum=100):
 
 
 def weekend_incident_risk(track):
-    """Return track incident risk after the live difficulty modifier."""
+    """Return track incident risk after difficulty and the winter book."""
 
-    return clamp(int(track.incident_risk) + int(incident_risk_mod()))
+    extra = int(package_show_modifiers().get("wrecks") or 0)
+    return clamp(int(track.incident_risk) + int(incident_risk_mod()) + extra)
 
 
 def get_team(team_name):

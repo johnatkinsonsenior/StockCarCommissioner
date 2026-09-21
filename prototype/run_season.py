@@ -148,8 +148,14 @@ from game.balance import (
     write_balance_report,
 )
 from game.ui_bridge import (
+    DESK_MODE,
+    basics_desk,
+    clamp_era_book,
     compose_ui_snapshot,
     default_snapshot_path,
+    era_start_books,
+    filter_basics_alerts,
+    filter_basics_hearings,
     find_godot_binary,
     godot_project_dir,
     launch_godot_process,
@@ -397,7 +403,7 @@ PROSPECT_POOL_TARGET = 10
 PROSPECT_READY_FLOOR = 80
 PROSPECT_RADAR_FLOOR = 70
 PROSPECT_DEVELOPING_FLOOR = 60
-DRIVERS_PER_TEAM = 2
+DRIVERS_PER_TEAM = 1
 BAILOUT_AMOUNT = 800_000
 FACTORY_MIN_INTEREST = 52
 FACTORY_SWITCH_GAP = 8
@@ -3045,6 +3051,8 @@ def compute_race_product(track, results, weekend):
         score -= 5
     elif condition == "hot":
         score += 1
+    show = aero_show_modifiers()
+    score += int(show.get("tv") or 0)
     return round(clamp(score))
 
 
@@ -3248,6 +3256,8 @@ def compute_gate_draw(track, results, weekend):
     elif controversy >= 40:
         score -= 2
     score += (integrity - 70) * 0.08
+    show = aero_show_modifiers()
+    score += int(show.get("gate") or 0)
     return round(clamp(score))
 
 
@@ -6183,7 +6193,7 @@ def staff_expansion_seat(team_name):
 
 
 def admit_expansion_team(applicant):
-    """Add a granted applicant as a premier team with a full driver roster."""
+    """Add a granted applicant as a premier team with one Cup driver."""
 
     owner = Owner(
         name=applicant["owner_name"],
@@ -7168,7 +7178,7 @@ def resign_incumbent_driver(driver, team):
 
 
 def repair_premier_rosters():
-    """Keep every live shop at two premier drivers and drop orphans."""
+    """Keep every live shop at one Cup driver and drop orphans."""
 
     team_names = {team.name for team in teams}
     repaired = []
@@ -8299,8 +8309,41 @@ def office_standings_book():
                 "road_course": int(driver.road_course),
                 "intermediate": int(driver.intermediate),
                 "superspeedway": int(driver.superspeedway),
+                "manufacturer": "",
+                "coupe": "",
+                "portrait": "",
+                "family": "",
+                "avg_finish": None,
+                "dnfs": 0,
             }
         )
+    shop_by_name = {team.name: team for team in teams or []}
+    finishes = {}
+    dnfs = {}
+    for race in race_history or []:
+        for row in race.get("results") or []:
+            name = row.get("driver") or ""
+            pos = int(row.get("position") or 0)
+            if name and pos:
+                finishes.setdefault(name, []).append(pos)
+            status = str(row.get("status") or "").lower()
+            if row.get("dnf") or status in ("dnf", "crash", "mechanical"):
+                dnfs[name] = dnfs.get(name, 0) + 1
+    for row in rows:
+        shop = shop_by_name.get(row["team"])
+        if shop is not None:
+            spec = coupe_spec(shop.manufacturer)
+            body = body_map_for(shop.manufacturer)
+            row["manufacturer"] = shop.manufacturer
+            row["family"] = spec.get("family") or ""
+            row["coupe"] = spec.get("name") or ""
+            row["portrait"] = spec.get("portrait") or spec.get("id") or ""
+            row["short_track_body"] = int(body.get("short_track") or 50)
+            row["superspeedway_body"] = int(body.get("superspeedway") or 50)
+        places = finishes.get(row["name"]) or []
+        if places:
+            row["avg_finish"] = round(sum(places) / float(len(places)), 1)
+        row["dnfs"] = int(dnfs.get(row["name"], 0) or 0)
     return rows
 
 
@@ -8340,6 +8383,74 @@ def office_recap_book():
                     continue
                 week[key] = value
     return week
+
+
+def aero_show_modifiers():
+    """Return how the live winter book moves TV, gate, and wreck risk."""
+
+    from game.aero_wars import package_show_modifiers
+
+    return package_show_modifiers(league.get("aero_book") if league else None)
+
+
+def office_analytics_book():
+    """Return Baseball Mogul-style race, TV, gate, and wreck reports."""
+
+    package = aero_show_modifiers()
+    races = []
+    wreck_total = 0
+    caution_total = 0
+    for record in race_history or []:
+        wrecks = list(record.get("wrecks") or [])
+        wreck_total += len(wrecks)
+        caution_total += int(record.get("cautions") or 0)
+        races.append(
+            {
+                "race": int(record.get("race_number") or len(races) + 1),
+                "track": record.get("track") or "",
+                "type": record.get("track_type") or "",
+                "winner": race_winner_name(record, None),
+                "tv_rating": record.get("tv_rating"),
+                "tv_viewers": record.get("tv_viewers"),
+                "gate_attendance": record.get("gate_attendance"),
+                "gate_fill": record.get("gate_fill"),
+                "cautions": int(record.get("cautions") or 0),
+                "wrecks": len(wrecks),
+            }
+        )
+    driver_rows = office_standings_book()
+    leaders = sorted(
+        driver_rows,
+        key=lambda row: (-int(row.get("wins") or 0), -int(row.get("points") or 0)),
+    )[:8]
+    return {
+        "package": package,
+        "races": races,
+        "tv_last": league.get("last_tv_rating"),
+        "tv_viewers": league.get("last_tv_viewers"),
+        "tv_average": average_tv_rating() if race_history else None,
+        "tv_trend": int(league.get("tv_rating_trend") or 0),
+        "gate_last": league.get("last_gate_attendance"),
+        "gate_fill": league.get("last_gate_fill"),
+        "gate_average": average_gate_attendance() if race_history else None,
+        "wrecks": wreck_total,
+        "cautions": caution_total,
+        "field_size": len(list(drivers or [])),
+        "entries": len(list(teams or [])),
+        "leaders": [
+            {
+                "name": row.get("name"),
+                "team": row.get("team"),
+                "points": row.get("points"),
+                "wins": row.get("wins"),
+                "avg_finish": row.get("avg_finish"),
+                "dnfs": row.get("dnfs"),
+                "portrait": row.get("portrait"),
+                "coupe": row.get("coupe"),
+            }
+            for row in leaders
+        ],
+    }
 
 
 def office_team_book():
@@ -8463,6 +8574,9 @@ def office_television_book():
         "last_gate": league.get("last_gate_attendance"),
         "last_gate_fill": league.get("last_gate_fill"),
         "signed": bool(deal.get("network")),
+        "season_ratings": list(league.get("season_tv_ratings") or []),
+        "season_gates": list(league.get("season_gate_fill") or []),
+        "package": aero_show_modifiers(),
     }
 
 
@@ -11278,11 +11392,13 @@ def office_live_events():
     events = []
     if calendar.phase == PRESEASON:
         events.extend(preseason_events(current_policies, season) or [])
-        events.extend(factory_lobby_events(season, events_resolved, league) or [])
-        events.extend(kit_lobby_events(season, events_resolved, league) or [])
+        if not basics_desk():
+            events.extend(factory_lobby_events(season, events_resolved, league) or [])
+            events.extend(kit_lobby_events(season, events_resolved, league) or [])
     else:
-        events.extend(factory_lobby_events(season, events_resolved, league) or [])
-        events.extend(kit_lobby_events(season, events_resolved, league) or [])
+        if not basics_desk():
+            events.extend(factory_lobby_events(season, events_resolved, league) or [])
+            events.extend(kit_lobby_events(season, events_resolved, league) or [])
         if calendar.phase == REGULAR_SEASON:
             raced = len(race_history) or 1
             stories = league.get("last_media_stories") or []
@@ -11296,24 +11412,25 @@ def office_live_events():
                 )
                 or []
             )
-            events.extend(
-                runaway_hearing_events(
-                    season,
-                    events_resolved,
-                    race_history,
-                    teams,
+            if not basics_desk():
+                events.extend(
+                    runaway_hearing_events(
+                        season,
+                        events_resolved,
+                        race_history,
+                        teams,
+                    )
+                    or []
                 )
-                or []
-            )
-            events.extend(
-                plate_pack_events(
-                    season,
-                    events_resolved,
-                    race_history,
-                    league,
+                events.extend(
+                    plate_pack_events(
+                        season,
+                        events_resolved,
+                        race_history,
+                        league,
+                    )
+                    or []
                 )
-                or []
-            )
     return events
 
 
@@ -11328,6 +11445,8 @@ def pending_office_hearings():
             continue
         seen.add(event_id)
         rows.append(office_hearing_payload(event))
+    if basics_desk():
+        rows = filter_basics_hearings(rows)
     return rows
 
 
@@ -11359,6 +11478,8 @@ def build_ui_snapshot():
             security.get("risk_label"),
         )
         alerts = list(collect_commissioner_alerts())
+        if basics_desk():
+            alerts = filter_basics_alerts(alerts)
         inbox_alerts = sync_office_alert_mail(alerts)
         for team in teams:
             team_rows.append(
@@ -11380,7 +11501,7 @@ def build_ui_snapshot():
     schedule_rows = office_schedule_book()
     recap = office_recap_book()
     team_book = office_team_book()
-    prospect_book = office_prospect_book()
+    prospect_book = [] if basics_desk() else office_prospect_book()
     treasury_book = office_treasury_book()
     television_book = office_television_book()
     sponsor_book = office_sponsor_book()
@@ -11394,12 +11515,15 @@ def build_ui_snapshot():
     week = office_week_preview()
     mail_body = (
         "Commissioner,\n\n"
-        "You run %s. You do not drive.\n\n"
-        "Television and naming rights pay the bills. Owners want wins. "
-        "Drivers want a fair garage. The board wants a league that still "
-        "exists next year.\n\n"
-        "Open every section on the left. Mail is your inbox. When the "
-        "checklist is done, Advance runs the next week.\n\n"
+        "You run %s. You do not drive. You do not own a shop.\n\n"
+        "This is the league office for a high-level stock car series in the "
+        "Winston Cup years. Each week you Advance the calendar. Between "
+        "weekends you read the mail, inspect the Cup roster, and write the "
+        "winter book: Ford, Pontiac, Plymouth, Chevrolet — which coupes are "
+        "legal, which factories get the aero edge, and how the big tracks run.\n\n"
+        "Open Dashboard, Standings, Entries, Rulebook, Television, and Mail. "
+        "Reports is the race file: attendance, wrecks, TV, driver form. "
+        "When the checklist is done, Advance runs the next race week.\n\n"
         "Python still simulates the races. This office is where you sit."
         % series
     )
@@ -11407,6 +11531,7 @@ def build_ui_snapshot():
         {
             "screen": "mail",
             "series": series,
+            "desk_mode": DESK_MODE,
             "settings_line": settings_dashboard_text(),
             "calendar": calendar.description(),
             "status_line": office_status_line(),
@@ -11441,6 +11566,7 @@ def build_ui_snapshot():
             "treasury": treasury_book,
             "television": television_book,
             "sponsors": sponsor_book,
+            "reports": office_analytics_book(),
             "rulebook": rulebook_book,
             "councils": councils_book,
             "board": board_book,
@@ -11464,6 +11590,7 @@ def build_ui_snapshot():
                 "autosave_label": autosave_label(),
                 "era_book": current_settings.get("era_book") or ERA_PINNACLE,
                 "era_book_label": era_book_label(),
+                "era_books": era_start_books(),
             },
             "dashboard": {
                 "calendar": calendar.description(),
@@ -11474,13 +11601,18 @@ def build_ui_snapshot():
                 "driver_sentiment": league.get("driver_sentiment", 0),
                 "grade": grade,
                 "score": score,
-                "approval": approval_line,
-                "board": board_line,
+                "approval": "" if basics_desk() else approval_line,
+                "board": "" if basics_desk() else board_line,
                 "treasury": league.get("treasury", 0),
                 "naming_rights": league_deal_label(league.get("naming_rights")),
                 "tv_rights": tv_deal_label(league.get("tv_rights")),
-                "prospects": prospect_dashboard_text() if drivers else "",
-                "development": (
+                "tv_last": league.get("last_tv_rating"),
+                "gate_last": league.get("last_gate_attendance"),
+                "gate_fill": league.get("last_gate_fill"),
+                "prospects": "" if basics_desk() else (
+                    prospect_dashboard_text() if drivers else ""
+                ),
+                "development": "" if basics_desk() else (
                     development_dashboard_text() if drivers else ""
                 ),
                 "factory": factory_dashboard_text() if teams else "",
@@ -11549,13 +11681,16 @@ def start_office_career(data=None):
     """Reset a new commissioner career onto the desk."""
 
     data = dict(data or {})
+    era_book = data.get("era_book") or current_settings.get("era_book")
+    if basics_desk():
+        era_book = clamp_era_book(era_book)
     apply_game_settings(
         {
             "difficulty": data.get("difficulty") or current_settings.get("difficulty"),
             "career_seasons": data.get("career_seasons")
             or current_settings.get("career_seasons"),
             "autosave": data.get("autosave") or current_settings.get("autosave"),
-            "era_book": data.get("era_book") or current_settings.get("era_book"),
+            "era_book": era_book,
         }
     )
     reset_career_state(keep_settings=True)
@@ -11771,14 +11906,15 @@ def print_aero_desk_lines():
 
 
 def office_status_line():
-    """Return the desk header: calendar, next weekend, treasury, fans."""
+    """Return the desk header: calendar, next weekend, fans."""
 
     preview = office_week_preview()
     next_line = preview.get("next") or calendar.description()
+    fans = league.get("fan_interest") or 0
     return "%s — $%s — %s fans" % (
         next_line,
         "{:,}".format(int(league.get("treasury") or 0)),
-        league.get("fan_interest") or 0,
+        fans,
     )
 
 
@@ -11915,13 +12051,26 @@ def weekend_card_from_record(record):
         "weather": record.get("weather") or "",
         "temperature": record.get("temperature"),
         "format": record.get("format") or "",
-        "tv_rating": record.get("tv_rating"),
         "gate": record.get("gate"),
         "podium": podium,
         "qualifying": qualifying[:8],
         "investigations": investigations,
         "wrecks": wreck_count,
         "biggest_wreck": biggest,
+        "tv_rating": record.get("tv_rating"),
+        "tv_viewers": record.get("tv_viewers"),
+        "gate_attendance": record.get("gate_attendance"),
+        "gate_fill": record.get("gate_fill"),
+        "gate_capacity": record.get("gate_capacity"),
+        "field": [
+            {
+                "position": int(row.get("position") or index),
+                "driver": row.get("driver") or "",
+                "team": row.get("team") or "",
+                "status": row.get("status") or "running",
+            }
+            for index, row in enumerate(results[:40], start=1)
+        ],
     }
 
 

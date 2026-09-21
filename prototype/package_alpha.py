@@ -18,8 +18,8 @@ def main():
     print("Zip: %s" % result["zip_path"])
     print("Files: %s" % result["file_count"])
     print("Size: %s bytes" % result["size_bytes"])
-    print("Play the office with ./play_ui.sh (Windows: play_ui.bat) after unpacking.")
-    print("Terminal loop: ./play.sh  |  Known issues: KNOWN_ISSUES.md")
+    print("Windows: double-click \"Double-click to play.bat\" after unpacking.")
+    print("Mac/Linux: ./play_ui.sh  |  Known issues: KNOWN_ISSUES.md")
     return result
 
 

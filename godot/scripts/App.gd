@@ -35,6 +35,8 @@ var era_book := "pinnacle"
 var profile_team := ""
 var profile_driver := ""
 var profile_season := ""
+var _portrait_cache: Dictionary = {}
+var _portrait_logged: Dictionary = {}
 
 
 func _ready() -> void:
@@ -54,6 +56,7 @@ func _ready() -> void:
 	print("OFFICE_READY")
 	print("PALETTE=", str(snapshot.get("palette", "")))
 	print("LAYOUT=commissioner-desk")
+	print("DESK_MODE=", str(snapshot.get("desk_mode", "")))
 	print("SERIES=", str(snapshot.get("series", "")))
 	print("SCREEN=", screen_name)
 	print("CHECKLIST=", str(_checklist().size()))
@@ -98,11 +101,10 @@ func _headless_tour() -> void:
 	_show_section("schedule")
 	_show_section("teams")
 	_show_section("drivers")
-	_show_section("prospects")
+	_show_section("reports")
 	_show_section("treasury")
 	_show_section("television")
 	_show_section("sponsors")
-	_show_section("hearings")
 	_show_section("mail")
 	var shops: Array = _as_array(snapshot.get("teams", []))
 	if not shops.is_empty() and typeof(shops[0]) == TYPE_DICTIONARY:
@@ -120,8 +122,6 @@ func _headless_tour() -> void:
 		profile_season = str(seasons[0].get("id", seasons[0].get("season", "")))
 		_show_section("history")
 		print("HISTORY_SEASON=", profile_season)
-	_show_section("hof")
-	print("HOF=", str(_as_array(snapshot.get("hof", [])).size()))
 	print("TICKER=", str(_ticker_lines().size()))
 	_show_section("settings")
 	_on_office_save("desk")
@@ -438,6 +438,8 @@ func _show_section(section_id: String) -> void:
 			_fill_standings()
 		"schedule":
 			_fill_schedule()
+		"reports":
+			_fill_reports()
 		"hearings":
 			_fill_hearings()
 		"teams":
@@ -802,9 +804,17 @@ func _fill_dashboard() -> void:
 	center_body.add_child(_meter("Controversy", int(dash.get("controversy", 0)), Color("c44536")))
 	center_body.add_child(_meter("Owner pressure", int(dash.get("owner_pressure", 0)), Color("c44536")))
 	center_body.add_child(_meter("Driver sentiment", int(dash.get("driver_sentiment", 0)), Color("3d9b6e")))
-	center_body.add_child(_line("Grade %s (%s/100)" % [str(dash.get("grade", "—")), str(dash.get("score", 0))]))
-	center_body.add_child(_line(str(dash.get("approval", ""))))
-	center_body.add_child(_line(str(dash.get("board", ""))))
+	center_body.add_child(_line("Grade %s (%s/100)" % [str(dash.get("grade", "—")), str(_as_int(dash.get("score", 0)))]))
+	if str(snapshot.get("desk_mode", "basics")) != "basics":
+		center_body.add_child(_line(str(dash.get("approval", ""))))
+		center_body.add_child(_line(str(dash.get("board", ""))))
+	if dash.get("tv_last", null) != null:
+		center_body.add_child(_line("Last TV rating: %s" % str(_as_int(dash.get("tv_last", 0)))))
+	if dash.get("gate_last", null) != null:
+		center_body.add_child(_line("Last gate: %s  ·  fill %s%%" % [
+			_comma(dash.get("gate_last", 0)),
+			str(_as_int(dash.get("gate_fill", 0))),
+		]))
 	center_body.add_child(_line("Treasury $%s" % _comma(dash.get("treasury", 0))))
 	if str(dash.get("makers", "")) != "":
 		center_body.add_child(_muted(str(dash.get("makers", ""))))
@@ -826,7 +836,7 @@ func _fill_dashboard() -> void:
 func _fill_standings() -> void:
 	center_body.add_child(_title("Standings"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("Cup points. The table updates when you Advance a weekend."))
+	center_body.add_child(_muted("Cup points. Rank, car, wins, average finish — Advance a weekend to fill the columns."))
 	_fill_recap_card()
 	var rows: Array = _as_array(snapshot.get("standings", snapshot.get("drivers", [])))
 	if rows.is_empty():
@@ -847,24 +857,38 @@ func _fill_standings() -> void:
 	print("STANDINGS_TOP=", str(leader.get("name", "")))
 	print("STANDINGS_POINTS=", str(_as_int(leader.get("points", 0))))
 	print("STANDINGS_RANK=", str(_as_int(leader.get("rank", 1))))
+	print("STANDINGS_FIELD=", str(rows.size()))
+	center_body.add_child(_muted("#   Driver                  Car            Pts  W  Avg  DNF"))
 	var index := 1
 	for row in rows:
 		var item: Dictionary = row
 		var rank := _as_int(item.get("rank", index))
-		var wins := _as_int(item.get("wins", 0))
-		var win_word := "win" if wins == 1 else "wins"
-		var line := "#%s  %s    %s pts    %s %s" % [
-			str(rank),
+		var avg = item.get("avg_finish", null)
+		var avg_text := "—" if avg == null else str(avg)
+		var line := "%s  %s    %s    %s  %s  %s  %s" % [
+			str(rank).pad_zeros(2),
 			str(item.get("name", "")),
+			str(item.get("coupe", item.get("manufacturer", ""))),
 			str(_as_int(item.get("points", 0))),
-			str(wins),
-			win_word,
+			str(_as_int(item.get("wins", 0))),
+			avg_text,
+			str(_as_int(item.get("dnfs", 0))),
 		]
+		var row_box := HBoxContainer.new()
+		row_box.add_theme_constant_override("separation", 8)
+		var portrait := _body_portrait(str(item.get("portrait", "")))
+		if portrait != null:
+			portrait.custom_minimum_size = Vector2(72, 40)
+			row_box.add_child(portrait)
+		var copy := VBoxContainer.new()
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if index == 1:
-			center_body.add_child(_gold_line(line))
+			copy.add_child(_gold_line(line))
 		else:
-			center_body.add_child(_line(line))
-		center_body.add_child(_muted(str(item.get("team", ""))))
+			copy.add_child(_line(line))
+		copy.add_child(_muted(str(item.get("team", ""))))
+		row_box.add_child(copy)
+		center_body.add_child(row_box)
 		index += 1
 
 
@@ -903,6 +927,92 @@ func _fill_schedule() -> void:
 	print("SCHEDULE_NEXT=", next_name)
 
 
+func _fill_reports() -> void:
+	center_body.add_child(_title("Reports"))
+	center_body.add_child(_gold_rule())
+	center_body.add_child(_muted("The race file: TV, the gate, wrecks, and driver form. Winter-book rules move these numbers."))
+	var book := _as_dict(snapshot.get("reports", {}))
+	print("REPORTS_RACES=", str(_as_array(book.get("races", [])).size()))
+	print("REPORTS_FIELD=", str(_as_int(book.get("field_size", 0))))
+	print("REPORTS_ENTRIES=", str(_as_int(book.get("entries", 0))))
+	center_body.add_child(_line("Field: %s cars  ·  %s entries" % [
+		str(_as_int(book.get("field_size", 0))),
+		str(_as_int(book.get("entries", 0))),
+	]))
+	var package: Dictionary = _as_dict(book.get("package", {}))
+	center_body.add_child(_gold_line("Winter book vs the show"))
+	for note in _as_array(package.get("notes", [])):
+		center_body.add_child(_muted(str(note)))
+	center_body.add_child(_line("TV swing %s  ·  gate swing %s  ·  wreck swing %s" % [
+		str(_as_int(package.get("tv", 0))),
+		str(_as_int(package.get("gate", 0))),
+		str(_as_int(package.get("wrecks", 0))),
+	]))
+	if book.get("tv_last", null) != null:
+		center_body.add_child(_line("Last TV: %s  ·  season avg %s  ·  trend %s" % [
+			str(_as_int(book.get("tv_last", 0))),
+			str(_as_int(book.get("tv_average", 0))),
+			str(_as_int(book.get("tv_trend", 0))),
+		]))
+	else:
+		center_body.add_child(_muted("No TV rating yet. Advance a race."))
+	if book.get("gate_last", null) != null:
+		center_body.add_child(_line("Last gate: %s  ·  fill %s%%" % [
+			_comma(book.get("gate_last", 0)),
+			str(_as_int(book.get("gate_fill", 0))),
+		]))
+	center_body.add_child(_line("Season wrecks: %s  ·  cautions: %s" % [
+		str(_as_int(book.get("wrecks", 0))),
+		str(_as_int(book.get("cautions", 0))),
+	]))
+	center_body.add_child(_gold_line("Race log"))
+	center_body.add_child(_muted("R    Track                    Winner            TV   Gate      Fill  Cau  Wreck"))
+	var races: Array = _as_array(book.get("races", []))
+	if races.is_empty():
+		center_body.add_child(_muted("Empty until you Advance a Cup weekend."))
+	else:
+		for row in races:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			var race: Dictionary = row
+			center_body.add_child(_line("R%s  %s  ·  %s  ·  TV %s  ·  gate %s (%s%%)  ·  C %s  ·  W %s" % [
+				str(_as_int(race.get("race", 0))),
+				str(race.get("track", "")),
+				str(race.get("winner", "")),
+				str(_as_int(race.get("tv_rating", 0))),
+				_comma(race.get("gate_attendance", 0)),
+				str(_as_int(race.get("gate_fill", 0))),
+				str(_as_int(race.get("cautions", 0))),
+				str(_as_int(race.get("wrecks", 0))),
+			]))
+	center_body.add_child(_gold_line("Driver form"))
+	for row in _as_array(book.get("leaders", [])):
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = row
+		var form := HBoxContainer.new()
+		form.add_theme_constant_override("separation", 8)
+		var portrait := _body_portrait(str(item.get("portrait", "")))
+		if portrait != null:
+			portrait.custom_minimum_size = Vector2(72, 40)
+			form.add_child(portrait)
+		var copy := VBoxContainer.new()
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		copy.add_child(_line("%s  ·  %s pts  ·  %s wins" % [
+			str(item.get("name", "")),
+			str(_as_int(item.get("points", 0))),
+			str(_as_int(item.get("wins", 0))),
+		]))
+		var avg = item.get("avg_finish", null)
+		copy.add_child(_muted("%s  ·  avg %s  ·  DNF %s" % [
+			str(item.get("coupe", "")),
+			"—" if avg == null else str(avg),
+			str(_as_int(item.get("dnfs", 0))),
+		]))
+		form.add_child(copy)
+		center_body.add_child(form)
+
+
 func _fill_hearings() -> void:
 	center_body.add_child(_title("Hearings"))
 	center_body.add_child(_gold_rule())
@@ -927,9 +1037,9 @@ func _fill_teams() -> void:
 	if profile_team != "":
 		_fill_team_profile()
 		return
-	center_body.add_child(_title("Teams"))
+	center_body.add_child(_title("Entries"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("Shops on the Cup charter. Click a shop for the full card. You run the series, not a car."))
+	center_body.add_child(_muted("Forty Cup cars. One driver per entry. Multi-car shops come later. Click a car for the card."))
 	var shops: Array = _as_array(snapshot.get("teams", _dash().get("teams", [])))
 	print("TEAMS=", str(shops.size()))
 	if shops.is_empty():
@@ -978,9 +1088,9 @@ func _fill_teams() -> void:
 func _fill_team_profile() -> void:
 	var shops: Array = _as_array(snapshot.get("teams", []))
 	var row := _row_by_id(shops, profile_team)
-	center_body.add_child(_title("Team profile"))
+	center_body.add_child(_title("Entry"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_profile_button("All shops", _open_team_profile.bind("")))
+	center_body.add_child(_profile_button("All entries", _open_team_profile.bind("")))
 	if row.is_empty():
 		center_body.add_child(_muted("That shop is not on the charter."))
 		print("PROFILE_TEAM=")
@@ -1057,7 +1167,7 @@ func _fill_drivers() -> void:
 		return
 	center_body.add_child(_title("Drivers"))
 	center_body.add_child(_gold_rule())
-	center_body.add_child(_muted("The premier grid. Click a name for the full card. Morale and trust are the garage."))
+	center_body.add_child(_muted("The Cup grid. Each name sits in one car. Click for the card."))
 	var rows: Array = _as_array(snapshot.get("drivers", []))
 	print("DRIVERS=", str(rows.size()))
 	if rows.is_empty():
@@ -1066,17 +1176,28 @@ func _fill_drivers() -> void:
 	for row in rows:
 		var item: Dictionary = row
 		var driver_id := str(item.get("id", item.get("name", "")))
-		center_body.add_child(_profile_button(str(item.get("name", "")), _open_driver_profile.bind(driver_id)))
-		center_body.add_child(_line("%s  ·  %s" % [
+		var card := HBoxContainer.new()
+		card.add_theme_constant_override("separation", 8)
+		var portrait := _body_portrait(str(item.get("portrait", "")))
+		if portrait != null:
+			portrait.custom_minimum_size = Vector2(96, 54)
+			card.add_child(portrait)
+		var copy := VBoxContainer.new()
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		copy.add_child(_profile_button(str(item.get("name", "")), _open_driver_profile.bind(driver_id)))
+		copy.add_child(_line("%s  ·  %s  ·  %s" % [
 			str(item.get("team", "")),
+			str(item.get("coupe", "")),
 			str(item.get("personality", "")),
 		]))
-		center_body.add_child(_muted("Age %s  ·  %s pts  ·  morale %s  ·  trust %s" % [
+		copy.add_child(_muted("Age %s  ·  %s pts  ·  morale %s  ·  trust %s" % [
 			str(_as_int(item.get("age", 0))),
 			str(_as_int(item.get("points", 0))),
 			str(_as_int(item.get("morale", 0))),
 			str(_as_int(item.get("trust", 0))),
 		]))
+		card.add_child(copy)
+		center_body.add_child(card)
 
 
 func _fill_driver_profile() -> void:
@@ -1092,7 +1213,21 @@ func _fill_driver_profile() -> void:
 	print("PROFILE_DRIVER=", str(item.get("id", item.get("name", ""))))
 	center_body.add_child(_gold_line(str(item.get("name", ""))))
 	var team_id := str(item.get("team_id", item.get("team", "")))
-	center_body.add_child(_profile_button(str(item.get("team", "")), _open_team_profile.bind(team_id)))
+	var driver_car := HBoxContainer.new()
+	driver_car.add_theme_constant_override("separation", 10)
+	var driver_portrait := _body_portrait(str(item.get("portrait", "")))
+	if driver_portrait != null:
+		driver_portrait.custom_minimum_size = Vector2(128, 72)
+		driver_car.add_child(driver_portrait)
+	var driver_copy := VBoxContainer.new()
+	driver_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	driver_copy.add_child(_profile_button(str(item.get("team", "")), _open_team_profile.bind(team_id)))
+	driver_copy.add_child(_muted("%s  ·  %s" % [
+		str(item.get("coupe", "")),
+		str(item.get("manufacturer", "")),
+	]))
+	driver_car.add_child(driver_copy)
+	center_body.add_child(driver_car)
 	center_body.add_child(_line("%s  ·  age %s  ·  overall %s" % [
 		str(item.get("personality", "")),
 		str(_as_int(item.get("age", 0))),
@@ -1193,7 +1328,21 @@ func _fill_television() -> void:
 	else:
 		center_body.add_child(_muted("No weekend rating yet. Advance a race to put a number on the board."))
 	if book.get("last_gate", null) != null:
-		center_body.add_child(_line("Last gate: %s" % _comma(book.get("last_gate", 0))))
+		center_body.add_child(_line("Last gate: %s  ·  fill %s%%" % [
+			_comma(book.get("last_gate", 0)),
+			str(_as_int(book.get("last_gate_fill", 0))),
+		]))
+	var package: Dictionary = _as_dict(book.get("package", {}))
+	if not package.is_empty():
+		center_body.add_child(_gold_line("How the winter book hits the show"))
+		for note in _as_array(package.get("notes", [])):
+			center_body.add_child(_muted(str(note)))
+	var ratings: Array = _as_array(book.get("season_ratings", []))
+	if not ratings.is_empty():
+		var bits: PackedStringArray = PackedStringArray()
+		for rating_row in ratings:
+			bits.append(str(_as_int(rating_row)))
+		center_body.add_child(_line("Season ratings: %s" % ", ".join(bits)))
 
 
 func _fill_sponsors() -> void:
@@ -1410,12 +1559,22 @@ func _add_body_card(body: Dictionary) -> void:
 func _body_portrait(portrait_id: String) -> TextureRect:
 	if portrait_id == "":
 		return null
-	var path := "res://assets/bodies/%s.png" % portrait_id
-	var img := Image.new()
-	if img.load(path) != OK:
-		print("PORTRAIT_MISSING=", portrait_id)
-		return null
-	var tex := ImageTexture.create_from_image(img)
+	var tex: Texture2D = null
+	if _portrait_cache.has(portrait_id):
+		tex = _portrait_cache[portrait_id]
+	else:
+		var path := "res://assets/bodies/%s.png" % portrait_id
+		var img := Image.new()
+		if img.load(path) != OK:
+			if not _portrait_logged.has(portrait_id):
+				print("PORTRAIT_MISSING=", portrait_id)
+				_portrait_logged[portrait_id] = true
+			return null
+		tex = ImageTexture.create_from_image(img)
+		_portrait_cache[portrait_id] = tex
+		if not _portrait_logged.has(portrait_id):
+			print("PORTRAIT_LOADED=", portrait_id)
+			_portrait_logged[portrait_id] = true
 	if tex == null:
 		return null
 	var image := TextureRect.new()
@@ -1425,7 +1584,6 @@ func _body_portrait(portrait_id: String) -> TextureRect:
 	image.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	image.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	print("PORTRAIT_LOADED=", portrait_id)
 	return image
 
 
@@ -1624,17 +1782,28 @@ func _fill_settings() -> void:
 	var settings: Dictionary = snapshot.get("settings", {})
 	center_body.add_child(_title("Settings"))
 	center_body.add_child(_line("Difficulty: %s" % str(settings.get("difficulty_label", "Normal"))))
-	center_body.add_child(_line("Career length: %s seasons" % str(settings.get("career_seasons", 3))))
+	center_body.add_child(_line("Career length: %s seasons" % str(_as_int(settings.get("career_seasons", 3)))))
 	center_body.add_child(_line("Autosave: %s" % str(settings.get("autosave_label", "Off"))))
 	center_body.add_child(_line("Era book: %s" % str(settings.get("era_book_label", "Pinnacle (late '80s–mid '90s)"))))
 	print("ERA_BOOK=", str(settings.get("era_book", era_book)))
 	center_body.add_child(_muted(str(snapshot.get("settings_line", ""))))
-	center_body.add_child(_muted("A new career rewinds the opening world: who is on the grid, which factories badge it, and how fat the TV check is."))
-	var era_shops := {"1970s": 8, "1980s": 9, "pinnacle": 10, "beyond": 12}
-	for book in ["1970s", "1980s", "pinnacle", "beyond"]:
+	center_body.add_child(_muted("A new career rewinds the opening world: who is on the grid, which factories badge it, and how the winter book starts."))
+	var era_rows: Array = _as_array(_as_dict(snapshot.get("settings", {})).get("era_books", []))
+	if era_rows.is_empty():
+		era_rows = [
+			{"id": "1970s", "label": "1970s Winston Cup", "shops": 40},
+			{"id": "1980s", "label": "1980s Winston Cup", "shops": 40},
+			{"id": "pinnacle", "label": "Pinnacle (late '80s–mid '90s)", "shops": 40},
+		]
+	for row in era_rows:
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var book := str(row.get("id", ""))
+		if book == "":
+			continue
 		var era_button := Button.new()
 		var mark := "●" if book == era_book else "○"
-		era_button.text = "%s  %s  (%s shops)" % [mark, book, str(era_shops.get(book, 10))]
+		era_button.text = "%s  %s  (%s cars)" % [mark, str(row.get("label", book)), str(_as_int(row.get("shops", 10)))]
 		era_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		era_button.pressed.connect(_on_era_book.bind(book))
 		center_body.add_child(era_button)
@@ -1930,9 +2099,21 @@ func _fill_recap_card() -> void:
 		center_body.add_child(_muted("Winner: %s" % winner))
 	if str(recap.get("pole", "")) != "":
 		center_body.add_child(_muted("Pole: %s" % str(recap.get("pole", ""))))
+	if recap.get("tv_rating", null) != null:
+		center_body.add_child(_muted("TV rating: %s" % str(_as_int(recap.get("tv_rating", 0)))))
+	if recap.get("gate_attendance", null) != null:
+		center_body.add_child(_muted("Gate: %s  ·  fill %s%%" % [
+			_comma(recap.get("gate_attendance", 0)),
+			str(_as_int(recap.get("gate_fill", 0))),
+		]))
 	if recap.get("cautions") != null:
-		center_body.add_child(_muted("Cautions: %s" % str(_as_int(recap.get("cautions", 0)))))
+		center_body.add_child(_muted("Cautions: %s  ·  wrecks: %s" % [
+			str(_as_int(recap.get("cautions", 0))),
+			str(_as_int(recap.get("wrecks", 0))),
+		]))
 		print("RECAP_CAUTIONS=", str(_as_int(recap.get("cautions", 0))))
+	elif _as_int(recap.get("wrecks", 0)) > 0:
+		center_body.add_child(_muted("Wrecks: %s" % str(_as_int(recap.get("wrecks", 0)))))
 	if str(recap.get("weather", "")) != "":
 		center_body.add_child(_muted("Weather: %s" % str(recap.get("weather", ""))))
 	var qualifying := _as_array(recap.get("qualifying", []))
@@ -1960,8 +2141,6 @@ func _fill_recap_card() -> void:
 	print("RECAP_INVESTIGATIONS=", str(probes.size()))
 	if str(recap.get("pole", "")) != "":
 		print("RECAP_POLE=", str(recap.get("pole", "")))
-	if _as_int(recap.get("wrecks", 0)) > 0:
-		center_body.add_child(_muted("Wrecks: %s" % str(_as_int(recap.get("wrecks", 0)))))
 	for row in probes:
 		if typeof(row) != TYPE_DICTIONARY:
 			continue

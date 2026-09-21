@@ -3359,7 +3359,7 @@ def board_confidence_event(season_number, security):
     }
 
 
-TEAM_FIELD_MAX = 12
+TEAM_FIELD_MAX = 40
 TEAM_FIELD_MIN = 6
 
 

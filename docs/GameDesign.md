@@ -2,42 +2,56 @@
 
 ## Vision
 
-Create the deepest stock car league management simulation ever built.
+Run the sanctioning body of a high-level stock car series.
 
-The player does not drive.
+You are the lead commissioner. You do not drive. You do not own a shop.
 
-The player runs the league.
+This version is Winston Cup in the seventies, eighties, and nineties:
+a current Cup roster, a weekly calendar, and a winter book you write —
+which factories get the aero edge, which coupes are legal, how the
+superspeedways run.
+
+## This version (0.6.0-cup)
+
+The desk is the job. Left rail: Dashboard, Mail, Standings, Schedule,
+Reports, Entries, Drivers, Treasury, Television, Sponsors, Rulebook,
+History, Settings. Advance a week at a time. Forty Cup cars. Forty
+named drivers. One driver per entry. Hearings that belong to a league
+office (rules, safety, owner and driver complaints, rivalries) arrive
+as mail. Reports is the race file: attendance, TV, wrecks, driver
+form. The winter book you write moves those numbers.
+
+Parked off this desk until players ask: prospect pool and development
+series, owner/driver councils, board politics, charter expansion,
+Hall of Fame, multi-car team organizations, and the Beyond era. Those
+systems still live in the sim. They are not the game you sit down to
+play.
 
 ## Player Fantasy
 
 • Commissioner
 • League President
 • Competition Director
-• Business Executive
 
 There is no team-owner seat. There is no GM seat. There will not be one
-later. Named shop owners still exist as **NPCs** (councils, pressure,
-charters). The player never becomes them.
+later. Named shop owners still exist as **NPCs**. The player never
+becomes them.
 
 ## Core Gameplay
 
-Build the schedule
+Write the winter book
 
 ↓
 
-Run races
+Advance one week
 
 ↓
 
-Handle incidents
+Read the mail and rule on the garage
 
 ↓
 
-Issue penalties
-
-↓
-
-Grow the league
+Inspect the Cup field, reports, and standings
 
 ↓
 
@@ -89,12 +103,13 @@ prestige, packed short tracks and superspeedways, **Aero Wars** (Ford vs GM
 coupes, Chrysler already gone unless you invite them back), and a
 commissioner who can still feel the garage.
 
-The sim's **systems** are the full modern commissioner model (TV, sponsors,
-board, manufacturers, feeder, hearings). A career **rewinds** that model
-into the chosen era. You are not locked to one frozen year. You start in an
-era book, then live forward, the way Out of the Park starts in 1969 or 1994,
-Front Office Football starts in a given season, and Baseball Mogul starts
-a league year and lets you play it.
+The sim's **systems** include the full commissioner model (TV, sponsors,
+board, manufacturers, feeder, hearings). **This version's desk** shows
+the forty-car Cup, the winter book, the weekly calendar, Reports, and
+the commercial books (treasury, television, sponsors). A career
+**rewinds** the model into 1970s, 1980s, or pinnacle Winston Cup.
+You start in an era book, then live forward, the way Out of the Park
+starts in 1969 or 1994.
 
 ### Era books and settings
 
@@ -114,11 +129,9 @@ presets:
   meant to inhabit. Ford vs GM two-door coupes, restrictor plates at the
   two superspeedways, and a commissioner who can still rewrite the package
   track by track.
-- **Beyond** — settings to push past that peak (later rules, bigger
-  commercial load, tighter templates, custom sliders) so the same
-  commissioner brain can run “what if this office kept going” without
-  abandoning the Winston Cup soul. **Days 127–133** make that book a
-  real opening world, not only a label.
+- **Beyond** — parked in this version. Settings to push past the
+  pinnacle (later rules, bigger commercial load) wait on player
+  feedback. The same commissioner brain can still run that book later.
 
 Those books are configuration, not a second game. Same desk, same weekly
 Advance, same hearings. The era changes the world you inherit: schedule
@@ -386,9 +399,12 @@ Generated rookies receive:
 
 Retired drivers remain in career history and retain their final statistics.
 
-### Prospect Pool
+### Prospect Pool (parked off the desk)
 
-Named drivers exist **off the premier grid**. They race Super Lates, Late Models, Modifieds, dirt late models, or touring series and wait in a talent book with a scouting **readiness** grade. Those names fill the **National Development Series**, an eight-race feeder championship with its own calendar, points, and champion. The commissioner can read the pool and the feeder standings. After the feeder season, waiting drivers **progress**: they age a year and their readiness (and a little raw speed) moves with how they finished. A premier-ready prospect (readiness 80+) earns the next open premier seat when a driver retires, instead of a generated rookie. The graduate keeps their pathway as origin, signs a rookie deal, and a new name refills the waiting book. If nobody is ready, a generated rookie still fills the seat. A thin pool raises a dashboard alert. An empty pool leaves the feeder with no field. The book persists across seasons and saves.
+Named drivers exist **off the premier grid** in the sim. This version of
+the office does not show a prospect book. The desk is the current Cup
+roster. Promotion still fills a retired seat behind the scenes so the
+grid stays full.
 
 ### Development Series
 
@@ -842,36 +858,24 @@ Loaded careers and a new season keep the same league-health numbers. Expired dri
 
 `godot/` is a Godot 4.4 office desk. The layout is a commissioner office:
 left navigation, a status bar with Advance, a mail pane, and a gated
-checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `play_ui.bat`) writes `godot/data/ui_snapshot.json` and opens the editor binary when `GODOT_BIN` or `godot` is on PATH. `play_ui` Continues `saves/office.json` when that slot exists. Testers unpack `dist/stock-car-commissioner-0.4.0-aero.zip` (`python3 prototype/package_alpha.py`) and run the launchers; Git is not required. Python 3.10+ is required. Godot 4.4 is optional. See `PLAYTEST.md` and `KNOWN_ISSUES.md`.
+checklist. Python still owns the career world. Main menu item 7 (or `python3 prototype/run_ui.py`, `./play_ui.sh`, or Windows `Double-click to play.bat`) writes `godot/data/ui_snapshot.json` and opens the editor. On Windows the bat downloads Godot 4.4 into `tools/godot` on first play. `play_ui` Continues `saves/office.json` when that slot exists. Testers unpack `dist/stock-car-commissioner-0.6.0-cup.zip` (`python3 prototype/package_alpha.py`) and double-click the launcher; Git is not required. See `PLAYTEST.md` and `KNOWN_ISSUES.md`.
 
 The office opens on series mail. Mail is a **live inbox**: the queued
-hearing sits as a letter from the Competition Committee (or Board, Owner
-Council, garage, and so on). Dashboard alerts **arrive** as league-office
-memos when the situation first appears; they stay read after Advance
-instead of rebuilding unread every snapshot. Weekend headlines land as press clippings. The center pane
-shows the list and the open letter. Hearing letters display choices;
-picking a ruling writes it back to the career (same outcome engine as
-the terminal hearings). The hearing leaves the inbox once it is resolved.
-Visiting Dashboard, Standings,
-Teams, Television, Drivers, Rulebook, Board, and Mail fills the
-checklist. Advance stays locked until that tour is done, then the first
-Advance opens the hearing in the inbox if it is still pending. A ruling
-from Mail at any time also counts. The next Advance **runs a week**:
-preseason becomes the opening race weekend, then each Advance sims the
-next Cup race and drops a Race Control recap (plus press clippings) in
-Mail. **Standings** is a ranked Cup table. **Schedule** marks DONE and
-NEXT weekends. Both screens show a last-weekend recap card (winner,
-pole, cautions, qualifying, podium, wrecks, and any investigation). **Teams**, **Drivers**, and **Prospects**
-inspect the paddock: **ten Cup shops and a twenty-car grid**. Click a
-shop or a driver for a full card (roster, morale, trust, career stats)
-without leaving Teams or Drivers. Shop cards still show owner and
-factory; the National Development Series pool sits on Prospects. The
-charter can grow to twelve teams; six is the floor. Championship points
-and purse shares pad past P6 so a full field still scores and gets paid.
-Silver Creek, Lakeside, and Prairie wait outside for a charter.
-**Treasury**, **Television**, and **Sponsors** show the sanctioning-body
-books: cash, naming rights, the TV deal, last rating, and shop deals.
-**Rulebook** lists the live Cup policies and the Aero Wars winter book:
+hearing sits as a letter from the Competition Committee (or Safety,
+an owner's office, the garage steward). Dashboard alerts **arrive** as
+league-office memos. Weekend headlines land as press clippings.
+Hearing letters display choices; picking a ruling writes it back to the
+career. Visiting Dashboard, Standings, Entries, Rulebook, Television, and
+Mail fills the checklist. Advance stays locked until that tour is done.
+The next Advance **runs a week**. **Standings** is a ranked Cup table
+with 16-bit car portraits, wins, average finish, and DNFs.
+**Schedule** marks DONE and NEXT weekends. **Reports** is the race file
+(TV, gate, wrecks, driver form). **Entries** and **Drivers** inspect
+the forty-car Cup — one driver per entry — with the homologated coupe
+on the row. **Treasury**, **Television**, and **Sponsors** are the
+commercial books. This version does not show Prospects, Board, or Hall
+of Fame.
+**Rulebook** is the Aero Wars winter book:
 homologated bodies, per-track kits, named-venue plate overrides (this
 oval, not every superspeedway), homologation count (200 / 500 /
 per-dealer), wheelbase class (110-inch downsized, 115-inch

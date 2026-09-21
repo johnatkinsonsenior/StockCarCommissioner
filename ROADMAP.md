@@ -3,28 +3,41 @@
 Version-controlled progress tracker. Mirrors feature status in
 [`docs/Backlog.md`](docs/Backlog.md).
 
-- **Primary goal:** a deep, replayable stock car *commissioner* simulation.
-  The player runs the sanctioning body. There is no team-owner mode.
-- **Era and look:** default book is the **pinnacle** Winston Cup (late
-  ’80s–early/mid ’90s). Also runnable: 1970s, 1980s, and settings to push
-  **beyond** that peak. Crimson, gold, and white. 16-bit sports-sim desk.
-- **Aero Wars:** homologated two-door coupes (Ford / GM / Chrysler
-  families) with strengths and holes per track type; the commissioner
-  writes series-wide body rules and per-track packages, and can run a
-  custom Winston Cup.
-- **Desk flow:** commissioner office layout (nav, mail, checklist,
-  Advance). Take the best of **OOTP** (era start, inspectable world, news,
-  history), **Front Office Football** (weekly cadence between events), and
-  **Baseball Mogul** (readable reports, a season you can finish).
-- **Calendar:** a season and an offseason, Advanced **week by week** (race
-  week, off week, offseason week). Godot is the office; Python simulates.
-- **Working method:** each day ends with a working build, a quick test, and a
-  Git commit.
+- **This version (0.6.0-cup):** you sit as **lead commissioner** of a
+  high-level stock car series in the Winston Cup years (1970s / 1980s /
+  pinnacle late-’80s–mid-’90s). **Forty Cup cars, forty named drivers,
+  one driver per entry.** Weekly Advance. The winter book (Ford,
+  Pontiac, Plymouth, Chevrolet and the rest — homologated coupes, aero
+  edges, plates). Mail, standings, entries, drivers, rulebook. Reports
+  (TV, gate, wrecks, driver form). Treasury, television, sponsors.
+  That is the game.
+- **Primary goal:** a stock car *commissioner* simulation in the same
+  family as **Out of the Park Baseball**, **Front Office Football**, and
+  **Baseball Mogul** — league office, not franchise owner. There is no
+  team-owner mode. Steam shots should look like those games: dense
+  tables, box scores, financials — not chrome alone.
+- **Parked for this build:** prospect pool / development series, owner
+  and driver councils, board politics, charter expansion, Hall of Fame,
+  multi-car team organizations, and the **Beyond** era picker. Those
+  systems still exist in the sim; they are off the desk until player
+  feedback says to bring them back.
+- **Kept / restored:** 16-bit Winston Cup chrome and car portraits on
+  the grid, weekly cadence, era start, writable Aero Wars book, Cup
+  entries and drivers, hearings that belong to a sanctioning body
+  (rules, safety, garage complaints, rivalries), TV / sponsors /
+  treasury as commissioner work, analytics that tie the winter book to
+  ratings and attendance.
+- **Desk flow:** commissioner office (nav, mail, checklist, Advance).
+  Godot is the office; Python simulates.
+- **Working method:** each day ends with a working build, a quick test,
+  and a Git commit.
 
-**Current position:** Days 1–126 complete. Next coding day:
-**Day 127 — Beyond opening world**.
+**Current position:** Days 1–131 complete. **Day 131 — Cup analytics
+desk** is the current build. Era 7 (Beyond) stays parked. Multi-car
+teams and Era 8 density (sortable reports, reopenable race file) wait
+on playtest feedback.
 
-Legend: `[x]` done · `[ ]` not started · `[~]` in progress
+Legend: `[x]` done · `[ ]` not started · `[~]` in progress · `[p]` parked
 
 ## Week 1 — Core Racing Prototype
 - [x] Day 1 — Project setup (repo, folders, GDD, backlog, README)
@@ -183,25 +196,25 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 | 114 | Aero Wars | ✅ Done |
 | 122 | Kit Politics | ✅ Done |
 | 126 | Playable Aero Wars | ✅ Done |
-| 133 | Beyond the Peak | ⬜ Pending |
-| 140 | League-Office Density | ⬜ Pending |
+| 127 | Commissioner Basics | ✅ Done |
+| 128 | Steam screenshot pack | ✅ Done |
+| 133 | Beyond the Peak | ⏸ Parked |
+| 140 | League-Office Density | ⏸ Parked |
 
 ## Post-Alpha — Commissioner Office
 
-The 90-day plan proved the sim. This era turns it into a Winston Cup
-commissioner desk: the **pinnacle** late-’80s–mid-’90s book by default,
-with 1970s / 1980s / beyond as settings; crimson, gold, and white; 16-bit
-sports-sim chrome; commissioner-office layout; OOTP era start and
-inspection; Front Office Football weeks; Baseball Mogul report density;
-**Aero Wars** as the factory story the office actually manages.
+The 90-day plan proved the sim. Post-alpha built a Winston Cup
+commissioner desk. **This version strips that desk back to the job:**
+lead commissioner, current Cup roster, weekly Advance, winter book.
+Politics, young drivers, and Beyond wait on player feedback.
 
 **Product lock:** commissioner only. Shop owners are NPCs. There is no
 team-owner career, now or later.
 
-Eras 5–8 follow product order: **deepen Aero Wars into politics**,
-**playtest that office**, **push Beyond**, then **make the desk as dense
-and weekly as the design peers**. Do not add a franchise mode. From Day
-117 on, new desk screens prefer reports over dump lists.
+This version **stops after the playable Aero Wars office** and strips
+the desk to commissioner basics. Kit politics, prospects, councils,
+and Beyond stay in the sim but off the rail. Player feedback decides
+what comes back. Do not add a franchise mode.
 
 ### Era 1 — The Desk
 - [x] Day 91 — Commissioner office shell (sidebar, status bar, Advance, mail, checklist)
@@ -287,37 +300,56 @@ unpack it and run a career before the office grows another system.
 > sit at the desk, and run their own Winston Cup — legalize specials, pull
 > plates, invite Chrysler — without Git. ✅
 
+### Era — Commissioner Cup desk (this version)
+Re-evaluate from Day 1 through Day 126. Keep the job: lead commissioner
+of a Winston Cup-style series. Hide politics and prospects. Restore the
+commissioner business books. Fill a forty-car Cup. Put the race file on
+the desk.
+
+- [x] Day 127 — Strip the desk: Cup roster, weekly Advance, winter book.
+  No prospect page, no council/board/HOF rail, no Beyond picker.
+  Hearings stay rules, safety, garage complaints, rivalries.
+- [x] Day 128 — Steam screenshot pack of the stripped office and playtest
+  copy aimed at first public interest.
+- [x] Day 129 — Restore Treasury, Television, Sponsors. Forty independent
+  Cup entries, forty named drivers, one driver per car. 16-bit car
+  portraits on Standings, Entries, and Drivers. Multi-car orgs later.
+- [x] Day 130 — Reports: attendance, TV, wrecks, driver form. Winter-book
+  specials and plates swing those numbers (Baseball Mogul-style).
+- [x] Day 131 — Steam shots in OOTP / Mogul report style; current bug list.
+
+> **Milestone — Day 131 Commissioner Cup desk:** forty cars, the winter
+> book, TV and the gate, and a race file the commissioner can read.
+> Players tell us whether to bring back multi-car shops, prospects, or
+> Beyond. ✅
+
 ### Era 7 — Beyond the peak
-Same commissioner brain, a later inherited world. Not a second game.
-Not a franchise.
+Parked. Same commissioner brain, a later inherited world — when players
+ask for it. Not a second game. Not a franchise.
 
-- [ ] Day 127 — Beyond opening world: fatter commercial load, louder board
-- [ ] Day 128 — Tighter default templates in Beyond (identity remains a commissioner write)
-- [ ] Day 129 — Four-door street car raced as a coupe (Taurus analog) only if allowed
-- [ ] Day 130 — Custom sliders persist on a Beyond career (inherited, not frozen)
-- [ ] Day 131 — Later-era garage, media, and schedule flavor
-- [ ] Day 132 — Decade balance pass on the later book
-- [ ] Day 133 — Playable Beyond career on the same desk
+- [p] Day 127 — Beyond opening world: fatter commercial load, louder board
+- [p] Day 128 — Tighter default templates in Beyond (identity remains a commissioner write)
+- [p] Day 129 — Four-door street car raced as a coupe (Taurus analog) only if allowed
+- [p] Day 130 — Custom sliders persist on a Beyond career (inherited, not frozen)
+- [p] Day 131 — Later-era garage, media, and schedule flavor
+- [p] Day 132 — Decade balance pass on the later book
+- [p] Day 133 — Playable Beyond career on the same desk
 
-> **Milestone — Day 133 Beyond the Peak:** a new career can start past the
-> pinnacle Winston Cup — tighter templates, heavier commerce, opt-in
-> four-door-as-coupe — without abandoning the office, the weekly Advance,
-> or the Aero Wars book.
+> **Milestone — Day 133 Beyond the Peak:** parked until this basics desk
+> has player feedback.
 
 ### Era 8 — League-office density
-This is the OOTP / Front Office Football / Baseball Mogul bar. The sim
-already has the world. The desk still shows too much of it as short
-lists. Finish kit politics and a playtest before this era; do not skip
-it for a team-owner mode that will not exist.
+Parked. The OOTP / Front Office Football / Baseball Mogul bar for
+reports, race files, and a season you can finish at Mogul speed.
+Do not skip the basics desk for a team-owner mode that will not exist.
 
-- [ ] Day 134 — Sortable report screens (standings, schedule, history, TV)
-- [ ] Day 135 — Race file you can reopen (running order, cautions, investigation)
-- [ ] Day 136 — Weekly desk inbox (this week's work, not a first-weekend tour)
-- [ ] Day 137 — News and records as an encyclopedia (leaders, splits, decades)
-- [ ] Day 138 — Commissioner writes the calendar (add, drop, or rotate a date)
-- [ ] Day 139 — Paddock density pass toward a real Cup field
-- [ ] Day 140 — Playable density career: finish a season at Mogul speed
+- [p] Day 134 — Sortable report screens (standings, schedule, history)
+- [p] Day 135 — Race file you can reopen (running order, cautions, investigation)
+- [p] Day 136 — Weekly desk inbox (this week's work, not a first-weekend tour)
+- [p] Day 137 — News and records as an encyclopedia (leaders, splits, decades)
+- [p] Day 138 — Commissioner writes the calendar (add, drop, or rotate a date)
+- [p] Day 139 — Multi-car team organizations (one owner, two cars)
+- [p] Day 140 — Playable density career: finish a season at Mogul speed
 
-> **Milestone — Day 140 League-Office Density:** a commissioner can Advance
-> a week, read a race file, sort a table, and still care in year ten —
-> without ever sitting in a team owner's chair.
+> **Milestone — Day 140 League-Office Density:** parked. Bring back when
+> the basics loop is fun enough that players want more encyclopedia.

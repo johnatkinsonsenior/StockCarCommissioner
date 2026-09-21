@@ -1,26 +1,46 @@
-# Known issues — Stock Car Commissioner 0.4.0-aero
+# Known issues — Stock Car Commissioner 0.6.0-cup
 
-Playtest zip for the **writable Aero Wars book** (Era 6, Days 123–126).
+Playtest zip for the **commissioner Cup desk** (Days 127–131).
 Read this beside `PLAYTEST.md`. This is a commissioner-only office. There
 is no team-owner or GM career.
 
-## Launch
+## Current bug list
 
-- **Windows:** `play_ui.bat` needs Python 3.10+ *and* Godot 4.4. If the
-  window flashes, run it from Command Prompt — it now pauses on failure.
-  Set `GODOT_BIN` if Godot is not on `PATH` (Downloads of
-  `Godot_v4.4-stable_win64.exe` are searched automatically).
-- **Continue desk:** opening `play_ui` again resumes `saves/office.json`.
-  It does not wipe a custom winter book. **New career** is the rewind.
+### Launch and packaging
+
+- **Windows:** unpack the zip and double-click **Double-click to play.bat**.
+  First launch downloads a private Python 3.12 and Godot 4.4 into `tools/`
+  next to that file. The Microsoft Store `python.exe` shortcut is skipped
+  on purpose — it cannot run the office and used to make the window flash
+  closed. You need internet the first time. `play_ui.bat` is the same
+  launcher.
 - Git is not required. Export templates are not required.
 - Headless Linux (no `DISPLAY`) opens Godot without a window and quits
   after a short tour. That is expected on a cloud box, not on a desktop.
+- The Godot window title may append `(DEBUG)` because the office runs
+  the editor binary, not an exported release. Cosmetic.
 
-## Winter book
+### Desk chrome
+
+- **Continue desk** opening the office again resumes `saves/office.json`.
+  It does not wipe a custom winter book. **New career** is the rewind.
+- Mail badge counts unread letters. Opening a letter marks it read in
+  this session; the JSON snapshot still treats a fresh load as unread
+  until the letter is opened again.
+- Standings before the first Advance show 0 points, 0 wins, and avg
+  finish as —. That is preseason, not a missing table.
+- History is empty until a championship is filed.
+- Reports, Television last rating, and last gate are empty until you
+  Advance a Cup weekend.
+- Forty-row lists (Standings, Entries, Drivers, Sponsors) are long on
+  purpose. Sortable columns are not in this zip.
+
+### Winter book
 
 - **Invite Chrysler** adds Valiant to the factory list. It does **not**
   rebadge Harbor Racing. Harbor stays Vanguard on the pinnacle book.
-  1970s / 1980s / Beyond still badge Harbor Valiant from the era book.
+  1970s / 1980s still badge Harbor Valiant from the era book. Testers
+  often expect the invite to swap Harbor’s badge.
 - **Superbirds** run when aero specials are legal *or* homologate-to-run
   *and* Chrysler is invited so Valiant sits on the factory list. Banned
   specials keep the wing in the garage.
@@ -28,30 +48,40 @@ is no team-owner or GM career.
   (Thunder Valley, Atlantic Speedway, Coastal Superspeedway) without
   plating every superspeedway.
 - **New career** rewinds the winter book to that era's inherited defaults.
-  A custom Superbird / no-plate / Chrysler book lives in the save slot you
-  wrote. **Load** restores it, including Valiant on the roster.
-- Balance simulation (main menu item 6) does not rewrite the winter book.
-  Factory and kit lobby mail still arrive; the auto-commissioner holds.
+  Load restores a custom book you saved.
 
-## Meters and career
+### Simulation / analytics
 
-- Legal specials raise fan interest and controversy. That is the Aero Wars
-  trade. Watch controversy if you leave Superbirds legal for a decade.
-- Win on Sunday is a health line on Dashboard, Board, and Rulebook — not
-  flavor text. It stays quiet until a Cup race has a winner.
-- History is empty until a championship is filed. Hall of Fame hangs
-  retirees who won a title, 15 races, or 4,000 points.
+- Legal specials raise TV, gate, and wreck risk. Banned specials keep
+  the field even. Open superspeedways lift ratings and the wreck book;
+  plates pack the show and cap it. The swing is visible on Reports and
+  Television. It is not a full Baseball Mogul demand model yet — no
+  per-track attendance history chart, no sortable splits.
+- A 40-car field scales incident chance so a weekend does not become a
+  40-car wreckfest every week. Big packs still happen; they are rarer
+  than a naive 40× scale.
+- The annual TV and commercial checks post later in the career loop.
+  Treasury can read $0 in week 1 even while Television shows a live
+  rights deal. That is cash on hand, not unsigned rights.
+- Load used to restaff every shop to two drivers, doubling the Cup to
+  80 cars. That is fixed; one driver per entry. An old `office.json`
+  from before the fix should be replaced with **New career**.
+- Win on Sunday still prints on Dashboard and Rulebook after a Cup race
+  has a winner.
 
-## Not in this zip (later eras)
+### Not in this zip (parked)
 
-- **Beyond** four-door-as-coupe (Taurus analog) is Era 7.
-- Sortable reports, a reopenable race file, and a weekly work inbox are
-  Era 8 (league-office density).
+- Prospect pool, development series, councils, board, Hall of Fame,
+  Beyond era, four-door-as-coupe.
+- Multi-car team organizations (one owner, two cars). This grid is
+  forty independent entries. Multi-car shops return on the roadmap.
+- Sortable report columns and a reopenable full race file (running
+  order, lap-by-lap). Reports is the first race-file page.
 - There will not be a franchise / team-owner mode.
 
 ## How this zip was checked
 
-`python3 prototype/playtest_aero.py` runs the writable-book loop, a
-save/load plus era-rewind pass, and a twelve-week tester career
-(meters in range, Superbirds still legal, plates still pulled, Harbor
-still Vanguard).
+`python3 prototype/test_basics_desk.py` asserts the Cup rail (Reports,
+Treasury, Television, Sponsors), forty unique entries and drivers,
+portraits, era clamp, and a race log after Advance.
+`python3 prototype/playtest_aero.py` still runs the writable-book loop.

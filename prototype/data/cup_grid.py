@@ -1,15 +1,17 @@
 """Premier Cup shops and seats for a full-sized paddock.
 
-Day 105 opens a 10-team / 20-driver charter. Day 112 selects a subset
-from this book when an era rewinds the same commissioner model.
+This version opens a 40-car Cup: one driver, one entry. Multi-car
+team organizations are a later feature. Day 112 still selects a
+subset when an older era book wants a smaller inherited grid.
 """
 
 from game.models import Driver, Owner, Team
 
-PINNACLE_TEAM_COUNT = 10
-PINNACLE_DRIVER_COUNT = 20
+PINNACLE_TEAM_COUNT = 40
+PINNACLE_DRIVER_COUNT = 40
 BEYOND_TEAM_COUNT = 12
 BEYOND_DRIVER_COUNT = 24
+CUP_ENTRY_COUNT = 40
 
 
 def _shop(
@@ -77,7 +79,13 @@ def _seat(
 
 
 def premier_teams():
-    """Return the full 12-shop book; era helpers slice the opening charter."""
+    """Return the 40 single-car Cup entries."""
+
+    return _single_car_shops()
+
+
+def _charter_shops():
+    """Return the original named shops before the 40-car split."""
 
     return [
         _shop(
@@ -264,7 +272,13 @@ def premier_teams():
 
 
 def premier_drivers():
-    """Return the full 24-seat book; era helpers slice the opening grid."""
+    """Return the 40-driver Cup grid, one seat per entry."""
+
+    return _single_car_drivers()
+
+
+def _charter_drivers():
+    """Return the original named seats before the 40-car split."""
 
     return [
         _seat(
@@ -840,6 +854,131 @@ def premier_drivers():
             friendships={"Drew Pell": 66},
         ),
     ]
+
+
+# Second seat of each two-car shop becomes its own Cup entry.
+SECOND_SEAT_SHOPS = {
+    "Ryan Holt": ("Holt Racing", "Vanguard", 80, 76, 82, 4_200_000, "Ray Holt", "Patient", 70, 78, "stability", 64, 70),
+    "Tyler Knox": ("Knox Motors", "Apex", 80, 70, 74, 4_100_000, "Tessa Knox", "Aggressive", 72, 42, "wins", 58, 72),
+    "Austin Vale": ("Vale Racing", "Falcon", 76, 80, 84, 4_050_000, "Irv Vale", "Cost-Cutter", 55, 52, "cost-control", 60, 68),
+    "Elena Vos": ("Vos Racing", "Vanguard", 72, 70, 76, 3_800_000, "Marta Vos", "Hands-On", 60, 60, "prestige", 48, 62),
+    "Nina Brooks": ("Brooks Motorsports", "Apex", 70, 68, 72, 3_750_000, "Dale Brooks", "Hands-On", 66, 56, "wins", 46, 58),
+    "Camille Ortiz": ("Ortiz Racing", "Apex", 76, 72, 70, 4_000_000, "Rafa Ortiz", "Aggressive", 70, 44, "wins", 54, 68),
+    "Harper Quill": ("Quill Racing", "Falcon", 74, 78, 80, 3_900_000, "Mira Quill", "Patient", 58, 68, "stability", 50, 64),
+    "Lila Cho": ("Cho Racing", "Vanguard", 73, 71, 78, 3_700_000, "Han Cho", "Cost-Cutter", 52, 62, "cost-control", 44, 62),
+    "Skye Patton": ("Patton Racing", "Apex", 78, 69, 68, 4_200_000, "Clay Patton", "Hands-On", 76, 42, "prestige", 60, 72),
+    "Gemma Rhodes": ("Rhodes Racing", "Falcon", 70, 75, 77, 3_600_000, "Ivy Rhodes", "Patient", 50, 70, "stability", 42, 60),
+    "Quinn Adler": ("Adler Racing", "Apex", 69, 67, 71, 3_400_000, "Claire Dunne", "Hands-On", 62, 58, "prestige", 40, 56),
+    "Sable York": ("York Motors", "Falcon", 67, 70, 74, 3_350_000, "Otis Graham", "Patient", 58, 66, "stability", 38, 54),
+}
+
+
+def _extra_entry_specs():
+    """Return the remaining single-car entries that fill a 40-car Cup."""
+
+    # shop, maker, car, crew, rel, budget, owner, pers, wealth, patience, priority, prestige, eng
+    # driver, age, speed, cons, agg, personality, rival, pop, salary, years
+    return [
+        ("Cedar Ridge Racing", "Falcon", 71, 74, 78, 3_450_000, "Bess Harlan", "Patient", 54, 68, "stability", 40, 58, "Ike Barrow", 33, 76, 78, 58, "Veteran", "Colt Brennan", 55, 730_000, 1),
+        ("Pine Hollow Racing", "Apex", 74, 68, 70, 3_500_000, "Cal Rourke", "Aggressive", 64, 50, "wins", 44, 62, "Tess McCall", 26, 80, 70, 72, "Aggressive", "Wade Kessler", 64, 760_000, 2),
+        ("Riverbend Speed", "Vanguard", 70, 76, 80, 3_420_000, "June Pellham", "Cost-Cutter", 56, 66, "cost-control", 38, 57, "Bo Langley", 31, 74, 80, 54, "Professional", "Dean Rourke", 58, 720_000, 2),
+        ("High Plains Racing", "Apex", 72, 66, 68, 3_380_000, "Ned Barrow", "Hands-On", 60, 54, "wins", 36, 56, "Rita Shaw", 24, 77, 72, 66, "Rookie", "Nina Brooks", 60, 700_000, 3),
+        ("Bayou Speed", "Falcon", 68, 72, 76, 3_250_000, "Lila March", "Patient", 57, 70, "stability", 35, 55, "Hank Voss", 37, 72, 82, 50, "Veteran", "Nash Whitaker", 52, 690_000, 1),
+        ("Piedmont Racing", "Independent", 67, 68, 72, 3_300_000, "Wes Pell", "Hands-On", 61, 58, "wins", 36, 56, "Maren Cole", 28, 75, 74, 62, "Professional", "Lila Cho", 57, 710_000, 2),
+        ("Prairie Outfitters Racing", "Independent", 66, 70, 74, 3_280_000, "Fern Moss", "Cost-Cutter", 58, 64, "cost-control", 34, 54, "Cy Press", 29, 73, 76, 60, "Popular", "Austin Vale", 68, 705_000, 2),
+        ("Stone Mill Racing", "Vanguard", 69, 73, 77, 3_360_000, "Ora Flint", "Patient", 53, 72, "stability", 37, 56, "Nell Graves", 32, 75, 79, 56, "Veteran", "Brett Lang", 54, 715_000, 1),
+        ("Copperhead Racing", "Apex", 75, 67, 66, 3_520_000, "Rex Dalton", "Aggressive", 68, 46, "wins", 45, 64, "Jonah Pike", 23, 82, 68, 78, "Temperamental", "Mason Reed", 70, 780_000, 2),
+        ("White Oak Motors", "Falcon", 70, 75, 79, 3_410_000, "Mae Lind", "Patient", 55, 69, "stability", 39, 57, "Willa Grant", 27, 76, 77, 58, "Professional", "Gemma Rhodes", 61, 725_000, 2),
+        ("Blackwater Racing", "Vanguard", 68, 71, 75, 3_290_000, "Tom Sutter", "Cost-Cutter", 51, 63, "cost-control", 33, 53, "Rory Quinn", 34, 73, 81, 52, "Veteran", "Ryan Holt", 53, 695_000, 1),
+        ("Sunset Ridge Racing", "Apex", 73, 69, 71, 3_470_000, "Pia Crowe", "Hands-On", 66, 48, "prestige", 43, 61, "Eli Navarro", 25, 79, 71, 64, "Popular", "Victor Ames", 72, 750_000, 3),
+        ("Iron Bridge Racing", "Falcon", 71, 73, 76, 3_390_000, "Gus Pell", "Patient", 54, 67, "stability", 38, 56, "Dara Keene", 30, 77, 75, 61, "Aggressive", "Seth Harlan", 59, 735_000, 2),
+        ("Maple Creek Racing", "Independent", 65, 69, 73, 3_180_000, "Ivy Baines", "Patient", 50, 71, "stability", 32, 52, "Sam Croft", 22, 74, 73, 60, "Rookie", "Tyler Knox", 56, 680_000, 3),
+        ("Red Clay Racing", "Apex", 72, 65, 67, 3_330_000, "Hal Voss", "Aggressive", 63, 49, "wins", 41, 59, "Kit Harlan", 28, 81, 69, 74, "Temperamental", "Derek Lane", 66, 770_000, 2),
+        ("Lake County Speed", "Vanguard", 69, 74, 78, 3_370_000, "Nora Shore", "Patient", 56, 70, "stability", 37, 55, "Pax Ellison", 36, 71, 83, 48, "Veteran", "Drew Pell", 51, 685_000, 1),
+    ]
+
+
+def _shop_from_spec(spec):
+    name, maker, car, crew, rel, budget, owner, pers, wealth, patience, priority, prestige, eng = spec[:13]
+    return _shop(name, maker, car, crew, rel, budget, owner, pers, wealth, patience, priority, prestige, eng)
+
+
+def _single_car_shops():
+    """One Cup entry per car. Multi-car organizations come later."""
+
+    shops = list(_charter_shops())
+    seen = {shop.name for shop in shops}
+    for _driver, spec in SECOND_SEAT_SHOPS.items():
+        shop = _shop_from_spec(spec)
+        if shop.name not in seen:
+            shops.append(shop)
+            seen.add(shop.name)
+    for row in _extra_entry_specs():
+        shop = _shop_from_spec(row[:13])
+        if shop.name not in seen:
+            shops.append(shop)
+            seen.add(shop.name)
+    return shops[:CUP_ENTRY_COUNT]
+
+
+def _single_car_drivers():
+    """One named driver per Cup entry."""
+
+    drivers = list(_charter_drivers())
+    for driver in drivers:
+        remap = SECOND_SEAT_SHOPS.get(driver.name)
+        if remap:
+            driver.team_name = remap[0]
+    seated = {driver.team_name for driver in drivers}
+    for row in _extra_entry_specs():
+        (
+            shop_name,
+            _maker,
+            _car,
+            _crew,
+            _rel,
+            _budget,
+            _owner,
+            _pers,
+            _wealth,
+            _patience,
+            _priority,
+            _prestige,
+            _eng,
+            name,
+            age,
+            speed,
+            consistency,
+            aggression,
+            personality,
+            rival,
+            popularity,
+            salary,
+            years,
+        ) = row
+        if shop_name in seated:
+            continue
+        extra = {}
+        if personality == "Rookie":
+            extra["is_rookie"] = True
+        drivers.append(
+            _seat(
+                name,
+                shop_name,
+                age,
+                speed,
+                consistency,
+                aggression,
+                personality,
+                rival,
+                popularity,
+                salary,
+                years,
+                **extra
+            )
+        )
+        seated.add(shop_name)
+    return drivers[:CUP_ENTRY_COUNT]
 
 
 def waiting_applicants():
