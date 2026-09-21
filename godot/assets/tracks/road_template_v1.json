@@ -1,0 +1,153 @@
+{
+  "camera_bounds": {
+    "height": 800,
+    "width": 1400,
+    "x": 0,
+    "y": 0
+  },
+  "canvas_height": 800,
+  "canvas_width": 1400,
+  "lane_offset_px": 9,
+  "pit_polyline": [
+    [
+      250,
+      590
+    ],
+    [
+      360,
+      605
+    ],
+    [
+      500,
+      615
+    ],
+    [
+      640,
+      612
+    ],
+    [
+      760,
+      600
+    ]
+  ],
+  "racing_polyline": [
+    [
+      260,
+      620
+    ],
+    [
+      430,
+      650
+    ],
+    [
+      690,
+      640
+    ],
+    [
+      930,
+      600
+    ],
+    [
+      1120,
+      520
+    ],
+    [
+      1180,
+      390
+    ],
+    [
+      1100,
+      250
+    ],
+    [
+      900,
+      190
+    ],
+    [
+      680,
+      210
+    ],
+    [
+      500,
+      170
+    ],
+    [
+      330,
+      220
+    ],
+    [
+      220,
+      340
+    ],
+    [
+      210,
+      480
+    ],
+    [
+      240,
+      580
+    ]
+  ],
+  "segment_ranges": [
+    {
+      "end_ppm": 100000,
+      "length_mm": 80000,
+      "path": "RACING",
+      "segment_index": 0,
+      "start_ppm": 0
+    },
+    {
+      "end_ppm": 275000,
+      "length_mm": 140000,
+      "path": "RACING",
+      "segment_index": 1,
+      "start_ppm": 100000
+    },
+    {
+      "end_ppm": 550000,
+      "length_mm": 220000,
+      "path": "RACING",
+      "segment_index": 2,
+      "start_ppm": 275000
+    },
+    {
+      "end_ppm": 725000,
+      "length_mm": 140000,
+      "path": "RACING",
+      "segment_index": 3,
+      "start_ppm": 550000
+    },
+    {
+      "end_ppm": 1000000,
+      "length_mm": 220000,
+      "path": "RACING",
+      "segment_index": 4,
+      "start_ppm": 725000
+    },
+    {
+      "end_ppm": 235294,
+      "length_mm": 40000,
+      "path": "PIT",
+      "segment_index": 5,
+      "start_ppm": 0
+    },
+    {
+      "end_ppm": 764705,
+      "length_mm": 90000,
+      "path": "PIT",
+      "segment_index": 6,
+      "start_ppm": 235294
+    },
+    {
+      "end_ppm": 1000000,
+      "length_mm": 40000,
+      "path": "PIT",
+      "segment_index": 7,
+      "start_ppm": 764705
+    }
+  ],
+  "start_finish_ppm": 0,
+  "track_layout_id": "road_template_v1",
+  "track_type": "ROAD",
+  "version": 1
+}

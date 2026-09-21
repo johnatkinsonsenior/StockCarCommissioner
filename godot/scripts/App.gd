@@ -1135,6 +1135,7 @@ func _fill_reports() -> void:
 					str(item.get("team", "")),
 					str(item.get("value", "")),
 				]))
+	_fill_watchable_block()
 	_fill_unique_stats(_as_dict(book.get("unique", {})))
 	center_body.add_child(_gold_line("Driver form"))
 	for row in _as_array(book.get("leaders", [])):
@@ -1187,6 +1188,7 @@ func _fill_weekend_box() -> void:
 		return
 	print("REPORTS_WEEKEND=", str(item.get("id", item.get("race", ""))))
 	_fill_box_card(item, false)
+	_fill_watch_button(_as_dict(item.get("replay", {})))
 
 
 func _fill_box_card(box: Dictionary, compact: bool) -> void:
@@ -1298,6 +1300,52 @@ func _open_weekend_file(race_id: String) -> void:
 	profile_race = race_id
 	print("OPEN_WEEKEND=", race_id)
 	_show_section("reports")
+
+
+func _watchable() -> Array:
+	return _as_array(_as_dict(snapshot.get("reports", {})).get("watchable", []))
+
+
+func _fill_watchable_block() -> void:
+	var rows := _watchable()
+	print("WATCH_AVAILABLE=", str(rows.size()))
+	if rows.is_empty():
+		return
+	center_body.add_child(_gold_line("WATCH"))
+	center_body.add_child(_muted("Completed V2 races can be watched. The broadcast never reruns the engine."))
+	for row in rows:
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = row
+		var replay: Dictionary = _as_dict(item.get("replay", {}))
+		if not bool(replay.get("available", false)):
+			continue
+		var title := str(item.get("title", item.get("track", "Race")))
+		center_body.add_child(_profile_button(
+			"WATCH  %s  ·  %s cars" % [title, str(_as_int(item.get("field", 0)))],
+			_open_watch.bind(str(replay.get("bundle_path", "")), true)
+		))
+		center_body.add_child(_muted("Replay only. Pause, speed, scrub, and cameras — no pit or strategy commands."))
+
+
+func _fill_watch_button(replay: Dictionary) -> void:
+	if replay.is_empty() or not bool(replay.get("available", false)):
+		return
+	center_body.add_child(_profile_button("WATCH replay", _open_watch.bind(str(replay.get("bundle_path", "")), true)))
+
+
+func _open_watch(bundle_path: String, spoiler_free: bool) -> void:
+	if bundle_path == "":
+		print("WATCH_OPEN=")
+		return
+	print("WATCH_OPEN=", bundle_path)
+	if DisplayServer.get_name() == "headless":
+		return
+	var session := get_node_or_null("/root/ViewerSession")
+	if session:
+		session.configure(bundle_path, spoiler_free)
+		session.return_scene = "res://scenes/Main.tscn"
+	get_tree().change_scene_to_file("res://scenes/race_viewer/RaceViewer.tscn")
 
 
 func _stat_tile(label: String, value: Variant) -> Control:
@@ -2510,6 +2558,7 @@ func _fill_recap_card() -> void:
 			str(probe.get("blame", "")),
 			str(probe.get("confidence", "")),
 		]))
+	_fill_watch_button(_as_dict(recap.get("replay", {})))
 	center_body.add_child(_gold_rule())
 
 

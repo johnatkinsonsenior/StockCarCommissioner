@@ -1,0 +1,1950 @@
+{
+  "career_id": "career_fixture_v2",
+  "conditions": {
+    "alternatives": [
+      {
+        "grip_delta_bp": -600,
+        "temperature_c": 24,
+        "weather": "CLOUDY",
+        "window_end_lap": 20,
+        "window_start_lap": 16
+      }
+    ],
+    "starting": {
+      "grip_bp": 7800,
+      "temperature_c": 28,
+      "weather": "CLEAR"
+    }
+  },
+  "contract_version": "scc-race-v1",
+  "entrants": [
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 78,
+        "short_track_rating": 76
+      },
+      "car_number": "3",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 92,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_cole_hart",
+      "driver_name": "Cole Hart",
+      "entry_id": "entry_pace",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "f5c400",
+      "secondary_color": "101010",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "pace",
+        "restart_aggression": 50
+      },
+      "team_id": "team_hart",
+      "team_name": "Hart Racing"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "21",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 94,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_ray_dunham",
+      "driver_name": "Ray Dunham",
+      "entry_id": "entry_restart",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "c4122e",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "restart",
+        "restart_aggression": 90
+      },
+      "team_id": "team_dunham",
+      "team_name": "Dunham Motor Co."
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 38,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "7",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_bud_keene",
+      "driver_name": "Bud Keene",
+      "entry_id": "entry_engine",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "1f4e8c",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "engine",
+        "restart_aggression": 50
+      },
+      "team_id": "team_keene",
+      "team_name": "Keene Garage"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "18",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 88,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_lane_vickers",
+      "driver_name": "Lane Vickers",
+      "entry_id": "entry_agg_a",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "0a7a32",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 80,
+        "pit_window_preference": "agg_a",
+        "restart_aggression": 50
+      },
+      "team_id": "team_vickers",
+      "team_name": "Vickers Racing"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "88",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 88,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_tex_moran",
+      "driver_name": "Tex Moran",
+      "entry_id": "entry_agg_b",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "7a1f8c",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 80,
+        "pit_window_preference": "agg_b",
+        "restart_aggression": 50
+      },
+      "team_id": "team_moran",
+      "team_name": "Moran Speed"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "12",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 80,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_cal_brooks",
+      "driver_name": "Cal Brooks",
+      "entry_id": "entry_pit_early",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "d46500",
+      "secondary_color": "101010",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "pit_early",
+        "restart_aggression": 50
+      },
+      "team_id": "team_brooks",
+      "team_name": "Brooks & Son"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "43",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 80,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_ned_parrish",
+      "driver_name": "Ned Parrish",
+      "entry_id": "entry_pit_late",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "3d5a80",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "pit_late",
+        "restart_aggression": 50
+      },
+      "team_id": "team_parrish",
+      "team_name": "Parrish Motors"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "9",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_wally_pike",
+      "driver_name": "Wally Pike",
+      "entry_id": "entry_steady",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "5c4033",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "steady",
+        "restart_aggression": 50
+      },
+      "team_id": "team_pike",
+      "team_name": "Pike Racing"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "50",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_01",
+      "driver_name": "Field Car 50",
+      "entry_id": "entry_extra_01",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "2a6f97",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_01",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_01",
+      "team_name": "Independent 50"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "51",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_02",
+      "driver_name": "Field Car 51",
+      "entry_id": "entry_extra_02",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "8c2f13",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_02",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_02",
+      "team_name": "Independent 51"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "52",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_03",
+      "driver_name": "Field Car 52",
+      "entry_id": "entry_extra_03",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "2f3d2c",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_03",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_03",
+      "team_name": "Independent 52"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "53",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_04",
+      "driver_name": "Field Car 53",
+      "entry_id": "entry_extra_04",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "6b4c7a",
+      "secondary_color": "101010",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_04",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_04",
+      "team_name": "Independent 53"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "54",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_05",
+      "driver_name": "Field Car 54",
+      "entry_id": "entry_extra_05",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "114b5f",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_05",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_05",
+      "team_name": "Independent 54"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "55",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_06",
+      "driver_name": "Field Car 55",
+      "entry_id": "entry_extra_06",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "8a1414",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_06",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_06",
+      "team_name": "Independent 55"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "56",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_07",
+      "driver_name": "Field Car 56",
+      "entry_id": "entry_extra_07",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "3f4b3b",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_07",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_07",
+      "team_name": "Independent 56"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "57",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_08",
+      "driver_name": "Field Car 57",
+      "entry_id": "entry_extra_08",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "1b1b3a",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_08",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_08",
+      "team_name": "Independent 57"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "58",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_09",
+      "driver_name": "Field Car 58",
+      "entry_id": "entry_extra_09",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "2a6f97",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_09",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_09",
+      "team_name": "Independent 58"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "59",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_10",
+      "driver_name": "Field Car 59",
+      "entry_id": "entry_extra_10",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "8c2f13",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_10",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_10",
+      "team_name": "Independent 59"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "60",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_11",
+      "driver_name": "Field Car 60",
+      "entry_id": "entry_extra_11",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "2f3d2c",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_11",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_11",
+      "team_name": "Independent 60"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "61",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_12",
+      "driver_name": "Field Car 61",
+      "entry_id": "entry_extra_12",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "6b4c7a",
+      "secondary_color": "101010",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_12",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_12",
+      "team_name": "Independent 61"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "62",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_13",
+      "driver_name": "Field Car 62",
+      "entry_id": "entry_extra_13",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "114b5f",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_13",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_13",
+      "team_name": "Independent 62"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "63",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_14",
+      "driver_name": "Field Car 63",
+      "entry_id": "entry_extra_14",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "8a1414",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_14",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_14",
+      "team_name": "Independent 63"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "64",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_15",
+      "driver_name": "Field Car 64",
+      "entry_id": "entry_extra_15",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "3f4b3b",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_15",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_15",
+      "team_name": "Independent 64"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "65",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_16",
+      "driver_name": "Field Car 65",
+      "entry_id": "entry_extra_16",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "1b1b3a",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_16",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_16",
+      "team_name": "Independent 65"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "66",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_17",
+      "driver_name": "Field Car 66",
+      "entry_id": "entry_extra_17",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "2a6f97",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_17",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_17",
+      "team_name": "Independent 66"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "67",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_18",
+      "driver_name": "Field Car 67",
+      "entry_id": "entry_extra_18",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "8c2f13",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_18",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_18",
+      "team_name": "Independent 67"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "68",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_19",
+      "driver_name": "Field Car 68",
+      "entry_id": "entry_extra_19",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "2f3d2c",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_19",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_19",
+      "team_name": "Independent 68"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "69",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_20",
+      "driver_name": "Field Car 69",
+      "entry_id": "entry_extra_20",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "6b4c7a",
+      "secondary_color": "101010",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_20",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_20",
+      "team_name": "Independent 69"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "70",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_21",
+      "driver_name": "Field Car 70",
+      "entry_id": "entry_extra_21",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "114b5f",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_21",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_21",
+      "team_name": "Independent 70"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "71",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_22",
+      "driver_name": "Field Car 71",
+      "entry_id": "entry_extra_22",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "8a1414",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_22",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_22",
+      "team_name": "Independent 71"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "72",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_23",
+      "driver_name": "Field Car 72",
+      "entry_id": "entry_extra_23",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "3f4b3b",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_23",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_23",
+      "team_name": "Independent 72"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "73",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_24",
+      "driver_name": "Field Car 73",
+      "entry_id": "entry_extra_24",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "1b1b3a",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_24",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_24",
+      "team_name": "Independent 73"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "74",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_25",
+      "driver_name": "Field Car 74",
+      "entry_id": "entry_extra_25",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "2a6f97",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_25",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_25",
+      "team_name": "Independent 74"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "75",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_26",
+      "driver_name": "Field Car 75",
+      "entry_id": "entry_extra_26",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "8c2f13",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_26",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_26",
+      "team_name": "Independent 75"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "76",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_27",
+      "driver_name": "Field Car 76",
+      "entry_id": "entry_extra_27",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "2f3d2c",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_27",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_27",
+      "team_name": "Independent 76"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "77",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_28",
+      "driver_name": "Field Car 77",
+      "entry_id": "entry_extra_28",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "6b4c7a",
+      "secondary_color": "101010",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_28",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_28",
+      "team_name": "Independent 77"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "78",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_29",
+      "driver_name": "Field Car 78",
+      "entry_id": "entry_extra_29",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "114b5f",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_29",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_29",
+      "team_name": "Independent 78"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "79",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_30",
+      "driver_name": "Field Car 79",
+      "entry_id": "entry_extra_30",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_ridge",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "8a1414",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_30",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_30",
+      "team_name": "Independent 79"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "80",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_31",
+      "driver_name": "Field Car 80",
+      "entry_id": "entry_extra_31",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_apex",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "3f4b3b",
+      "secondary_color": "f5c400",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_31",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_31",
+      "team_name": "Independent 80"
+    },
+    {
+      "body_id": "generic_coupe",
+      "car": {
+        "aero_rating": 72,
+        "chassis_rating": 70,
+        "engine_reliability": 74,
+        "horsepower_rating": 70,
+        "short_track_rating": 76
+      },
+      "car_number": "81",
+      "crew": {
+        "over_the_wall": 71,
+        "pit_strategy": 66,
+        "spotting": 68
+      },
+      "driver": {
+        "aggression": 54,
+        "qualifying_pace": 64,
+        "race_craft": 74,
+        "restart_skill": 60,
+        "short_track_rating": 77
+      },
+      "driver_id": "drv_extra_32",
+      "driver_name": "Field Car 81",
+      "entry_id": "entry_extra_32",
+      "fuel_capacity_ml": 68000,
+      "manufacturer_id": "mfr_summit",
+      "package": {
+        "body_id": "generic_coupe",
+        "era_book": "pinnacle",
+        "rules_version": "fixture-1984"
+      },
+      "penalties": [],
+      "primary_color": "1b1b3a",
+      "secondary_color": "f4f4f4",
+      "sprite_id": "stock_car_topdown",
+      "starting_fuel_ml": 68000,
+      "strategy": {
+        "aggression": 50,
+        "pit_window_preference": "extra_32",
+        "restart_aggression": 50
+      },
+      "team_id": "team_extra_32",
+      "team_name": "Independent 81"
+    }
+  ],
+  "race_id": "race_riverside_200_40_s1r1",
+  "race_number": 1,
+  "rules": {
+    "caution_laps_count": true,
+    "field_limit": 40,
+    "finish_under_caution": false,
+    "heat_count": 0,
+    "heat_laps": 0,
+    "heat_transfer_count": 0,
+    "maximum_overtime_attempts": 1,
+    "minimum_fuel_reserve_ml": 1500,
+    "overtime_enabled": false,
+    "overtime_laps_per_attempt": 2,
+    "pit_penalty_policy": "DRIVE_THROUGH",
+    "pit_road_speed_limit_mms": 22000,
+    "qualifying_format": "SINGLE_CAR",
+    "race_format": "SINGLE_FEATURE",
+    "restart_lane_rule": "DOUBLE_FILE",
+    "rules_version": "fixture-1984",
+    "safety_level": 62,
+    "stage_end_laps": [],
+    "technical_package": {
+      "aero_level": 40,
+      "engine_package": "carbureted-v8",
+      "spoiler_code": "standard"
+    },
+    "tire_sets_available": 4
+  },
+  "season_id": "season_fixture_1984",
+  "season_number": 1,
+  "seed": 19840219,
+  "track": {
+    "banking_degrees": 12,
+    "baseline_grip_bp": 7800,
+    "caution_laps": 3,
+    "fuel_stress": 48,
+    "incident_risk": 36,
+    "lap_length_m": 800,
+    "name": "Riverside Motor Speedway",
+    "passing_difficulty": 58,
+    "pit_lane_loss_ms": 24000,
+    "restart_zone_end_segment": 0,
+    "restart_zone_start_segment": 4,
+    "scheduled_laps": 20,
+    "segments": [
+      {
+        "contact_factor": 18,
+        "kind": "START_FINISH",
+        "lane_count": 2,
+        "length_mm": 80000,
+        "passing_factor": 38,
+        "path": "RACING",
+        "segment_index": 0
+      },
+      {
+        "contact_factor": 42,
+        "kind": "CORNER",
+        "lane_count": 2,
+        "length_mm": 140000,
+        "passing_factor": 38,
+        "path": "RACING",
+        "segment_index": 1
+      },
+      {
+        "contact_factor": 18,
+        "kind": "STRAIGHT",
+        "lane_count": 2,
+        "length_mm": 220000,
+        "passing_factor": 55,
+        "path": "RACING",
+        "segment_index": 2
+      },
+      {
+        "contact_factor": 42,
+        "kind": "CORNER",
+        "lane_count": 2,
+        "length_mm": 140000,
+        "passing_factor": 38,
+        "path": "RACING",
+        "segment_index": 3
+      },
+      {
+        "contact_factor": 18,
+        "kind": "STRAIGHT",
+        "lane_count": 2,
+        "length_mm": 220000,
+        "passing_factor": 55,
+        "path": "RACING",
+        "segment_index": 4
+      },
+      {
+        "contact_factor": 8,
+        "joins_racing_segment_index": 4,
+        "kind": "PIT_ENTRY",
+        "lane_count": 1,
+        "length_mm": 40000,
+        "passing_factor": 5,
+        "path": "PIT",
+        "pit_speed_limit_mms": 22000,
+        "segment_index": 5
+      },
+      {
+        "contact_factor": 4,
+        "kind": "PIT_LANE",
+        "lane_count": 1,
+        "length_mm": 90000,
+        "passing_factor": 0,
+        "path": "PIT",
+        "pit_speed_limit_mms": 22000,
+        "segment_index": 6
+      },
+      {
+        "contact_factor": 8,
+        "joins_racing_segment_index": 0,
+        "kind": "PIT_EXIT",
+        "lane_count": 1,
+        "length_mm": 40000,
+        "passing_factor": 8,
+        "path": "PIT",
+        "pit_speed_limit_mms": 22000,
+        "segment_index": 7
+      }
+    ],
+    "surface": "ASPHALT",
+    "tire_stress": 72,
+    "track_id": "trk_riverside_short",
+    "track_type": "SHORT"
+  }
+}

@@ -614,7 +614,7 @@ def compose_ui_snapshot(payload):
             for letter in office.get("inbox") or []
             if letter.get("unread", True)
         )
-    return {
+    snapshot = {
         "game": "Stock Car Commissioner",
         "ui_version": UI_VERSION,
         "engine": "godot-4",
@@ -667,6 +667,9 @@ def compose_ui_snapshot(payload):
         "office": office,
         "saves": list(payload.get("saves") or office.get("saves") or []),
     }
+    from game.race_playback import attach_watchable_races, load_watchable_rows
+
+    return attach_watchable_races(snapshot, load_watchable_rows(godot_project_dir()))
 
 
 def write_ui_snapshot_file(snapshot, path=None):

@@ -5814,6 +5814,44 @@
                 "portrait": "grand_prix_22",
                 "coupe": "1986 Grand Prix 2+2"
             }
+        ],
+        "watchable": [
+            {
+                "caution_count": 1,
+                "field": 8,
+                "id": "race_riverside_200_s1r1",
+                "lead_changes": 2,
+                "replay": {
+                    "available": true,
+                    "bundle_path": "res://data/races/riverside_200_viewer.json",
+                    "duration_ms": 448060,
+                    "race_id": "race_riverside_200_s1r1",
+                    "track_layout_id": "riverside_short_v1"
+                },
+                "title": "Riverside 200",
+                "track": "Riverside Motor Speedway",
+                "type": "SHORT",
+                "weather": "CLOUDY",
+                "winner_entry_id": "entry_pit_early"
+            },
+            {
+                "caution_count": 1,
+                "field": 40,
+                "id": "race_riverside_200_40_s1r1",
+                "lead_changes": 2,
+                "replay": {
+                    "available": true,
+                    "bundle_path": "res://data/races/riverside_200_40_viewer.json",
+                    "duration_ms": 594620,
+                    "race_id": "race_riverside_200_40_s1r1",
+                    "track_layout_id": "riverside_short_v1"
+                },
+                "title": "Riverside 200",
+                "track": "Riverside Motor Speedway",
+                "type": "SHORT",
+                "weather": "CLOUDY",
+                "winner_entry_id": "entry_pit_early"
+            }
         ]
     },
     "rulebook": {
@@ -6604,16 +6642,6 @@
                 "season": 1,
                 "phase": "preseason",
                 "difficulty": "normal"
-            },
-            {
-                "name": "desk",
-                "filename": "desk.json",
-                "path": "/workspace/saves/desk.json",
-                "label": "desk.json \u2014 Season 1 of 3, Regular Season, 40 teams, Normal",
-                "office": false,
-                "season": 1,
-                "phase": "regular-season",
-                "difficulty": "normal"
             }
         ],
         "ticker": [
@@ -6630,16 +6658,6 @@
             "office": true,
             "season": 1,
             "phase": "preseason",
-            "difficulty": "normal"
-        },
-        {
-            "name": "desk",
-            "filename": "desk.json",
-            "path": "/workspace/saves/desk.json",
-            "label": "desk.json \u2014 Season 1 of 3, Regular Season, 40 teams, Normal",
-            "office": false,
-            "season": 1,
-            "phase": "regular-season",
             "difficulty": "normal"
         }
     ]
