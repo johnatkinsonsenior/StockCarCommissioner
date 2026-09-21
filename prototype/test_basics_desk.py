@@ -273,6 +273,23 @@ def main():
     first_race = (raced_reports.get("races") or [{}])[0]
     if not first_race.get("id") or not first_race.get("finish"):
         _fail(errors, "reports weekend file missing finish rows")
+    with redirect_stdout(log):
+        rs.start_office_career(
+            {
+                "difficulty": "normal",
+                "career_seasons": 3,
+                "autosave": "off",
+                "era_book": "pinnacle",
+            }
+        )
+        pinnacle_week = rs.advance_office_week()
+        pinnacle_reports = rs.build_ui_snapshot().get("reports") or {}
+    if not pinnacle_week:
+        _fail(errors, "pinnacle Advance returned nothing")
+    if not (pinnacle_reports.get("box") or {}).get("finish"):
+        _fail(errors, "pinnacle Reports box empty after Advance")
+    if not (pinnacle_reports.get("splits") or []):
+        _fail(errors, "pinnacle Reports missing track splits")
     if recap and recap.get("tv_rating") is None:
         _fail(errors, "weekend recap missing TV rating")
     if int((raced_reports.get("field_size") or 0)) != 40:
